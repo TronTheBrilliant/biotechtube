@@ -2,13 +2,12 @@ import { Nav } from "@/components/Nav";
 import { TickerBar } from "@/components/TickerBar";
 import { IndexCards } from "@/components/IndexCards";
 import { SponsorBar } from "@/components/SponsorBar";
-import { FilterPills } from "@/components/FilterPills";
 import { TrendingStrip } from "@/components/TrendingStrip";
-import { RankingTable } from "@/components/RankingTable";
 import { Footer } from "@/components/Footer";
 import { RecentlyFunded } from "@/components/RecentlyFunded";
 import { PaywallCard } from "@/components/PaywallCard";
 import { UpcomingEvents } from "@/components/UpcomingEvents";
+import { HomePageClient } from "@/components/HomePageClient";
 import { Company, FundingRound, BiotechEvent } from "@/lib/types";
 
 import companiesData from "@/data/companies.json";
@@ -33,36 +32,20 @@ export default function HomePage() {
       {/* Index Cards */}
       <IndexCards />
 
-      {/* Filters */}
-      <div className="px-5 py-3 border-t" style={{ borderColor: "var(--color-border-subtle)" }}>
-        <FilterPills />
-      </div>
-
-      {/* Sponsors bar — above ranking section */}
+      {/* Sponsors bar */}
       <SponsorBar />
 
       {/* Two Column Layout */}
       <div
-        className="flex flex-col lg:grid border-t"
-        style={{
-          gridTemplateColumns: "1fr 260px",
-          borderColor: "var(--color-border-subtle)",
-        }}
+        className="flex flex-col lg:grid"
+        style={{ gridTemplateColumns: "1fr 260px" }}
       >
-        {/* Main Content */}
+        {/* Main Content — Tabs + Filters + Ranking */}
         <div
-          className="px-5 min-w-0 lg:border-r"
+          className="min-w-0 lg:border-r"
           style={{ borderColor: "var(--color-border-subtle)" }}
         >
-          <div className="pt-3 pb-4">
-            <h2
-              className="text-10 uppercase tracking-[0.5px] font-medium mb-2"
-              style={{ color: "var(--color-text-secondary)" }}
-            >
-              GLOBAL BIOTECH RANKING
-            </h2>
-            <RankingTable companies={companies} />
-          </div>
+          <HomePageClient companies={companies} funding={funding} />
         </div>
 
         {/* Sidebar */}
