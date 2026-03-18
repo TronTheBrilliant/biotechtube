@@ -1,0 +1,19 @@
+[
+  {
+    "name": "BIO Europe Spring",
+    "date": "2026-04-07",
+    "endDate": "2026-04-09",
+    "location": "Barcelona, Spain"
+  },
+  {
+    "name": "Nordic Life Science Summit",
+    "date": "2026-04-22",
+    "location": "Oslo, Norway"
+  },
+  {
+    "name": "ASCO Annual Meeting",
+    "date": "2026-05-14",
+    "endDate": "2026-05-16",
+    "location": "Chicago, USA"
+  }
+]

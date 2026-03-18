@@ -1,0 +1,37 @@
+[
+  {
+    "companySlug": "oncoinvent",
+    "type": "Series B",
+    "amount": 18000000,
+    "currency": "USD",
+    "date": "2026-02-10",
+    "leadInvestor": "Investinor",
+    "daysAgo": 36
+  },
+  {
+    "companySlug": "zelluna-immunotherapy",
+    "type": "Series A",
+    "amount": 12000000,
+    "currency": "USD",
+    "date": "2026-02-05",
+    "leadInvestor": "Sarsia Seed",
+    "daysAgo": 41
+  },
+  {
+    "companySlug": "caedo-oncology",
+    "type": "Seed",
+    "amount": 8000000,
+    "currency": "USD",
+    "date": "2026-01-28",
+    "daysAgo": 49
+  },
+  {
+    "companySlug": "lytix-biopharma",
+    "type": "Grant",
+    "amount": 2400000,
+    "currency": "EUR",
+    "date": "2026-01-15",
+    "leadInvestor": "EIC Accelerator",
+    "daysAgo": 62
+  }
+]
