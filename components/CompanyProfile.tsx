@@ -44,80 +44,80 @@ export function CompanyProfileHero({ company }: CompanyProfileProps) {
 
   return (
     <div className="px-5 py-5 border-b">
-      {/* Top row: Avatar + Name + Actions */}
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex items-center gap-3">
-          <div
-            className="w-12 h-12 rounded-lg flex items-center justify-center border"
-            style={{
-              background: "var(--color-bg-secondary)",
-              borderColor: "var(--color-border-subtle)",
-            }}
+      {/* Top row: Avatar + Name */}
+      <div className="flex items-start gap-3 mb-3">
+        <div
+          className="w-12 h-12 rounded-lg flex items-center justify-center border flex-shrink-0"
+          style={{
+            background: "var(--color-bg-secondary)",
+            borderColor: "var(--color-border-subtle)",
+          }}
+        >
+          <span
+            className="text-14 font-medium"
+            style={{ color: "var(--color-text-secondary)" }}
           >
-            <span
-              className="text-14 font-medium"
-              style={{ color: "var(--color-text-secondary)" }}
+            {getInitials(company.name)}
+          </span>
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1
+              className="text-[20px] md:text-[22px] font-medium tracking-tight"
+              style={{ color: "var(--color-text-primary)", letterSpacing: "-0.4px" }}
             >
-              {getInitials(company.name)}
+              {company.name}
+            </h1>
+            {company.ticker && (
+              <span
+                className="text-11 font-medium px-1.5 py-[2px] rounded-sm"
+                style={{
+                  background: "var(--color-bg-secondary)",
+                  color: "var(--color-text-secondary)",
+                  border: "0.5px solid var(--color-border-subtle)",
+                }}
+              >
+                {company.ticker}
+              </span>
+            )}
+          </div>
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-[2px]">
+            <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>
+              {company.city}, {company.country}
+            </span>
+            <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>
+              · Founded {company.founded}
+            </span>
+            <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>
+              · {company.employees} employees
             </span>
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1
-                className="text-[22px] font-medium tracking-tight"
-                style={{ color: "var(--color-text-primary)", letterSpacing: "-0.4px" }}
-              >
-                {company.name}
-              </h1>
-              {company.ticker && (
-                <span
-                  className="text-11 font-medium px-1.5 py-[2px] rounded-sm"
-                  style={{
-                    background: "var(--color-bg-secondary)",
-                    color: "var(--color-text-secondary)",
-                    border: "0.5px solid var(--color-border-subtle)",
-                  }}
-                >
-                  {company.ticker}
-                </span>
-              )}
-            </div>
-            <div className="flex items-center gap-2 mt-[2px]">
-              <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>
-                {company.city}, {company.country}
-              </span>
-              <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>
-                · Founded {company.founded}
-              </span>
-              <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>
-                · {company.employees} employees
-              </span>
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            className="flex items-center gap-1 text-11 font-medium px-3 py-1.5 rounded border transition-colors duration-150"
-            style={{ borderColor: "var(--color-border-medium)", color: "var(--color-text-secondary)" }}
-          >
-            <Star size={12} />
-            Watchlist
-          </button>
-          <a
-            href={`https://${company.website}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 text-11 font-medium px-3 py-1.5 rounded text-white"
-            style={{ background: "var(--color-accent)" }}
-          >
-            Website
-            <ArrowUpRight size={12} />
-          </a>
         </div>
       </div>
 
+      {/* Action buttons */}
+      <div className="flex items-center gap-2 mb-3">
+        <button
+          className="flex items-center gap-1 text-11 font-medium px-3 py-1.5 rounded border transition-colors duration-150"
+          style={{ borderColor: "var(--color-border-medium)", color: "var(--color-text-secondary)" }}
+        >
+          <Star size={12} />
+          Watchlist
+        </button>
+        <a
+          href={`https://${company.website}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1 text-11 font-medium px-3 py-1.5 rounded text-white"
+          style={{ background: "var(--color-accent)" }}
+        >
+          Website
+          <ArrowUpRight size={12} />
+        </a>
+      </div>
+
       {/* Tags */}
-      <div className="flex items-center gap-1.5 mb-3">
+      <div className="flex flex-wrap items-center gap-1.5 mb-3">
         <span
           className="text-10 px-2 py-[3px] rounded-sm border"
           style={{
@@ -165,7 +165,7 @@ export function CompanyProfileHero({ company }: CompanyProfileProps) {
       </div>
 
       {/* Metrics row */}
-      <div className="flex items-center gap-6">
+      <div className="grid grid-cols-2 md:flex md:items-center gap-4 md:gap-6">
         {company.valuation && (
           <div>
             <div
