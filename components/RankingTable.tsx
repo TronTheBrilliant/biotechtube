@@ -45,13 +45,13 @@ export function RankingTable({ companies }: RankingTableProps) {
         style={{ color: "var(--color-text-tertiary)" }}
       >
         <style>{`
-          .ranking-grid { grid-template-columns: 24px 1fr 64px; }
+          .ranking-grid { grid-template-columns: 24px 1fr auto; }
           @media (min-width: 768px) { .ranking-grid { grid-template-columns: 32px 1fr 80px 70px 80px 90px 30px; } }
         `}</style>
         <span className="text-10 uppercase tracking-[0.3px] text-center">#</span>
         <span className="text-10 uppercase tracking-[0.3px]">Company</span>
         <span className="text-10 uppercase tracking-[0.3px] text-right hidden md:block">Valuation</span>
-        <span className="text-10 uppercase tracking-[0.3px] text-right">Stage</span>
+        <span className="text-10 uppercase tracking-[0.3px] text-right md:text-right">Stage</span>
         <span className="text-10 uppercase tracking-[0.3px] text-right hidden md:block">Raised</span>
         <span className="text-10 uppercase tracking-[0.3px] text-right hidden md:block">30d</span>
         <span className="hidden md:block" />
@@ -113,14 +113,48 @@ export function RankingTable({ companies }: RankingTableProps) {
                 </span>
               </div>
               <div className="min-w-0">
-                <div
-                  className="text-13 font-medium truncate"
-                  style={{ color: "var(--color-text-primary)" }}
-                >
-                  {company.name}
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className="text-13 font-medium truncate"
+                    style={{ color: "var(--color-text-primary)" }}
+                  >
+                    {company.name}
+                  </span>
+                  {company.ticker && (
+                    <span
+                      className="text-[9px] font-medium px-1 py-[1px] rounded-sm flex-shrink-0 hidden sm:inline md:hidden"
+                      style={{
+                        background: "var(--color-bg-secondary)",
+                        color: "var(--color-text-tertiary)",
+                        border: "0.5px solid var(--color-border-subtle)",
+                      }}
+                    >
+                      {company.ticker}
+                    </span>
+                  )}
                 </div>
-                <div className="text-10" style={{ color: "var(--color-text-tertiary)" }}>
-                  {company.city}, {company.country}
+                <div className="flex items-center gap-1.5 mt-[1px]">
+                  <span className="text-10" style={{ color: "var(--color-text-tertiary)" }}>
+                    {company.city}, {company.country}
+                  </span>
+                  <span className="text-10 md:hidden" style={{ color: "var(--color-text-tertiary)" }}>·</span>
+                  <span className="text-10 font-medium md:hidden" style={{ color: "var(--color-accent)" }}>
+                    {formatCurrency(company.totalRaised)}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1 mt-[2px] md:hidden">
+                  {company.focus.slice(0, 2).map((f) => (
+                    <span
+                      key={f}
+                      className="text-[9px] px-1.5 py-[1px] rounded-sm"
+                      style={{
+                        background: "var(--color-bg-tertiary)",
+                        color: "var(--color-text-tertiary)",
+                      }}
+                    >
+                      {f}
+                    </span>
+                  ))}
                 </div>
               </div>
             </div>
