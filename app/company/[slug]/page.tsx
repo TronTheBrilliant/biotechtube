@@ -146,7 +146,7 @@ export default function CompanyPage({
 
       {/* Two Column Layout */}
       <div
-        className="grid border-t"
+        className="flex flex-col lg:grid border-t"
         style={{
           gridTemplateColumns: "1fr 260px",
           borderColor: "var(--color-border-subtle)",
@@ -154,7 +154,7 @@ export default function CompanyPage({
       >
         {/* Main Content */}
         <div
-          className="px-5 py-4 min-w-0 border-r"
+          className="px-5 py-4 min-w-0 lg:border-r"
           style={{ borderColor: "var(--color-border-subtle)" }}
         >
           {/* Pipeline Section */}
@@ -232,7 +232,7 @@ export default function CompanyPage({
         </div>
 
         {/* Sidebar */}
-        <div className="w-[260px]">
+        <div className="w-full lg:w-[260px] border-t lg:border-t-0">
           {/* Company Info */}
           <div className="px-3.5 py-3 border-b">
             <h3

@@ -38,7 +38,7 @@ export default function HomePage() {
 
       {/* Two Column Layout */}
       <div
-        className="grid border-t"
+        className="flex flex-col lg:grid border-t"
         style={{
           gridTemplateColumns: "1fr 260px",
           borderColor: "var(--color-border-subtle)",
@@ -46,7 +46,7 @@ export default function HomePage() {
       >
         {/* Main Content */}
         <div
-          className="px-5 min-w-0 border-r"
+          className="px-5 min-w-0 lg:border-r"
           style={{ borderColor: "var(--color-border-subtle)" }}
         >
           <InvestmentChart />
@@ -63,7 +63,7 @@ export default function HomePage() {
         </div>
 
         {/* Sidebar */}
-        <div className="w-[260px]">
+        <div className="w-full lg:w-[260px] border-t lg:border-t-0">
           <RecentlyFunded funding={funding} companies={companies} />
           <div className="p-3.5">
             <PaywallCard />
