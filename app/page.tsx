@@ -1,8 +1,7 @@
+import Link from "next/link";
 import { Nav } from "@/components/Nav";
-import { TickerBar } from "@/components/TickerBar";
 import { IndexCards } from "@/components/IndexCards";
 import { SponsorBar } from "@/components/SponsorBar";
-import { TrendingStrip } from "@/components/TrendingStrip";
 import { Footer } from "@/components/Footer";
 import { RecentlyFunded } from "@/components/RecentlyFunded";
 import { PaywallCard } from "@/components/PaywallCard";
@@ -22,12 +21,54 @@ export default function HomePage() {
   return (
     <div style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
       <Nav />
-      <TickerBar />
 
-      {/* Trending — right below the ticker */}
-      <div className="px-5 pt-2 pb-1">
-        <TrendingStrip companies={companies} />
-      </div>
+      {/* Hero */}
+      <section
+        className="px-5 pt-6 pb-5"
+        style={{ borderBottom: "0.5px solid var(--color-border-subtle)" }}
+      >
+        <div className="max-w-[600px]">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="live-dot" />
+            <span
+              className="text-10 uppercase tracking-[0.5px] font-medium"
+              style={{ color: "var(--color-accent)" }}
+            >
+              Live biotech intelligence
+            </span>
+          </div>
+          <h1
+            className="text-[26px] md:text-[32px] font-medium tracking-tight mb-2"
+            style={{ color: "var(--color-text-primary)", letterSpacing: "-0.6px", lineHeight: 1.15 }}
+          >
+            Track every biotech company, pipeline, and funding round
+          </h1>
+          <p
+            className="text-13 md:text-14 mb-4"
+            style={{ color: "var(--color-text-secondary)", lineHeight: 1.6 }}
+          >
+            14,000+ companies across 58 countries. Real-time funding data,
+            clinical trial tracking, and investment intelligence — built for
+            investors and biotech professionals.
+          </p>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/signup"
+              className="text-12 font-medium px-4 py-2 rounded text-white"
+              style={{ background: "var(--color-accent)" }}
+            >
+              Start free trial
+            </Link>
+            <Link
+              href="/companies"
+              className="text-12 font-medium px-4 py-2 rounded border"
+              style={{ borderColor: "var(--color-border-medium)", color: "var(--color-text-secondary)" }}
+            >
+              Browse companies
+            </Link>
+          </div>
+        </div>
+      </section>
 
       {/* Index Cards */}
       <IndexCards />
