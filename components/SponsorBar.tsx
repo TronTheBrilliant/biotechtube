@@ -3,8 +3,8 @@ export function SponsorBar() {
 
   return (
     <div
-      className="h-[36px] flex items-center px-5 gap-3 border-t border-b"
-      style={{ background: "var(--color-bg-tertiary)" }}
+      className="h-[36px] flex items-center px-5 gap-3 border-t border-b overflow-x-auto"
+      style={{ background: "var(--color-bg-tertiary)", scrollbarWidth: "none" }}
     >
       <span
         className="text-10 whitespace-nowrap"
