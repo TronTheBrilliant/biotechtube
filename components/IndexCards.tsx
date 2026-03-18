@@ -13,7 +13,7 @@ const cardData = [
     value: "4,207",
     change: "+3.2%",
     up: true,
-    href: "/companies",
+    href: "/market",
     data: [40, 42, 38, 44, 46, 43, 48, 50, 47, 52, 55, 53],
   },
   {
