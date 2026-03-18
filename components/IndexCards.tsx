@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   AreaChart,
   Area,
@@ -12,6 +13,7 @@ const cardData = [
     value: "4,207",
     change: "+3.2%",
     up: true,
+    href: "/companies",
     data: [40, 42, 38, 44, 46, 43, 48, 50, 47, 52, 55, 53],
   },
   {
@@ -19,6 +21,7 @@ const cardData = [
     value: "$4.2B",
     change: "+8.3%",
     up: true,
+    href: "/funding",
     data: [20, 24, 22, 28, 32, 30, 35, 33, 38, 42, 40, 44],
   },
   {
@@ -26,6 +29,7 @@ const cardData = [
     value: "3,841",
     change: "+24",
     up: true,
+    href: "/pipeline",
     data: [100, 105, 108, 106, 112, 115, 118, 120, 122, 125, 128, 130],
   },
   {
@@ -33,6 +37,7 @@ const cardData = [
     value: "14,207",
     change: "+127",
     up: true,
+    href: "/companies",
     data: [200, 210, 220, 235, 248, 260, 275, 290, 305, 318, 330, 345],
   },
 ];
@@ -41,9 +46,10 @@ export function IndexCards() {
   return (
     <div className="flex md:grid md:grid-cols-4 gap-2.5 px-5 py-4 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
       {cardData.map((card) => (
-        <div
+        <Link
           key={card.label}
-          className="rounded-md px-3.5 py-3 border min-w-[160px] md:min-w-0 flex-shrink-0 md:flex-shrink"
+          href={card.href}
+          className="rounded-md px-3.5 py-3 border min-w-[160px] md:min-w-0 flex-shrink-0 md:flex-shrink transition-all duration-150 hover:border-[var(--color-border-medium)] hover:shadow-sm"
           style={{
             background: "var(--color-bg-secondary)",
             borderColor: "var(--color-border-subtle)",
@@ -86,7 +92,7 @@ export function IndexCards() {
               </ResponsiveContainer>
             </div>
           </div>
-        </div>
+        </Link>
       ))}
     </div>
   );
