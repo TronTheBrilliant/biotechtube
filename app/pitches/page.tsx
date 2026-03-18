@@ -1,5 +1,7 @@
 import { Metadata } from "next";
+import Link from "next/link";
 import { Nav } from "@/components/Nav";
+import { Footer } from "@/components/Footer";
 import { RecentlyFunded } from "@/components/RecentlyFunded";
 import { PaywallCard } from "@/components/PaywallCard";
 import { Company, FundingRound } from "@/lib/types";
@@ -323,13 +325,14 @@ export default function PitchesPage() {
               ))}
             </div>
 
-            <button
-              className="flex items-center gap-1.5 text-13 font-medium px-4 py-2.5 rounded text-white transition-colors duration-150"
+            <Link
+              href="/submit-pitch"
+              className="inline-flex items-center gap-1.5 text-13 font-medium px-4 py-2.5 rounded text-white transition-colors duration-150"
               style={{ background: "var(--color-accent)" }}
             >
               Submit your pitch
               <ArrowRight size={14} />
-            </button>
+            </Link>
           </section>
         </div>
 
@@ -342,13 +345,7 @@ export default function PitchesPage() {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer
-        className="flex items-center justify-center h-10 border-t text-10"
-        style={{ color: "var(--color-text-tertiary)" }}
-      >
-        BiotechTube &copy; 2026 &middot; Global Biotech Intelligence
-      </footer>
+      <Footer />
     </div>
   );
 }

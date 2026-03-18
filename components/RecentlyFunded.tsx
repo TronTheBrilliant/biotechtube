@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FundingRound, Company } from "@/lib/types";
 import { formatCurrency, formatRelativeTime } from "@/lib/formatting";
 
@@ -19,33 +20,39 @@ interface RecentlyFundedProps {
 }
 
 export function RecentlyFunded({ funding, companies }: RecentlyFundedProps) {
-  const getCompanyName = (slug: string) =>
-    companies.find((c) => c.slug === slug)?.name || slug;
-  const getCompanyCity = (slug: string) =>
-    companies.find((c) => c.slug === slug)?.city || "";
+  const getCompany = (slug: string) => companies.find((c) => c.slug === slug);
+  const getCompanyName = (slug: string) => getCompany(slug)?.name || slug;
+  const getCompanyCity = (slug: string) => getCompany(slug)?.city || "";
 
   return (
     <div>
-      <div className="flex items-center gap-2 px-3.5 py-2.5 border-b">
-        <div className="live-dot" />
-        <span
-          className="text-10 uppercase tracking-[0.5px] font-medium"
-          style={{ color: "var(--color-text-secondary)" }}
+      <div className="flex items-center justify-between px-3.5 py-2.5 border-b">
+        <div className="flex items-center gap-2">
+          <div className="live-dot" />
+          <span
+            className="text-10 uppercase tracking-[0.5px] font-medium"
+            style={{ color: "var(--color-text-secondary)" }}
+          >
+            RECENTLY FUNDED
+          </span>
+        </div>
+        <Link
+          href="/funding"
+          className="text-10"
+          style={{ color: "var(--color-accent)" }}
         >
-          RECENTLY FUNDED
-        </span>
+          View all →
+        </Link>
       </div>
       {funding.map((round, i) => {
         const rc = roundColors[round.type] || roundColors.Seed;
+        const companyExists = !!getCompany(round.companySlug);
         return (
-          <div
+          <Link
             key={i}
-            className="px-3.5 py-[9px] border-b cursor-pointer transition-colors duration-100"
+            href={companyExists ? `/company/${round.companySlug}` : "#"}
+            className="block px-3.5 py-[9px] border-b transition-colors duration-100 hover:bg-[var(--color-bg-secondary)]"
             style={{ borderColor: "var(--color-border-subtle)" }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.background = "var(--color-bg-secondary)")
-            }
-            onMouseLeave={(e) => (e.currentTarget.style.background = "")}
           >
             <div className="flex justify-between items-baseline mb-[2px]">
               <span
@@ -77,7 +84,7 @@ export function RecentlyFunded({ funding, companies }: RecentlyFundedProps) {
             <div className="text-10" style={{ color: "var(--color-text-tertiary)" }}>
               {formatRelativeTime(round.daysAgo || 0)} · {getCompanyCity(round.companySlug)}
             </div>
-          </div>
+          </Link>
         );
       })}
     </div>

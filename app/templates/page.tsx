@@ -1,5 +1,7 @@
 import { Metadata } from "next";
+import Link from "next/link";
 import { Nav } from "@/components/Nav";
+import { Footer } from "@/components/Footer";
 import { ArrowRight, Download, Eye } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -172,13 +174,14 @@ export default function TemplatesPage() {
                         <Eye size={12} />
                         Preview
                       </button>
-                      <button
+                      <Link
+                        href="/template-inquiry"
                         className="flex items-center gap-1 text-11 font-medium px-3 py-1.5 rounded text-white transition-colors duration-150"
                         style={{ background: "var(--color-accent)" }}
                       >
                         <Download size={12} />
                         Get the code
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -244,25 +247,20 @@ export default function TemplatesPage() {
               <p className="text-11 mb-4" style={{ color: "var(--color-text-tertiary)" }}>
                 Full brand identity package (site + logo + animations) from $10,000
               </p>
-              <button
-                className="flex items-center gap-1.5 text-13 font-medium px-4 py-2.5 rounded text-white transition-colors duration-150"
+              <Link
+                href="/template-inquiry"
+                className="inline-flex items-center gap-1.5 text-13 font-medium px-4 py-2.5 rounded text-white transition-colors duration-150"
                 style={{ background: "var(--color-accent)" }}
               >
                 Get in touch
                 <ArrowRight size={14} />
-              </button>
+              </Link>
             </div>
           </div>
         </section>
       </div>
 
-      {/* Footer */}
-      <footer
-        className="flex items-center justify-center h-10 border-t text-10"
-        style={{ color: "var(--color-text-tertiary)" }}
-      >
-        BiotechTube &copy; 2026 &middot; Global Biotech Intelligence
-      </footer>
+      <Footer />
     </div>
   );
 }

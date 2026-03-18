@@ -1,5 +1,7 @@
 import { Metadata } from "next";
+import Link from "next/link";
 import { Nav } from "@/components/Nav";
+import { Footer } from "@/components/Footer";
 import { PaywallCard } from "@/components/PaywallCard";
 import { UpcomingEvents } from "@/components/UpcomingEvents";
 import { BiotechEvent } from "@/lib/types";
@@ -231,8 +233,9 @@ export default function SponsorsPage() {
                         </div>
                       ))}
                     </div>
-                    <button
-                      className="w-full mt-3 py-2 rounded text-12 font-medium border transition-colors duration-150"
+                    <Link
+                      href="/sponsor-inquiry"
+                      className="block w-full mt-3 py-2 rounded text-12 font-medium border transition-colors duration-150 text-center"
                       style={{
                         background: tier.ctaBg,
                         color: tier.ctaText,
@@ -241,7 +244,7 @@ export default function SponsorsPage() {
                       }}
                     >
                       Get started
-                    </button>
+                    </Link>
                   </div>
                 </div>
               ))}
@@ -323,13 +326,7 @@ export default function SponsorsPage() {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer
-        className="flex items-center justify-center h-10 border-t text-10"
-        style={{ color: "var(--color-text-tertiary)" }}
-      >
-        BiotechTube &copy; 2026 &middot; Global Biotech Intelligence
-      </footer>
+      <Footer />
     </div>
   );
 }

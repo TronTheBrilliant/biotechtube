@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Nav } from "@/components/Nav";
+import { Footer } from "@/components/Footer";
 import { CompanyProfileHero } from "@/components/CompanyProfile";
 import { PipelineBar } from "@/components/PipelineBar";
 import { FundingTimeline } from "@/components/FundingTimeline";
@@ -274,13 +275,7 @@ export default function CompanyPage({
         </div>
       </div>
 
-      {/* Footer */}
-      <footer
-        className="flex items-center justify-center h-10 border-t text-10"
-        style={{ color: "var(--color-text-tertiary)" }}
-      >
-        BiotechTube &copy; 2026 &middot; Global Biotech Intelligence
-      </footer>
+      <Footer />
     </div>
   );
 }

@@ -243,12 +243,13 @@ export function RankingTable({ companies }: RankingTableProps) {
         <span className="text-12" style={{ color: "var(--color-text-secondary)" }}>
           Sign up to see all 14,000+ companies
         </span>
-        <span
-          className="text-12 cursor-pointer"
+        <Link
+          href="/signup"
+          className="text-12"
           style={{ color: "var(--color-accent)" }}
         >
           Create free account →
-        </span>
+        </Link>
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Check } from "lucide-react";
 
 export function PaywallCard() {
@@ -64,18 +65,19 @@ export function PaywallCard() {
             </div>
           ))}
         </div>
-        <button
-          className="w-full py-[9px] rounded text-13 font-medium text-white"
+        <Link
+          href="/signup"
+          className="block w-full py-[9px] rounded text-13 font-medium text-white text-center"
           style={{ background: "var(--color-accent)" }}
         >
           Start free trial
-        </button>
+        </Link>
         <div className="text-center mt-2">
           <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>
             Already have an account?{" "}
-            <span className="cursor-pointer" style={{ color: "var(--color-accent)" }}>
+            <Link href="/login" style={{ color: "var(--color-accent)" }}>
               Log in
-            </span>
+            </Link>
           </span>
         </div>
       </div>

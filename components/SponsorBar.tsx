@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export function SponsorBar() {
   const sponsors = ["Investinor", "Nordic Biotech Fund", "Oslo Cancer Cluster"];
 
@@ -27,12 +29,13 @@ export function SponsorBar() {
           </span>
         ))}
       </div>
-      <span
-        className="text-10 whitespace-nowrap ml-auto cursor-pointer"
+      <Link
+        href="/sponsors"
+        className="text-10 whitespace-nowrap ml-auto"
         style={{ color: "var(--color-accent)" }}
       >
         Become a sponsor →
-      </span>
+      </Link>
     </div>
   );
 }

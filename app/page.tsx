@@ -5,8 +5,8 @@ import { SponsorBar } from "@/components/SponsorBar";
 import { SearchBar } from "@/components/SearchBar";
 import { FilterPills } from "@/components/FilterPills";
 import { TrendingStrip } from "@/components/TrendingStrip";
-// import { InvestmentChart } from "@/components/InvestmentChart";
 import { RankingTable } from "@/components/RankingTable";
+import { Footer } from "@/components/Footer";
 import { RecentlyFunded } from "@/components/RecentlyFunded";
 import { PaywallCard } from "@/components/PaywallCard";
 import { UpcomingEvents } from "@/components/UpcomingEvents";
@@ -75,13 +75,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer
-        className="flex items-center justify-center h-10 border-t text-10"
-        style={{ color: "var(--color-text-tertiary)" }}
-      >
-        BiotechTube &copy; 2026 &middot; Global Biotech Intelligence
-      </footer>
+      <Footer />
     </div>
   );
 }

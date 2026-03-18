@@ -1,4 +1,5 @@
-import { ArrowUpRight, Star } from "lucide-react";
+import Link from "next/link";
+import { ArrowUpRight, Star, Shield } from "lucide-react";
 import { Company } from "@/lib/types";
 import { formatCurrency } from "@/lib/formatting";
 
@@ -114,6 +115,14 @@ export function CompanyProfileHero({ company }: CompanyProfileProps) {
           Website
           <ArrowUpRight size={12} />
         </a>
+        <Link
+          href={`/claim/${company.slug}`}
+          className="flex items-center gap-1 text-11 px-3 py-1.5 rounded border transition-colors duration-150"
+          style={{ borderColor: "var(--color-border-subtle)", color: "var(--color-text-tertiary)" }}
+        >
+          <Shield size={11} />
+          Claim
+        </Link>
       </div>
 
       {/* Tags */}
