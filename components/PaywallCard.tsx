@@ -22,7 +22,7 @@ export function PaywallCard() {
         <div className="text-13 font-medium" style={{ color: "#5DCAA5" }}>
           Unlock Full Access
         </div>
-        <div className="text-11" style={{ color: "rgba(93, 202, 165, 0.7)" }}>
+        <div className="text-11" style={{ color: "#5DCAA5" }}>
           See every company. Track every deal.
         </div>
       </div>

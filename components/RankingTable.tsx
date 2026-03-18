@@ -45,14 +45,14 @@ export function RankingTable({ companies }: RankingTableProps) {
         style={{ color: "var(--color-text-tertiary)" }}
       >
         <style>{`
-          .ranking-grid { grid-template-columns: 24px 1fr 60px 60px; }
+          .ranking-grid { grid-template-columns: 24px 1fr 64px; }
           @media (min-width: 768px) { .ranking-grid { grid-template-columns: 32px 1fr 80px 70px 80px 90px 30px; } }
         `}</style>
         <span className="text-10 uppercase tracking-[0.3px] text-center">#</span>
         <span className="text-10 uppercase tracking-[0.3px]">Company</span>
         <span className="text-10 uppercase tracking-[0.3px] text-right hidden md:block">Valuation</span>
         <span className="text-10 uppercase tracking-[0.3px] text-right">Stage</span>
-        <span className="text-10 uppercase tracking-[0.3px] text-right">Raised</span>
+        <span className="text-10 uppercase tracking-[0.3px] text-right hidden md:block">Raised</span>
         <span className="text-10 uppercase tracking-[0.3px] text-right hidden md:block">30d</span>
         <span className="hidden md:block" />
       </div>
@@ -161,7 +161,7 @@ export function RankingTable({ companies }: RankingTableProps) {
               </span>
             </div>
 
-            <div className="text-right">
+            <div className="text-right hidden md:block">
               <span
                 className="text-12 font-medium"
                 style={{ color: "var(--color-accent)" }}

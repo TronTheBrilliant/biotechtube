@@ -4,6 +4,7 @@ import { IndexCards } from "@/components/IndexCards";
 import { SponsorBar } from "@/components/SponsorBar";
 import { SearchBar } from "@/components/SearchBar";
 import { FilterPills } from "@/components/FilterPills";
+import { TrendingStrip } from "@/components/TrendingStrip";
 import { InvestmentChart } from "@/components/InvestmentChart";
 import { RankingTable } from "@/components/RankingTable";
 import { RecentlyFunded } from "@/components/RecentlyFunded";
@@ -30,10 +31,11 @@ export default function HomePage() {
 
       <SponsorBar />
 
-      {/* Search + Filters */}
+      {/* Search + Filters + Trending */}
       <div className="px-5 py-3">
         <SearchBar />
         <FilterPills />
+        <TrendingStrip companies={companies} />
       </div>
 
       {/* Two Column Layout */}

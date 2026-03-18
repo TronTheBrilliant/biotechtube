@@ -68,7 +68,7 @@ export function InvestmentChart() {
               stroke="#1a7a5e"
               strokeWidth={1.5}
               fill="#1a7a5e"
-              fillOpacity={0.08}
+              fillOpacity={0.12}
             />
           </AreaChart>
         </ResponsiveContainer>
