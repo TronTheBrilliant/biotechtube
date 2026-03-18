@@ -29,19 +29,19 @@ export default function HomePage() {
       {/* Hero / Index Cards */}
       <IndexCards />
 
-      <SponsorBar />
-
       {/* Investment Volume Chart (full width, below cards) */}
       <div className="px-5">
         <InvestmentChart />
       </div>
 
-      {/* Search + Filters + Trending */}
+      {/* Trending + Search + Filters */}
       <div className="px-5 py-3 border-t" style={{ borderColor: "var(--color-border-subtle)" }}>
+        <TrendingStrip companies={companies} />
         <SearchBar />
         <FilterPills />
-        <TrendingStrip companies={companies} />
       </div>
+
+      <SponsorBar />
 
       {/* Two Column Layout */}
       <div
