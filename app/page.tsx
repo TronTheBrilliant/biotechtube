@@ -26,19 +26,21 @@ export default function HomePage() {
       <Nav />
       <TickerBar />
 
-      {/* Hero / Index Cards */}
+      {/* Trending — right below the ticker */}
+      <div className="px-5 pt-2 pb-1">
+        <TrendingStrip companies={companies} />
+      </div>
+
+      {/* Index Cards */}
       <IndexCards />
 
-      {/* Investment Volume Chart — hidden for now, may bring back later */}
-      {/* <div className="px-5"><InvestmentChart /></div> */}
-
-      {/* Trending + Search + Filters */}
+      {/* Search + Filters */}
       <div className="px-5 py-3 border-t" style={{ borderColor: "var(--color-border-subtle)" }}>
-        <TrendingStrip companies={companies} />
         <SearchBar />
         <FilterPills />
       </div>
 
+      {/* Sponsors bar — above ranking section */}
       <SponsorBar />
 
       {/* Two Column Layout */}
