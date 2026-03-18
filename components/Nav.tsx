@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Search, Star } from "lucide-react";
+import { SearchOverlay } from "./SearchOverlay";
 
 const mainNavLinks = [
   { label: "Companies", href: "/companies" },
@@ -22,6 +23,7 @@ const mobileSecondaryLinks = [
 
 export function Nav() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   return (
     <>
@@ -32,6 +34,7 @@ export function Nav() {
           borderBottom: "0.5px solid var(--color-border-subtle)",
         }}
       >
+        {/* Left: Logo + Nav Links */}
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-1.5 text-[16px] tracking-tight">
             <Image src="/logo.svg" alt="BiotechTube" width={20} height={22} className="flex-shrink-0" />
@@ -73,8 +76,24 @@ export function Nav() {
           </nav>
         </div>
 
-        {/* Desktop buttons */}
+        {/* Right: Desktop */}
         <div className="hidden md:flex items-center gap-2">
+          <button
+            onClick={() => setSearchOpen(true)}
+            className="p-1.5 rounded transition-colors duration-150 hover:bg-[var(--color-bg-secondary)]"
+            style={{ color: "var(--color-text-secondary)" }}
+            aria-label="Search"
+          >
+            <Search size={16} />
+          </button>
+          <Link
+            href="/signup"
+            className="p-1.5 rounded transition-colors duration-150 hover:bg-[var(--color-bg-secondary)]"
+            style={{ color: "var(--color-text-tertiary)" }}
+            aria-label="Watchlist"
+          >
+            <Star size={16} />
+          </Link>
           <Link
             href="/login"
             className="text-12 px-3 py-1.5 rounded border"
@@ -100,14 +119,23 @@ export function Nav() {
           </Link>
         </div>
 
-        {/* Mobile: single CTA + hamburger */}
-        <div className="flex md:hidden items-center gap-2">
+        {/* Right: Mobile — Search + Watchlist + Hamburger */}
+        <div className="flex md:hidden items-center gap-1">
+          <button
+            onClick={() => setSearchOpen(true)}
+            className="p-1.5 rounded"
+            style={{ color: "var(--color-text-secondary)" }}
+            aria-label="Search"
+          >
+            <Search size={18} />
+          </button>
           <Link
             href="/signup"
-            className="text-11 font-medium px-3 py-1.5 rounded text-white"
-            style={{ background: "var(--color-accent)" }}
+            className="p-1.5 rounded"
+            style={{ color: "var(--color-text-tertiary)" }}
+            aria-label="Watchlist"
           >
-            Sign up
+            <Star size={18} />
           </Link>
           <button
             onClick={() => setMenuOpen(!menuOpen)}
@@ -122,90 +150,43 @@ export function Nav() {
 
       {/* Mobile menu overlay */}
       {menuOpen && (
-        <div
-          className="fixed inset-0 z-40 md:hidden"
-          style={{ top: 44 }}
-        >
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0"
-            style={{ background: "rgba(0,0,0,0.3)" }}
-            onClick={() => setMenuOpen(false)}
-          />
-          {/* Menu panel */}
-          <div
-            className="relative"
-            style={{
-              background: "var(--color-bg-primary)",
-              borderBottom: "0.5px solid var(--color-border-subtle)",
-            }}
-          >
+        <div className="fixed inset-0 z-40 md:hidden" style={{ top: 44 }}>
+          <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.3)" }} onClick={() => setMenuOpen(false)} />
+          <div className="relative" style={{ background: "var(--color-bg-primary)", borderBottom: "0.5px solid var(--color-border-subtle)" }}>
             <nav className="flex flex-col px-5 py-3 gap-0.5">
               {mainNavLinks.map((item) => (
                 <Link
                   key={item.label}
                   href={item.comingSoon ? "#" : item.href}
                   className="flex items-center justify-between text-13 py-2.5 border-b transition-colors duration-150"
-                  style={{
-                    color: item.comingSoon ? "var(--color-text-tertiary)" : "var(--color-text-primary)",
-                    borderColor: "var(--color-border-subtle)",
-                  }}
+                  style={{ color: item.comingSoon ? "var(--color-text-tertiary)" : "var(--color-text-primary)", borderColor: "var(--color-border-subtle)" }}
                   onClick={() => !item.comingSoon && setMenuOpen(false)}
                 >
                   {item.label}
                   {item.comingSoon && (
-                    <span
-                      className="text-[9px] px-1.5 py-[2px] rounded-sm"
-                      style={{
-                        background: "var(--color-bg-tertiary)",
-                        color: "var(--color-text-tertiary)",
-                      }}
-                    >
-                      Soon
-                    </span>
+                    <span className="text-[9px] px-1.5 py-[2px] rounded-sm" style={{ background: "var(--color-bg-tertiary)", color: "var(--color-text-tertiary)" }}>Soon</span>
                   )}
                 </Link>
               ))}
             </nav>
-            {/* Divider */}
             <div className="mx-5 my-1" style={{ borderTop: "0.5px solid var(--color-border-medium)" }} />
             <nav className="flex flex-col px-5 pb-2 gap-0.5">
               {mobileSecondaryLinks.map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className="text-12 py-2 transition-colors duration-150"
-                  style={{ color: "var(--color-text-secondary)" }}
-                  onClick={() => setMenuOpen(false)}
-                >
+                <Link key={item.label} href={item.href} className="text-12 py-2 transition-colors duration-150" style={{ color: "var(--color-text-secondary)" }} onClick={() => setMenuOpen(false)}>
                   {item.label}
                 </Link>
               ))}
             </nav>
             <div className="px-5 py-3 border-t" style={{ borderColor: "var(--color-border-subtle)" }}>
-              <Link
-                href="/login"
-                className="block w-full text-center text-12 py-2 rounded border mb-2"
-                style={{
-                  borderColor: "var(--color-border-medium)",
-                  color: "var(--color-text-secondary)",
-                }}
-                onClick={() => setMenuOpen(false)}
-              >
-                Log in
-              </Link>
-              <Link
-                href="/signup"
-                className="block w-full text-center text-12 font-medium py-2 rounded text-white"
-                style={{ background: "var(--color-accent)" }}
-                onClick={() => setMenuOpen(false)}
-              >
-                Start free trial
-              </Link>
+              <Link href="/login" className="block w-full text-center text-12 py-2 rounded border mb-2" style={{ borderColor: "var(--color-border-medium)", color: "var(--color-text-secondary)" }} onClick={() => setMenuOpen(false)}>Log in</Link>
+              <Link href="/signup" className="block w-full text-center text-12 font-medium py-2 rounded text-white" style={{ background: "var(--color-accent)" }} onClick={() => setMenuOpen(false)}>Start free trial</Link>
             </div>
           </div>
         </div>
       )}
+
+      {/* Search Overlay */}
+      <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );
 }

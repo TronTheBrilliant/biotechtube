@@ -2,7 +2,6 @@ import { Nav } from "@/components/Nav";
 import { TickerBar } from "@/components/TickerBar";
 import { IndexCards } from "@/components/IndexCards";
 import { SponsorBar } from "@/components/SponsorBar";
-import { SearchBar } from "@/components/SearchBar";
 import { FilterPills } from "@/components/FilterPills";
 import { TrendingStrip } from "@/components/TrendingStrip";
 import { RankingTable } from "@/components/RankingTable";
@@ -34,9 +33,8 @@ export default function HomePage() {
       {/* Index Cards */}
       <IndexCards />
 
-      {/* Search + Filters */}
+      {/* Filters */}
       <div className="px-5 py-3 border-t" style={{ borderColor: "var(--color-border-subtle)" }}>
-        <SearchBar />
         <FilterPills />
       </div>
 
