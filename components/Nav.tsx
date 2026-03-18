@@ -5,10 +5,10 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 
 const navLinks = [
-  { label: "Rankings", href: "#" },
-  { label: "Pitches", href: "#" },
-  { label: "Sponsors", href: "#" },
-  { label: "Templates", href: "#" },
+  { label: "Rankings", href: "/" },
+  { label: "Pitches", href: "/pitches" },
+  { label: "Sponsors", href: "/sponsors" },
+  { label: "Templates", href: "/templates" },
 ];
 
 export function Nav() {
