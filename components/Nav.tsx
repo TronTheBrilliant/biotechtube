@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Menu, X } from "lucide-react";
 
 const navLinks = [
@@ -21,9 +22,12 @@ export function Nav() {
         style={{ background: "var(--color-bg-primary)" }}
       >
         <div className="flex items-center gap-6">
-          <Link href="/" className="text-[15px] font-medium tracking-tight">
-            <span style={{ color: "var(--color-text-primary)" }}>Biotech</span>
-            <span style={{ color: "var(--color-accent)" }}>Tube</span>
+          <Link href="/" className="flex items-center gap-1.5 text-[15px] font-medium tracking-tight">
+            <Image src="/logo.svg" alt="BiotechTube" width={20} height={22} className="flex-shrink-0" />
+            <span>
+              <span style={{ color: "var(--color-text-primary)" }}>Biotech</span>
+              <span style={{ color: "var(--color-accent)" }}>Tube</span>
+            </span>
           </Link>
           <nav className="hidden md:flex items-center gap-5">
             {navLinks.map((item) => (
