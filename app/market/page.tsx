@@ -163,7 +163,7 @@ export default function MarketPage() {
               </span>
               <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>{timescale}</span>
             </div>
-            <div className="h-[220px] rounded-lg overflow-hidden" style={{ background: "var(--color-bg-secondary)" }}>
+            <div className="h-[320px] md:h-[380px] rounded-lg overflow-hidden border" style={{ background: "var(--color-bg-secondary)" }}>
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={indexData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
                   <defs>
@@ -189,7 +189,7 @@ export default function MarketPage() {
                 QUARTERLY INVESTMENT VOLUME ($B)
               </h2>
             </div>
-            <div className="h-[160px]">
+            <div className="h-[200px] md:h-[240px] rounded-lg overflow-hidden border" style={{ background: "var(--color-bg-secondary)", borderColor: "var(--color-border-subtle)" }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={quarterlyFunding} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-subtle)" vertical={false} />
@@ -210,7 +210,7 @@ export default function MarketPage() {
                 CLINICAL TRIALS BY PHASE
               </h2>
             </div>
-            <div className="h-[180px]">
+            <div className="h-[220px] md:h-[260px] rounded-lg overflow-hidden border" style={{ background: "var(--color-bg-secondary)", borderColor: "var(--color-border-subtle)" }}>
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={trialsByPhase} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-subtle)" vertical={false} />
@@ -249,7 +249,7 @@ export default function MarketPage() {
                 BIOTECH IPO ACTIVITY
               </h2>
             </div>
-            <div className="h-[140px]">
+            <div className="h-[180px] md:h-[220px] rounded-lg overflow-hidden border" style={{ background: "var(--color-bg-secondary)", borderColor: "var(--color-border-subtle)" }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={ipoData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-subtle)" vertical={false} />

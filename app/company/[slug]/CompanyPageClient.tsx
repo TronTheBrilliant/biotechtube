@@ -117,27 +117,43 @@ const newsTypeBadge: Record<string, { bg: string; text: string }> = {
 };
 
 // Stock price data generators for public companies
-const stockTimescales = ["1M", "3M", "6M", "1Y", "3Y", "5Y", "Max"] as const;
+const stockTimescales = ["1D", "1W", "1M", "3M", "6M", "1Y", "3Y", "5Y", "Max"] as const;
 type StockTimescale = (typeof stockTimescales)[number];
 
-function generateStockData(ticker: string, timescale: StockTimescale): { date: string; price: number }[] {
-  const pointCounts: Record<string, number> = { "1M": 22, "3M": 65, "6M": 130, "1Y": 252, "3Y": 756, "5Y": 1260, Max: 2000 };
+interface StockPoint { date: string; price: number; volume: number; high: number; low: number; open: number }
+
+function generateStockData(ticker: string, timescale: StockTimescale): StockPoint[] {
+  const pointCounts: Record<string, number> = { "1D": 78, "1W": 35, "1M": 22, "3M": 65, "6M": 130, "1Y": 252, "3Y": 756, "5Y": 1260, Max: 2500 };
   const points = pointCounts[timescale] || 252;
-  // Seed based on ticker for consistent data
   let seed = ticker.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
   const rand = () => { seed = (seed * 16807 + 0) % 2147483647; return (seed % 1000) / 1000; };
   const basePrice = ticker === "NYKD" ? 28 : ticker === "PCIB" ? 4.5 : 85;
-  const data: { date: string; price: number }[] = [];
+  const baseVol = ticker === "NYKD" ? 180000 : ticker === "PCIB" ? 45000 : 320000;
+  const data: StockPoint[] = [];
   let price = basePrice * 0.6;
   const now = new Date(2026, 2, 18);
   for (let i = points; i >= 0; i--) {
     const d = new Date(now);
-    d.setDate(d.getDate() - i);
-    price += (rand() - 0.48) * basePrice * 0.03;
-    price = Math.max(price, basePrice * 0.2);
+    if (timescale === "1D") { d.setMinutes(d.getMinutes() - i * 5); }
+    else { d.setDate(d.getDate() - i); }
+    const open = price;
+    price += (rand() - 0.48) * basePrice * (timescale === "1D" ? 0.005 : 0.03);
+    price = Math.max(price, basePrice * 0.15);
+    const high = Math.max(open, price) * (1 + rand() * 0.015);
+    const low = Math.min(open, price) * (1 - rand() * 0.015);
+    const volume = Math.round(baseVol * (0.5 + rand()));
     const month = d.toLocaleString("en", { month: "short" });
-    const label = points > 300 ? (i % 60 === 0 ? `${month} ${d.getFullYear().toString().slice(2)}` : "") : (i % 5 === 0 ? `${month} ${d.getDate()}` : "");
-    data.push({ date: label, price: Math.round(price * 100) / 100 });
+    const day = d.getDate();
+    const yr = d.getFullYear().toString().slice(2);
+    const hr = d.getHours().toString().padStart(2, "0");
+    const min = d.getMinutes().toString().padStart(2, "0");
+    let label = "";
+    if (timescale === "1D") { label = i % 12 === 0 ? `${hr}:${min}` : ""; }
+    else if (points > 800) { label = i % 126 === 0 ? `${month} ${yr}` : ""; }
+    else if (points > 200) { label = i % 30 === 0 ? `${month} ${yr}` : ""; }
+    else if (points > 50) { label = i % 10 === 0 ? `${month} ${day}` : ""; }
+    else { label = i % 3 === 0 ? `${month} ${day}` : ""; }
+    data.push({ date: label, price: Math.round(price * 100) / 100, volume, high: Math.round(high * 100) / 100, low: Math.round(low * 100) / 100, open: Math.round(open * 100) / 100 });
   }
   return data;
 }
@@ -213,6 +229,13 @@ export function CompanyPageClient({ company, companyFunding, similar }: CompanyP
   const priceChange = currentPrice - startPrice;
   const priceChangePct = startPrice > 0 ? (priceChange / startPrice) * 100 : 0;
 
+  // Compute key stock stats
+  const allPrices = stockData.map(d => d.price);
+  const high52w = useMemo(() => allPrices.length > 0 ? Math.max(...allPrices) : 0, [allPrices]);
+  const low52w = useMemo(() => allPrices.length > 0 ? Math.min(...allPrices) : 0, [allPrices]);
+  const avgVolume = useMemo(() => stockData.length > 0 ? Math.round(stockData.reduce((s, d) => s + d.volume, 0) / stockData.length) : 0, [stockData]);
+  const lastPoint = stockData.length > 0 ? stockData[stockData.length - 1] : null;
+
   return (
     <div style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
       <Nav />
@@ -259,19 +282,23 @@ export function CompanyPageClient({ company, companyFunding, similar }: CompanyP
               {/* Stock Price Chart (public companies only) */}
               {isPublic && stockData.length > 0 && (
                 <section className="mb-5">
+                  {/* Header + Timescale */}
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <Activity size={14} style={{ color: "var(--color-accent)" }} />
                       <h2 className="text-10 uppercase tracking-[0.5px] font-medium" style={{ color: "var(--color-text-secondary)" }}>
                         {company.ticker} · STOCK PRICE
                       </h2>
+                      <span className="text-[9px] px-1.5 py-[1px] rounded-sm" style={{ background: "var(--color-bg-tertiary)", color: "var(--color-text-tertiary)" }}>
+                        OSE
+                      </span>
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-0.5 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
                       {stockTimescales.map((ts) => (
                         <button
                           key={ts}
                           onClick={() => setStockTimescale(ts)}
-                          className="text-10 font-medium px-2 py-1 rounded transition-all duration-150"
+                          className="text-[10px] font-medium px-1.5 py-1 rounded transition-all duration-150"
                           style={{
                             background: stockTimescale === ts ? "var(--color-accent)" : "transparent",
                             color: stockTimescale === ts ? "white" : "var(--color-text-tertiary)",
@@ -282,36 +309,86 @@ export function CompanyPageClient({ company, companyFunding, similar }: CompanyP
                       ))}
                     </div>
                   </div>
-                  <div className="flex items-baseline gap-2 mb-2">
-                    <span className="text-[22px] font-medium tracking-tight" style={{ color: "var(--color-text-primary)", letterSpacing: "-0.5px" }}>
+
+                  {/* Price + Change */}
+                  <div className="flex items-baseline gap-2 mb-1">
+                    <span className="text-[28px] font-medium tracking-tight" style={{ color: "var(--color-text-primary)", letterSpacing: "-0.6px" }}>
                       NOK {currentPrice.toFixed(2)}
                     </span>
-                    <span className="flex items-center gap-0.5 text-12 font-medium" style={{ color: priceChange >= 0 ? "var(--color-accent)" : "#c0392b" }}>
-                      {priceChange >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
-                      {priceChange >= 0 ? "+" : ""}{priceChangePct.toFixed(1)}%
-                    </span>
-                    <span className="text-10" style={{ color: "var(--color-text-tertiary)" }}>
-                      {stockTimescale}
+                    <span className="flex items-center gap-0.5 text-13 font-medium" style={{ color: priceChange >= 0 ? "var(--color-accent)" : "#c0392b" }}>
+                      {priceChange >= 0 ? <ArrowUpRight size={15} /> : <ArrowDownRight size={15} />}
+                      {priceChange >= 0 ? "+" : ""}{Math.abs(priceChange).toFixed(2)} ({priceChange >= 0 ? "+" : ""}{priceChangePct.toFixed(2)}%)
                     </span>
                   </div>
-                  <div className="h-[160px] rounded-lg overflow-hidden" style={{ background: "var(--color-bg-secondary)" }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={stockData} margin={{ top: 8, right: 0, left: 0, bottom: 0 }}>
-                        <defs>
-                          <linearGradient id="stockGrad" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor={priceChange >= 0 ? "#1a7a5e" : "#c0392b"} stopOpacity={0.15} />
-                            <stop offset="100%" stopColor={priceChange >= 0 ? "#1a7a5e" : "#c0392b"} stopOpacity={0.02} />
-                          </linearGradient>
-                        </defs>
-                        <XAxis dataKey="date" tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
-                        <Tooltip
-                          contentStyle={{ background: "var(--color-bg-primary)", border: "0.5px solid var(--color-border-subtle)", borderRadius: 6, fontSize: 11 }}
-                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-formatter={((value: number) => [`NOK ${value.toFixed(2)}`, "Price"]) as any}
-                        />
-                        <Area type="monotone" dataKey="price" stroke={priceChange >= 0 ? "#1a7a5e" : "#c0392b"} strokeWidth={1.5} fill="url(#stockGrad)" />
-                      </AreaChart>
-                    </ResponsiveContainer>
+                  {lastPoint && (
+                    <div className="flex items-center gap-3 mb-3 text-10" style={{ color: "var(--color-text-tertiary)" }}>
+                      <span>O: {lastPoint.open.toFixed(2)}</span>
+                      <span>H: {lastPoint.high.toFixed(2)}</span>
+                      <span>L: {lastPoint.low.toFixed(2)}</span>
+                      <span>C: {lastPoint.price.toFixed(2)}</span>
+                      <span>Vol: {(lastPoint.volume / 1000).toFixed(0)}K</span>
+                    </div>
+                  )}
+
+                  {/* Price Chart */}
+                  <div className="rounded-lg overflow-hidden border" style={{ background: "var(--color-bg-secondary)", borderColor: "var(--color-border-subtle)" }}>
+                    <div className="h-[280px] md:h-[320px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={stockData} margin={{ top: 12, right: 8, left: 0, bottom: 0 }}>
+                          <defs>
+                            <linearGradient id="stockGrad" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor={priceChange >= 0 ? "#1a7a5e" : "#c0392b"} stopOpacity={0.18} />
+                              <stop offset="100%" stopColor={priceChange >= 0 ? "#1a7a5e" : "#c0392b"} stopOpacity={0.02} />
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-subtle)" vertical={false} />
+                          <XAxis dataKey="date" tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }} axisLine={{ stroke: "var(--color-border-subtle)" }} tickLine={false} interval="preserveStartEnd" />
+                          <YAxis tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }} axisLine={false} tickLine={false} width={48} domain={["auto", "auto"]} tickFormatter={(v) => `${v.toFixed(1)}`} />
+                          <Tooltip
+                            contentStyle={{ background: "var(--color-bg-primary)", border: "0.5px solid var(--color-border-medium)", borderRadius: 8, fontSize: 11, padding: "8px 12px", boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}
+                            labelStyle={{ color: "var(--color-text-tertiary)", fontSize: 10, marginBottom: 4 }}
+                            /* eslint-disable @typescript-eslint/no-explicit-any */
+                            formatter={((value: number, name: string) => {
+                              if (name === "price") return [`NOK ${value.toFixed(2)}`, "Close"];
+                              if (name === "volume") return [`${(value / 1000).toFixed(0)}K`, "Volume"];
+                              return [value, name];
+                            }) as any}
+                            /* eslint-enable @typescript-eslint/no-explicit-any */
+                          />
+                          <Area type="monotone" dataKey="price" stroke={priceChange >= 0 ? "#1a7a5e" : "#c0392b"} strokeWidth={1.5} fill="url(#stockGrad)" dot={false} />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
+                    {/* Volume bars */}
+                    <div className="h-[60px] border-t" style={{ borderColor: "var(--color-border-subtle)" }}>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={stockData} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+                          <XAxis dataKey="date" hide />
+                          <YAxis hide />
+                          <Bar dataKey="volume" fill={priceChange >= 0 ? "#1a7a5e" : "#c0392b"} fillOpacity={0.2} radius={0} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* Key Stats Row */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
+                    <div>
+                      <div className="text-[9px] uppercase tracking-[0.3px]" style={{ color: "var(--color-text-tertiary)" }}>52-Week High</div>
+                      <div className="text-12 font-medium" style={{ color: "var(--color-text-primary)" }}>NOK {high52w.toFixed(2)}</div>
+                    </div>
+                    <div>
+                      <div className="text-[9px] uppercase tracking-[0.3px]" style={{ color: "var(--color-text-tertiary)" }}>52-Week Low</div>
+                      <div className="text-12 font-medium" style={{ color: "var(--color-text-primary)" }}>NOK {low52w.toFixed(2)}</div>
+                    </div>
+                    <div>
+                      <div className="text-[9px] uppercase tracking-[0.3px]" style={{ color: "var(--color-text-tertiary)" }}>Avg Volume</div>
+                      <div className="text-12 font-medium" style={{ color: "var(--color-text-primary)" }}>{(avgVolume / 1000).toFixed(0)}K</div>
+                    </div>
+                    <div>
+                      <div className="text-[9px] uppercase tracking-[0.3px]" style={{ color: "var(--color-text-tertiary)" }}>Market Cap</div>
+                      <div className="text-12 font-medium" style={{ color: "var(--color-accent)" }}>{company.valuation ? formatCurrency(company.valuation) : "—"}</div>
+                    </div>
                   </div>
                 </section>
               )}
@@ -366,9 +443,9 @@ formatter={((value: number) => [`NOK ${value.toFixed(2)}`, "Price"]) as any}
                       Details →
                     </button>
                   </div>
-                  <div className="h-[120px]">
+                  <div className="h-[180px] rounded-lg overflow-hidden border" style={{ background: "var(--color-bg-secondary)", borderColor: "var(--color-border-subtle)" }}>
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={fundingChartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                      <BarChart data={fundingChartData} margin={{ top: 12, right: 8, left: 0, bottom: 4 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-subtle)" vertical={false} />
                         <XAxis dataKey="label" tick={{ fontSize: 10, fill: "var(--color-text-tertiary)" }} axisLine={false} tickLine={false} />
                         <YAxis tick={{ fontSize: 10, fill: "var(--color-text-tertiary)" }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${v}M`} width={45} />
