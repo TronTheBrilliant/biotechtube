@@ -1,19 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { CompanyProfileHero } from "@/components/CompanyProfile";
 import { PipelineBar } from "@/components/PipelineBar";
 import { FundingTimeline } from "@/components/FundingTimeline";
-import { TeamGrid } from "@/components/TeamGrid";
-import { PublicationsList } from "@/components/PublicationsList";
+// TeamGrid and PublicationsList rendered inline in their tabs
 import { AIChatWidget } from "@/components/AIChatWidget";
 import { SimilarCompanies } from "@/components/SimilarCompanies";
 import { Company, FundingRound } from "@/lib/types";
 import { formatCurrency } from "@/lib/formatting";
-import { Calendar, FileText, ExternalLink, TrendingUp, Users, FlaskConical, Newspaper } from "lucide-react";
+import { Calendar, FileText, ExternalLink, TrendingUp, Users, FlaskConical, Newspaper, Activity, BarChart3, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
 const tabs = ["Overview", "Pipeline", "Funding", "Team", "Publications", "News"] as const;
 type Tab = (typeof tabs)[number];
@@ -116,6 +116,73 @@ const newsTypeBadge: Record<string, { bg: string; text: string }> = {
   Market: { bg: "#fef3e2", text: "#b45309" },
 };
 
+// Stock price data generators for public companies
+const stockTimescales = ["1M", "3M", "6M", "1Y", "3Y", "5Y", "Max"] as const;
+type StockTimescale = (typeof stockTimescales)[number];
+
+function generateStockData(ticker: string, timescale: StockTimescale): { date: string; price: number }[] {
+  const pointCounts: Record<string, number> = { "1M": 22, "3M": 65, "6M": 130, "1Y": 252, "3Y": 756, "5Y": 1260, Max: 2000 };
+  const points = pointCounts[timescale] || 252;
+  // Seed based on ticker for consistent data
+  let seed = ticker.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+  const rand = () => { seed = (seed * 16807 + 0) % 2147483647; return (seed % 1000) / 1000; };
+  const basePrice = ticker === "NYKD" ? 28 : ticker === "PCIB" ? 4.5 : 85;
+  const data: { date: string; price: number }[] = [];
+  let price = basePrice * 0.6;
+  const now = new Date(2026, 2, 18);
+  for (let i = points; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i);
+    price += (rand() - 0.48) * basePrice * 0.03;
+    price = Math.max(price, basePrice * 0.2);
+    const month = d.toLocaleString("en", { month: "short" });
+    const label = points > 300 ? (i % 60 === 0 ? `${month} ${d.getFullYear().toString().slice(2)}` : "") : (i % 5 === 0 ? `${month} ${d.getDate()}` : "");
+    data.push({ date: label, price: Math.round(price * 100) / 100 });
+  }
+  return data;
+}
+
+// Funding round chart data
+function buildFundingChartData(rounds: FundingRound[]): { label: string; amount: number; type: string }[] {
+  return [...rounds].reverse().map(r => ({
+    label: r.type,
+    amount: r.amount / 1_000_000,
+    type: r.type,
+  }));
+}
+
+// Company overview summaries
+const overviewSummaries: Record<string, { thesis: string; strengths: string[]; risks: string[]; keyMetric: string; keyMetricValue: string }> = {
+  oncoinvent: {
+    thesis: "Oncoinvent is developing a differentiated alpha-emitting microparticle therapy for peritoneal cancers — an area with few effective treatments and significant unmet need. The Phase 2 Radspherin program has shown encouraging early data and is approaching a key data readout in H2 2026.",
+    strengths: ["First-mover in alpha-emitting microparticles for peritoneal cancers", "Phase 2 enrollment ahead of schedule", "Strong Norwegian investor base (Investinor-led Series B)", "Experienced team from Algeta (acquired by Bayer for $2.9B)"],
+    risks: ["Single lead asset concentration risk", "Limited clinical data to date", "Peritoneal administration requires specialist centers", "Competitive landscape evolving in radiopharmaceuticals"],
+    keyMetric: "Ph2 Data Readout",
+    keyMetricValue: "H2 2026",
+  },
+  "nykode-therapeutics": {
+    thesis: "Nykode (OSE: NYKD) is a publicly traded biotech developing therapeutic DNA vaccines using its proprietary vaccibody platform. The lead program VB10.16 targets HPV-related cancers and has shown durable immune responses in early clinical data. As a public company, it offers investors direct market exposure to the DNA vaccine space.",
+    strengths: ["Publicly listed — liquid investment (OSE: NYKD)", "Platform technology with multiple pipeline candidates", "Strong Phase 2 data in HPV cancers", "Partnerships with major pharma under exploration"],
+    risks: ["Share price volatility typical of clinical-stage biotechs", "Competition from mRNA vaccine platforms (Moderna, BioNTech)", "DNA vaccine delivery challenges vs mRNA", "Regulatory pathway for therapeutic cancer vaccines still evolving"],
+    keyMetric: "Market Cap",
+    keyMetricValue: "~$210M",
+  },
+  "pci-biotech": {
+    thesis: "PCI Biotech (OSE: PCIB) is developing photochemical internalisation technology to enhance intracellular drug delivery. The lead program Fimaporfin is in Phase 2 for bile duct cancer. As a platform technology company, successful clinical validation could open multiple indication opportunities.",
+    strengths: ["Unique platform mechanism (PCI)", "Publicly listed (OSE: PCIB)", "Multiple potential indications", "Strong IP portfolio"],
+    risks: ["Technology requires specialised light equipment", "Small patient populations in lead indication", "Capital-intensive clinical development", "Market education needed for PCI mechanism"],
+    keyMetric: "Market Cap",
+    keyMetricValue: "~$185M",
+  },
+  photocure: {
+    thesis: "Photocure (OSE: PHO) is a rare profitable Nordic biotech with an approved product (Hexvix/Cysview) in bladder cancer detection. The company generates revenue and is expanding market penetration in the US and Europe. A de-risked investment profile relative to clinical-stage peers.",
+    strengths: ["Revenue-generating with approved product", "Market leader in blue light cystoscopy", "Growing US market penetration", "Strong margins and path to profitability"],
+    risks: ["Single-product revenue concentration", "Reimbursement challenges in some markets", "Competition from white light and NBI technologies", "Limited pipeline beyond bladder cancer"],
+    keyMetric: "Revenue (2025)",
+    keyMetricValue: "~$45M",
+  },
+};
+
 interface CompanyPageClientProps {
   company: Company;
   companyFunding: FundingRound[];
@@ -124,6 +191,7 @@ interface CompanyPageClientProps {
 
 export function CompanyPageClient({ company, companyFunding, similar }: CompanyPageClientProps) {
   const [activeTab, setActiveTab] = useState<Tab>("Overview");
+  const [stockTimescale, setStockTimescale] = useState<StockTimescale>("1Y");
 
   const pipeline = mockPipeline[company.slug] || [];
   const team = mockTeams[company.slug] || [
@@ -131,6 +199,19 @@ export function CompanyPageClient({ company, companyFunding, similar }: CompanyP
   ];
   const publications = mockPublications[company.slug] || [];
   const news = mockNews[company.slug] || [];
+  const overview = overviewSummaries[company.slug];
+
+  const isPublic = company.type === "Public" && company.ticker;
+  const stockData = useMemo(
+    () => (isPublic ? generateStockData(company.ticker!, stockTimescale) : []),
+    [isPublic, company.ticker, stockTimescale]
+  );
+  const fundingChartData = useMemo(() => buildFundingChartData(companyFunding), [companyFunding]);
+
+  const currentPrice = stockData.length > 0 ? stockData[stockData.length - 1].price : 0;
+  const startPrice = stockData.length > 0 ? stockData[0].price : 0;
+  const priceChange = currentPrice - startPrice;
+  const priceChangePct = startPrice > 0 ? (priceChange / startPrice) * 100 : 0;
 
   return (
     <div style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
@@ -175,61 +256,177 @@ export function CompanyPageClient({ company, companyFunding, similar }: CompanyP
           {/* ============ OVERVIEW TAB ============ */}
           {activeTab === "Overview" && (
             <>
-              {/* Pipeline Summary */}
-              {pipeline.length > 0 && (
-                <section className="mb-6">
-                  <h2 className="text-10 uppercase tracking-[0.5px] font-medium mb-3" style={{ color: "var(--color-text-secondary)" }}>
-                    DRUG PIPELINE
-                  </h2>
-                  {pipeline.map((p) => (
-                    <PipelineBar key={p.name} name={p.name} indication={p.indication} stage={p.stage} isLead={p.isLead} nextCatalyst={p.nextCatalyst} />
-                  ))}
-                  <button
-                    onClick={() => setActiveTab("Pipeline")}
-                    className="text-11 mt-2"
-                    style={{ color: "var(--color-accent)" }}
-                  >
-                    View full pipeline details →
-                  </button>
+              {/* Stock Price Chart (public companies only) */}
+              {isPublic && stockData.length > 0 && (
+                <section className="mb-5">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Activity size={14} style={{ color: "var(--color-accent)" }} />
+                      <h2 className="text-10 uppercase tracking-[0.5px] font-medium" style={{ color: "var(--color-text-secondary)" }}>
+                        {company.ticker} · STOCK PRICE
+                      </h2>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      {stockTimescales.map((ts) => (
+                        <button
+                          key={ts}
+                          onClick={() => setStockTimescale(ts)}
+                          className="text-10 font-medium px-2 py-1 rounded transition-all duration-150"
+                          style={{
+                            background: stockTimescale === ts ? "var(--color-accent)" : "transparent",
+                            color: stockTimescale === ts ? "white" : "var(--color-text-tertiary)",
+                          }}
+                        >
+                          {ts}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex items-baseline gap-2 mb-2">
+                    <span className="text-[22px] font-medium tracking-tight" style={{ color: "var(--color-text-primary)", letterSpacing: "-0.5px" }}>
+                      NOK {currentPrice.toFixed(2)}
+                    </span>
+                    <span className="flex items-center gap-0.5 text-12 font-medium" style={{ color: priceChange >= 0 ? "var(--color-accent)" : "#c0392b" }}>
+                      {priceChange >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
+                      {priceChange >= 0 ? "+" : ""}{priceChangePct.toFixed(1)}%
+                    </span>
+                    <span className="text-10" style={{ color: "var(--color-text-tertiary)" }}>
+                      {stockTimescale}
+                    </span>
+                  </div>
+                  <div className="h-[160px] rounded-lg overflow-hidden" style={{ background: "var(--color-bg-secondary)" }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={stockData} margin={{ top: 8, right: 0, left: 0, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="stockGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor={priceChange >= 0 ? "#1a7a5e" : "#c0392b"} stopOpacity={0.15} />
+                            <stop offset="100%" stopColor={priceChange >= 0 ? "#1a7a5e" : "#c0392b"} stopOpacity={0.02} />
+                          </linearGradient>
+                        </defs>
+                        <XAxis dataKey="date" tick={{ fontSize: 9, fill: "var(--color-text-tertiary)" }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+                        <Tooltip
+                          contentStyle={{ background: "var(--color-bg-primary)", border: "0.5px solid var(--color-border-subtle)", borderRadius: 6, fontSize: 11 }}
+                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+formatter={((value: number) => [`NOK ${value.toFixed(2)}`, "Price"]) as any}
+                        />
+                        <Area type="monotone" dataKey="price" stroke={priceChange >= 0 ? "#1a7a5e" : "#c0392b"} strokeWidth={1.5} fill="url(#stockGrad)" />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
                 </section>
               )}
 
-              {/* Funding Summary */}
-              {companyFunding.length > 0 && (
-                <section className="mb-6 border-t pt-4" style={{ borderColor: "var(--color-border-subtle)" }}>
-                  <h2 className="text-10 uppercase tracking-[0.5px] font-medium mb-3" style={{ color: "var(--color-text-secondary)" }}>
-                    FUNDING HISTORY
+              {/* Investment Thesis / Summary */}
+              {overview && (
+                <section className="mb-5 border-t pt-4" style={{ borderColor: "var(--color-border-subtle)" }}>
+                  <h2 className="text-10 uppercase tracking-[0.5px] font-medium mb-2" style={{ color: "var(--color-text-secondary)" }}>
+                    INVESTMENT OVERVIEW
                   </h2>
-                  <FundingTimeline rounds={companyFunding} totalRaised={company.totalRaised} />
+                  <p className="text-12 mb-3" style={{ color: "var(--color-text-secondary)", lineHeight: 1.7 }}>
+                    {overview.thesis}
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="rounded-lg border p-3" style={{ borderColor: "var(--color-border-subtle)" }}>
+                      <div className="text-10 uppercase tracking-[0.3px] font-medium mb-2" style={{ color: "var(--color-accent)" }}>Strengths</div>
+                      <ul className="flex flex-col gap-1.5">
+                        {overview.strengths.map((s, i) => (
+                          <li key={i} className="text-11 flex items-start gap-1.5" style={{ color: "var(--color-text-secondary)", lineHeight: 1.5 }}>
+                            <span className="mt-1.5 w-1 h-1 rounded-full flex-shrink-0" style={{ background: "var(--color-accent)" }} />
+                            {s}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="rounded-lg border p-3" style={{ borderColor: "var(--color-border-subtle)" }}>
+                      <div className="text-10 uppercase tracking-[0.3px] font-medium mb-2" style={{ color: "#b45309" }}>Risks</div>
+                      <ul className="flex flex-col gap-1.5">
+                        {overview.risks.map((r, i) => (
+                          <li key={i} className="text-11 flex items-start gap-1.5" style={{ color: "var(--color-text-secondary)", lineHeight: 1.5 }}>
+                            <span className="mt-1.5 w-1 h-1 rounded-full flex-shrink-0" style={{ background: "#b45309" }} />
+                            {r}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
                 </section>
               )}
 
-              {/* Team Summary */}
-              <section className="mb-6 border-t pt-4" style={{ borderColor: "var(--color-border-subtle)" }}>
+              {/* Funding Rounds Chart */}
+              {fundingChartData.length > 0 && (
+                <section className="mb-5 border-t pt-4" style={{ borderColor: "var(--color-border-subtle)" }}>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <BarChart3 size={14} style={{ color: "var(--color-accent)" }} />
+                      <h2 className="text-10 uppercase tracking-[0.5px] font-medium" style={{ color: "var(--color-text-secondary)" }}>
+                        FUNDING ROUNDS
+                      </h2>
+                    </div>
+                    <button onClick={() => setActiveTab("Funding")} className="text-10" style={{ color: "var(--color-accent)" }}>
+                      Details →
+                    </button>
+                  </div>
+                  <div className="h-[120px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={fundingChartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-subtle)" vertical={false} />
+                        <XAxis dataKey="label" tick={{ fontSize: 10, fill: "var(--color-text-tertiary)" }} axisLine={false} tickLine={false} />
+                        <YAxis tick={{ fontSize: 10, fill: "var(--color-text-tertiary)" }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${v}M`} width={45} />
+                        <Tooltip
+                          contentStyle={{ background: "var(--color-bg-primary)", border: "0.5px solid var(--color-border-subtle)", borderRadius: 6, fontSize: 11 }}
+                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+formatter={((value: number) => [`$${value}M`, "Amount"]) as any}
+                        />
+                        <Bar dataKey="amount" fill="#1a7a5e" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </section>
+              )}
+
+              {/* Key Metrics Row */}
+              <section className="mb-5 border-t pt-4" style={{ borderColor: "var(--color-border-subtle)" }}>
                 <h2 className="text-10 uppercase tracking-[0.5px] font-medium mb-3" style={{ color: "var(--color-text-secondary)" }}>
-                  LEADERSHIP TEAM
+                  KEY METRICS
                 </h2>
-                <TeamGrid members={team} />
-                <button
-                  onClick={() => setActiveTab("Team")}
-                  className="text-11 mt-2"
-                  style={{ color: "var(--color-accent)" }}
-                >
-                  View team details →
-                </button>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <div className="rounded-md px-3 py-2.5 border" style={{ background: "var(--color-bg-secondary)", borderColor: "var(--color-border-subtle)" }}>
+                    <div className="text-10" style={{ color: "var(--color-text-tertiary)" }}>Programs</div>
+                    <div className="text-[16px] font-medium" style={{ color: "var(--color-text-primary)" }}>{pipeline.length}</div>
+                  </div>
+                  <div className="rounded-md px-3 py-2.5 border" style={{ background: "var(--color-bg-secondary)", borderColor: "var(--color-border-subtle)" }}>
+                    <div className="text-10" style={{ color: "var(--color-text-tertiary)" }}>Team Size</div>
+                    <div className="text-[16px] font-medium" style={{ color: "var(--color-text-primary)" }}>{company.employees}</div>
+                  </div>
+                  <div className="rounded-md px-3 py-2.5 border" style={{ background: "var(--color-bg-secondary)", borderColor: "var(--color-border-subtle)" }}>
+                    <div className="text-10" style={{ color: "var(--color-text-tertiary)" }}>Founded</div>
+                    <div className="text-[16px] font-medium" style={{ color: "var(--color-text-primary)" }}>{company.founded}</div>
+                  </div>
+                  <div className="rounded-md px-3 py-2.5 border" style={{ background: "var(--color-bg-secondary)", borderColor: "var(--color-border-subtle)" }}>
+                    <div className="text-10" style={{ color: "var(--color-text-tertiary)" }}>{overview?.keyMetric || "Total Raised"}</div>
+                    <div className="text-[16px] font-medium" style={{ color: "var(--color-accent)" }}>{overview?.keyMetricValue || formatCurrency(company.totalRaised)}</div>
+                  </div>
+                </div>
               </section>
 
-              {/* Publications Summary */}
-              {publications.length > 0 && (
-                <section className="mb-6 border-t pt-4" style={{ borderColor: "var(--color-border-subtle)" }}>
-                  <h2 className="text-10 uppercase tracking-[0.5px] font-medium mb-3" style={{ color: "var(--color-text-secondary)" }}>
-                    KEY PUBLICATIONS
-                  </h2>
-                  <PublicationsList publications={publications} />
+              {/* Pipeline Quick View */}
+              {pipeline.length > 0 && (
+                <section className="mb-5 border-t pt-4" style={{ borderColor: "var(--color-border-subtle)" }}>
+                  <div className="flex items-center justify-between mb-3">
+                    <h2 className="text-10 uppercase tracking-[0.5px] font-medium" style={{ color: "var(--color-text-secondary)" }}>
+                      PIPELINE SNAPSHOT
+                    </h2>
+                    <button onClick={() => setActiveTab("Pipeline")} className="text-10" style={{ color: "var(--color-accent)" }}>
+                      Full pipeline →
+                    </button>
+                  </div>
+                  {pipeline.slice(0, 2).map((p) => (
+                    <PipelineBar key={p.name} name={p.name} indication={p.indication} stage={p.stage} isLead={p.isLead} nextCatalyst={p.nextCatalyst} />
+                  ))}
                 </section>
               )}
 
-              {/* Express Interest */}
+              {/* Express Interest CTA */}
               <section className="border-t pt-4 pb-4" style={{ borderColor: "var(--color-border-subtle)" }}>
                 <Link
                   href="/signup"
