@@ -22,9 +22,9 @@ export function Nav() {
         style={{ background: "var(--color-bg-primary)" }}
       >
         <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-center gap-1.5 text-[15px] font-medium tracking-tight">
+          <Link href="/" className="flex items-center gap-1.5 text-[16px] tracking-tight">
             <Image src="/logo.svg" alt="BiotechTube" width={20} height={22} className="flex-shrink-0" />
-            <span>
+            <span style={{ fontWeight: 600 }}>
               <span style={{ color: "var(--color-text-primary)" }}>Biotech</span>
               <span style={{ color: "var(--color-accent)" }}>Tube</span>
             </span>
