@@ -39,11 +39,11 @@ const cardData = [
 
 export function IndexCards() {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 px-5 py-4">
+    <div className="flex md:grid md:grid-cols-4 gap-2.5 px-5 py-4 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
       {cardData.map((card) => (
         <div
           key={card.label}
-          className="rounded-md px-3.5 py-3 border"
+          className="rounded-md px-3.5 py-3 border min-w-[160px] md:min-w-0 flex-shrink-0 md:flex-shrink"
           style={{
             background: "var(--color-bg-secondary)",
             borderColor: "var(--color-border-subtle)",

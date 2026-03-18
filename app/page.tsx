@@ -31,8 +31,13 @@ export default function HomePage() {
 
       <SponsorBar />
 
+      {/* Investment Volume Chart (full width, below cards) */}
+      <div className="px-5">
+        <InvestmentChart />
+      </div>
+
       {/* Search + Filters + Trending */}
-      <div className="px-5 py-3">
+      <div className="px-5 py-3 border-t" style={{ borderColor: "var(--color-border-subtle)" }}>
         <SearchBar />
         <FilterPills />
         <TrendingStrip companies={companies} />
@@ -51,9 +56,7 @@ export default function HomePage() {
           className="px-5 min-w-0 lg:border-r"
           style={{ borderColor: "var(--color-border-subtle)" }}
         >
-          <InvestmentChart />
-
-          <div className="border-t pt-3 pb-4" style={{ borderColor: "var(--color-border-subtle)" }}>
+          <div className="pt-3 pb-4">
             <h2
               className="text-10 uppercase tracking-[0.5px] font-medium mb-2"
               style={{ color: "var(--color-text-secondary)" }}
