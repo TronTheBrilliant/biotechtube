@@ -5,7 +5,7 @@ import { SponsorBar } from "@/components/SponsorBar";
 import { SearchBar } from "@/components/SearchBar";
 import { FilterPills } from "@/components/FilterPills";
 import { TrendingStrip } from "@/components/TrendingStrip";
-import { InvestmentChart } from "@/components/InvestmentChart";
+// import { InvestmentChart } from "@/components/InvestmentChart";
 import { RankingTable } from "@/components/RankingTable";
 import { RecentlyFunded } from "@/components/RecentlyFunded";
 import { PaywallCard } from "@/components/PaywallCard";
