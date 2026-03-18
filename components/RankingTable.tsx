@@ -41,19 +41,20 @@ export function RankingTable({ companies }: RankingTableProps) {
     <div>
       {/* Header */}
       <div
-        className="grid items-center gap-2 py-2 border-b"
-        style={{
-          gridTemplateColumns: "32px 1fr 80px 70px 80px 90px 30px",
-          color: "var(--color-text-tertiary)",
-        }}
+        className="ranking-grid grid items-center gap-2 py-2 border-b"
+        style={{ color: "var(--color-text-tertiary)" }}
       >
+        <style>{`
+          .ranking-grid { grid-template-columns: 24px 1fr 60px 60px; }
+          @media (min-width: 768px) { .ranking-grid { grid-template-columns: 32px 1fr 80px 70px 80px 90px 30px; } }
+        `}</style>
         <span className="text-10 uppercase tracking-[0.3px] text-center">#</span>
         <span className="text-10 uppercase tracking-[0.3px]">Company</span>
-        <span className="text-10 uppercase tracking-[0.3px] text-right">Valuation</span>
+        <span className="text-10 uppercase tracking-[0.3px] text-right hidden md:block">Valuation</span>
         <span className="text-10 uppercase tracking-[0.3px] text-right">Stage</span>
         <span className="text-10 uppercase tracking-[0.3px] text-right">Raised</span>
-        <span className="text-10 uppercase tracking-[0.3px] text-right">30d</span>
-        <span />
+        <span className="text-10 uppercase tracking-[0.3px] text-right hidden md:block">30d</span>
+        <span className="hidden md:block" />
       </div>
 
       {/* Rows */}
@@ -67,9 +68,8 @@ export function RankingTable({ companies }: RankingTableProps) {
           <Link
             key={company.slug}
             href={`/company/${company.slug}`}
-            className="grid items-center gap-2 py-2.5 border-b cursor-pointer transition-colors duration-100"
+            className="ranking-grid grid items-center gap-2 py-2.5 border-b cursor-pointer transition-colors duration-100"
             style={{
-              gridTemplateColumns: "32px 1fr 80px 70px 80px 90px 30px",
               ...(isLocked
                 ? {
                     filter: "blur(2px)",
@@ -82,15 +82,11 @@ export function RankingTable({ companies }: RankingTableProps) {
             onMouseEnter={(e) => {
               if (!isLocked) {
                 e.currentTarget.style.background = "var(--color-bg-secondary)";
-                e.currentTarget.style.margin = "0 -20px";
-                e.currentTarget.style.padding = "10px 20px";
               }
             }}
             onMouseLeave={(e) => {
               if (!isLocked) {
                 e.currentTarget.style.background = "";
-                e.currentTarget.style.margin = "";
-                e.currentTarget.style.padding = "10px 0";
               }
             }}
           >
@@ -129,7 +125,7 @@ export function RankingTable({ companies }: RankingTableProps) {
               </div>
             </div>
 
-            <div className="text-right">
+            <div className="text-right hidden md:block">
               {company.valuation ? (
                 <span
                   className="text-12"
@@ -174,7 +170,7 @@ export function RankingTable({ companies }: RankingTableProps) {
               </span>
             </div>
 
-            <div className="flex justify-end">
+            <div className="hidden md:flex justify-end">
               <div className="w-[80px] h-[28px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={sparkData}>
@@ -191,7 +187,7 @@ export function RankingTable({ companies }: RankingTableProps) {
               </div>
             </div>
 
-            <div className="flex justify-center">
+            <div className="hidden md:flex justify-center">
               <Star
                 size={14}
                 className="cursor-pointer transition-colors duration-150"
@@ -204,7 +200,7 @@ export function RankingTable({ companies }: RankingTableProps) {
 
       {/* Paywall overlay */}
       <div
-        className="flex items-center gap-2.5 py-3.5 px-5 -mx-5"
+        className="flex items-center gap-2.5 py-3.5"
         style={{
           background: `linear-gradient(to bottom, transparent, var(--color-bg-primary))`,
         }}

@@ -42,6 +42,7 @@ body {
   color: var(--color-text-primary);
   background: var(--color-bg-primary);
   font-family: var(--font-geist-sans), -apple-system, sans-serif;
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
