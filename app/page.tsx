@@ -29,10 +29,8 @@ export default function HomePage() {
       {/* Hero / Index Cards */}
       <IndexCards />
 
-      {/* Investment Volume Chart (full width, below cards) */}
-      <div className="px-5">
-        <InvestmentChart />
-      </div>
+      {/* Investment Volume Chart — hidden for now, may bring back later */}
+      {/* <div className="px-5"><InvestmentChart /></div> */}
 
       {/* Trending + Search + Filters */}
       <div className="px-5 py-3 border-t" style={{ borderColor: "var(--color-border-subtle)" }}>
