@@ -212,7 +212,6 @@ function CompanyRow({
   company,
   onClose,
   showRank,
-  sponsored,
   highlight,
 }: {
   company: Company;
