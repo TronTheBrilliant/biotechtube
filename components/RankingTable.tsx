@@ -149,7 +149,7 @@ export function RankingTable({ companies, mode = "top", funding = [] }: RankingT
           <Link
             key={company.slug}
             href={`/company/${company.slug}`}
-            className="ranking-grid grid items-center gap-2 py-2.5 cursor-pointer transition-colors duration-100 rounded-lg md:rounded-none mx-3 md:mx-0 mb-1.5 md:mb-0 border md:border-0 md:border-b px-3 md:px-5"
+            className="ranking-grid grid items-center gap-2 py-2.5 md:py-3 cursor-pointer transition-colors duration-100 rounded-lg md:rounded-none mx-3 md:mx-0 mb-1.5 md:mb-0 border md:border-0 md:border-b px-3 md:px-5"
             style={{
               ...(isLocked ? { filter: "blur(2px)", opacity: 0.4, pointerEvents: "none", userSelect: "none" } : {}),
             }}
@@ -168,8 +168,9 @@ export function RankingTable({ companies, mode = "top", funding = [] }: RankingT
             </div>
 
             {/* Company info — adapts per mode on mobile */}
-            <div className="flex items-center gap-2 min-w-0">
-              <CompanyAvatar name={company.name} logoUrl={company.logoUrl} website={company.website} size={28} />
+            <div className="flex items-center gap-2 md:gap-3 min-w-0">
+              <div className="hidden md:block"><CompanyAvatar name={company.name} logoUrl={company.logoUrl} website={company.website} size={36} /></div>
+              <div className="md:hidden"><CompanyAvatar name={company.name} logoUrl={company.logoUrl} website={company.website} size={28} /></div>
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
                   <span className="text-[15px] font-medium truncate" style={{ color: "var(--color-text-primary)" }}>
@@ -177,7 +178,7 @@ export function RankingTable({ companies, mode = "top", funding = [] }: RankingT
                   </span>
                   {company.ticker && (
                     <span
-                      className="text-[9px] font-medium px-1 py-[1px] rounded-sm flex-shrink-0 hidden sm:inline md:hidden"
+                      className="text-[9px] font-medium px-1 py-[1px] rounded-sm flex-shrink-0"
                       style={{ background: "var(--color-bg-secondary)", color: "var(--color-text-tertiary)", border: "0.5px solid var(--color-border-subtle)" }}
                     >
                       {company.ticker}
@@ -222,12 +223,18 @@ export function RankingTable({ companies, mode = "top", funding = [] }: RankingT
                   )}
                 </div>
 
-                {/* Desktop secondary: location (hidden on mobile) */}
+                {/* Desktop secondary: location + tags */}
                 <div className="hidden md:flex items-center gap-1.5 mt-[1px]">
                   <span className="text-12" style={{ color: "var(--color-text-tertiary)" }}>{company.city}, {company.country}</span>
+                  <span className="text-10" style={{ color: "var(--color-border-medium)" }}>·</span>
+                  {company.focus.slice(0, 2).map((f) => (
+                    <span key={f} className="text-[10px] px-1.5 py-[1px] rounded-sm" style={{ background: "var(--color-bg-tertiary)", color: "var(--color-text-tertiary)" }}>
+                      {f}
+                    </span>
+                  ))}
                 </div>
 
-                {/* Mobile focus tags (top mode only) */}
+                {/* Mobile secondary: location + tags */}
                 {m === "top" && (
                   <div className="flex items-center gap-1 mt-[2px] md:hidden">
                     {company.focus.slice(0, 2).map((f) => (
