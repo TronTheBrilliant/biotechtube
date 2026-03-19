@@ -24,10 +24,10 @@ export default function HomePage() {
 
       {/* Hero — compact headline */}
       <h1
-        className="px-5 py-2.5 text-[18px] font-medium tracking-tight"
-        style={{ color: "var(--color-text-primary)", letterSpacing: "-0.3px" }}
+        className="px-5 py-3 text-[26px] font-medium tracking-tight"
+        style={{ color: "var(--color-text-primary)", letterSpacing: "-0.5px" }}
       >
-        Track every biotech company, pipeline, and funding round
+        Track the biotech market, science, and funding rounds.
       </h1>
 
       {/* Index Cards */}
