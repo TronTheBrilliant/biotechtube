@@ -61,9 +61,6 @@ export default function HomePage() {
         {/* Sidebar */}
         <div className="w-full lg:w-[260px] border-t lg:border-t-0">
           <RecentlyFunded funding={funding} companies={companies} />
-          <div className="p-3.5">
-            <PaywallCard />
-          </div>
           <UpcomingEvents events={events} />
         </div>
       </div>
