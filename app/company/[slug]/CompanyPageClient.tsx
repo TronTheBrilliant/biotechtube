@@ -25,7 +25,7 @@ const mockPipeline: Record<
 > = {
   oncoinvent: [
     { name: "Radspherin", indication: "Peritoneal carcinomatosis", stage: "Phase 2", isLead: true, nextCatalyst: "Ph2 data H2 2026", nctId: "NCT03732768", mechanism: "Alpha-emitting microparticles (Ra-224)", status: "Enrolling" },
-    { name: "RAD-01", indication: "Ovarian cancer", stage: "Phase 1", nextCatalyst: "IND filing Q3 2026", mechanism: "Alpha-emitting microparticles", status: "IND-enabling" },
+    { name: "Radspherin\u00AE", indication: "Colorectal cancer (peritoneal)", stage: "Phase 1/2", nextCatalyst: "Phase 1 data readout 2026", mechanism: "Alpha-emitting microparticles (Ra-224)", status: "Enrolling" },
   ],
   "nykode-therapeutics": [
     { name: "VB10.16", indication: "HPV-related cancers", stage: "Phase 2", isLead: true, nextCatalyst: "Ph2 readout Q2 2026", nctId: "NCT04455672", mechanism: "DNA vaccine (vaccibody)", status: "Enrolling" },
@@ -158,8 +158,37 @@ function generateStockData(ticker: string, timescale: StockTimescale): StockPoin
   return data;
 }
 
-// Funding round chart data
-function buildFundingChartData(rounds: FundingRound[]): { label: string; amount: number; type: string }[] {
+// Historical funding data (not in funding.json — those only have recent rounds)
+const historicalFunding: Record<string, { label: string; amount: number; type: string; year: number }[]> = {
+  oncoinvent: [
+    { label: "Seed (2019)", amount: 3.5, type: "Seed", year: 2019 },
+    { label: "EIC Grant (2022)", amount: 2.4, type: "Grant", year: 2022 },
+    { label: "Series A (2023)", amount: 10, type: "Series A", year: 2023 },
+    { label: "Series B (2026)", amount: 18, type: "Series B", year: 2026 },
+  ],
+  "nykode-therapeutics": [
+    { label: "Seed (2007)", amount: 2, type: "Seed", year: 2007 },
+    { label: "Series A (2016)", amount: 8, type: "Series A", year: 2016 },
+    { label: "IPO (2021)", amount: 60, type: "IPO", year: 2021 },
+    { label: "Follow-on (2023)", amount: 50, type: "Follow-on", year: 2023 },
+  ],
+  "pci-biotech": [
+    { label: "Seed (2000)", amount: 3, type: "Seed", year: 2000 },
+    { label: "Series A (2008)", amount: 12, type: "Series A", year: 2008 },
+    { label: "IPO (2013)", amount: 35, type: "IPO", year: 2013 },
+    { label: "Follow-on (2020)", amount: 45, type: "Follow-on", year: 2020 },
+  ],
+  photocure: [
+    { label: "Series A (1997)", amount: 5, type: "Series A", year: 1997 },
+    { label: "IPO (2000)", amount: 40, type: "IPO", year: 2000 },
+    { label: "Follow-on (2015)", amount: 60, type: "Follow-on", year: 2015 },
+    { label: "Follow-on (2022)", amount: 75, type: "Follow-on", year: 2022 },
+  ],
+};
+
+// Funding round chart data — use historical if available, else build from JSON rounds
+function buildFundingChartData(rounds: FundingRound[], slug: string): { label: string; amount: number; type: string }[] {
+  if (historicalFunding[slug]) return historicalFunding[slug];
   return [...rounds].reverse().map(r => ({
     label: r.type,
     amount: r.amount / 1_000_000,
@@ -222,7 +251,7 @@ export function CompanyPageClient({ company, companyFunding, similar }: CompanyP
     () => (isPublic ? generateStockData(company.ticker!, stockTimescale) : []),
     [isPublic, company.ticker, stockTimescale]
   );
-  const fundingChartData = useMemo(() => buildFundingChartData(companyFunding), [companyFunding]);
+  const fundingChartData = useMemo(() => buildFundingChartData(companyFunding, company.slug), [companyFunding, company.slug]);
 
   const currentPrice = stockData.length > 0 ? stockData[stockData.length - 1].price : 0;
   const startPrice = stockData.length > 0 ? stockData[0].price : 0;

@@ -193,9 +193,6 @@ export default function EventsPage() {
                               >
                                 {ev.type}
                               </span>
-                              <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>
-                                12 companies
-                              </span>
                             </div>
                           </div>
                           <Link

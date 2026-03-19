@@ -217,24 +217,22 @@ export default function FundingPage() {
               }}
             >
               {/* Table header */}
+              <style>{`
+                .funding-row { grid-template-columns: 2fr 1fr 1fr 0.8fr; }
+                @media (min-width: 480px) { .funding-row { grid-template-columns: 2fr 1fr 1fr 1.5fr 1fr 0.8fr; } }
+              `}</style>
               <div
-                className="grid px-4 py-2.5"
+                className="funding-row grid px-4 py-2.5"
                 style={{
-                  gridTemplateColumns: "2fr 1fr 1fr 1.5fr 1fr 0.8fr",
                   borderBottom: "0.5px solid var(--color-border-subtle)",
                 }}
               >
-                {["Company", "Round", "Amount", "Lead Investor", "Date", "Country"].map(
-                  (h) => (
-                    <span
-                      key={h}
-                      className="text-10 uppercase tracking-[0.5px] font-medium"
-                      style={{ color: "var(--color-text-tertiary)" }}
-                    >
-                      {h}
-                    </span>
-                  )
-                )}
+                <span className="text-10 uppercase tracking-[0.5px] font-medium" style={{ color: "var(--color-text-tertiary)" }}>Company</span>
+                <span className="text-10 uppercase tracking-[0.5px] font-medium" style={{ color: "var(--color-text-tertiary)" }}>Round</span>
+                <span className="text-10 uppercase tracking-[0.5px] font-medium" style={{ color: "var(--color-text-tertiary)" }}>Amount</span>
+                <span className="text-10 uppercase tracking-[0.5px] font-medium hidden min-[480px]:block" style={{ color: "var(--color-text-tertiary)" }}>Lead Investor</span>
+                <span className="text-10 uppercase tracking-[0.5px] font-medium hidden min-[480px]:block" style={{ color: "var(--color-text-tertiary)" }}>Date</span>
+                <span className="text-10 uppercase tracking-[0.5px] font-medium" style={{ color: "var(--color-text-tertiary)" }}>Country</span>
               </div>
 
               {/* Table rows */}
@@ -246,9 +244,8 @@ export default function FundingPage() {
                   return (
                     <div
                       key={`${row.companySlug}-${row.date}-${i}`}
-                      className="grid px-4 py-3 transition-colors duration-100"
+                      className="funding-row grid px-4 py-3 transition-colors duration-100"
                       style={{
-                        gridTemplateColumns: "2fr 1fr 1fr 1.5fr 1fr 0.8fr",
                         borderBottom: "0.5px solid var(--color-border-subtle)",
                         alignItems: "center",
                         filter: isBlurred ? "blur(5px)" : "none",
@@ -282,10 +279,10 @@ export default function FundingPage() {
                       <span className="text-12 font-medium" style={{ color: "var(--color-text-primary)" }}>
                         {formatCurrency(row.amount, row.currency)}
                       </span>
-                      <span className="text-12" style={{ color: "var(--color-text-secondary)" }}>
+                      <span className="text-12 hidden min-[480px]:block" style={{ color: "var(--color-text-secondary)" }}>
                         {row.leadInvestor}
                       </span>
-                      <span className="text-12" style={{ color: "var(--color-text-tertiary)" }}>
+                      <span className="text-12 hidden min-[480px]:block" style={{ color: "var(--color-text-tertiary)" }}>
                         {formatDate(row.date)}
                       </span>
                       <span className="text-12">
