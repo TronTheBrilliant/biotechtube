@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { TickerBar } from "@/components/TickerBar";
 import { IndexCards } from "@/components/IndexCards";
