@@ -8,11 +8,11 @@ import { FiltersModal, Filters, defaultFilters } from "./FiltersModal";
 import { Company, FundingRound } from "@/lib/types";
 
 const homeTabs = [
-  { key: "top", label: "Top" },
-  { key: "trending", label: "Trending \u00b7 5" },
-  { key: "funded", label: "Funded \u00b7 4" },
-  { key: "new", label: "New \u00b7 12" },
-  { key: "watchlist", label: "Watchlist" },
+  { key: "top", label: "📈 Top" },
+  { key: "trending", label: "🔥 Trending \u00b7 5" },
+  { key: "funded", label: "💰 Funded \u00b7 4" },
+  { key: "new", label: "🆕 New \u00b7 12" },
+  { key: "watchlist", label: "⭐ Watchlist" },
 ] as const;
 type HomeTab = (typeof homeTabs)[number]["key"];
 
@@ -105,7 +105,7 @@ export function HomePageClient({ companies, funding }: HomePageClientProps) {
             <button
               key={tab.key}
               onClick={() => tab.key !== "watchlist" && setActiveTab(tab.key)}
-              className="text-12 py-2.5 px-2 transition-all duration-200 border-b-[1.5px] whitespace-nowrap flex items-center gap-1"
+              className="text-14 py-2.5 px-2 transition-all duration-200 border-b-[1.5px] whitespace-nowrap flex items-center gap-1"
               style={{
                 color: activeTab === tab.key ? "var(--color-accent)" : tab.key === "watchlist" ? "var(--color-text-tertiary)" : "var(--color-text-secondary)",
                 borderBottomColor: activeTab === tab.key ? "var(--color-accent)" : "transparent",
@@ -123,7 +123,7 @@ export function HomePageClient({ companies, funding }: HomePageClientProps) {
         {/* Filter Button */}
         <button
           onClick={() => setFiltersOpen(true)}
-          className="flex items-center gap-1.5 text-11 font-medium px-2.5 py-1.5 rounded border transition-colors duration-150 flex-shrink-0 ml-2"
+          className="flex items-center gap-1.5 text-13 font-medium px-2.5 py-1.5 rounded border transition-colors duration-150 flex-shrink-0 ml-2"
           style={{
             borderColor: activeFilterCount > 0 ? "var(--color-accent)" : "var(--color-border-medium)",
             color: activeFilterCount > 0 ? "var(--color-accent)" : "var(--color-text-secondary)",

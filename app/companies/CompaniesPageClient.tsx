@@ -9,6 +9,7 @@ import { PaywallCard } from "@/components/PaywallCard";
 import { Company, FundingRound } from "@/lib/types";
 import { formatCurrency } from "@/lib/formatting";
 import { Search, ArrowRight } from "lucide-react";
+import { CompanyAvatar } from "@/components/CompanyAvatar";
 
 import companiesData from "@/data/companies.json";
 import fundingData from "@/data/funding.json";
@@ -24,16 +25,6 @@ const stageBadgeColors: Record<string, { bg: string; text: string; border: strin
   "Phase 1": { bg: "#f5f3ff", text: "#5b21b6", border: "#c4b5fd" },
   "Pre-clinical": { bg: "#f7f7f6", text: "#6b6b65", border: "rgba(0,0,0,0.14)" },
 };
-
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .filter((w) => w.length > 0)
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase();
-}
 
 const allCountries = Array.from(new Set(companies.map((c) => c.country))).sort();
 const allFocusAreas = Array.from(new Set(companies.flatMap((c) => c.focus))).sort();
@@ -118,8 +109,8 @@ export function CompaniesPageClient() {
           </span>
         </div>
         <h1
-          className="text-[24px] font-medium tracking-tight mt-1"
-          style={{ color: "var(--color-text-primary)", letterSpacing: "-0.4px" }}
+          className="text-[32px] font-medium tracking-tight mt-1"
+          style={{ color: "var(--color-text-primary)", letterSpacing: "-0.5px" }}
         >
           Global Biotech Directory
         </h1>
@@ -246,15 +237,7 @@ export function CompaniesPageClient() {
                   }}
                 >
                   <div className="flex items-start gap-3">
-                    <div
-                      className="w-10 h-10 rounded-lg flex items-center justify-center text-11 font-medium flex-shrink-0"
-                      style={{
-                        background: "var(--color-bg-tertiary)",
-                        color: "var(--color-text-secondary)",
-                      }}
-                    >
-                      {getInitials(company.name)}
-                    </div>
+                    <CompanyAvatar name={company.name} logoUrl={company.logoUrl} size={40} />
                     <div className="flex-1 min-w-0">
                       <div
                         className="text-13 font-medium"
@@ -356,15 +339,7 @@ export function CompaniesPageClient() {
                       }}
                     >
                       <div className="flex items-start gap-3">
-                        <div
-                          className="w-10 h-10 rounded-lg flex items-center justify-center text-11 font-medium flex-shrink-0"
-                          style={{
-                            background: "var(--color-bg-tertiary)",
-                            color: "var(--color-text-secondary)",
-                          }}
-                        >
-                          {getInitials(company.name)}
-                        </div>
+                        <CompanyAvatar name={company.name} logoUrl={company.logoUrl} size={40} />
                         <div className="flex-1 min-w-0">
                           <div
                             className="text-13 font-medium"

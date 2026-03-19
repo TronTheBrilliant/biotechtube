@@ -24,9 +24,9 @@ export function UpcomingEvents({ events }: UpcomingEventsProps) {
   return (
     <div>
       <div className="flex items-center gap-2 px-3.5 py-2.5 border-b">
-        <Calendar size={12} style={{ color: "var(--color-text-tertiary)" }} />
+        <Calendar size={14} style={{ color: "var(--color-text-secondary)" }} />
         <span
-          className="text-10 uppercase tracking-[0.5px] font-medium"
+          className="text-12 uppercase tracking-[0.5px] font-medium"
           style={{ color: "var(--color-text-secondary)" }}
         >
           UPCOMING EVENTS
@@ -42,16 +42,16 @@ export function UpcomingEvents({ events }: UpcomingEventsProps) {
           onMouseLeave={(e) => (e.currentTarget.style.background = "")}
         >
           <div
-            className="text-12 font-medium mb-[2px]"
+            className="text-14 font-medium mb-[2px]"
             style={{ color: "var(--color-text-primary)" }}
           >
             {event.name}
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="text-10" style={{ color: "var(--color-accent)" }}>
+            <span className="text-12" style={{ color: "var(--color-accent)" }}>
               {formatEventDate(event.date, event.endDate)}
             </span>
-            <span className="text-10" style={{ color: "var(--color-text-tertiary)" }}>
+            <span className="text-12" style={{ color: "var(--color-text-tertiary)" }}>
               · {event.location}
             </span>
           </div>

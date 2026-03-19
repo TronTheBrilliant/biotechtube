@@ -11,8 +11,8 @@ export default function TemplateInquiryPage() {
       <Nav />
       <main className="mx-auto px-4 py-12" style={{ maxWidth: 480 }}>
         <h1
-          className="text-22 font-medium mb-6"
-          style={{ color: "var(--color-text-primary)" }}
+          className="text-[32px] font-medium mb-6 tracking-tight"
+          style={{ color: "var(--color-text-primary)", letterSpacing: "-0.5px" }}
         >
           Get your biotech website
         </h1>

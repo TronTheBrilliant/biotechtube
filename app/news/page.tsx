@@ -44,8 +44,8 @@ export default function NewsPage() {
             News
           </span>
           <h1
-            className="text-2xl font-medium mt-2 mb-3"
-            style={{ color: "var(--color-text-primary)" }}
+            className="text-[32px] font-medium mt-2 mb-3 tracking-tight"
+            style={{ color: "var(--color-text-primary)", letterSpacing: "-0.5px" }}
           >
             AI-curated biotech intelligence
           </h1>

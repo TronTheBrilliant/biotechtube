@@ -18,8 +18,8 @@ export default function SubmitEventPage() {
           }}
         >
           <h1
-            className="text-22 font-medium mb-2"
-            style={{ color: "var(--color-text-primary)" }}
+            className="text-[32px] font-medium mb-2 tracking-tight"
+            style={{ color: "var(--color-text-primary)", letterSpacing: "-0.5px" }}
           >
             Submit an event
           </h1>

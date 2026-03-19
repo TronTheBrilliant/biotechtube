@@ -112,8 +112,8 @@ export function PipelinePageClient() {
           PIPELINE
         </span>
         <h1
-          className="text-[24px] font-medium tracking-tight mt-1"
-          style={{ color: "var(--color-text-primary)", letterSpacing: "-0.4px" }}
+          className="text-[32px] font-medium tracking-tight mt-1"
+          style={{ color: "var(--color-text-primary)", letterSpacing: "-0.5px" }}
         >
           Global Drug Pipeline
         </h1>

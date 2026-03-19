@@ -34,8 +34,8 @@ export default function ForgotPasswordPage() {
           </p>
 
           <h1
-            className="text-xl font-medium text-center mb-1"
-            style={{ color: "var(--color-text-primary)" }}
+            className="text-[32px] font-medium text-center mb-1 tracking-tight"
+            style={{ color: "var(--color-text-primary)", letterSpacing: "-0.5px" }}
           >
             Reset your password
           </h1>

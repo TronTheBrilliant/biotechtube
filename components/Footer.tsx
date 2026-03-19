@@ -1,32 +1,32 @@
 import Link from "next/link";
 
 const platformLinks = [
-  { label: "Companies", href: "/companies" },
-  { label: "Pipeline", href: "/pipeline" },
-  { label: "Funding", href: "/funding" },
-  { label: "Events", href: "/events" },
-  { label: "News", href: "/news" },
+  { label: "🏢 Companies", href: "/companies" },
+  { label: "🧬 Pipeline", href: "/pipeline" },
+  { label: "💰 Funding", href: "/funding" },
+  { label: "📅 Events", href: "/events" },
+  { label: "📰 News", href: "/news" },
 ];
 
 const forCompaniesLinks = [
-  { label: "Claim your profile", href: "/signup" },
-  { label: "Submit a pitch", href: "/submit-pitch" },
-  { label: "Sponsor BiotechTube", href: "/sponsors" },
-  { label: "Website templates", href: "/templates" },
+  { label: "🎯 Claim your profile", href: "/signup" },
+  { label: "📢 Submit a pitch", href: "/submit-pitch" },
+  { label: "🤝 Sponsor BiotechTube", href: "/sponsors" },
+  { label: "💻 Website templates", href: "/templates" },
 ];
 
 const companyLinks = [
-  { label: "About", href: "/about" },
-  { label: "Contact", href: "/about" },
-  { label: "Privacy policy", href: "/privacy" },
-  { label: "Terms", href: "/terms" },
+  { label: "ℹ️ About", href: "/about" },
+  { label: "✉️ Contact", href: "/about" },
+  { label: "🔒 Privacy policy", href: "/privacy" },
+  { label: "📜 Terms", href: "/terms" },
 ];
 
 function FooterColumn({ title, links }: { title: string; links: { label: string; href: string }[] }) {
   return (
     <div>
       <h3
-        className="text-10 uppercase tracking-[0.5px] font-medium mb-3"
+        className="text-12 uppercase tracking-[0.5px] font-medium mb-3"
         style={{ color: "var(--color-text-secondary)" }}
       >
         {title}
@@ -36,7 +36,7 @@ function FooterColumn({ title, links }: { title: string; links: { label: string;
           <li key={link.label}>
             <Link
               href={link.href}
-              className="text-12 transition-colors duration-150 hover:text-[var(--color-text-primary)]"
+              className="text-14 transition-colors duration-150 hover:text-[var(--color-text-primary)] whitespace-nowrap"
               style={{ color: "var(--color-text-tertiary)" }}
             >
               {link.label}
@@ -61,7 +61,7 @@ export function Footer() {
       </div>
       {/* Bottom strip */}
       <div
-        className="flex items-center justify-center h-10 text-10"
+        className="flex items-center justify-center h-10 text-12"
         style={{
           color: "var(--color-text-tertiary)",
           borderTop: "0.5px solid var(--color-border-subtle)",

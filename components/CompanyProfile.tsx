@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowUpRight, Star, Shield } from "lucide-react";
 import { Company } from "@/lib/types";
 import { formatCurrency } from "@/lib/formatting";
+import { CompanyAvatar } from "@/components/CompanyAvatar";
 
 const stageColors: Record<string, { bg: string; text: string; border: string }> = {
   Approved: { bg: "#e8f5f0", text: "#0a3d2e", border: "#5DCAA5" },
@@ -27,14 +28,20 @@ const focusColors: Record<string, { bg: string; text: string; border: string }> 
   "TCR Cell Therapy": { bg: "#f5f3ff", text: "#5b21b6", border: "#c4b5fd" },
 };
 
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase();
-}
+const focusEmoji: Record<string, string> = {
+  Oncology: "🎯",
+  Immunotherapy: "🛡️",
+  Diagnostics: "🔬",
+  "Drug Delivery": "💉",
+  Radiopharmaceuticals: "☢️",
+  "DNA Vaccine": "🧬",
+  Photochemistry: "🧪",
+  "Bladder Cancer": "🎯",
+  "Oncolytic Peptide": "🛡️",
+  "Monoclonal Antibodies": "🧬",
+  "AI Diagnostics": "🤖",
+  "TCR Cell Therapy": "🦠",
+};
 
 interface CompanyProfileProps {
   company: Company;
@@ -47,24 +54,11 @@ export function CompanyProfileHero({ company }: CompanyProfileProps) {
     <div className="px-5 py-5 border-b">
       {/* Top row: Avatar + Name */}
       <div className="flex items-start gap-3 mb-3">
-        <div
-          className="w-12 h-12 rounded-lg flex items-center justify-center border flex-shrink-0"
-          style={{
-            background: "var(--color-bg-secondary)",
-            borderColor: "var(--color-border-subtle)",
-          }}
-        >
-          <span
-            className="text-14 font-medium"
-            style={{ color: "var(--color-text-secondary)" }}
-          >
-            {getInitials(company.name)}
-          </span>
-        </div>
+        <CompanyAvatar name={company.name} logoUrl={company.logoUrl} size={48} />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
             <h1
-              className="text-[20px] md:text-[22px] font-medium tracking-tight"
+              className="text-[28px] md:text-[28px] font-medium tracking-tight"
               style={{ color: "var(--color-text-primary)", letterSpacing: "-0.4px" }}
             >
               {company.name}
@@ -83,13 +77,13 @@ export function CompanyProfileHero({ company }: CompanyProfileProps) {
             )}
           </div>
           <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-[2px]">
-            <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>
+            <span className="text-14" style={{ color: "var(--color-text-tertiary)" }}>
               {company.city}, {company.country}
             </span>
-            <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>
+            <span className="text-14" style={{ color: "var(--color-text-tertiary)" }}>
               · Founded {company.founded}
             </span>
-            <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>
+            <span className="text-14" style={{ color: "var(--color-text-tertiary)" }}>
               · {company.employees} employees
             </span>
           </div>
@@ -128,7 +122,7 @@ export function CompanyProfileHero({ company }: CompanyProfileProps) {
       {/* Tags */}
       <div className="flex flex-wrap items-center gap-1.5 mb-3">
         <span
-          className="text-10 px-2 py-[3px] rounded-sm border"
+          className="text-12 px-2 py-[3px] rounded-sm border"
           style={{
             background: sc.bg,
             color: sc.text,
@@ -139,7 +133,7 @@ export function CompanyProfileHero({ company }: CompanyProfileProps) {
           {company.stage}
         </span>
         <span
-          className="text-10 px-2 py-[3px] rounded-sm border"
+          className="text-12 px-2 py-[3px] rounded-sm border"
           style={{
             background: company.type === "Public" ? "#e8f5f0" : "#f7f7f6",
             color: company.type === "Public" ? "#0a3d2e" : "#6b6b65",
@@ -158,7 +152,7 @@ export function CompanyProfileHero({ company }: CompanyProfileProps) {
           return (
             <span
               key={f}
-              className="text-11 px-2 py-[3px] rounded-sm border"
+              className="text-12 px-2 py-[3px] rounded-sm border"
               style={{
                 background: fc.bg,
                 color: fc.text,
@@ -167,7 +161,7 @@ export function CompanyProfileHero({ company }: CompanyProfileProps) {
                 fontWeight: 400,
               }}
             >
-              {f}
+              <span className="whitespace-nowrap">{focusEmoji[f] ? `${focusEmoji[f]} ${f}` : f}</span>
             </span>
           );
         })}
@@ -178,13 +172,13 @@ export function CompanyProfileHero({ company }: CompanyProfileProps) {
         {company.valuation && (
           <div>
             <div
-              className="text-10 uppercase tracking-[0.4px]"
+              className="text-12 uppercase tracking-[0.4px]"
               style={{ color: "var(--color-text-secondary)" }}
             >
               Valuation
             </div>
             <div
-              className="text-14 font-medium"
+              className="text-[22px] font-medium"
               style={{
                 color: company.isEstimated
                   ? "var(--color-text-tertiary)"
@@ -198,13 +192,13 @@ export function CompanyProfileHero({ company }: CompanyProfileProps) {
         )}
         <div>
           <div
-            className="text-10 uppercase tracking-[0.4px]"
+            className="text-12 uppercase tracking-[0.4px]"
             style={{ color: "var(--color-text-secondary)" }}
           >
             Total Raised
           </div>
           <div
-            className="text-14 font-medium"
+            className="text-[22px] font-medium"
             style={{ color: "var(--color-accent)" }}
           >
             {formatCurrency(company.totalRaised)}
@@ -212,13 +206,13 @@ export function CompanyProfileHero({ company }: CompanyProfileProps) {
         </div>
         <div>
           <div
-            className="text-10 uppercase tracking-[0.4px]"
+            className="text-12 uppercase tracking-[0.4px]"
             style={{ color: "var(--color-text-secondary)" }}
           >
             Stage
           </div>
           <div
-            className="text-14 font-medium"
+            className="text-[22px] font-medium"
             style={{ color: "var(--color-text-primary)" }}
           >
             {company.stage}
@@ -227,13 +221,13 @@ export function CompanyProfileHero({ company }: CompanyProfileProps) {
         {company.profileViews && (
           <div>
             <div
-              className="text-10 uppercase tracking-[0.4px]"
+              className="text-12 uppercase tracking-[0.4px]"
               style={{ color: "var(--color-text-secondary)" }}
             >
               Profile Views
             </div>
             <div
-              className="text-14 font-medium"
+              className="text-[22px] font-medium"
               style={{ color: "var(--color-text-primary)" }}
             >
               {company.profileViews}
@@ -243,13 +237,13 @@ export function CompanyProfileHero({ company }: CompanyProfileProps) {
         {company.trending && (
           <div>
             <div
-              className="text-10 uppercase tracking-[0.4px]"
+              className="text-12 uppercase tracking-[0.4px]"
               style={{ color: "var(--color-text-secondary)" }}
             >
               Trending Rank
             </div>
             <div
-              className="text-14 font-medium"
+              className="text-[22px] font-medium"
               style={{ color: "var(--color-accent)" }}
             >
               #{company.trending} this week
@@ -262,7 +256,7 @@ export function CompanyProfileHero({ company }: CompanyProfileProps) {
 
       {/* Description */}
       <p
-        className="text-13 mt-3"
+        className="text-[15px] mt-3"
         style={{ color: "var(--color-text-secondary)", lineHeight: 1.65 }}
       >
         {company.description}

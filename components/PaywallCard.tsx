@@ -30,7 +30,7 @@ export function PaywallCard() {
       <div className="px-3.5 py-3">
         <div className="mb-2">
           <span
-            className="text-[22px] font-medium tracking-tight"
+            className="text-[28px] font-medium tracking-tight"
             style={{ color: "var(--color-text-primary)", letterSpacing: "-0.5px" }}
           >
             $49
@@ -51,7 +51,7 @@ export function PaywallCard() {
               >
                 <Check size={10} color="white" strokeWidth={2.5} />
               </div>
-              <span className="text-12" style={{ color: "var(--color-text-primary)" }}>
+              <span className="text-14" style={{ color: "var(--color-text-primary)" }}>
                 {f.text}
               </span>
               {f.soon && (
@@ -67,7 +67,7 @@ export function PaywallCard() {
         </div>
         <Link
           href="/signup"
-          className="block w-full py-[9px] rounded text-13 font-medium text-white text-center"
+          className="block w-full py-[9px] rounded text-14 font-medium text-white text-center"
           style={{ background: "var(--color-accent)" }}
         >
           Start free trial

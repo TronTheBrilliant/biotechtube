@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { TrendingUp } from "lucide-react";
 import { FundingRound, Company } from "@/lib/types";
 import { formatCurrency, formatRelativeTime } from "@/lib/formatting";
 
@@ -27,10 +28,11 @@ export function RecentlyFunded({ funding, companies }: RecentlyFundedProps) {
   return (
     <div>
       <div className="flex items-center justify-between px-3.5 py-2.5 border-b">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
+          <TrendingUp size={14} style={{ color: "var(--color-text-secondary)" }} />
           <div className="live-dot" />
           <span
-            className="text-10 uppercase tracking-[0.5px] font-medium"
+            className="text-12 uppercase tracking-[0.5px] font-medium"
             style={{ color: "var(--color-text-secondary)" }}
           >
             RECENTLY FUNDED
@@ -38,7 +40,7 @@ export function RecentlyFunded({ funding, companies }: RecentlyFundedProps) {
         </div>
         <Link
           href="/funding"
-          className="text-10"
+          className="text-12"
           style={{ color: "var(--color-accent)" }}
         >
           View all →
@@ -56,19 +58,19 @@ export function RecentlyFunded({ funding, companies }: RecentlyFundedProps) {
           >
             <div className="flex justify-between items-baseline mb-[2px]">
               <span
-                className="text-12 font-medium"
+                className="text-14 font-medium"
                 style={{ color: "var(--color-text-primary)" }}
               >
                 {getCompanyName(round.companySlug)}
               </span>
               <span
-                className="text-12 font-medium"
+                className="text-14 font-medium"
                 style={{ color: "var(--color-accent)" }}
               >
                 {formatCurrency(round.amount, round.currency)}
               </span>
             </div>
-            <div className="text-10 mb-[2px]" style={{ color: "var(--color-text-secondary)" }}>
+            <div className="text-12 mb-[2px]" style={{ color: "var(--color-text-secondary)" }}>
               <span
                 className="inline-block px-1.5 py-[1px] rounded-sm mr-1 text-[9px]"
                 style={{
@@ -81,7 +83,7 @@ export function RecentlyFunded({ funding, companies }: RecentlyFundedProps) {
               </span>
               {round.leadInvestor && <>Led by {round.leadInvestor}</>}
             </div>
-            <div className="text-10" style={{ color: "var(--color-text-tertiary)" }}>
+            <div className="text-12" style={{ color: "var(--color-text-tertiary)" }}>
               {formatRelativeTime(round.daysAgo || 0)} · {getCompanyCity(round.companySlug)}
             </div>
           </Link>

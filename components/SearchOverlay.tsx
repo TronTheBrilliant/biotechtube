@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Search, X, TrendingUp, Sparkles, ArrowRight } from "lucide-react";
 import { Company } from "@/lib/types";
 import { formatCurrency } from "@/lib/formatting";
+import { CompanyAvatar } from "@/components/CompanyAvatar";
 import companiesData from "@/data/companies.json";
 
 const companies = companiesData as Company[];
@@ -17,10 +18,6 @@ const stageColors: Record<string, { bg: string; text: string; border: string }> 
   "Phase 1": { bg: "#f5f3ff", text: "#5b21b6", border: "#c4b5fd" },
   "Pre-clinical": { bg: "#f7f7f6", text: "#6b6b65", border: "rgba(0,0,0,0.14)" },
 };
-
-function getInitials(name: string) {
-  return name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
-}
 
 interface SearchOverlayProps {
   isOpen: boolean;
@@ -109,7 +106,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search companies, pipelines, therapeutic areas..."
-            className="flex-1 text-14 bg-transparent border-0 outline-none"
+            className="flex-1 text-[16px] bg-transparent border-0 outline-none"
             style={{ color: "var(--color-text-primary)" }}
           />
           {query && (
@@ -253,23 +250,10 @@ function CompanyRow({
           #{company.trending}
         </span>
       )}
-      <div
-        className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0 border"
-        style={{
-          background: sponsored ? "#0a3d2e" : "var(--color-bg-secondary)",
-          borderColor: sponsored ? "#1a7a5e" : "var(--color-border-subtle)",
-        }}
-      >
-        <span
-          className="text-[9px] font-medium"
-          style={{ color: sponsored ? "#5DCAA5" : "var(--color-text-secondary)" }}
-        >
-          {getInitials(company.name)}
-        </span>
-      </div>
+      <CompanyAvatar name={company.name} logoUrl={company.logoUrl} size={32} />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
-          <span className="text-12 font-medium truncate" style={{ color: "var(--color-text-primary)" }}>
+          <span className="text-[15px] font-medium truncate" style={{ color: "var(--color-text-primary)" }}>
             {highlightText(company.name)}
           </span>
           {company.ticker && (
@@ -278,7 +262,7 @@ function CompanyRow({
             </span>
           )}
         </div>
-        <div className="flex items-center gap-1.5 text-10" style={{ color: "var(--color-text-tertiary)" }}>
+        <div className="flex items-center gap-1.5 text-12" style={{ color: "var(--color-text-tertiary)" }}>
           <span>{company.city}, {company.country}</span>
           <span>·</span>
           <span>{company.focus[0]}</span>

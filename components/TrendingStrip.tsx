@@ -3,15 +3,7 @@
 import Link from "next/link";
 import { Company } from "@/lib/types";
 import { formatNumber } from "@/lib/formatting";
-
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase();
-}
+import { CompanyAvatar } from "@/components/CompanyAvatar";
 
 interface TrendingStripProps {
   companies: Company[];
@@ -30,7 +22,7 @@ export function TrendingStrip({ companies }: TrendingStripProps) {
       <div className="flex items-center gap-2 mb-2">
         <div className="live-dot" />
         <span
-          className="text-10 uppercase tracking-[0.5px] font-medium"
+          className="text-12 uppercase tracking-[0.5px] font-medium"
           style={{ color: "var(--color-text-secondary)" }}
         >
           TRENDING
@@ -56,32 +48,19 @@ export function TrendingStrip({ companies }: TrendingStripProps) {
             >
               #{company.trending}
             </span>
-            <div
-              className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0"
-              style={{
-                background: "var(--color-bg-tertiary)",
-                border: "0.5px solid var(--color-border-subtle)",
-              }}
-            >
-              <span
-                className="text-[7px] font-medium"
-                style={{ color: "var(--color-text-secondary)" }}
-              >
-                {getInitials(company.name)}
-              </span>
-            </div>
+            <CompanyAvatar name={company.name} logoUrl={company.logoUrl} size={20} />
             <div>
               <div
-                className="text-11 font-medium"
+                className="text-[15px] font-medium"
                 style={{ color: "var(--color-text-primary)" }}
               >
                 {company.name}
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-10" style={{ color: "var(--color-text-tertiary)" }}>
+                <span className="text-12" style={{ color: "var(--color-text-tertiary)" }}>
                   {company.focus[0]}
                 </span>
-                <span className="text-10" style={{ color: "var(--color-text-tertiary)" }}>
+                <span className="text-12" style={{ color: "var(--color-text-tertiary)" }}>
                   · {formatNumber(company.profileViews || 0)} views
                 </span>
               </div>

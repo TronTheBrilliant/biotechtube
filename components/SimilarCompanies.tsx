@@ -2,15 +2,7 @@
 
 import Link from "next/link";
 import { Company } from "@/lib/types";
-
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase();
-}
+import { CompanyAvatar } from "@/components/CompanyAvatar";
 
 interface SimilarCompaniesProps {
   companies: Company[];
@@ -37,20 +29,7 @@ export function SimilarCompanies({ companies }: SimilarCompaniesProps) {
           }
           onMouseLeave={(e) => (e.currentTarget.style.background = "")}
         >
-          <div
-            className="w-6 h-6 rounded-md flex items-center justify-center border flex-shrink-0"
-            style={{
-              background: "var(--color-bg-secondary)",
-              borderColor: "var(--color-border-subtle)",
-            }}
-          >
-            <span
-              className="text-[8px] font-medium"
-              style={{ color: "var(--color-text-secondary)" }}
-            >
-              {getInitials(c.name)}
-            </span>
-          </div>
+          <CompanyAvatar name={c.name} logoUrl={c.logoUrl} size={24} />
           <div className="min-w-0">
             <div
               className="text-11 font-medium truncate"

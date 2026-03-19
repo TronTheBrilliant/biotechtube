@@ -57,8 +57,8 @@ export default function SubmitPitchPage() {
               Submit your pitch
             </p>
             <h1
-              className="text-22 font-medium mb-6"
-              style={{ color: "var(--color-text-primary)" }}
+              className="text-[32px] font-medium mb-6 tracking-tight"
+              style={{ color: "var(--color-text-primary)", letterSpacing: "-0.5px" }}
             >
               Get in front of 25,000+ biotech investors
             </h1>

@@ -103,8 +103,8 @@ export default function EventsPage() {
         {/* Header */}
         <div className="mb-6">
           <h1
-            className="text-2xl font-medium mb-1"
-            style={{ color: "var(--color-text-primary)" }}
+            className="text-[32px] font-medium mb-1 tracking-tight"
+            style={{ color: "var(--color-text-primary)", letterSpacing: "-0.5px" }}
           >
             Biotech Events
           </h1>

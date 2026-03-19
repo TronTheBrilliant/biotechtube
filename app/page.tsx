@@ -38,7 +38,7 @@ export default function HomePage() {
             </span>
           </div>
           <h1
-            className="text-[16px] font-medium tracking-tight line-clamp-2 md:line-clamp-1"
+            className="text-[18px] font-medium tracking-tight line-clamp-2 md:line-clamp-1"
             style={{ color: "var(--color-text-primary)", letterSpacing: "-0.3px", lineHeight: 1.3 }}
           >
             Track every biotech company, pipeline, and funding round

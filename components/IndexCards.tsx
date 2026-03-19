@@ -9,7 +9,7 @@ import {
 
 const cardData = [
   {
-    label: "GLOBAL BIOTECH INDEX",
+    label: "📊 GLOBAL BIOTECH INDEX",
     value: "4,207",
     change: "+3.2%",
     up: true,
@@ -17,7 +17,7 @@ const cardData = [
     data: [40, 42, 38, 44, 46, 43, 48, 50, 47, 52, 55, 53],
   },
   {
-    label: "INVESTMENT VOLUME (YTD)",
+    label: "💰 INVESTMENT VOLUME (YTD)",
     value: "$4.2B",
     change: "+8.3%",
     up: true,
@@ -25,7 +25,7 @@ const cardData = [
     data: [20, 24, 22, 28, 32, 30, 35, 33, 38, 42, 40, 44],
   },
   {
-    label: "ACTIVE CLINICAL TRIALS",
+    label: "🧪 ACTIVE CLINICAL TRIALS",
     value: "3,841",
     change: "+24",
     up: true,
@@ -33,7 +33,7 @@ const cardData = [
     data: [100, 105, 108, 106, 112, 115, 118, 120, 122, 125, 128, 130],
   },
   {
-    label: "COMPANIES TRACKED",
+    label: "🏢 COMPANIES TRACKED",
     value: "14,207",
     change: "+127",
     up: true,
@@ -49,7 +49,7 @@ export function IndexCards() {
         <Link
           key={card.label}
           href={card.href}
-          className="rounded-md px-3.5 py-3 border min-w-[160px] md:min-w-0 min-h-[140px] flex-shrink-0 md:flex-shrink transition-all duration-150 hover:border-[var(--color-border-medium)] hover:shadow-sm"
+          className="rounded-md px-3.5 py-3 border min-w-[160px] md:min-w-0 min-h-[160px] flex-shrink-0 md:flex-shrink transition-all duration-150 hover:border-[var(--color-border-medium)] hover:shadow-sm"
           style={{
             background: "var(--color-bg-secondary)",
             borderColor: "var(--color-border-subtle)",
@@ -57,20 +57,20 @@ export function IndexCards() {
           }}
         >
           <div
-            className="text-10 uppercase tracking-[0.4px] mb-1"
+            className="text-12 uppercase tracking-[0.4px] mb-1 whitespace-nowrap"
             style={{ color: "var(--color-text-secondary)" }}
           >
             {card.label}
           </div>
           <div
-            className="text-[28px] font-medium tracking-tight mb-[3px]"
+            className="text-[32px] font-medium tracking-tight mb-[3px]"
             style={{ color: "var(--color-text-primary)", letterSpacing: "-0.5px" }}
           >
             {card.value}
           </div>
           <div className="flex items-center justify-between">
             <span
-              className="text-11 font-medium"
+              className="text-13 font-medium"
               style={{ color: card.up ? "var(--color-accent)" : "#c0392b" }}
             >
               {card.change}

@@ -18,6 +18,15 @@ import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContai
 const tabs = ["Overview", "Pipeline", "Funding", "Team", "Publications", "News"] as const;
 type Tab = (typeof tabs)[number];
 
+const tabDisplayLabels: Record<Tab, string> = {
+  Overview: "📋 Overview",
+  Pipeline: "🧬 Pipeline",
+  Funding: "💰 Funding",
+  Team: "👥 Team",
+  Publications: "📄 Publications",
+  News: "📰 News",
+};
+
 // Pipeline data
 const mockPipeline: Record<
   string,
@@ -287,7 +296,7 @@ export function CompanyPageClient({ company, companyFunding, similar }: CompanyP
               fontWeight: activeTab === tab ? 500 : 400,
             }}
           >
-            {tab}
+            {tabDisplayLabels[tab]}
           </button>
         ))}
       </div>

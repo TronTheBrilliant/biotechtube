@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 const sectionStyle: React.CSSProperties = { color: "var(--color-text-secondary)", lineHeight: 1.75 };
-const headingStyle: React.CSSProperties = { color: "var(--color-text-primary)" };
+const headingStyle: React.CSSProperties = { color: "var(--color-text-primary)", letterSpacing: "-0.5px" };
 
 export default function TermsPage() {
   return (
@@ -17,7 +17,7 @@ export default function TermsPage() {
 
       <main className="max-w-3xl mx-auto px-5 py-10">
         <h1
-          className="text-[24px] font-medium mb-1 tracking-tight"
+          className="text-[32px] font-medium mb-1 tracking-tight"
           style={headingStyle}
         >
           Terms of Service

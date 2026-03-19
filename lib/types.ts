@@ -33,6 +33,7 @@ export interface Company {
   isEstimated?: boolean;
   description: string;
   website: string;
+  logoUrl?: string;
   trending?: number | null;
   profileViews?: number;
 }

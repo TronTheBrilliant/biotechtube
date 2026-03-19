@@ -5,6 +5,7 @@ import { Star } from "lucide-react";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
 import { Company } from "@/lib/types";
 import { formatCurrency } from "@/lib/formatting";
+import { CompanyAvatar } from "@/components/CompanyAvatar";
 
 const stageColors: Record<string, { bg: string; text: string; border: string }> = {
   Approved: { bg: "#e8f5f0", text: "#0a3d2e", border: "#5DCAA5" },
@@ -13,6 +14,15 @@ const stageColors: Record<string, { bg: string; text: string; border: string }> 
   "Phase 1/2": { bg: "#f5f3ff", text: "#5b21b6", border: "#c4b5fd" },
   "Phase 1": { bg: "#f5f3ff", text: "#5b21b6", border: "#c4b5fd" },
   "Pre-clinical": { bg: "#f7f7f6", text: "#6b6b65", border: "rgba(0,0,0,0.14)" },
+};
+
+const stageEmoji: Record<string, string> = {
+  "Pre-clinical": "\uD83D\uDD2C",
+  "Phase 1": "1\uFE0F\u20E3",
+  "Phase 1/2": "\uD83D\uDD04",
+  "Phase 2": "2\uFE0F\u20E3",
+  "Phase 3": "3\uFE0F\u20E3",
+  Approved: "\u2705",
 };
 
 const rankChanges: Record<string, number> = {
@@ -30,15 +40,6 @@ function generateSparkline() {
   return Array.from({ length: 12 }, (_, i) => ({
     v: 50 + Math.random() * 50 + i * 3,
   }));
-}
-
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase();
 }
 
 interface RankingTableProps {
@@ -59,12 +60,12 @@ export function RankingTable({ companies }: RankingTableProps) {
           .ranking-grid { grid-template-columns: 30px 1fr auto; }
           @media (min-width: 768px) { .ranking-grid { grid-template-columns: 32px 1fr 80px 70px 80px 90px 30px; } }
         `}</style>
-        <span className="text-10 uppercase tracking-[0.5px] text-center">#</span>
-        <span className="text-10 uppercase tracking-[0.5px]">Company</span>
-        <span className="text-10 uppercase tracking-[0.5px] text-right hidden md:block">Valuation</span>
-        <span className="text-10 uppercase tracking-[0.5px] text-right md:text-right">Stage</span>
-        <span className="text-10 uppercase tracking-[0.5px] text-right hidden md:block">Raised</span>
-        <span className="text-10 uppercase tracking-[0.5px] text-right hidden md:block">30d</span>
+        <span className="text-11 uppercase tracking-[0.5px] text-center">#</span>
+        <span className="text-11 uppercase tracking-[0.5px]">Company</span>
+        <span className="text-11 uppercase tracking-[0.5px] text-right hidden md:block">Valuation</span>
+        <span className="text-11 uppercase tracking-[0.5px] text-right md:text-right">Stage</span>
+        <span className="text-11 uppercase tracking-[0.5px] text-right hidden md:block">Raised</span>
+        <span className="text-11 uppercase tracking-[0.5px] text-right hidden md:block">30d</span>
         <span className="hidden md:block" />
       </div>
 
@@ -102,34 +103,21 @@ export function RankingTable({ companies }: RankingTableProps) {
             }}
           >
             <div className="flex flex-col items-center">
-              <span className="text-12" style={{ color: "var(--color-text-tertiary)" }}>{index + 1}</span>
+              <span className="text-[20px] font-medium" style={{ color: "var(--color-text-primary)" }}>{index + 1}</span>
               {(() => {
                 const change = rankChanges[company.slug] || 0;
-                if (change > 0) return <span className="text-[9px]" style={{ color: "#1a7a5e" }}>&#9650;{change}</span>;
-                if (change < 0) return <span className="text-[9px]" style={{ color: "#c0392b" }}>&#9660;{Math.abs(change)}</span>;
+                if (change > 0) return <span className="text-[10px]" style={{ color: "#1a7a5e" }}>&#9650;{change}</span>;
+                if (change < 0) return <span className="text-[10px]" style={{ color: "#c0392b" }}>&#9660;{Math.abs(change)}</span>;
                 return null;
               })()}
             </div>
 
             <div className="flex items-center gap-2 min-w-0">
-              <div
-                className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 border"
-                style={{
-                  background: "var(--color-bg-secondary)",
-                  borderColor: "var(--color-border-subtle)",
-                }}
-              >
-                <span
-                  className="text-[9px] font-medium"
-                  style={{ color: "var(--color-text-secondary)" }}
-                >
-                  {getInitials(company.name)}
-                </span>
-              </div>
+              <CompanyAvatar name={company.name} logoUrl={company.logoUrl} size={28} />
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
                   <span
-                    className="text-13 font-medium truncate"
+                    className="text-[15px] font-medium truncate"
                     style={{ color: "var(--color-text-primary)" }}
                   >
                     {company.name}
@@ -148,11 +136,11 @@ export function RankingTable({ companies }: RankingTableProps) {
                   )}
                 </div>
                 <div className="flex items-center gap-1.5 mt-[1px]">
-                  <span className="text-10" style={{ color: "var(--color-text-tertiary)" }}>
+                  <span className="text-12" style={{ color: "var(--color-text-tertiary)" }}>
                     {company.city}, {company.country}
                   </span>
-                  <span className="text-10 md:hidden" style={{ color: "var(--color-text-tertiary)" }}>·</span>
-                  <span className="text-10 font-medium md:hidden" style={{ color: "var(--color-accent)" }}>
+                  <span className="text-12 md:hidden" style={{ color: "var(--color-text-tertiary)" }}>·</span>
+                  <span className="text-12 font-medium md:hidden" style={{ color: "var(--color-accent)" }}>
                     {formatCurrency(company.totalRaised)}
                   </span>
                 </div>
@@ -176,7 +164,7 @@ export function RankingTable({ companies }: RankingTableProps) {
             <div className="text-right hidden md:block">
               {company.valuation ? (
                 <span
-                  className="text-12"
+                  className="text-14 font-medium"
                   style={{
                     color: isPublic
                       ? "var(--color-text-primary)"
@@ -189,7 +177,7 @@ export function RankingTable({ companies }: RankingTableProps) {
                   {formatCurrency(company.valuation)}
                 </span>
               ) : (
-                <span className="text-12" style={{ color: "var(--color-text-tertiary)" }}>
+                <span className="text-14 font-medium" style={{ color: "var(--color-text-tertiary)" }}>
                   —
                 </span>
               )}
@@ -197,7 +185,7 @@ export function RankingTable({ companies }: RankingTableProps) {
 
             <div className="flex justify-end">
               <span
-                className="text-[10px] px-[7px] py-[2px] rounded-sm border whitespace-nowrap"
+                className="text-11 px-[8px] py-[3px] rounded-sm border whitespace-nowrap"
                 style={{
                   background: sc.bg,
                   color: sc.text,
@@ -205,13 +193,13 @@ export function RankingTable({ companies }: RankingTableProps) {
                   borderWidth: "0.5px",
                 }}
               >
-                {company.stage}
+                {stageEmoji[company.stage] ? `${stageEmoji[company.stage]} ${company.stage}` : company.stage}
               </span>
             </div>
 
             <div className="text-right hidden md:block">
               <span
-                className="text-12 font-medium"
+                className="text-14 font-medium"
                 style={{ color: "var(--color-accent)" }}
               >
                 {formatCurrency(company.totalRaised)}

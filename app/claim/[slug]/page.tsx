@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
+import { CompanyAvatar } from "@/components/CompanyAvatar";
 import companies from "@/data/companies.json";
 import { Company } from "@/lib/types";
 
@@ -24,15 +25,6 @@ export function generateMetadata({
   };
 }
 
-function getInitials(name: string): string {
-  return name
-    .split(/\s+/)
-    .filter((w) => w.length > 0)
-    .map((w) => w[0].toUpperCase())
-    .slice(0, 2)
-    .join("");
-}
-
 export default function ClaimProfilePage({
   params,
 }: {
@@ -40,7 +32,6 @@ export default function ClaimProfilePage({
 }) {
   const company = typedCompanies.find((c) => c.slug === params.slug);
   const companyName = company?.name ?? params.slug;
-  const initials = getInitials(companyName);
 
   const card = (
     <div
@@ -53,22 +44,8 @@ export default function ClaimProfilePage({
       }}
     >
       {/* Avatar */}
-      <div
-        style={{
-          width: 64,
-          height: 64,
-          borderRadius: "50%",
-          background: "var(--color-accent)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "#fff",
-          fontSize: 22,
-          fontWeight: 500,
-          marginBottom: 8,
-        }}
-      >
-        {initials}
+      <div style={{ marginBottom: 8 }}>
+        <CompanyAvatar name={companyName} logoUrl={company?.logoUrl} size={64} />
       </div>
 
       {/* Company name */}
@@ -84,12 +61,14 @@ export default function ClaimProfilePage({
 
       {/* Heading */}
       <h1
+        className="tracking-tight"
         style={{
-          fontSize: 24,
+          fontSize: 32,
           fontWeight: 500,
           color: "var(--color-text-primary)",
           marginBottom: 8,
           textAlign: "center",
+          letterSpacing: "-0.5px",
         }}
       >
         Claim this profile

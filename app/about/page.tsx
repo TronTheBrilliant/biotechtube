@@ -43,8 +43,8 @@ export default function AboutPage() {
               About
             </span>
             <h1
-              className="text-2xl font-medium mt-2 mb-6"
-              style={{ color: "var(--color-text-primary)" }}
+              className="text-[32px] font-medium mt-2 mb-6 tracking-tight"
+              style={{ color: "var(--color-text-primary)", letterSpacing: "-0.5px" }}
             >
               Built for the biotech community
             </h1>
