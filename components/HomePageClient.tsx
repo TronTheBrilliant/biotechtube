@@ -431,7 +431,7 @@ export function HomePageClient({ companies, funding }: HomePageClientProps) {
       {activeTab !== "watchlist" && (
         <div className="pt-0 pb-3">
           {sortedCompanies.length > 0 ? (
-            <RankingTable companies={sortedCompanies} />
+            <RankingTable companies={sortedCompanies} mode={activeTab} funding={funding} />
           ) : (
             <div className="px-5 py-8 text-center">
               <p className="text-13" style={{ color: "var(--color-text-tertiary)" }}>
