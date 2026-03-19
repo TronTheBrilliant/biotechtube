@@ -41,24 +41,56 @@ const focusEmoji: Record<string, string> = {
 
 // Therapeutic categories for the browse section
 const categories = [
+  // Therapeutics
   { name: "Oncology", emoji: "🎯", count: 4200, color: "#fff0f0" },
   { name: "Immunotherapy", emoji: "🛡️", count: 2800, color: "#f5f3ff" },
   { name: "Gene Therapy", emoji: "🧬", count: 1900, color: "#eff6ff" },
+  { name: "Cell Therapy", emoji: "🦠", count: 980, color: "#f5f3ff" },
+  { name: "Vaccines", emoji: "💉", count: 1400, color: "#e8f5f0" },
+  { name: "Small Molecule", emoji: "💊", count: 3200, color: "#fff0f0" },
+  { name: "Biologics", emoji: "🧪", count: 2600, color: "#eff6ff" },
+  { name: "Biosimilars", emoji: "🔄", count: 680, color: "#f7f7f6" },
+  { name: "Radiopharmaceuticals", emoji: "☢️", count: 340, color: "#fef3e2" },
+  // Technology
+  { name: "AI / Digital Health", emoji: "🤖", count: 780, color: "#e8f5f0" },
   { name: "Diagnostics", emoji: "🔬", count: 1600, color: "#e8f5f0" },
   { name: "Drug Delivery", emoji: "💉", count: 1200, color: "#fef3e2" },
-  { name: "Cell Therapy", emoji: "🦠", count: 980, color: "#f5f3ff" },
-  { name: "Radiopharmaceuticals", emoji: "☢️", count: 340, color: "#fef3e2" },
-  { name: "AI / Digital Health", emoji: "🤖", count: 780, color: "#e8f5f0" },
+  { name: "Nanotechnology", emoji: "🔮", count: 420, color: "#f5f3ff" },
+  { name: "Microbiome", emoji: "🦠", count: 380, color: "#e8f5f0" },
+  { name: "Genetics & Genomics", emoji: "🧬", count: 1100, color: "#eff6ff" },
+  // Services & Other
+  { name: "Contract Manufacturing", emoji: "🏭", count: 890, color: "#f7f7f6" },
+  { name: "Contract Research", emoji: "📋", count: 720, color: "#f7f7f6" },
+  { name: "Medical Devices", emoji: "🩺", count: 2100, color: "#eff6ff" },
+  { name: "Tissue Engineering", emoji: "🫀", count: 310, color: "#fff0f0" },
 ];
 
 // Regions for the world map section
 const regions = [
-  { name: "Nordics", flag: "🇪🇺", countries: ["🇳🇴 Norway", "🇸🇪 Sweden", "🇩🇰 Denmark", "🇫🇮 Finland"], count: 420, featured: true },
-  { name: "United Kingdom", flag: "🇬🇧", countries: ["🇬🇧 England", "🇬🇧 Scotland", "🇬🇧 Wales"], count: 1800 },
-  { name: "Germany & DACH", flag: "🇩🇪", countries: ["🇩🇪 Germany", "🇨🇭 Switzerland", "🇦🇹 Austria"], count: 1200 },
-  { name: "France & Benelux", flag: "🇫🇷", countries: ["🇫🇷 France", "🇧🇪 Belgium", "🇳🇱 Netherlands"], count: 950 },
-  { name: "United States", flag: "🇺🇸", countries: ["Boston/Cambridge", "San Francisco", "San Diego", "New York"], count: 4200 },
-  { name: "Asia Pacific", flag: "🌏", countries: ["🇯🇵 Japan", "🇰🇷 South Korea", "🇨🇳 China", "🇦🇺 Australia"], count: 2100 },
+  { name: "Nordics", flag: "🇪🇺", countries: [
+    { label: "🇳🇴 Norway", slug: "norway" }, { label: "🇸🇪 Sweden", slug: "sweden" },
+    { label: "🇩🇰 Denmark", slug: "denmark" }, { label: "🇫🇮 Finland", slug: "finland" },
+  ], count: 420, featured: true },
+  { name: "United Kingdom", flag: "🇬🇧", countries: [
+    { label: "🇬🇧 England", slug: "united-kingdom" }, { label: "🇬🇧 Scotland", slug: "united-kingdom" },
+    { label: "🇬🇧 Wales", slug: "united-kingdom" },
+  ], count: 1800 },
+  { name: "Germany & DACH", flag: "🇩🇪", countries: [
+    { label: "🇩🇪 Germany", slug: "germany" }, { label: "🇨🇭 Switzerland", slug: "switzerland" },
+    { label: "🇦🇹 Austria", slug: "austria" },
+  ], count: 1200 },
+  { name: "France & Benelux", flag: "🇫🇷", countries: [
+    { label: "🇫🇷 France", slug: "france" }, { label: "🇧🇪 Belgium", slug: "belgium" },
+    { label: "🇳🇱 Netherlands", slug: "netherlands" },
+  ], count: 950 },
+  { name: "United States", flag: "🇺🇸", countries: [
+    { label: "Boston/Cambridge", slug: "united-states" }, { label: "San Francisco", slug: "united-states" },
+    { label: "San Diego", slug: "united-states" }, { label: "New York", slug: "united-states" },
+  ], count: 4200 },
+  { name: "Asia Pacific", flag: "🌏", countries: [
+    { label: "🇯🇵 Japan", slug: "japan" }, { label: "🇰🇷 South Korea", slug: "south-korea" },
+    { label: "🇨🇳 China", slug: "china" }, { label: "🇦🇺 Australia", slug: "australia" },
+  ], count: 2100 },
 ];
 
 export function CompaniesPageClient() {
@@ -236,14 +268,14 @@ export function CompaniesPageClient() {
               {regions.map((region) => (
                 <div
                   key={region.name}
-                  className="rounded-lg border px-4 py-4 transition-all duration-150 hover:border-[var(--color-border-medium)] hover:shadow-sm cursor-pointer"
+                  className="rounded-lg border px-4 py-4 transition-all duration-150 hover:border-[var(--color-border-medium)] hover:shadow-sm"
                   style={{
                     borderColor: region.featured ? "var(--color-accent)" : "var(--color-border-subtle)",
                     borderWidth: "0.5px",
                     background: region.featured ? "#f0faf6" : "transparent",
                   }}
                 >
-                  <div className="flex items-center justify-between mb-2">
+                  <Link href={`/companies/${region.countries[0].slug}`} className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <span className="text-[22px]">{region.flag}</span>
                       <div>
@@ -252,12 +284,12 @@ export function CompaniesPageClient() {
                       </div>
                     </div>
                     <ChevronRight size={16} style={{ color: "var(--color-text-tertiary)" }} />
-                  </div>
+                  </Link>
                   <div className="flex flex-wrap gap-1.5">
                     {region.countries.map((c) => (
-                      <span key={c} className="text-11 px-2 py-[2px] rounded-sm" style={{ background: "var(--color-bg-secondary)", color: "var(--color-text-tertiary)" }}>
-                        {c}
-                      </span>
+                      <Link key={c.label} href={`/companies/${c.slug}`} className="text-11 px-2 py-[2px] rounded-sm hover:bg-[var(--color-bg-tertiary)] transition-colors" style={{ background: "var(--color-bg-secondary)", color: "var(--color-text-tertiary)" }}>
+                        {c.label}
+                      </Link>
                     ))}
                   </div>
                   {region.featured && (
@@ -267,6 +299,11 @@ export function CompaniesPageClient() {
                   )}
                 </div>
               ))}
+            </div>
+            <div className="text-center mt-3">
+              <span className="text-13" style={{ color: "var(--color-text-tertiary)" }}>
+                25 countries covered · <Link href="/companies/united-states" className="font-medium" style={{ color: "var(--color-accent)" }}>Browse all →</Link>
+              </span>
             </div>
           </div>
 
