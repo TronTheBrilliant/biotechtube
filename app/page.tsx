@@ -24,17 +24,17 @@ export default function HomePage() {
       <TickerBar />
 
       {/* Hero — headline + company CTA */}
-      <div className="px-5 py-3">
+      <div className="px-5 md:px-8 py-4 md:py-6">
         <h1
-          className="text-[26px] font-medium tracking-tight"
-          style={{ color: "var(--color-text-primary)", letterSpacing: "-0.5px" }}
+          className="text-[26px] md:text-[38px] font-medium tracking-tight"
+          style={{ color: "var(--color-text-primary)", letterSpacing: "-0.5px", lineHeight: 1.15 }}
         >
           Track the biotech market, science, and funding rounds.
         </h1>
-        <div className="flex items-center gap-3 mt-2">
+        <div className="flex items-center gap-3 mt-2 md:mt-3">
           <Link
             href="/companies"
-            className="text-13"
+            className="text-13 md:text-[15px]"
             style={{ color: "var(--color-text-tertiary)" }}
           >
             14,000+ companies tracked
@@ -42,7 +42,7 @@ export default function HomePage() {
           <span className="text-11" style={{ color: "var(--color-border-medium)" }}>·</span>
           <Link
             href="/claim/oncoinvent"
-            className="flex items-center gap-1.5 text-13 font-medium"
+            className="flex items-center gap-1.5 text-13 md:text-[15px] font-medium"
             style={{ color: "var(--color-accent)" }}
           >
             🏢 Is your company listed? Claim your profile →
