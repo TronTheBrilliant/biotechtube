@@ -9,9 +9,9 @@ import { Company, FundingRound } from "@/lib/types";
 
 const homeTabs = [
   { key: "top", label: "Top" },
-  { key: "trending", label: "Trending" },
-  { key: "funded", label: "Recently Funded" },
-  { key: "new", label: "New" },
+  { key: "trending", label: "Trending \u00b7 5" },
+  { key: "funded", label: "Funded \u00b7 4" },
+  { key: "new", label: "New \u00b7 12" },
   { key: "watchlist", label: "Watchlist" },
 ] as const;
 type HomeTab = (typeof homeTabs)[number]["key"];
@@ -110,6 +110,7 @@ export function HomePageClient({ companies, funding }: HomePageClientProps) {
                 color: activeTab === tab.key ? "var(--color-accent)" : tab.key === "watchlist" ? "var(--color-text-tertiary)" : "var(--color-text-secondary)",
                 borderBottomColor: activeTab === tab.key ? "var(--color-accent)" : "transparent",
                 fontWeight: activeTab === tab.key ? 500 : 400,
+                ...(activeTab === tab.key ? { background: "var(--color-bg-secondary)", borderTopLeftRadius: 4, borderTopRightRadius: 4 } : {}),
               }}
             >
               {tab.key === "watchlist" && <Lock size={10} />}
@@ -164,7 +165,7 @@ export function HomePageClient({ companies, funding }: HomePageClientProps) {
 
       {/* Ranking Table (for all tabs except watchlist) */}
       {activeTab !== "watchlist" && (
-        <div className="pt-1 pb-4">
+        <div className="pt-0 pb-3">
           {sortedCompanies.length > 0 ? (
             <RankingTable companies={sortedCompanies} />
           ) : (

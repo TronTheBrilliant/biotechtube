@@ -15,6 +15,17 @@ const stageColors: Record<string, { bg: string; text: string; border: string }> 
   "Pre-clinical": { bg: "#f7f7f6", text: "#6b6b65", border: "rgba(0,0,0,0.14)" },
 };
 
+const rankChanges: Record<string, number> = {
+  oncoinvent: 2,
+  "nykode-therapeutics": -1,
+  "pci-biotech": 0,
+  photocure: 1,
+  "lytix-biopharma": -2,
+  "caedo-oncology": 0,
+  "domore-diagnostics": 3,
+  "zelluna-immunotherapy": -1,
+};
+
 function generateSparkline() {
   return Array.from({ length: 12 }, (_, i) => ({
     v: 50 + Math.random() * 50 + i * 3,
@@ -45,15 +56,15 @@ export function RankingTable({ companies }: RankingTableProps) {
         style={{ color: "var(--color-text-tertiary)" }}
       >
         <style>{`
-          .ranking-grid { grid-template-columns: 24px 1fr auto; }
+          .ranking-grid { grid-template-columns: 30px 1fr auto; }
           @media (min-width: 768px) { .ranking-grid { grid-template-columns: 32px 1fr 80px 70px 80px 90px 30px; } }
         `}</style>
-        <span className="text-10 uppercase tracking-[0.3px] text-center">#</span>
-        <span className="text-10 uppercase tracking-[0.3px]">Company</span>
-        <span className="text-10 uppercase tracking-[0.3px] text-right hidden md:block">Valuation</span>
-        <span className="text-10 uppercase tracking-[0.3px] text-right md:text-right">Stage</span>
-        <span className="text-10 uppercase tracking-[0.3px] text-right hidden md:block">Raised</span>
-        <span className="text-10 uppercase tracking-[0.3px] text-right hidden md:block">30d</span>
+        <span className="text-10 uppercase tracking-[0.5px] text-center">#</span>
+        <span className="text-10 uppercase tracking-[0.5px]">Company</span>
+        <span className="text-10 uppercase tracking-[0.5px] text-right hidden md:block">Valuation</span>
+        <span className="text-10 uppercase tracking-[0.5px] text-right md:text-right">Stage</span>
+        <span className="text-10 uppercase tracking-[0.5px] text-right hidden md:block">Raised</span>
+        <span className="text-10 uppercase tracking-[0.5px] text-right hidden md:block">30d</span>
         <span className="hidden md:block" />
       </div>
 
@@ -68,7 +79,7 @@ export function RankingTable({ companies }: RankingTableProps) {
           <Link
             key={company.slug}
             href={`/company/${company.slug}`}
-            className="ranking-grid grid items-center gap-2 py-2.5 border-b cursor-pointer transition-colors duration-100"
+            className="ranking-grid grid items-center gap-2 py-2.5 cursor-pointer transition-colors duration-100 rounded-lg md:rounded-none mx-3 md:mx-0 mb-1.5 md:mb-0 border md:border-0 md:border-b px-3 md:px-0"
             style={{
               ...(isLocked
                 ? {
@@ -90,12 +101,15 @@ export function RankingTable({ companies }: RankingTableProps) {
               }
             }}
           >
-            <span
-              className="text-12 text-center"
-              style={{ color: "var(--color-text-tertiary)" }}
-            >
-              {index + 1}
-            </span>
+            <div className="flex flex-col items-center">
+              <span className="text-12" style={{ color: "var(--color-text-tertiary)" }}>{index + 1}</span>
+              {(() => {
+                const change = rankChanges[company.slug] || 0;
+                if (change > 0) return <span className="text-[9px]" style={{ color: "#1a7a5e" }}>&#9650;{change}</span>;
+                if (change < 0) return <span className="text-[9px]" style={{ color: "#c0392b" }}>&#9660;{Math.abs(change)}</span>;
+                return null;
+              })()}
+            </div>
 
             <div className="flex items-center gap-2 min-w-0">
               <div
@@ -183,7 +197,7 @@ export function RankingTable({ companies }: RankingTableProps) {
 
             <div className="flex justify-end">
               <span
-                className="text-10 px-2 py-[3px] rounded-sm border whitespace-nowrap"
+                className="text-[10px] px-[7px] py-[2px] rounded-sm border whitespace-nowrap"
                 style={{
                   background: sc.bg,
                   color: sc.text,

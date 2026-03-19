@@ -17,7 +17,7 @@ const cardData = [
     data: [40, 42, 38, 44, 46, 43, 48, 50, 47, 52, 55, 53],
   },
   {
-    label: "INVESTMENT VOLUME (Q1)",
+    label: "INVESTMENT VOLUME (YTD)",
     value: "$4.2B",
     change: "+8.3%",
     up: true,
@@ -44,15 +44,16 @@ const cardData = [
 
 export function IndexCards() {
   return (
-    <div className="flex md:grid md:grid-cols-4 gap-2.5 px-5 py-4 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+    <div className="flex md:grid md:grid-cols-4 gap-2.5 px-5 py-3 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
       {cardData.map((card) => (
         <Link
           key={card.label}
           href={card.href}
-          className="rounded-md px-3.5 py-3 border min-w-[160px] md:min-w-0 flex-shrink-0 md:flex-shrink transition-all duration-150 hover:border-[var(--color-border-medium)] hover:shadow-sm"
+          className="rounded-md px-3.5 py-3 border min-w-[160px] md:min-w-0 min-h-[140px] flex-shrink-0 md:flex-shrink transition-all duration-150 hover:border-[var(--color-border-medium)] hover:shadow-sm"
           style={{
             background: "var(--color-bg-secondary)",
             borderColor: "var(--color-border-subtle)",
+            borderLeft: card.up ? "3px solid #1a7a5e" : "3px solid #c0392b",
           }}
         >
           <div
@@ -62,19 +63,19 @@ export function IndexCards() {
             {card.label}
           </div>
           <div
-            className="text-[20px] font-medium tracking-tight mb-[3px]"
+            className="text-[28px] font-medium tracking-tight mb-[3px]"
             style={{ color: "var(--color-text-primary)", letterSpacing: "-0.5px" }}
           >
             {card.value}
           </div>
           <div className="flex items-center justify-between">
             <span
-              className="text-11"
+              className="text-11 font-medium"
               style={{ color: card.up ? "var(--color-accent)" : "#c0392b" }}
             >
               {card.change}
             </span>
-            <div className="w-[60px] h-[28px]">
+            <div className="w-[80px] h-[48px]">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={card.data.map((v, i) => ({ v, i }))}
@@ -84,9 +85,9 @@ export function IndexCards() {
                     type="monotone"
                     dataKey="v"
                     stroke="#1a7a5e"
-                    strokeWidth={1.5}
+                    strokeWidth={2}
                     fill="#1a7a5e"
-                    fillOpacity={0.08}
+                    fillOpacity={0.12}
                   />
                 </AreaChart>
               </ResponsiveContainer>

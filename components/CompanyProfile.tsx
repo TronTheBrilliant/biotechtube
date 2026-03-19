@@ -240,7 +240,25 @@ export function CompanyProfileHero({ company }: CompanyProfileProps) {
             </div>
           </div>
         )}
+        {company.trending && (
+          <div>
+            <div
+              className="text-10 uppercase tracking-[0.4px]"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              Trending Rank
+            </div>
+            <div
+              className="text-14 font-medium"
+              style={{ color: "var(--color-accent)" }}
+            >
+              #{company.trending} this week
+            </div>
+          </div>
+        )}
       </div>
+
+      <div className="mt-3 mb-0" style={{ borderBottom: "0.5px solid var(--color-border-subtle)" }} />
 
       {/* Description */}
       <p
