@@ -113,7 +113,7 @@ export function RankingTable({ companies }: RankingTableProps) {
             </div>
 
             <div className="flex items-center gap-2 min-w-0">
-              <CompanyAvatar name={company.name} logoUrl={company.logoUrl} size={28} />
+              <CompanyAvatar name={company.name} logoUrl={company.logoUrl} website={company.website} size={28} />
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
                   <span

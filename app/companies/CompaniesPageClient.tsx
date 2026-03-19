@@ -237,7 +237,7 @@ export function CompaniesPageClient() {
                   }}
                 >
                   <div className="flex items-start gap-3">
-                    <CompanyAvatar name={company.name} logoUrl={company.logoUrl} size={40} />
+                    <CompanyAvatar name={company.name} logoUrl={company.logoUrl} website={company.website} size={40} />
                     <div className="flex-1 min-w-0">
                       <div
                         className="text-13 font-medium"
@@ -339,7 +339,7 @@ export function CompaniesPageClient() {
                       }}
                     >
                       <div className="flex items-start gap-3">
-                        <CompanyAvatar name={company.name} logoUrl={company.logoUrl} size={40} />
+                        <CompanyAvatar name={company.name} logoUrl={company.logoUrl} website={company.website} size={40} />
                         <div className="flex-1 min-w-0">
                           <div
                             className="text-13 font-medium"

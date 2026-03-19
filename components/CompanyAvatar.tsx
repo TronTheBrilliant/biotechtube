@@ -1,19 +1,23 @@
 "use client";
 import { useState } from "react";
-import Image from "next/image";
 
 interface CompanyAvatarProps {
   name: string;
   logoUrl?: string;
-  size?: number; // px - default 28
+  website?: string;
+  size?: number;
   className?: string;
 }
 
-export function CompanyAvatar({ name, logoUrl, size = 28, className = "" }: CompanyAvatarProps) {
+export function CompanyAvatar({ name, logoUrl, website, size = 28, className = "" }: CompanyAvatarProps) {
   const [failed, setFailed] = useState(false);
   const initials = name.split(" ").slice(0, 2).map(w => w[0]).join("").toUpperCase();
 
-  if (logoUrl && !failed) {
+  // Use Google favicon service with the company website domain
+  const domain = website || (logoUrl ? logoUrl.replace("https://logo.clearbit.com/", "") : null);
+  const faviconUrl = domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=128` : null;
+
+  if (faviconUrl && !failed) {
     return (
       <div
         className={`rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden ${className}`}
@@ -24,14 +28,14 @@ export function CompanyAvatar({ name, logoUrl, size = 28, className = "" }: Comp
           padding: 2,
         }}
       >
-        <Image
-          src={logoUrl}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={faviconUrl}
           alt={name}
           width={size - 4}
           height={size - 4}
-          className="object-contain"
+          style={{ objectFit: "contain", borderRadius: 2 }}
           onError={() => setFailed(true)}
-          unoptimized
         />
       </div>
     );

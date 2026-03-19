@@ -45,7 +45,7 @@ export default function ClaimProfilePage({
     >
       {/* Avatar */}
       <div style={{ marginBottom: 8 }}>
-        <CompanyAvatar name={companyName} logoUrl={company?.logoUrl} size={64} />
+        <CompanyAvatar name={companyName} logoUrl={company?.logoUrl} website={company?.website} size={64} />
       </div>
 
       {/* Company name */}

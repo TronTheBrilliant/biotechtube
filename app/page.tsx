@@ -23,44 +23,13 @@ export default function HomePage() {
       <Nav />
       <TickerBar />
 
-      {/* Hero — compact strip */}
-      <section
-        className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 px-5 py-3 max-h-none md:max-h-[80px]"
+      {/* Hero — compact headline */}
+      <h1
+        className="px-5 py-2.5 text-[18px] font-medium tracking-tight"
+        style={{ color: "var(--color-text-primary)", letterSpacing: "-0.3px" }}
       >
-        <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3 min-w-0">
-          <div className="flex items-center gap-1.5 flex-shrink-0">
-            <div className="live-dot" />
-            <span
-              className="text-10 uppercase tracking-[0.5px] font-medium whitespace-nowrap"
-              style={{ color: "var(--color-accent)" }}
-            >
-              Live biotech intelligence
-            </span>
-          </div>
-          <h1
-            className="text-[18px] font-medium tracking-tight line-clamp-2 md:line-clamp-1"
-            style={{ color: "var(--color-text-primary)", letterSpacing: "-0.3px", lineHeight: 1.3 }}
-          >
-            Track every biotech company, pipeline, and funding round
-          </h1>
-        </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <Link
-            href="/signup"
-            className="text-12 font-medium px-4 py-2 rounded text-white whitespace-nowrap"
-            style={{ background: "var(--color-accent)" }}
-          >
-            Start free trial
-          </Link>
-          <Link
-            href="/companies"
-            className="text-12 font-medium whitespace-nowrap"
-            style={{ color: "var(--color-text-secondary)" }}
-          >
-            Browse companies
-          </Link>
-        </div>
-      </section>
+        Track every biotech company, pipeline, and funding round
+      </h1>
 
       {/* Index Cards */}
       <IndexCards />

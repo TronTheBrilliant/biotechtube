@@ -54,7 +54,7 @@ export function CompanyProfileHero({ company }: CompanyProfileProps) {
     <div className="px-5 py-5 border-b">
       {/* Top row: Avatar + Name */}
       <div className="flex items-start gap-3 mb-3">
-        <CompanyAvatar name={company.name} logoUrl={company.logoUrl} size={48} />
+        <CompanyAvatar name={company.name} logoUrl={company.logoUrl} website={company.website} size={48} />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
             <h1

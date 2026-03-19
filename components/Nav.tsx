@@ -29,7 +29,7 @@ export function Nav() {
   return (
     <>
       <header
-        className="sticky top-0 z-50 flex items-center justify-between h-[44px] px-5"
+        className="sticky top-0 z-50 flex items-center justify-between h-[48px] px-5"
         style={{
           background: "var(--color-bg-primary)",
           borderBottom: "0.5px solid var(--color-border-subtle)",
@@ -49,7 +49,7 @@ export function Nav() {
               item.comingSoon ? (
                 <span
                   key={item.label}
-                  className="text-12 cursor-default relative group"
+                  className="text-14 cursor-default relative group"
                   style={{ color: "var(--color-text-tertiary)" }}
                 >
                   {item.label}
@@ -67,7 +67,7 @@ export function Nav() {
                 <Link
                   key={item.label}
                   href={item.href}
-                  className="text-12 transition-colors duration-150 hover:text-[var(--color-text-primary)]"
+                  className="text-14 transition-colors duration-150 hover:text-[var(--color-text-primary)]"
                   style={{ color: "var(--color-text-secondary)" }}
                 >
                   {item.label}

@@ -29,7 +29,7 @@ export function SimilarCompanies({ companies }: SimilarCompaniesProps) {
           }
           onMouseLeave={(e) => (e.currentTarget.style.background = "")}
         >
-          <CompanyAvatar name={c.name} logoUrl={c.logoUrl} size={24} />
+          <CompanyAvatar name={c.name} logoUrl={c.logoUrl} website={c.website} size={24} />
           <div className="min-w-0">
             <div
               className="text-11 font-medium truncate"

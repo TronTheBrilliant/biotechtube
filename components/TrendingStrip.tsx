@@ -48,7 +48,7 @@ export function TrendingStrip({ companies }: TrendingStripProps) {
             >
               #{company.trending}
             </span>
-            <CompanyAvatar name={company.name} logoUrl={company.logoUrl} size={20} />
+            <CompanyAvatar name={company.name} logoUrl={company.logoUrl} website={company.website} size={20} />
             <div>
               <div
                 className="text-[15px] font-medium"
