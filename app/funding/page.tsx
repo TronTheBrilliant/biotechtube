@@ -53,7 +53,7 @@ const jsonRounds: FundingRow[] = fundingData.map((r) => {
 const extraRounds: FundingRow[] = [
   { companySlug: "biovica", company: "Biovica International", type: "Series C", amount: 22000000, currency: "USD", date: "2026-01-10", leadInvestor: "HealthCap", country: "Sweden", flag: "\u{1F1F8}\u{1F1EA}" },
   { companySlug: "immunovia", company: "Immunovia AB", type: "Series B", amount: 15000000, currency: "USD", date: "2025-12-15", leadInvestor: "Novo Seeds", country: "Sweden", flag: "\u{1F1F8}\u{1F1EA}" },
-  { companySlug: "bavarian-nordic", company: "Bavarian Nordic", type: "Public Offering", amount: 45000000, currency: "USD", date: "2025-11-20", leadInvestor: "Morgan Stanley", country: "Denmark", flag: "\u{1F1E9}\u{1F1F0}" },
+  { companySlug: "bavarian-nordic", company: "Bavarian Nordic", type: "Public Offering", amount: 45000000, currency: "USD", date: "2025-11-20", leadInvestor: "Public markets", country: "Denmark", flag: "\u{1F1E9}\u{1F1F0}" },
   { companySlug: "evotec", company: "Evotec SE", type: "Grant", amount: 5000000, currency: "EUR", date: "2025-11-05", leadInvestor: "EU Horizon", country: "Germany", flag: "\u{1F1E9}\u{1F1EA}" },
 ];
 

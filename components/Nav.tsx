@@ -10,7 +10,7 @@ const mainNavLinks = [
   { label: "Companies", href: "/companies" },
   { label: "Pipeline", href: "/pipeline" },
   { label: "Funding", href: "/funding" },
-  { label: "Markets", href: "/market" },
+  { label: "Markets", href: "/markets" },
   { label: "Events", href: "/events" },
   { label: "News", href: "/news", comingSoon: true },
 ];

@@ -13,11 +13,11 @@ export function CompanyAvatar({ name, logoUrl, website, size = 28, className = "
   const [failed, setFailed] = useState(false);
   const initials = name.split(" ").slice(0, 2).map(w => w[0]).join("").toUpperCase();
 
-  // Use Google favicon service with the company website domain
+  // Use Logo.dev service with the company website domain
   const domain = website || (logoUrl ? logoUrl.replace("https://logo.clearbit.com/", "") : null);
-  const faviconUrl = domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=128` : null;
+  const logoDevUrl = domain ? `https://img.logo.dev/${domain}?token=pk_SB20mg_eQSKlYGsYYMKbcA` : null;
 
-  if (faviconUrl && !failed) {
+  if (logoDevUrl && !failed) {
     return (
       <div
         className={`rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden ${className}`}
@@ -30,7 +30,7 @@ export function CompanyAvatar({ name, logoUrl, website, size = 28, className = "
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={faviconUrl}
+          src={logoDevUrl}
           alt={name}
           width={size - 4}
           height={size - 4}

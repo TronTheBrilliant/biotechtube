@@ -195,13 +195,6 @@ export default function EventsPage() {
                               </span>
                             </div>
                           </div>
-                          <Link
-                            href="#"
-                            className="text-12 font-medium shrink-0 mt-1"
-                            style={{ color: "var(--color-accent)" }}
-                          >
-                            View details
-                          </Link>
                         </div>
                       </div>
                     );
