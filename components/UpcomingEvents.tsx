@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Calendar, MapPin, ArrowUpRight } from "lucide-react";
+import { Calendar, ArrowUpRight } from "lucide-react";
 import { BiotechEvent } from "@/lib/types";
 
 interface UpcomingEventsProps {

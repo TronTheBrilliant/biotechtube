@@ -4,7 +4,7 @@ import { TickerBar } from "@/components/TickerBar";
 import { IndexCards } from "@/components/IndexCards";
 import { Footer } from "@/components/Footer";
 import { RecentlyFunded } from "@/components/RecentlyFunded";
-import { PaywallCard } from "@/components/PaywallCard";
+// PaywallCard removed from sidebar — ranking table has its own CTA
 import { UpcomingEvents } from "@/components/UpcomingEvents";
 import { HomePageClient } from "@/components/HomePageClient";
 import { Company, FundingRound, BiotechEvent } from "@/lib/types";
