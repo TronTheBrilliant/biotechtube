@@ -15,7 +15,7 @@ export function CompanyAvatar({ name, logoUrl, website, size = 28, className = "
 
   // Use Logo.dev service with the company website domain
   const domain = website || (logoUrl ? logoUrl.replace("https://logo.clearbit.com/", "") : null);
-  const logoDevUrl = domain ? `https://img.logo.dev/${domain}?token=pk_SB20mg_eQSKlYGsYYMKbcA` : null;
+  const logoDevUrl = domain ? `https://img.logo.dev/${domain}?token=pk_FNHUWoZORpiR_7j_vzFnmQ` : null;
 
   if (logoDevUrl && !failed) {
     return (
