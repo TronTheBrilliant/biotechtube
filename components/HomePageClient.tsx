@@ -300,12 +300,12 @@ export function HomePageClient({ companies, funding }: HomePageClientProps) {
             {/* Dropdown panel */}
             {countryOpen && (
               <div
-                className="absolute right-0 top-full mt-1 z-50 rounded-lg overflow-hidden"
+                className="fixed left-3 right-3 sm:absolute sm:left-auto sm:right-0 top-auto sm:top-full mt-1 z-50 rounded-lg overflow-hidden"
                 style={{
                   background: "var(--color-bg-primary)",
                   border: "0.5px solid var(--color-border-medium)",
                   boxShadow: "0 8px 30px rgba(0,0,0,0.12)",
-                  width: 280,
+                  maxWidth: 320,
                   maxHeight: 420,
                   overflowY: "auto",
                 }}
