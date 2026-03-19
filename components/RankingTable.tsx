@@ -89,7 +89,7 @@ export function RankingTable({ companies, mode = "top", funding = [] }: RankingT
     <div>
       {/* Header */}
       <div
-        className="ranking-grid grid items-center gap-2 py-2 border-b px-0 md:px-0"
+        className="ranking-grid grid items-center gap-2 py-2 border-b px-3 md:px-5"
         style={{ color: "var(--color-text-tertiary)" }}
       >
         <style>{`
@@ -149,7 +149,7 @@ export function RankingTable({ companies, mode = "top", funding = [] }: RankingT
           <Link
             key={company.slug}
             href={`/company/${company.slug}`}
-            className="ranking-grid grid items-center gap-2 py-2.5 cursor-pointer transition-colors duration-100 rounded-lg md:rounded-none mx-3 md:mx-0 mb-1.5 md:mb-0 border md:border-0 md:border-b px-3 md:px-0"
+            className="ranking-grid grid items-center gap-2 py-2.5 cursor-pointer transition-colors duration-100 rounded-lg md:rounded-none mx-3 md:mx-0 mb-1.5 md:mb-0 border md:border-0 md:border-b px-3 md:px-5"
             style={{
               ...(isLocked ? { filter: "blur(2px)", opacity: 0.4, pointerEvents: "none", userSelect: "none" } : {}),
             }}
