@@ -34,7 +34,15 @@ const therapeuticAreas = [
 ];
 
 const stages = ["All", "Pre-clinical", "Phase 1", "Phase 1/2", "Phase 2", "Phase 3", "Approved"];
-const countries = ["All", "Norway", "Sweden", "Denmark", "UK", "Germany", "USA", "Switzerland", "France"];
+const countryGroups = [
+  { region: "🌍 Global", countries: ["🌍 All"] },
+  { region: "🇪🇺 Nordics", countries: ["🇳🇴 Norway", "🇸🇪 Sweden", "🇩🇰 Denmark", "🇫🇮 Finland", "🇮🇸 Iceland"] },
+  { region: "🇪🇺 Western Europe", countries: ["🇬🇧 United Kingdom", "🇩🇪 Germany", "🇫🇷 France", "🇨🇭 Switzerland", "🇳🇱 Netherlands", "🇧🇪 Belgium", "🇮🇪 Ireland", "🇦🇹 Austria"] },
+  { region: "🇪🇺 Southern Europe", countries: ["🇮🇹 Italy", "🇪🇸 Spain", "🇵🇹 Portugal", "🇬🇷 Greece"] },
+  { region: "🇺🇸 North America", countries: ["🇺🇸 United States", "🇨🇦 Canada"] },
+  { region: "🌏 Asia Pacific", countries: ["🇯🇵 Japan", "🇰🇷 South Korea", "🇨🇳 China", "🇦🇺 Australia", "🇸🇬 Singapore", "🇮🇳 India"] },
+  { region: "🌍 Rest of World", countries: ["🇮🇱 Israel", "🇧🇷 Brazil", "🇿🇦 South Africa"] },
+];
 const types = ["All", "Public", "Private"];
 const employeeRanges = ["All", "1-10", "10-25", "25-50", "50-100", "100-250", "250+"];
 
@@ -109,7 +117,35 @@ export function FiltersModal({ isOpen, onClose, filters, onApply }: FiltersModal
           <div className="flex flex-col gap-5">
             <FilterSelect label="Therapeutic Area" value={local.therapeuticArea} options={therapeuticAreas} onChange={(v) => update("therapeuticArea", v)} />
             <FilterSelect label="Stage" value={local.stage} options={stages} onChange={(v) => update("stage", v)} />
-            <FilterSelect label="Country" value={local.country} options={countries} onChange={(v) => update("country", v)} />
+            {/* Country — grouped select */}
+            <div>
+              <label className="text-11 font-medium mb-1.5 block" style={{ color: "var(--color-text-secondary)" }}>
+                Country
+              </label>
+              <select
+                value={local.country}
+                onChange={(e) => update("country", e.target.value)}
+                className="w-full text-12 px-3 py-2.5 rounded border outline-none appearance-none"
+                style={{
+                  borderColor: "var(--color-border-medium)",
+                  background: "var(--color-bg-secondary)",
+                  color: "var(--color-text-primary)",
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%239e9e96' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "right 12px center",
+                }}
+              >
+                {countryGroups.map((group) => (
+                  <optgroup key={group.region} label={group.region}>
+                    {group.countries.map((c) => {
+                      const name = c.replace(/^.+?\s/, ""); // strip emoji
+                      const value = name === "All" ? "All" : name;
+                      return <option key={c} value={value}>{c}</option>;
+                    })}
+                  </optgroup>
+                ))}
+              </select>
+            </div>
             <FilterSelect label="Company Type" value={local.type} options={types} onChange={(v) => update("type", v)} />
             <FilterSelect label="Employees" value={local.employees} options={employeeRanges} onChange={(v) => update("employees", v)} />
 
