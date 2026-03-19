@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import Link from "next/link";
-import { SlidersHorizontal, Lock, Star } from "lucide-react";
+import { SlidersHorizontal, Lock, Star, ChevronDown, Globe } from "lucide-react";
 import { RankingTable } from "./RankingTable";
 import { FiltersModal, Filters, defaultFilters } from "./FiltersModal";
 import { Company, FundingRound } from "@/lib/types";
@@ -16,6 +16,72 @@ const homeTabs = [
 ] as const;
 type HomeTab = (typeof homeTabs)[number]["key"];
 
+// Country/Region data with flags and grouping
+const regionData = [
+  {
+    region: "🌍 Global",
+    countries: [{ code: "global", name: "All Countries", flag: "🌍" }],
+  },
+  {
+    region: "🇪🇺 Nordics",
+    countries: [
+      { code: "NO", name: "Norway", flag: "🇳🇴" },
+      { code: "SE", name: "Sweden", flag: "🇸🇪" },
+      { code: "DK", name: "Denmark", flag: "🇩🇰" },
+      { code: "FI", name: "Finland", flag: "🇫🇮" },
+      { code: "IS", name: "Iceland", flag: "🇮🇸" },
+    ],
+  },
+  {
+    region: "🇪🇺 Western Europe",
+    countries: [
+      { code: "GB", name: "United Kingdom", flag: "🇬🇧" },
+      { code: "DE", name: "Germany", flag: "🇩🇪" },
+      { code: "FR", name: "France", flag: "🇫🇷" },
+      { code: "CH", name: "Switzerland", flag: "🇨🇭" },
+      { code: "NL", name: "Netherlands", flag: "🇳🇱" },
+      { code: "BE", name: "Belgium", flag: "🇧🇪" },
+      { code: "IE", name: "Ireland", flag: "🇮🇪" },
+      { code: "AT", name: "Austria", flag: "🇦🇹" },
+    ],
+  },
+  {
+    region: "🇪🇺 Southern Europe",
+    countries: [
+      { code: "IT", name: "Italy", flag: "🇮🇹" },
+      { code: "ES", name: "Spain", flag: "🇪🇸" },
+      { code: "PT", name: "Portugal", flag: "🇵🇹" },
+      { code: "GR", name: "Greece", flag: "🇬🇷" },
+    ],
+  },
+  {
+    region: "🇺🇸 North America",
+    countries: [
+      { code: "US", name: "United States", flag: "🇺🇸" },
+      { code: "CA", name: "Canada", flag: "🇨🇦" },
+    ],
+  },
+  {
+    region: "🌏 Asia Pacific",
+    countries: [
+      { code: "JP", name: "Japan", flag: "🇯🇵" },
+      { code: "KR", name: "South Korea", flag: "🇰🇷" },
+      { code: "CN", name: "China", flag: "🇨🇳" },
+      { code: "AU", name: "Australia", flag: "🇦🇺" },
+      { code: "SG", name: "Singapore", flag: "🇸🇬" },
+      { code: "IN", name: "India", flag: "🇮🇳" },
+    ],
+  },
+  {
+    region: "🌍 Rest of World",
+    countries: [
+      { code: "IL", name: "Israel", flag: "🇮🇱" },
+      { code: "BR", name: "Brazil", flag: "🇧🇷" },
+      { code: "ZA", name: "South Africa", flag: "🇿🇦" },
+    ],
+  },
+];
+
 interface HomePageClientProps {
   companies: Company[];
   funding: FundingRound[];
@@ -25,6 +91,20 @@ export function HomePageClient({ companies, funding }: HomePageClientProps) {
   const [activeTab, setActiveTab] = useState<HomeTab>("top");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [filters, setFilters] = useState<Filters>(defaultFilters);
+  const [countryOpen, setCountryOpen] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState<{ code: string; name: string; flag: string }>({ code: "global", name: "All Countries", flag: "🌍" });
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setCountryOpen(false);
+      }
+    }
+    if (countryOpen) document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [countryOpen]);
 
   const activeFilterCount = Object.entries(filters).filter(
     ([key, value]) => value !== "" && value !== "All" && value !== defaultFilters[key as keyof Filters]
@@ -33,6 +113,11 @@ export function HomePageClient({ companies, funding }: HomePageClientProps) {
   // Apply filters
   const filteredCompanies = useMemo(() => {
     let result = [...companies];
+
+    // Country filter from dropdown
+    if (selectedCountry.code !== "global") {
+      result = result.filter((c) => c.country === selectedCountry.name);
+    }
 
     if (filters.therapeuticArea !== "All") {
       result = result.filter((c) => c.focus.includes(filters.therapeuticArea));
@@ -64,18 +149,17 @@ export function HomePageClient({ companies, funding }: HomePageClientProps) {
     }
 
     return result;
-  }, [companies, filters]);
+  }, [companies, filters, selectedCountry]);
 
   // Apply tab sorting
   const sortedCompanies = useMemo(() => {
     const arr = [...filteredCompanies];
     switch (activeTab) {
       case "top":
-        return arr; // default order from data
+        return arr;
       case "trending":
         return arr.sort((a, b) => (a.trending || 99) - (b.trending || 99));
-      case "funded":
-        // Companies that appear in funding data first, sorted by most recent
+      case "funded": {
         const fundedSlugs = funding.map((f) => f.companySlug);
         return arr.sort((a, b) => {
           const aIdx = fundedSlugs.indexOf(a.slug);
@@ -85,6 +169,7 @@ export function HomePageClient({ companies, funding }: HomePageClientProps) {
           if (bIdx === -1) return -1;
           return aIdx - bIdx;
         });
+      }
       case "new":
         return arr.sort((a, b) => b.founded - a.founded);
       default:
@@ -94,13 +179,13 @@ export function HomePageClient({ companies, funding }: HomePageClientProps) {
 
   return (
     <>
-      {/* Tabs + Filter Bar */}
+      {/* Tabs + Country Selector + Filter Bar */}
       <div
         className="flex items-center justify-between px-5 pt-2 pb-0"
         style={{ borderBottom: "0.5px solid var(--color-border-subtle)" }}
       >
         {/* Tabs */}
-        <div className="flex items-center gap-1 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+        <div className="flex items-center gap-1 overflow-x-auto flex-shrink-0" style={{ scrollbarWidth: "none" }}>
           {homeTabs.map((tab) => (
             <button
               key={tab.key}
@@ -120,27 +205,133 @@ export function HomePageClient({ companies, funding }: HomePageClientProps) {
           ))}
         </div>
 
-        {/* Filter Button */}
-        <button
-          onClick={() => setFiltersOpen(true)}
-          className="flex items-center gap-1.5 text-13 font-medium px-2.5 py-1.5 rounded border transition-colors duration-150 flex-shrink-0 ml-2"
-          style={{
-            borderColor: activeFilterCount > 0 ? "var(--color-accent)" : "var(--color-border-medium)",
-            color: activeFilterCount > 0 ? "var(--color-accent)" : "var(--color-text-secondary)",
-            background: activeFilterCount > 0 ? "#e8f5f0" : "transparent",
-          }}
-        >
-          <SlidersHorizontal size={12} />
-          Filters
-          {activeFilterCount > 0 && (
-            <span
-              className="text-[9px] font-medium px-1.5 py-[1px] rounded-full text-white"
-              style={{ background: "var(--color-accent)" }}
+        {/* Right side: Country dropdown + Filters */}
+        <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+          {/* Country/Region Dropdown */}
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setCountryOpen(!countryOpen)}
+              className="flex items-center gap-1.5 text-13 font-medium px-2.5 py-1.5 rounded border transition-colors duration-150"
+              style={{
+                borderColor: selectedCountry.code !== "global" ? "var(--color-accent)" : "var(--color-border-medium)",
+                color: selectedCountry.code !== "global" ? "var(--color-accent)" : "var(--color-text-secondary)",
+                background: selectedCountry.code !== "global" ? "#e8f5f0" : "transparent",
+              }}
             >
-              {activeFilterCount}
-            </span>
-          )}
-        </button>
+              <Globe size={12} />
+              <span className="hidden sm:inline">{selectedCountry.flag} {selectedCountry.code === "global" ? "Global" : selectedCountry.name}</span>
+              <span className="sm:hidden">{selectedCountry.flag}</span>
+              <ChevronDown size={10} style={{ opacity: 0.5 }} />
+            </button>
+
+            {/* Dropdown panel */}
+            {countryOpen && (
+              <div
+                className="absolute right-0 top-full mt-1 z-50 rounded-lg overflow-hidden"
+                style={{
+                  background: "var(--color-bg-primary)",
+                  border: "0.5px solid var(--color-border-medium)",
+                  boxShadow: "0 8px 30px rgba(0,0,0,0.12)",
+                  width: 280,
+                  maxHeight: 420,
+                  overflowY: "auto",
+                }}
+              >
+                {/* Dropdown header */}
+                <div
+                  className="px-3 py-2.5 sticky top-0 z-10"
+                  style={{
+                    background: "var(--color-bg-primary)",
+                    borderBottom: "0.5px solid var(--color-border-subtle)",
+                  }}
+                >
+                  <div className="text-12 font-medium" style={{ color: "var(--color-text-primary)" }}>
+                    Select Region
+                  </div>
+                  <div className="text-11" style={{ color: "var(--color-text-tertiary)" }}>
+                    Filter companies by country
+                  </div>
+                </div>
+
+                {regionData.map((group) => (
+                  <div key={group.region}>
+                    {/* Region header */}
+                    <div
+                      className="px-3 py-1.5 text-11 font-medium uppercase tracking-[0.5px]"
+                      style={{
+                        color: "var(--color-text-tertiary)",
+                        background: "var(--color-bg-tertiary)",
+                      }}
+                    >
+                      {group.region}
+                    </div>
+
+                    {/* Countries in region */}
+                    {group.countries.map((country) => {
+                      const isSelected = selectedCountry.code === country.code;
+                      return (
+                        <button
+                          key={country.code}
+                          onClick={() => {
+                            setSelectedCountry(country);
+                            setCountryOpen(false);
+                          }}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 text-left transition-colors duration-100"
+                          style={{
+                            background: isSelected ? "#e8f5f0" : "transparent",
+                            color: isSelected ? "var(--color-accent)" : "var(--color-text-primary)",
+                          }}
+                          onMouseEnter={(e) => { if (!isSelected) e.currentTarget.style.background = "var(--color-bg-secondary)"; }}
+                          onMouseLeave={(e) => { if (!isSelected) e.currentTarget.style.background = ""; }}
+                        >
+                          <span className="text-[16px] leading-none">{country.flag}</span>
+                          <span className="text-13 font-medium">{country.name}</span>
+                          {isSelected && (
+                            <span className="ml-auto text-11" style={{ color: "var(--color-accent)" }}>✓</span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ))}
+
+                {/* Footer note */}
+                <div
+                  className="px-3 py-2 text-11"
+                  style={{
+                    color: "var(--color-text-tertiary)",
+                    borderTop: "0.5px solid var(--color-border-subtle)",
+                    background: "var(--color-bg-tertiary)",
+                  }}
+                >
+                  🌐 More countries coming soon
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Filter Button */}
+          <button
+            onClick={() => setFiltersOpen(true)}
+            className="flex items-center gap-1.5 text-13 font-medium px-2.5 py-1.5 rounded border transition-colors duration-150 flex-shrink-0"
+            style={{
+              borderColor: activeFilterCount > 0 ? "var(--color-accent)" : "var(--color-border-medium)",
+              color: activeFilterCount > 0 ? "var(--color-accent)" : "var(--color-text-secondary)",
+              background: activeFilterCount > 0 ? "#e8f5f0" : "transparent",
+            }}
+          >
+            <SlidersHorizontal size={12} />
+            Filters
+            {activeFilterCount > 0 && (
+              <span
+                className="text-[9px] font-medium px-1.5 py-[1px] rounded-full text-white"
+                style={{ background: "var(--color-accent)" }}
+              >
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Watchlist tab CTA */}
@@ -174,7 +365,10 @@ export function HomePageClient({ companies, funding }: HomePageClientProps) {
                 No companies match your filters.
               </p>
               <button
-                onClick={() => setFilters(defaultFilters)}
+                onClick={() => {
+                  setFilters(defaultFilters);
+                  setSelectedCountry({ code: "global", name: "All Countries", flag: "🌍" });
+                }}
                 className="text-12 mt-2"
                 style={{ color: "var(--color-accent)" }}
               >
