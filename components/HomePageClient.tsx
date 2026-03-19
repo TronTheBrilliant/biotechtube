@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useRef, useEffect } from "react";
 import Link from "next/link";
-import { SlidersHorizontal, Lock, Star, ChevronDown, Globe } from "lucide-react";
+import { SlidersHorizontal, Lock, Star, ChevronDown, Globe, X } from "lucide-react";
 import { RankingTable } from "./RankingTable";
 import { FiltersModal, Filters, defaultFilters } from "./FiltersModal";
 import { Company, FundingRound } from "@/lib/types";
@@ -92,19 +92,20 @@ export function HomePageClient({ companies, funding }: HomePageClientProps) {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [filters, setFilters] = useState<Filters>(defaultFilters);
   const [countryOpen, setCountryOpen] = useState(false);
+  const [mobileTabOpen, setMobileTabOpen] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState<{ code: string; name: string; flag: string }>({ code: "global", name: "All Countries", flag: "🌍" });
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const tabSheetRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown on outside click
+  // Close dropdowns on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setCountryOpen(false);
-      }
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setCountryOpen(false);
+      if (tabSheetRef.current && !tabSheetRef.current.contains(e.target as Node)) setMobileTabOpen(false);
     }
-    if (countryOpen) document.addEventListener("mousedown", handleClick);
+    if (countryOpen || mobileTabOpen) document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
-  }, [countryOpen]);
+  }, [countryOpen, mobileTabOpen]);
 
   const activeFilterCount = Object.entries(filters).filter(
     ([key, value]) => value !== "" && value !== "All" && value !== defaultFilters[key as keyof Filters]
@@ -184,8 +185,8 @@ export function HomePageClient({ companies, funding }: HomePageClientProps) {
         className="flex items-center justify-between px-5 pt-2 pb-0"
         style={{ borderBottom: "0.5px solid var(--color-border-subtle)" }}
       >
-        {/* Tabs */}
-        <div className="flex items-center gap-1 overflow-x-auto flex-shrink-0" style={{ scrollbarWidth: "none" }}>
+        {/* Desktop Tabs (hidden on mobile) */}
+        <div className="hidden md:flex items-center gap-1 overflow-x-auto flex-shrink-0" style={{ scrollbarWidth: "none" }}>
           {homeTabs.map((tab) => (
             <button
               key={tab.key}
@@ -203,6 +204,78 @@ export function HomePageClient({ companies, funding }: HomePageClientProps) {
               {tab.label}
             </button>
           ))}
+        </div>
+
+        {/* Mobile Tab Selector (visible on mobile only) */}
+        <div className="md:hidden relative" ref={tabSheetRef}>
+          <button
+            onClick={() => setMobileTabOpen(!mobileTabOpen)}
+            className="flex items-center gap-2 text-14 font-medium py-2.5 px-1 transition-all duration-200"
+            style={{ color: "var(--color-accent)" }}
+          >
+            {homeTabs.find(t => t.key === activeTab)?.label || "📈 Top"}
+            <ChevronDown size={14} style={{ opacity: 0.6 }} />
+          </button>
+
+          {mobileTabOpen && (
+            <div
+              className="absolute left-0 top-full mt-1 z-50 rounded-xl overflow-hidden"
+              style={{
+                background: "var(--color-bg-primary)",
+                border: "0.5px solid var(--color-border-medium)",
+                boxShadow: "0 12px 40px rgba(0,0,0,0.15)",
+                width: 280,
+              }}
+            >
+              <div className="px-3 py-2.5" style={{ borderBottom: "0.5px solid var(--color-border-subtle)" }}>
+                <div className="text-12 font-medium" style={{ color: "var(--color-text-primary)" }}>Sort companies</div>
+                <div className="text-11" style={{ color: "var(--color-text-tertiary)" }}>Choose how to rank the list</div>
+              </div>
+
+              {[
+                { key: "top" as HomeTab, emoji: "📈", title: "Top Ranked", desc: "Overall ranking by momentum and market position" },
+                { key: "trending" as HomeTab, emoji: "🔥", title: "Trending Now", desc: "Most viewed companies this week" },
+                { key: "funded" as HomeTab, emoji: "💰", title: "Funding Radar", desc: "Recently funded companies first" },
+                { key: "new" as HomeTab, emoji: "🆕", title: "Newest Companies", desc: "Most recently founded first" },
+                { key: "watchlist" as HomeTab, emoji: "⭐", title: "My Watchlist", desc: "Companies you're tracking", locked: true },
+              ].map((item) => {
+                const isActive = activeTab === item.key;
+                return (
+                  <button
+                    key={item.key}
+                    onClick={() => {
+                      if (!item.locked) {
+                        setActiveTab(item.key);
+                        setMobileTabOpen(false);
+                      }
+                    }}
+                    className="w-full flex items-start gap-3 px-3 py-3 text-left transition-colors duration-100"
+                    style={{
+                      background: isActive ? "#e8f5f0" : "transparent",
+                      borderBottom: "0.5px solid var(--color-border-subtle)",
+                      opacity: item.locked ? 0.5 : 1,
+                    }}
+                    onMouseEnter={(e) => { if (!isActive && !item.locked) e.currentTarget.style.background = "var(--color-bg-secondary)"; }}
+                    onMouseLeave={(e) => { if (!isActive && !item.locked) e.currentTarget.style.background = ""; }}
+                  >
+                    <span className="text-[20px] leading-none mt-0.5">{item.emoji}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-13 font-medium" style={{ color: isActive ? "var(--color-accent)" : "var(--color-text-primary)" }}>
+                          {item.title}
+                        </span>
+                        {item.locked && <Lock size={10} style={{ color: "var(--color-text-tertiary)" }} />}
+                        {isActive && <span className="text-11" style={{ color: "var(--color-accent)" }}>✓</span>}
+                      </div>
+                      <div className="text-11 mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>
+                        {item.desc}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Right side: Country dropdown + Filters */}
