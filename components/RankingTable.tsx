@@ -400,19 +400,41 @@ export function RankingTable({ companies, mode = "top", funding = [] }: RankingT
         );
       })}
 
-      {/* Paywall overlay */}
+      {/* Paywall CTA */}
       {companies.length > paywallIndex && (
-        <div
-          className="flex items-center gap-2.5 py-3.5 px-3"
-          style={{ background: `linear-gradient(to bottom, transparent, var(--color-bg-primary))` }}
-        >
-          <span className="text-14">🔒</span>
-          <span className="text-12" style={{ color: "var(--color-text-secondary)" }}>
-            Sign up to see all 14,000+ companies
-          </span>
-          <Link href="/signup" className="text-12" style={{ color: "var(--color-accent)" }}>
-            Create free account →
-          </Link>
+        <div className="mx-3 md:mx-5 my-4 rounded-xl overflow-hidden" style={{ border: "0.5px solid var(--color-border-subtle)" }}>
+          {/* Dark header */}
+          <div className="px-5 py-4" style={{ background: "#0a3d2e" }}>
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="text-[18px]">🔓</span>
+              <h3 className="text-[17px] font-medium text-white">Unlock the full ranking</h3>
+            </div>
+            <p className="text-13" style={{ color: "#5DCAA5" }}>
+              See all 14,000+ biotech companies with real-time pipeline data, funding alerts, and market intelligence.
+            </p>
+          </div>
+          {/* Features + CTA */}
+          <div className="px-5 py-4" style={{ background: "var(--color-bg-secondary)" }}>
+            <div className="flex flex-wrap gap-x-4 gap-y-1.5 mb-4">
+              {["Full company rankings", "Pipeline & catalyst tracking", "Funding round database", "Watchlist & alerts"].map((f) => (
+                <span key={f} className="flex items-center gap-1.5 text-12" style={{ color: "var(--color-text-secondary)" }}>
+                  <span style={{ color: "var(--color-accent)" }}>✓</span> {f}
+                </span>
+              ))}
+            </div>
+            <div className="flex items-center gap-3">
+              <Link
+                href="/signup"
+                className="text-13 font-medium px-5 py-2.5 rounded-lg text-white"
+                style={{ background: "var(--color-accent)" }}
+              >
+                Start free trial →
+              </Link>
+              <span className="text-12" style={{ color: "var(--color-text-tertiary)" }}>
+                First month free · $49/mo after
+              </span>
+            </div>
+          </div>
         </div>
       )}
     </div>
