@@ -31,15 +31,7 @@ export default function HomePage() {
         >
           Track the biotech market, science, and funding rounds.
         </h1>
-        <div className="flex items-center gap-3 mt-2 md:mt-3">
-          <Link
-            href="/companies"
-            className="text-13 md:text-[15px]"
-            style={{ color: "var(--color-text-tertiary)" }}
-          >
-            14,000+ companies tracked
-          </Link>
-          <span className="text-11" style={{ color: "var(--color-border-medium)" }}>·</span>
+        <div className="flex items-center gap-2 mt-2 md:mt-3">
           <Link
             href="/claim/oncoinvent"
             className="flex items-center gap-1.5 text-13 md:text-[15px] font-medium"
