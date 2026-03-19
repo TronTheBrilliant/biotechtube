@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useRef, useEffect } from "react";
 import Link from "next/link";
-import { SlidersHorizontal, Lock, Star, ChevronDown, Globe, X } from "lucide-react";
+import { SlidersHorizontal, Lock, Star, ChevronDown, Globe } from "lucide-react";
 import { RankingTable } from "./RankingTable";
 import { FiltersModal, Filters, defaultFilters } from "./FiltersModal";
 import { Company, FundingRound } from "@/lib/types";
