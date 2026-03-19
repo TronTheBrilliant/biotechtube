@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { TickerBar } from "@/components/TickerBar";
 import { IndexCards } from "@/components/IndexCards";
@@ -22,13 +23,32 @@ export default function HomePage() {
       <Nav />
       <TickerBar />
 
-      {/* Hero — compact headline */}
-      <h1
-        className="px-5 py-3 text-[26px] font-medium tracking-tight"
-        style={{ color: "var(--color-text-primary)", letterSpacing: "-0.5px" }}
-      >
-        Track the biotech market, science, and funding rounds.
-      </h1>
+      {/* Hero — headline + company CTA */}
+      <div className="px-5 py-3">
+        <h1
+          className="text-[26px] font-medium tracking-tight"
+          style={{ color: "var(--color-text-primary)", letterSpacing: "-0.5px" }}
+        >
+          Track the biotech market, science, and funding rounds.
+        </h1>
+        <div className="flex items-center gap-3 mt-2">
+          <Link
+            href="/companies"
+            className="text-13"
+            style={{ color: "var(--color-text-tertiary)" }}
+          >
+            14,000+ companies tracked
+          </Link>
+          <span className="text-11" style={{ color: "var(--color-border-medium)" }}>·</span>
+          <Link
+            href="/claim/oncoinvent"
+            className="flex items-center gap-1.5 text-13 font-medium"
+            style={{ color: "var(--color-accent)" }}
+          >
+            🏢 Is your company listed? Claim your profile →
+          </Link>
+        </div>
+      </div>
 
       {/* Index Cards */}
       <IndexCards />
