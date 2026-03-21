@@ -1,14 +1,12 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { Search, X, TrendingUp, Sparkles, ArrowRight } from "lucide-react";
+import { Search, X, TrendingUp, Sparkles, ArrowRight, Loader2 } from "lucide-react";
 import { Company } from "@/lib/types";
 import { formatCurrency } from "@/lib/formatting";
 import { CompanyAvatar } from "@/components/CompanyAvatar";
-import companiesData from "@/data/companies.json";
-
-const companies = companiesData as Company[];
+import { dbRowToCompany } from "@/lib/adapters";
 
 const stageColors: Record<string, { bg: string; text: string; border: string }> = {
   Approved: { bg: "#e8f5f0", text: "#0a3d2e", border: "#5DCAA5" },
@@ -26,15 +24,33 @@ interface SearchOverlayProps {
 
 export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   const [query, setQuery] = useState("");
+  const [results, setResults] = useState<Company[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [featured, setFeatured] = useState<Company[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Focus input on open
   useEffect(() => {
     if (isOpen) {
       setQuery("");
+      setResults([]);
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [isOpen]);
+
+  // Load featured companies on open
+  useEffect(() => {
+    if (isOpen && featured.length === 0) {
+      fetch("/api/companies?limit=8&sort=name")
+        .then((r) => r.json())
+        .then((d) => {
+          if (d.companies) {
+            setFeatured(d.companies.map(dbRowToCompany));
+          }
+        })
+        .catch(() => {});
+    }
+  }, [isOpen, featured.length]);
 
   // Close on Escape
   useEffect(() => {
@@ -45,36 +61,37 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Trending companies (sorted by trending score)
-  const trending = useMemo(
-    () => companies.filter((c) => c.trending).sort((a, b) => (a.trending || 99) - (b.trending || 99)).slice(0, 5),
-    []
-  );
+  // Debounced search
+  const searchTimeout = useRef<NodeJS.Timeout | null>(null);
+  const handleSearch = useCallback((value: string) => {
+    setQuery(value);
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
 
-  // Boosted/sponsored companies (just pick 3 with highest totalRaised as "sponsored")
-  const boosted = useMemo(
-    () => [...companies].sort((a, b) => b.totalRaised - a.totalRaised).slice(0, 3),
-    []
-  );
+    if (!value || value.length < 2) {
+      setResults([]);
+      setLoading(false);
+      return;
+    }
 
-  // Live search results
-  const results = useMemo(() => {
-    if (!query.trim()) return [];
-    const q = query.toLowerCase();
-    return companies
-      .filter(
-        (c) =>
-          c.name.toLowerCase().includes(q) ||
-          c.slug.includes(q) ||
-          c.focus.some((f) => f.toLowerCase().includes(q)) ||
-          (c.ticker && c.ticker.toLowerCase().includes(q))
-      )
-      .slice(0, 8);
-  }, [query]);
+    setLoading(true);
+    searchTimeout.current = setTimeout(() => {
+      fetch(`/api/companies/search?q=${encodeURIComponent(value)}`)
+        .then((r) => r.json())
+        .then((d) => {
+          setResults((d.results || []).map(dbRowToCompany));
+          setLoading(false);
+        })
+        .catch(() => {
+          setLoading(false);
+        });
+    }, 200);
+  }, []);
 
   if (!isOpen) return null;
 
   const hasQuery = query.trim().length > 0;
+  const trending = featured.slice(0, 5);
+  const boosted = featured.slice(3, 6);
 
   return (
     <div className="fixed inset-0 z-[60]">
@@ -99,18 +116,22 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
           className="flex items-center gap-3 px-4 h-[52px]"
           style={{ borderBottom: "0.5px solid var(--color-border-subtle)" }}
         >
-          <Search size={18} style={{ color: "var(--color-text-tertiary)", flexShrink: 0 }} />
+          {loading ? (
+            <Loader2 size={18} className="animate-spin" style={{ color: "var(--color-accent)", flexShrink: 0 }} />
+          ) : (
+            <Search size={18} style={{ color: "var(--color-text-tertiary)", flexShrink: 0 }} />
+          )}
           <input
             ref={inputRef}
             type="text"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => handleSearch(e.target.value)}
             placeholder="Search companies, pipelines, therapeutic areas..."
             className="flex-1 text-[16px] bg-transparent border-0 outline-none"
             style={{ color: "var(--color-text-primary)" }}
           />
           {query && (
-            <button onClick={() => setQuery("")} className="p-0.5" style={{ color: "var(--color-text-tertiary)" }}>
+            <button onClick={() => { setQuery(""); setResults([]); }} className="p-0.5" style={{ color: "var(--color-text-tertiary)" }}>
               <X size={16} />
             </button>
           )}
@@ -137,7 +158,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                     <CompanyRow key={c.slug} company={c} onClose={onClose} highlight={query} />
                   ))}
                 </>
-              ) : (
+              ) : !loading ? (
                 <div className="py-6 text-center">
                   <p className="text-13" style={{ color: "var(--color-text-tertiary)" }}>
                     No companies found for &ldquo;{query}&rdquo;
@@ -149,7 +170,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                     </Link>
                   </p>
                 </div>
-              )}
+              ) : null}
             </div>
           )}
 
@@ -164,8 +185,8 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                     Trending
                   </span>
                 </div>
-                {trending.map((c) => (
-                  <CompanyRow key={c.slug} company={c} onClose={onClose} showRank />
+                {trending.map((c, i) => (
+                  <CompanyRow key={c.slug} company={c} onClose={onClose} showRank rank={i + 1} />
                 ))}
               </div>
 
@@ -196,7 +217,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                   className="flex items-center justify-center gap-1.5 w-full py-2 rounded text-12 font-medium transition-colors duration-150"
                   style={{ color: "var(--color-accent)", background: "var(--color-bg-secondary)" }}
                 >
-                  Browse all 14,000+ companies
+                  Browse all 10,000+ companies
                   <ArrowRight size={12} />
                 </Link>
               </div>
@@ -212,11 +233,13 @@ function CompanyRow({
   company,
   onClose,
   showRank,
+  rank,
   highlight,
 }: {
   company: Company;
   onClose: () => void;
   showRank?: boolean;
+  rank?: number;
   sponsored?: boolean;
   highlight?: string;
 }) {
@@ -244,9 +267,9 @@ function CompanyRow({
       onClick={onClose}
       className="flex items-center gap-3 py-2.5 rounded-md px-2 -mx-2 transition-colors duration-100 hover:bg-[var(--color-bg-secondary)]"
     >
-      {showRank && company.trending && (
+      {showRank && rank && (
         <span className="text-10 font-medium w-4 text-center" style={{ color: "var(--color-accent)" }}>
-          #{company.trending}
+          #{rank}
         </span>
       )}
       <CompanyAvatar name={company.name} logoUrl={company.logoUrl} website={company.website} size={32} />
@@ -262,21 +285,25 @@ function CompanyRow({
           )}
         </div>
         <div className="flex items-center gap-1.5 text-12" style={{ color: "var(--color-text-tertiary)" }}>
-          <span>{company.city}, {company.country}</span>
-          <span>·</span>
-          <span>{company.focus[0]}</span>
+          {company.city && <><span>{company.city}, {company.country}</span><span>·</span></>}
+          {!company.city && company.country && <><span>{company.country}</span><span>·</span></>}
+          <span>{company.focus[0] || "Biotech"}</span>
         </div>
       </div>
       <div className="flex items-center gap-2 flex-shrink-0">
-        <span
-          className="text-[9px] px-1.5 py-[2px] rounded-sm border"
-          style={{ background: sc.bg, color: sc.text, borderColor: sc.border, borderWidth: "0.5px" }}
-        >
-          {company.stage}
-        </span>
-        <span className="text-10 font-medium" style={{ color: "var(--color-accent)" }}>
-          {formatCurrency(company.totalRaised)}
-        </span>
+        {company.stage && (
+          <span
+            className="text-[9px] px-1.5 py-[2px] rounded-sm border"
+            style={{ background: sc.bg, color: sc.text, borderColor: sc.border, borderWidth: "0.5px" }}
+          >
+            {company.stage}
+          </span>
+        )}
+        {company.totalRaised > 0 && (
+          <span className="text-10 font-medium" style={{ color: "var(--color-accent)" }}>
+            {formatCurrency(company.totalRaised)}
+          </span>
+        )}
       </div>
     </Link>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
@@ -10,11 +10,10 @@ import { Company, FundingRound } from "@/lib/types";
 import { formatCurrency } from "@/lib/formatting";
 import { Search, ArrowRight, Shield, ChevronRight } from "lucide-react";
 import { CompanyAvatar } from "@/components/CompanyAvatar";
+import { dbRowsToCompanies } from "@/lib/adapters";
 
-import companiesData from "@/data/companies.json";
 import fundingData from "@/data/funding.json";
 
-const companies = companiesData as Company[];
 const funding = fundingData as FundingRound[];
 
 const stageBadgeColors: Record<string, { bg: string; text: string; border: string }> = {
@@ -96,6 +95,19 @@ const regions = [
 export function CompaniesPageClient() {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [totalCount, setTotalCount] = useState(10632);
+
+  // Fetch companies from API
+  useEffect(() => {
+    fetch("/api/companies?limit=50&sort=name")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.companies) setCompanies(dbRowsToCompanies(d.companies));
+        if (d.total) setTotalCount(d.total);
+      })
+      .catch(() => {});
+  }, []);
 
   // Filter companies based on search and category
   const filtered = useMemo(() => {
@@ -125,14 +137,14 @@ export function CompaniesPageClient() {
         <div className="flex items-center justify-center gap-2 mb-3">
           <span className="inline-flex items-center gap-1.5 text-12 px-3 py-1 rounded-full border" style={{ borderColor: "var(--color-border-subtle)", color: "var(--color-text-secondary)", borderWidth: "0.5px" }}>
             <span className="w-[6px] h-[6px] rounded-full" style={{ background: "#22c55e" }} />
-            14,207 companies tracked
+            {totalCount.toLocaleString()} companies tracked
           </span>
         </div>
         <h1 className="text-[28px] md:text-[42px] font-medium tracking-tight mb-2" style={{ color: "var(--color-text-primary)", letterSpacing: "-0.5px", lineHeight: 1.1 }}>
           Find any biotech company in the world
         </h1>
         <p className="text-14 md:text-[16px] mb-6" style={{ color: "var(--color-text-secondary)" }}>
-          Search 14,000+ companies across 58 countries by name, therapeutic area, or location.
+          Search {totalCount.toLocaleString()}+ companies across 30+ countries by name, therapeutic area, or location.
         </p>
 
         {/* ═══ SEARCH BAR (central) ═══ */}

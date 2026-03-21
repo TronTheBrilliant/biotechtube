@@ -4,17 +4,34 @@ import { TickerBar } from "@/components/TickerBar";
 import { IndexCards } from "@/components/IndexCards";
 import { Footer } from "@/components/Footer";
 import { RecentlyFunded } from "@/components/RecentlyFunded";
-// PaywallCard removed from sidebar — ranking table has its own CTA
 import { UpcomingEvents } from "@/components/UpcomingEvents";
 import { HomePageClient } from "@/components/HomePageClient";
-import { Company, FundingRound, BiotechEvent } from "@/lib/types";
+import { FundingRound, BiotechEvent } from "@/lib/types";
+import { dbRowsToCompanies } from "@/lib/adapters";
+import { createClient } from "@supabase/supabase-js";
 
-import companiesData from "@/data/companies.json";
 import fundingData from "@/data/funding.json";
 import eventsData from "@/data/events.json";
 
-export default function HomePage() {
-  const companies = companiesData as Company[];
+export const dynamic = 'force-dynamic';
+
+async function getTopCompanies() {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  const { data } = await supabase
+    .from('companies')
+    .select('*')
+    .order('name', { ascending: true })
+    .limit(50);
+
+  return data ? dbRowsToCompanies(data) : [];
+}
+
+export default async function HomePage() {
+  const companies = await getTopCompanies();
   const funding = fundingData as FundingRound[];
   const events = eventsData as BiotechEvent[];
 

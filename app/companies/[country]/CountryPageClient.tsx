@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
@@ -9,11 +9,9 @@ import { PaywallCard } from "@/components/PaywallCard";
 import { CompanyAvatar } from "@/components/CompanyAvatar";
 import { Company, FundingRound } from "@/lib/types";
 import { formatCurrency } from "@/lib/formatting";
-import companiesData from "@/data/companies.json";
 import fundingData from "@/data/funding.json";
 import { Shield, ArrowRight } from "lucide-react";
 
-const companies = companiesData as Company[];
 const funding = fundingData as FundingRound[];
 
 interface CountryData {
@@ -87,10 +85,43 @@ type SortMode = "marketcap" | "trending" | "funded" | "newest";
 export function CountryPageClient({ country, nearbyCountries }: CountryPageClientProps) {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortMode, setSortMode] = useState<SortMode>("marketcap");
+  const [apiCompanies, setApiCompanies] = useState<Company[]>([]);
+  const [, setLoadingCompanies] = useState(true);
+
+  useEffect(() => {
+    fetch(`/api/companies?country=${encodeURIComponent(country.name)}&limit=100&sort=name`)
+      .then(r => r.json())
+      .then(d => {
+        if (d.companies) {
+          setApiCompanies(d.companies.map((row: Record<string, unknown>) => ({
+            slug: row.slug as string,
+            name: row.name as string,
+            country: row.country as string,
+            city: (row.city as string) || '',
+            founded: (row.founded as number) || 0,
+            stage: (row.stage as string) || 'Pre-clinical',
+            type: (row.company_type as string) || 'Private',
+            ticker: row.ticker as string || undefined,
+            focus: (row.categories as string[]) || [],
+            employees: (row.employee_range as string) || '',
+            totalRaised: (row.total_raised as number) || 0,
+            valuation: row.valuation as number || undefined,
+            isEstimated: (row.is_estimated as boolean) || false,
+            description: (row.description as string) || '',
+            website: (row.domain as string) || (row.website as string) || '',
+            logoUrl: row.logo_url as string || undefined,
+            trending: row.trending_rank as number || null,
+            profileViews: (row.profile_views as number) || 0,
+          })));
+        }
+        setLoadingCompanies(false);
+      })
+      .catch(() => setLoadingCompanies(false));
+  }, [country.name]);
 
   // Filter companies by country name
   const countryCompanies = useMemo(() => {
-    let result = companies.filter((c) => c.country === country.name);
+    let result = apiCompanies.filter((c) => c.country === country.name);
 
     // Filter by category
     if (selectedCategory !== "All") {
@@ -120,7 +151,7 @@ export function CountryPageClient({ country, nearbyCountries }: CountryPageClien
     }
 
     return result;
-  }, [country.name, selectedCategory, sortMode]);
+  }, [apiCompanies, country.name, selectedCategory, sortMode]);
 
   const hasCompanies = countryCompanies.length > 0;
   const paywallIndex = 5;
@@ -520,7 +551,7 @@ export function CountryPageClient({ country, nearbyCountries }: CountryPageClien
               className="rounded-lg border overflow-hidden mb-3"
               style={{ borderColor: "var(--color-border-subtle)", borderWidth: "0.5px" }}
             >
-              <RecentlyFunded funding={funding} companies={companies} />
+              <RecentlyFunded funding={funding} companies={apiCompanies} />
             </div>
 
             {/* Paywall Card */}
@@ -535,7 +566,7 @@ export function CountryPageClient({ country, nearbyCountries }: CountryPageClien
           className="rounded-lg border overflow-hidden mb-3"
           style={{ borderColor: "var(--color-border-subtle)", borderWidth: "0.5px" }}
         >
-          <RecentlyFunded funding={funding} companies={companies} />
+          <RecentlyFunded funding={funding} companies={apiCompanies} />
         </div>
         <PaywallCard />
       </div>

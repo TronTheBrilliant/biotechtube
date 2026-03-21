@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   AreaChart,
@@ -7,42 +8,55 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const cardData = [
-  {
-    label: "📊 GLOBAL BIOTECH INDEX",
-    value: "4,207",
-    change: "+3.2%",
-    up: true,
-    href: "/market",
-    data: [40, 42, 38, 44, 46, 43, 48, 50, 47, 52, 55, 53],
-  },
-  {
-    label: "💰 INVESTMENT VOLUME (YTD)",
-    value: "$4.2B",
-    change: "+8.3%",
-    up: true,
-    href: "/funding",
-    data: [20, 24, 22, 28, 32, 30, 35, 33, 38, 42, 40, 44],
-  },
-  {
-    label: "🧪 ACTIVE CLINICAL TRIALS",
-    value: "3,841",
-    change: "+24",
-    up: true,
-    href: "/pipeline",
-    data: [100, 105, 108, 106, 112, 115, 118, 120, 122, 125, 128, 130],
-  },
-  {
-    label: "🏢 COMPANIES TRACKED",
-    value: "14,207",
-    change: "+127",
-    up: true,
-    href: "/companies",
-    data: [200, 210, 220, 235, 248, 260, 275, 290, 305, 318, 330, 345],
-  },
-];
+function formatCount(n: number): string {
+  return n.toLocaleString();
+}
 
 export function IndexCards() {
+  const [companyCount, setCompanyCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch("/api/stats")
+      .then((r) => r.json())
+      .then((d) => setCompanyCount(d.totalCompanies))
+      .catch(() => {});
+  }, []);
+
+  const cardData = [
+    {
+      label: "📊 GLOBAL BIOTECH INDEX",
+      value: "4,207",
+      change: "+3.2%",
+      up: true,
+      href: "/markets",
+      data: [40, 42, 38, 44, 46, 43, 48, 50, 47, 52, 55, 53],
+    },
+    {
+      label: "💰 INVESTMENT VOLUME (YTD)",
+      value: "$4.2B",
+      change: "+8.3%",
+      up: true,
+      href: "/funding",
+      data: [20, 24, 22, 28, 32, 30, 35, 33, 38, 42, 40, 44],
+    },
+    {
+      label: "🧪 ACTIVE CLINICAL TRIALS",
+      value: "3,841",
+      change: "+24",
+      up: true,
+      href: "/pipeline",
+      data: [100, 105, 108, 106, 112, 115, 118, 120, 122, 125, 128, 130],
+    },
+    {
+      label: "🏢 COMPANIES TRACKED",
+      value: companyCount !== null ? formatCount(companyCount) : "...",
+      change: companyCount !== null ? `+${formatCount(companyCount)}` : "",
+      up: true,
+      href: "/companies",
+      data: [200, 210, 220, 235, 248, 260, 275, 290, 305, 318, 330, 345],
+    },
+  ];
+
   return (
     <div className="flex md:grid md:grid-cols-4 gap-2.5 px-5 py-3 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
       {cardData.map((card) => (
