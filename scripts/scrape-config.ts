@@ -1,0 +1,61 @@
+// BioPharmGuy pages to scrape for EU + US companies
+// Each page lists companies by location with name, city, and website URL
+
+export const COUNTRY_PAGES: { url: string; country: string; region: string }[] = [
+  // === Europe ===
+  { url: 'https://biopharmguy.com/links/company-by-location-austria.php', country: 'Austria', region: 'Europe' },
+  { url: 'https://biopharmguy.com/links/country-belgium-all-location.php', country: 'Belgium', region: 'Europe' },
+  { url: 'https://biopharmguy.com/links/company-by-location-czech-republic.php', country: 'Czech Republic', region: 'Europe' },
+  { url: 'https://biopharmguy.com/links/country-denmark-all-location.php', country: 'Denmark', region: 'Europe' },
+  { url: 'https://biopharmguy.com/links/company-by-location-finland.php', country: 'Finland', region: 'Europe' },
+  { url: 'https://biopharmguy.com/links/country-france-all-location.php', country: 'France', region: 'Europe' },
+  { url: 'https://biopharmguy.com/links/country-germany-all-location.php', country: 'Germany', region: 'Europe' },
+  { url: 'https://biopharmguy.com/links/company-by-location-hungary.php', country: 'Hungary', region: 'Europe' },
+  { url: 'https://biopharmguy.com/links/country-ireland-all-location.php', country: 'Ireland', region: 'Europe' },
+  { url: 'https://biopharmguy.com/links/country-italy-all-location.php', country: 'Italy', region: 'Europe' },
+  { url: 'https://biopharmguy.com/links/country-netherlands-all-location.php', country: 'Netherlands', region: 'Europe' },
+  { url: 'https://biopharmguy.com/links/company-by-location-norway.php', country: 'Norway', region: 'Europe' },
+  { url: 'https://biopharmguy.com/links/company-by-location-poland.php', country: 'Poland', region: 'Europe' },
+  { url: 'https://biopharmguy.com/links/company-by-location-portugal.php', country: 'Portugal', region: 'Europe' },
+  { url: 'https://biopharmguy.com/links/country-spain-all-location.php', country: 'Spain', region: 'Europe' },
+  { url: 'https://biopharmguy.com/links/country-sweden-all-location.php', country: 'Sweden', region: 'Europe' },
+  { url: 'https://biopharmguy.com/links/country-switzerland-all-location.php', country: 'Switzerland', region: 'Europe' },
+  { url: 'https://biopharmguy.com/links/country-united-kingdom-all-location.php', country: 'United Kingdom', region: 'Europe' },
+  { url: 'https://biopharmguy.com/links/company-by-location-europe.php', country: 'Europe - Other', region: 'Europe' },
+  // === United States (by region) ===
+  { url: 'https://biopharmguy.com/links/company-by-location-dc-area.php', country: 'United States', region: 'US' },
+  { url: 'https://biopharmguy.com/links/company-by-location-new-england.php', country: 'United States', region: 'US' },
+  { url: 'https://biopharmguy.com/links/company-by-location-njnypa.php', country: 'United States', region: 'US' },
+  { url: 'https://biopharmguy.com/links/company-by-location-northwest.php', country: 'United States', region: 'US' },
+  { url: 'https://biopharmguy.com/links/company-by-location-northern-california.php', country: 'United States', region: 'US' },
+  { url: 'https://biopharmguy.com/links/company-by-location-southern-california.php', country: 'United States', region: 'US' },
+  { url: 'https://biopharmguy.com/links/company-by-location-southwest.php', country: 'United States', region: 'US' },
+  { url: 'https://biopharmguy.com/links/company-by-location-midwest.php', country: 'United States', region: 'US' },
+  { url: 'https://biopharmguy.com/links/company-by-location-mountain-west.php', country: 'United States', region: 'US' },
+  { url: 'https://biopharmguy.com/links/company-by-location-south.php', country: 'United States', region: 'US' },
+  { url: 'https://biopharmguy.com/links/company-by-location-carolinas.php', country: 'United States', region: 'US' },
+  { url: 'https://biopharmguy.com/links/company-by-location-other.php', country: 'United States', region: 'US' },
+]
+
+// Category pages — we scrape these to tag companies with business categories
+// We match by website domain to associate categories with existing company rows
+export const CATEGORY_PAGES: { url: string; category: string }[] = [
+  { url: 'https://biopharmguy.com/links/company-by-location-ai.php', category: 'AI / Machine Learning' },
+  { url: 'https://biopharmguy.com/links/company-by-location-antibodies.php', category: 'Antibodies' },
+  { url: 'https://biopharmguy.com/links/company-by-location-biologics.php', category: 'Biologics' },
+  { url: 'https://biopharmguy.com/links/company-by-location-biosimilars.php', category: 'Biosimilars' },
+  { url: 'https://biopharmguy.com/links/company-by-location-diagnostics.php', category: 'Diagnostics' },
+  { url: 'https://biopharmguy.com/links/company-by-location-drug-delivery.php', category: 'Drug Delivery' },
+  { url: 'https://biopharmguy.com/links/company-by-location-generics.php', category: 'Generic Drugs' },
+  { url: 'https://biopharmguy.com/links/company-by-location-genetics.php', category: 'Genetics & Genomics' },
+  { url: 'https://biopharmguy.com/links/company-by-location-microbiome.php', category: 'Microbiome' },
+  { url: 'https://biopharmguy.com/links/company-by-location-nano-biotech.php', category: 'Nanotechnology' },
+  { url: 'https://biopharmguy.com/links/company-by-location-radiopharmaceuticals.php', category: 'Radiopharmaceuticals' },
+  { url: 'https://biopharmguy.com/links/company-by-location-dna-rna.php', category: 'RNA & Gene Therapy' },
+  { url: 'https://biopharmguy.com/links/company-by-location-small-molecules.php', category: 'Small Molecules' },
+  { url: 'https://biopharmguy.com/links/company-by-location-stem-cells.php', category: 'Cell & Gene Therapy' },
+  { url: 'https://biopharmguy.com/links/company-by-location-vaccines.php', category: 'Vaccines' },
+  { url: 'https://biopharmguy.com/links/company-by-location-viral-technology.php', category: 'Viral Technology' },
+  { url: 'https://biopharmguy.com/links/company-by-location-psychedelics.php', category: 'Psychedelics' },
+  { url: 'https://biopharmguy.com/links/company-by-location-tissue-engineering.php', category: 'Tissue Engineering' },
+]
