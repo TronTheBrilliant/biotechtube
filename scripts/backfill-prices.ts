@@ -16,7 +16,8 @@ import { resolve } from "path";
 config({ path: resolve(__dirname, "../.env.local"), override: true });
 
 import { createClient } from "@supabase/supabase-js";
-import yahooFinance from "yahoo-finance2";
+import YahooFinance from "yahoo-finance2";
+const yahooFinance = new YahooFinance();
 
 const DEFAULT_LIMIT = 1000;
 const DEFAULT_WORKERS = 5;
@@ -211,12 +212,19 @@ async function backfillTicker(
     };
   });
 
+  // Deduplicate by date (Yahoo sometimes returns duplicate dates)
+  const deduped = new Map<string, typeof rows[0]>();
+  for (const row of rows) {
+    deduped.set(row.date, row); // last one wins
+  }
+  const uniqueRows = Array.from(deduped.values());
+
   // Batch upsert (Supabase limit is 1000 rows per call)
   const BATCH_SIZE = 500;
   let insertedRows = 0;
 
-  for (let i = 0; i < rows.length; i += BATCH_SIZE) {
-    const batch = rows.slice(i, i + BATCH_SIZE);
+  for (let i = 0; i < uniqueRows.length; i += BATCH_SIZE) {
+    const batch = uniqueRows.slice(i, i + BATCH_SIZE);
     const { error } = await supabase
       .from("company_price_history")
       .upsert(batch, { onConflict: "company_id,date" });
@@ -263,7 +271,7 @@ async function main() {
   const pageSize = 1000;
   let offset = 0;
 
-  while (offset < limit) {
+  while (true) {
     const { data, error } = await supabase
       .from("companies")
       .select("id, slug, name, ticker, country")
@@ -277,11 +285,14 @@ async function main() {
     allCompanies.push(...(data as CompanyWithTicker[]));
     offset += pageSize;
     if (data.length < pageSize) break;
+    if (allCompanies.length >= limit) break;
   }
 
-  console.log(`  Found ${allCompanies.length} companies with tickers`);
+  // Apply limit
+  const companies = allCompanies.slice(0, limit);
+  console.log(`  Found ${allCompanies.length} companies with tickers, using ${companies.length}`);
 
-  if (allCompanies.length === 0) {
+  if (companies.length === 0) {
     console.log("No companies with tickers found.");
     process.exit(0);
   }
@@ -291,12 +302,12 @@ async function main() {
   const exchangeRates = await fetchExchangeRates();
 
   const startTime = Date.now();
-  const totalCompanies = allCompanies.length;
+  const totalCompanies = companies.length;
 
   // Split across workers
   const chunks: CompanyWithTicker[][] = Array.from({ length: numWorkers }, () => []);
-  for (let i = 0; i < allCompanies.length; i++) {
-    chunks[i % numWorkers].push(allCompanies[i]);
+  for (let i = 0; i < companies.length; i++) {
+    chunks[i % numWorkers].push(companies[i]);
   }
 
   console.log(`\nStarting backfill with ${numWorkers} workers...\n`);

@@ -14,7 +14,8 @@ import { resolve } from "path";
 config({ path: resolve(__dirname, "../.env.local"), override: true });
 
 import { createClient } from "@supabase/supabase-js";
-import yahooFinance from "yahoo-finance2";
+import YahooFinance from "yahoo-finance2";
+const yahooFinance = new YahooFinance();
 
 const WORKERS = 5;
 const DELAY_MS = 500;
