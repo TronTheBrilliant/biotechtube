@@ -7,19 +7,25 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "scrape:bpg": "tsx scripts/scrape-biopharmguy.ts"
+    "scrape:bpg": "tsx scripts/scrape-biopharmguy.ts",
+    "enrich:websites": "tsx scripts/enrich-websites.ts",
+    "enrich:public": "tsx scripts/enrich-public-companies.ts",
+    "enrich:tickers": "tsx scripts/enrich-tickers.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.80.0",
     "@supabase/supabase-js": "^2.99.3",
     "cheerio": "^1.2.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.577.0",
     "next": "14.2.35",
     "next-themes": "^0.4.6",
+    "openai": "^6.32.0",
     "react": "^18",
     "react-dom": "^18",
     "recharts": "^3.8.0",
-    "tailwind-merge": "^3.5.0"
+    "tailwind-merge": "^3.5.0",
+    "yahoo-finance2": "^3.13.2"
   },
   "devDependencies": {
     "@types/cheerio": "^0.22.35",
