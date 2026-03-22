@@ -277,8 +277,8 @@ async function calculateMarketSnapshot(supabase: ReturnType<typeof getSupabase>)
     const { data } = await supabase
       .from("market_snapshots")
       .select("total_market_cap")
-      .lte("date", beforeDate)
-      .order("date", { ascending: false })
+      .lte("snapshot_date", beforeDate)
+      .order("snapshot_date", { ascending: false })
       .limit(1);
     return data?.[0]?.total_market_cap ?? null;
   };
@@ -292,8 +292,8 @@ async function calculateMarketSnapshot(supabase: ReturnType<typeof getSupabase>)
   const { data: ytdRow } = await supabase
     .from("market_snapshots")
     .select("total_market_cap")
-    .gte("date", yearStart)
-    .order("date", { ascending: true })
+    .gte("snapshot_date", yearStart)
+    .order("snapshot_date", { ascending: true })
     .limit(1);
   const ytdMc = ytdRow?.[0]?.total_market_cap ?? null;
 
@@ -301,9 +301,9 @@ async function calculateMarketSnapshot(supabase: ReturnType<typeof getSupabase>)
     prev && prev !== 0 ? ((current - prev) / prev) * 100 : null;
 
   const snapshot = {
-    date: latestDate,
+    snapshot_date: latestDate,
     total_market_cap: Math.round(totalMarketCap),
-    public_company_count: prices.length,
+    public_companies_count: prices.length,
     total_volume: Math.round(totalVolume),
     change_1d_pct: pctChange(totalMarketCap, prevDayMc),
     change_7d_pct: pctChange(totalMarketCap, prev7dMc),
@@ -317,7 +317,7 @@ async function calculateMarketSnapshot(supabase: ReturnType<typeof getSupabase>)
 
   const { error } = await supabase
     .from("market_snapshots")
-    .upsert(snapshot, { onConflict: "date" });
+    .upsert(snapshot, { onConflict: "snapshot_date" });
 
   if (error) console.log(`  ❌ Snapshot error: ${error.message}`);
   else console.log(`  ✅ Snapshot: $${(totalMarketCap / 1e9).toFixed(1)}B total, ${prices.length} companies`);
@@ -372,8 +372,8 @@ async function calculateSectorData(supabase: ReturnType<typeof getSupabase>) {
         .from("sector_market_data")
         .select("combined_market_cap")
         .eq("sector_id", sector.id)
-        .lte("date", beforeDate)
-        .order("date", { ascending: false })
+        .lte("snapshot_date", beforeDate)
+        .order("snapshot_date", { ascending: false })
         .limit(1);
       return data?.[0]?.combined_market_cap ?? null;
     };
@@ -389,7 +389,7 @@ async function calculateSectorData(supabase: ReturnType<typeof getSupabase>) {
       .from("sector_market_data")
       .upsert({
         sector_id: sector.id,
-        date: latestDate,
+        snapshot_date: latestDate,
         combined_market_cap: Math.round(combinedMarketCap),
         company_count: companyIds.length,
         public_company_count: prices?.length || 0,
@@ -398,7 +398,7 @@ async function calculateSectorData(supabase: ReturnType<typeof getSupabase>) {
         change_7d_pct: pctChange(combinedMarketCap, prev7d),
         change_30d_pct: pctChange(combinedMarketCap, prev30d),
         top_company_id: topCompany?.company_id ?? null,
-      }, { onConflict: "sector_id,date" });
+      }, { onConflict: "sector_id,snapshot_date" });
 
     if (error) console.log(`  ❌ ${sector.name}: ${error.message}`);
     else console.log(`  ✅ ${sector.name}: $${(combinedMarketCap / 1e9).toFixed(1)}B, ${prices?.length || 0} public cos`);
@@ -469,8 +469,8 @@ async function calculateCountryData(supabase: ReturnType<typeof getSupabase>) {
         .from("country_market_data")
         .select("combined_market_cap")
         .eq("country", country)
-        .lte("date", beforeDate)
-        .order("date", { ascending: false })
+        .lte("snapshot_date", beforeDate)
+        .order("snapshot_date", { ascending: false })
         .limit(1);
       return prev?.[0]?.combined_market_cap ?? null;
     };
@@ -486,7 +486,7 @@ async function calculateCountryData(supabase: ReturnType<typeof getSupabase>) {
       .from("country_market_data")
       .upsert({
         country,
-        date: latestDate,
+        snapshot_date: latestDate,
         combined_market_cap: Math.round(data.marketCap),
         company_count: data.publicCount,
         public_company_count: data.publicCount,
@@ -494,7 +494,7 @@ async function calculateCountryData(supabase: ReturnType<typeof getSupabase>) {
         change_1d_pct: pctChange(data.marketCap, prev1d),
         change_7d_pct: pctChange(data.marketCap, prev7d),
         change_30d_pct: pctChange(data.marketCap, prev30d),
-      }, { onConflict: "country,date" });
+      }, { onConflict: "country,snapshot_date" });
 
     if (!error) {
       console.log(`  ✅ ${country}: $${(data.marketCap / 1e9).toFixed(1)}B, ${data.publicCount} public cos`);

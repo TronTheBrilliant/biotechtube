@@ -33,16 +33,25 @@ async function main() {
   console.log("\n📊 Historical Aggregation Backfill");
   console.log("==================================\n");
 
-  // Get all distinct dates from price history using RPC
+  // Get all distinct dates from price history using RPC (paginated)
   console.log("Fetching all trading dates...");
-  const { data: dateRows, error: dateErr } = await supabase.rpc("get_distinct_price_dates");
-  if (dateErr) {
-    console.error("Error fetching dates:", dateErr.message);
-    console.error("Make sure the get_distinct_price_dates() function exists in your database.");
-    process.exit(1);
+  const allDateRows: { d: string }[] = [];
+  let dateOffset = 0;
+  while (true) {
+    const { data, error } = await supabase
+      .rpc("get_distinct_price_dates")
+      .range(dateOffset, dateOffset + 999);
+    if (error) {
+      console.error("Error fetching dates:", error.message);
+      console.error("Make sure the get_distinct_price_dates() function exists in your database.");
+      process.exit(1);
+    }
+    if (!data || data.length === 0) break;
+    allDateRows.push(...(data as { d: string }[]));
+    dateOffset += 1000;
+    if (data.length < 1000) break;
   }
-
-  const dates = (dateRows as { d: string }[]).map((r) => r.d);
+  const dates = allDateRows.map((r) => r.d);
   console.log(`  Found ${dates.length} unique trading dates (${dates[0]} to ${dates[dates.length - 1]})\n`);
 
   // Pre-fetch sector memberships
@@ -133,6 +142,14 @@ async function main() {
   for (let batchStart = 0; batchStart < dates.length; batchStart += BATCH_SIZE) {
     const batchDates = dates.slice(batchStart, batchStart + BATCH_SIZE);
 
+    // Collect all rows for batch upsert
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const snapshotBatch: any[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sectorBatch: any[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const countryBatch: any[] = [];
+
     for (const date of batchDates) {
       // Fetch all prices for this date (paginated)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -164,10 +181,10 @@ async function main() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       withChange.sort((a: any, b: any) => b.change_pct - a.change_pct);
 
-      const snapshotData = {
-        date,
+      snapshotBatch.push({
+        snapshot_date: date,
         total_market_cap: Math.round(totalMC),
-        public_company_count: prices.length,
+        public_companies_count: prices.length,
         total_volume: Math.round(totalVol),
         change_1d_pct: pctChange(totalMC, prevGlobalMC),
         change_7d_pct: pctChange(totalMC, findPrevSnapshot(recentGlobalSnapshots, date, 7)),
@@ -177,9 +194,8 @@ async function main() {
         top_gainer_pct: withChange[0]?.change_pct ?? null,
         top_loser_id: withChange[withChange.length - 1]?.company_id ?? null,
         top_loser_pct: withChange[withChange.length - 1]?.change_pct ?? null,
-      };
+      });
 
-      await supabase.from("market_snapshots").upsert(snapshotData, { onConflict: "date" });
       snapshotRows++;
       prevGlobalMC = totalMC;
       recentGlobalSnapshots.push({ date, mc: totalMC });
@@ -215,9 +231,9 @@ async function main() {
         const sectorHistory = recentSectorSnapshots.get(sectorId) || [];
         const prevSector1d = prevSectorMC.get(sectorId) ?? null;
 
-        await supabase.from("sector_market_data").upsert({
+        sectorBatch.push({
           sector_id: sectorId,
-          date,
+          snapshot_date: date,
           combined_market_cap: Math.round(sectorMC),
           company_count: members.size,
           public_company_count: publicCount,
@@ -226,7 +242,7 @@ async function main() {
           change_7d_pct: pctChange(sectorMC, findPrevSnapshot(sectorHistory, date, 7)),
           change_30d_pct: pctChange(sectorMC, findPrevSnapshot(sectorHistory, date, 30)),
           top_company_id: topCompanyId,
-        }, { onConflict: "sector_id,date" });
+        });
 
         sectorRows++;
         prevSectorMC.set(sectorId, sectorMC);
@@ -250,17 +266,17 @@ async function main() {
         const countryHistory = recentCountrySnapshots.get(country) || [];
         const prevCountry1d = prevCountryMC.get(country) ?? null;
 
-        await supabase.from("country_market_data").upsert({
+        countryBatch.push({
           country,
-          date,
+          snapshot_date: date,
           combined_market_cap: Math.round(data.mc),
-          company_count: 0, // will be updated by daily-update with total count
+          company_count: 0,
           public_company_count: data.publicCount,
           total_volume: Math.round(data.vol),
           change_1d_pct: pctChange(data.mc, prevCountry1d),
           change_7d_pct: pctChange(data.mc, findPrevSnapshot(countryHistory, date, 7)),
           change_30d_pct: pctChange(data.mc, findPrevSnapshot(countryHistory, date, 30)),
-        }, { onConflict: "country,date" });
+        });
 
         countryRows++;
         prevCountryMC.set(country, data.mc);
@@ -269,6 +285,21 @@ async function main() {
       }
 
       processedDates++;
+    }
+
+    // Batch upsert all rows (max 500 per call)
+    const UPSERT_SIZE = 500;
+    for (let i = 0; i < snapshotBatch.length; i += UPSERT_SIZE) {
+      const { error } = await supabase.from("market_snapshots").upsert(snapshotBatch.slice(i, i + UPSERT_SIZE), { onConflict: "snapshot_date" });
+      if (error) console.error(`  Snapshot upsert error: ${error.message}`);
+    }
+    for (let i = 0; i < sectorBatch.length; i += UPSERT_SIZE) {
+      const { error } = await supabase.from("sector_market_data").upsert(sectorBatch.slice(i, i + UPSERT_SIZE), { onConflict: "sector_id,snapshot_date" });
+      if (error) console.error(`  Sector upsert error: ${error.message}`);
+    }
+    for (let i = 0; i < countryBatch.length; i += UPSERT_SIZE) {
+      const { error } = await supabase.from("country_market_data").upsert(countryBatch.slice(i, i + UPSERT_SIZE), { onConflict: "country,snapshot_date" });
+      if (error) console.error(`  Country upsert error: ${error.message}`);
     }
 
     const pct = Math.round((processedDates / dates.length) * 100);
