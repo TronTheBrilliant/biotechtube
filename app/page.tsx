@@ -292,48 +292,6 @@ async function getTopPeopleData() {
   }
 }
 
-// ── Stats Ticker ──
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function StatsTicker({ snapshot }: { snapshot: any }) {
-  const stats = [
-    { icon: "📊", text: `${snapshot ? formatMarketCap(snapshot.total_market_cap) : "$7.0T"} Market Cap` },
-    { icon: "📈", text: `${snapshot ? snapshot.public_companies_count?.toLocaleString() : "771"} Public Companies` },
-    { icon: "🏷️", text: "20 Sectors" },
-    { icon: "🌍", text: "30+ Countries" },
-    { icon: "💊", text: "Updated Daily" },
-    { icon: "🧬", text: "1990–Present Data" },
-  ];
-  return (
-    <>
-      <div className="hidden md:flex items-center gap-5 mt-4">
-        {stats.map((s) => (
-          <div key={s.text} className="flex items-center gap-1.5 whitespace-nowrap flex-shrink-0">
-            <span className="text-[14px]">{s.icon}</span>
-            <span className="text-13 font-medium" style={{ color: "var(--color-text-primary)" }}>{s.text}</span>
-          </div>
-        ))}
-      </div>
-      <div className="md:hidden mt-3 overflow-hidden" style={{ maskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)" }}>
-        <div className="flex items-center gap-6 animate-marquee">
-          {stats.map((s) => (
-            <div key={s.text} className="flex items-center gap-1.5 whitespace-nowrap flex-shrink-0">
-              <span className="text-[14px]">{s.icon}</span>
-              <span className="text-13 font-medium" style={{ color: "var(--color-text-primary)" }}>{s.text}</span>
-            </div>
-          ))}
-          {stats.map((s) => (
-            <div key={`dup-${s.text}`} className="flex items-center gap-1.5 whitespace-nowrap flex-shrink-0">
-              <span className="text-[14px]">{s.icon}</span>
-              <span className="text-13 font-medium" style={{ color: "var(--color-text-primary)" }}>{s.text}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </>
-  );
-}
-
 // ── Page ──
 
 export default async function HomePage() {
