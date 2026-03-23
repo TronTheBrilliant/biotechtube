@@ -326,23 +326,12 @@ export function Nav() {
             </button>
 
             <Link
-              href="/pricing"
-              className="text-[13px] font-medium px-2 py-1 transition-colors duration-150"
-              style={{ color: "var(--color-text-secondary)" }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = "var(--color-text-primary)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = "var(--color-text-secondary)"; }}
-            >
-              Pricing
-            </Link>
-
-            <Link
               href="/login"
               className="flex items-center gap-1.5 text-[13px] font-medium text-white px-4 py-[7px] rounded-lg transition-opacity duration-150"
               style={{ background: "var(--color-accent)" }}
               onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.9"; }}
               onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
             >
-              <LogIn size={14} />
               Sign in
             </Link>
           </div>
