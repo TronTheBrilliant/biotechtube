@@ -21,7 +21,7 @@ export function CompanyAvatar({ name, logoUrl, website, size = 28, className = "
     domain = website;
   }
   // Priority 2: extract domain from logoUrl
-  else if (logoUrl) {
+  if (!domain && logoUrl) {
     // Handle logo.dev URLs: "https://img.logo.dev/sanofi.com?token=..." -> "sanofi.com"
     const logoDevMatch = logoUrl.match(/img\.logo\.dev\/([^?]+)/);
     if (logoDevMatch) {
@@ -33,6 +33,16 @@ export function CompanyAvatar({ name, logoUrl, website, size = 28, className = "
     }
     else {
       domain = logoUrl;
+    }
+  }
+
+  // Priority 3: guess domain from company name (works for most biotechs)
+  if (!domain && name) {
+    // "Tango Therapeutics" -> "tangotherapeutics.com"
+    // "Day One Biopharmaceuticals" -> "dayonebio.com" won't match, but many will
+    const slug = name.toLowerCase().replace(/[^a-z0-9]/g, "");
+    if (slug.length > 2) {
+      domain = slug + ".com";
     }
   }
 
