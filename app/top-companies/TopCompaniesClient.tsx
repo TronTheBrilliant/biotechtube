@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { formatMarketCap, formatPercent, pctColor } from "@/lib/market-utils";
+import { CompanyAvatar } from "@/components/CompanyAvatar";
 
 const PAGE_SIZE = 50;
 
@@ -11,6 +12,7 @@ interface RankedCompany {
   ticker: string | null;
   country: string | null;
   logo_url: string | null;
+  website: string | null;
   marketCap: number;
   change1d: number | null;
 }
@@ -98,28 +100,12 @@ export function TopCompaniesClient({
                     href={`/company/${c.slug}`}
                     className="flex items-center gap-2 hover:underline"
                   >
-                    {c.logo_url ? (
-                      <img
-                        src={c.logo_url}
-                        alt=""
-                        className="w-6 h-6 rounded-full object-cover flex-shrink-0"
-                        style={{
-                          background: "var(--color-bg-primary)",
-                          border: "1px solid var(--color-border-subtle)",
-                        }}
-                      />
-                    ) : (
-                      <div
-                        className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-bold"
-                        style={{
-                          background: "var(--color-bg-primary)",
-                          border: "1px solid var(--color-border-subtle)",
-                          color: "var(--color-text-tertiary)",
-                        }}
-                      >
-                        {c.name.charAt(0)}
-                      </div>
-                    )}
+                    <CompanyAvatar
+                      name={c.name}
+                      logoUrl={c.logo_url ?? undefined}
+                      website={c.website ?? undefined}
+                      size={24}
+                    />
                     <div className="flex flex-col">
                       <span
                         className="text-12 font-medium truncate max-w-[150px] md:max-w-none inline-block"

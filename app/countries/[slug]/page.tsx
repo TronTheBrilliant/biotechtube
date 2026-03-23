@@ -92,10 +92,26 @@ export default async function CountryDetailPage({
   );
 
   const [companiesResult, countResult, ...historyResults] = await Promise.all([
-    supabase
-      .from("companies")
-      .select("id, slug, name, ticker, logo_url, country, city, stage, company_type, valuation, total_raised, categories, website")
-      .eq("country", countryName),
+    // Fetch companies in 2 batches: top valued first, then the rest
+    // Supabase caps at 1000 per query, so we do valued + unvalued
+    Promise.all([
+      supabase
+        .from("companies")
+        .select("id, slug, name, ticker, logo_url, country, city, stage, company_type, valuation, total_raised, categories, website")
+        .eq("country", countryName)
+        .not("valuation", "is", null)
+        .order("valuation", { ascending: false })
+        .limit(1000),
+      supabase
+        .from("companies")
+        .select("id, slug, name, ticker, logo_url, country, city, stage, company_type, valuation, total_raised, categories, website")
+        .eq("country", countryName)
+        .is("valuation", null)
+        .order("name", { ascending: true })
+        .limit(1000),
+    ]).then(([valued, unvalued]) => ({
+      data: [...(valued.data ?? []), ...(unvalued.data ?? [])],
+    })),
     supabase
       .from("companies")
       .select("id", { count: "exact", head: true })
@@ -138,6 +154,7 @@ export default async function CountryDetailPage({
     ticker: string | null;
     valuation: number | null;
     logo_url: string | null;
+    website: string | null;
     city: string | null;
     stage: string | null;
     company_type: string | null;

@@ -20,6 +20,7 @@ interface RankedCompany {
   ticker: string | null;
   country: string | null;
   logo_url: string | null;
+  website: string | null;
   marketCap: number;
   change1d: number | null;
 }
@@ -80,6 +81,7 @@ async function getTopCompanies(): Promise<RankedCompany[]> {
         ticker: company.ticker || null,
         country: company.country || null,
         logo_url: company.logoUrl || null,
+        website: company.website || null,
         marketCap: usdMarketCap,
         change1d: changeMap.get(id) ?? null,
       });
