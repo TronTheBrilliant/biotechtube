@@ -5,10 +5,8 @@ import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { PaywallCard } from "@/components/PaywallCard";
-import { TvHistogramChart } from "@/components/charts/TvHistogramChart";
+import { FundingInteractiveChart } from "@/components/charts/FundingInteractiveChart";
 import fundingHistorical from "@/data/funding-historical.json";
-import fundingQuarterly from "@/data/funding-quarterly.json";
-import fundingAnnual from "@/data/funding-annual.json";
 
 interface HistoricalRound {
   company: string;
@@ -45,17 +43,6 @@ const uniqueCompanies = new Set(allRounds.map((r) => r.companySlug)).size;
 
 const roundTypes = ["All", ...Array.from(new Set(allRounds.map((r) => r.type)))];
 const dateRanges = ["All time", "Last 30 days", "Last 90 days", "Last 12 months"];
-
-const quarterToDate = (label: string) => {
-  const [q, year] = label.split(" ");
-  const month = { Q1: "02", Q2: "05", Q3: "08", Q4: "11" }[q] || "06";
-  return `${year}-${month}-15`;
-};
-
-const quarterlyChartData = (fundingQuarterly as { label: string; amount: number }[]).map((d) => ({
-  time: quarterToDate(d.label),
-  value: d.amount,
-}));
 
 function formatDate(dateStr: string) {
   const d = new Date(dateStr);
@@ -146,38 +133,7 @@ export default function FundingPage() {
           ))}
         </div>
 
-        {/* Annual funding overview — 37 years */}
-        <div
-          className="rounded-lg px-4 py-4 mb-4"
-          style={{
-            background: "var(--color-bg-secondary)",
-            border: "0.5px solid var(--color-border-subtle)",
-          }}
-        >
-          <div className="flex items-center justify-between mb-3">
-            <h2
-              className="text-10 uppercase tracking-[0.5px] font-medium"
-              style={{ color: "var(--color-text-secondary)" }}
-            >
-              ANNUAL BIOTECH VC FUNDING (1990–2026)
-            </h2>
-            <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>
-              ${(fundingAnnual.reduce((s: number, d: { amount: number }) => s + d.amount, 0) / 1000).toFixed(0)}B total
-            </span>
-          </div>
-          <TvHistogramChart
-            data={fundingAnnual.map((d: { year: number; amount: number }) => ({
-              time: `${d.year}-06-01`,
-              value: d.amount / 1000,
-            }))}
-            height={280}
-            color="#1a7a5ecc"
-            formatValue={(v: number) => `$${v.toFixed(1)}B`}
-            tooltipTitle="Annual Funding"
-          />
-        </div>
-
-        {/* Quarterly detail — recent */}
+        {/* Interactive funding chart — all timeframes */}
         <div
           className="rounded-lg px-4 py-4 mb-6"
           style={{
@@ -189,15 +145,9 @@ export default function FundingPage() {
             className="text-10 uppercase tracking-[0.5px] font-medium mb-3"
             style={{ color: "var(--color-text-secondary)" }}
           >
-            QUARTERLY BREAKDOWN (2020–2026)
+            BIOTECH VC FUNDING
           </h2>
-          <TvHistogramChart
-            data={quarterlyChartData}
-            height={220}
-            color="#1a7a5eaa"
-            formatValue={(v: number) => `$${v >= 1000 ? (v / 1000).toFixed(1) + "B" : v.toFixed(0) + "M"}`}
-            tooltipTitle="Quarterly Funding"
-          />
+          <FundingInteractiveChart height={350} />
         </div>
 
         {/* Two-column layout */}
