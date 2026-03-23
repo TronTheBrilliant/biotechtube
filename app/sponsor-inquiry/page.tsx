@@ -3,6 +3,7 @@ import { Footer } from "@/components/Footer";
 
 export const metadata = {
   title: "Become a Sponsor — BiotechTube",
+  description: "Sponsor BiotechTube and reach biotech investors, executives, and researchers. Explore sponsorship packages and partnership opportunities.",
 };
 
 export default function SponsorInquiryPage() {
@@ -143,7 +144,7 @@ export default function SponsorInquiryPage() {
             className="text-11 mt-4 text-center"
             style={{ color: "var(--color-text-tertiary)" }}
           >
-            Questions? Email hello@biotechtube.com
+            Questions? Email hello@biotechtube.io
           </p>
         </div>
       </main>

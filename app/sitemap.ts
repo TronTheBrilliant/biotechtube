@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 import { createServerClient } from '@/lib/supabase'
 import countriesData from '@/data/countries.json'
 
-const SITE_URL = 'https://www.biotechtube.com'
+const SITE_URL = 'https://www.biotechtube.io'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = createServerClient()

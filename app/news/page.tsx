@@ -7,11 +7,11 @@ export const metadata: Metadata = {
   title: "Biotech News — Breakthroughs, Funding & Pipeline Updates | BiotechTube",
   description:
     "AI-curated biotech news, breakthrough alerts, funding radar, and pipeline updates. Stay informed on the latest in biotech and pharmaceutical innovation.",
-  alternates: { canonical: 'https://www.biotechtube.com/news' },
+  alternates: { canonical: 'https://www.biotechtube.io/news' },
   openGraph: {
     title: "Biotech News — Breakthroughs, Funding & Pipeline Updates",
     description: "AI-curated biotech news, breakthrough alerts, funding radar, and pipeline updates.",
-    url: 'https://www.biotechtube.com/news',
+    url: 'https://www.biotechtube.io/news',
     siteName: 'BiotechTube',
     type: 'website',
   },
@@ -39,9 +39,26 @@ const features = [
 ];
 
 export default function NewsPage() {
+  const newsJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Biotech News — Breakthroughs, Funding & Pipeline Updates',
+    description: 'AI-curated biotech news, breakthrough alerts, funding radar, and pipeline updates.',
+    url: 'https://www.biotechtube.io/news',
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'BiotechTube',
+      url: 'https://www.biotechtube.io',
+    },
+  };
+
   return (
     <div style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
       <Nav />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(newsJsonLd) }}
+      />
 
       <main className="max-w-3xl mx-auto px-4 py-10">
         <div className="text-center mb-10">

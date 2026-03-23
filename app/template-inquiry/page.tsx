@@ -3,6 +3,7 @@ import { Footer } from "@/components/Footer";
 
 export const metadata = {
   title: "Get a Template — BiotechTube",
+  description: "Get a professional biotech website template. Ready-to-use designs for biotech startups, research labs, and pharmaceutical companies.",
 };
 
 export default function TemplateInquiryPage() {

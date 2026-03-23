@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { CompaniesPageClient } from "./CompaniesPageClient";
 
-const SITE_URL = 'https://www.biotechtube.com';
+const SITE_URL = 'https://www.biotechtube.io';
 
 export const metadata: Metadata = {
   title: "Biotech Companies Directory — 14,000+ Companies Worldwide | BiotechTube",

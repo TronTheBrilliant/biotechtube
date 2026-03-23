@@ -66,7 +66,7 @@ export default function PrivacyPage() {
         <section className="mb-6">
           <h2 className="text-14 font-medium mb-2" style={headingStyle}>Your rights</h2>
           <p className="text-13" style={sectionStyle}>
-            You can request a copy of your data, ask us to correct it, or ask us to delete your account and all associated data at any time. Just email us at hello@biotechtube.com and we will handle it within 30 days.
+            You can request a copy of your data, ask us to correct it, or ask us to delete your account and all associated data at any time. Just email us at hello@biotechtube.io and we will handle it within 30 days.
           </p>
         </section>
 
@@ -74,8 +74,8 @@ export default function PrivacyPage() {
           <h2 className="text-14 font-medium mb-2" style={headingStyle}>Contact</h2>
           <p className="text-13" style={sectionStyle}>
             If you have questions about this privacy policy or how we handle your data, email us at{" "}
-            <a href="mailto:hello@biotechtube.com" style={{ color: "var(--color-accent)" }}>
-              hello@biotechtube.com
+            <a href="mailto:hello@biotechtube.io" style={{ color: "var(--color-accent)" }}>
+              hello@biotechtube.io
             </a>.
           </p>
         </section>

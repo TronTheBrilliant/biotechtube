@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   },
   description:
     "Track 14,000+ biotech companies worldwide. Funding rounds, pipeline data, company rankings, and investment intelligence.",
-  metadataBase: new URL('https://www.biotechtube.com'),
+  metadataBase: new URL('https://www.biotechtube.io'),
   alternates: {
     canonical: '/',
   },
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     siteName: 'BiotechTube',
     title: 'BiotechTube — Global Biotech Intelligence Platform',
     description: 'Track 14,000+ biotech companies worldwide. Funding rounds, pipeline data, company rankings, and investment intelligence.',
-    url: 'https://www.biotechtube.com',
+    url: 'https://www.biotechtube.io',
   },
   twitter: {
     card: 'summary_large_image',
@@ -52,7 +52,8 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    // Add your Google Search Console verification code here
+    // To enable: go to https://search.google.com/search-console → Add property → biotechtube.io
+    // Copy the meta tag verification code and paste it below:
     // google: 'your-verification-code',
   },
 };
@@ -66,13 +67,13 @@ export default function RootLayout({
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'BiotechTube',
-    url: 'https://www.biotechtube.com',
+    url: 'https://www.biotechtube.io',
     description: 'Global biotech intelligence platform tracking 14,000+ biotech companies worldwide.',
     potentialAction: {
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: 'https://www.biotechtube.com/companies?q={search_term_string}',
+        urlTemplate: 'https://www.biotechtube.io/companies?q={search_term_string}',
       },
       'query-input': 'required name=search_term_string',
     },

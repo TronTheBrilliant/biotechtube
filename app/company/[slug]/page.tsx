@@ -9,7 +9,7 @@ import { cache } from "react";
 
 import fundingData from "@/data/funding.json";
 
-const SITE_URL = 'https://www.biotechtube.com';
+const SITE_URL = 'https://www.biotechtube.io';
 
 // ISR: revalidate every 2 hours (company data changes infrequently)
 export const revalidate = 7200;

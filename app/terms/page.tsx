@@ -32,7 +32,7 @@ export default function TermsPage() {
             BiotechTube is a biotech intelligence platform that provides company profiles, pipeline data, funding information, and market analytics. By creating an account or using the site you agree to these terms. If you do not agree, please do not use the service.
           </p>
           <p className="text-13" style={sectionStyle}>
-            You must be at least 18 years old to create an account. You are responsible for keeping your login credentials secure. If you suspect someone else has accessed your account, contact us immediately at hello@biotechtube.com.
+            You must be at least 18 years old to create an account. You are responsible for keeping your login credentials secure. If you suspect someone else has accessed your account, contact us immediately at hello@biotechtube.io.
           </p>
         </section>
 
@@ -59,7 +59,7 @@ export default function TermsPage() {
         <section className="mb-6">
           <h2 className="text-14 font-medium mb-2" style={headingStyle}>Data accuracy</h2>
           <p className="text-13" style={sectionStyle}>
-            We compile data from public sources and do our best to keep it accurate, but we cannot guarantee that every data point is correct, complete, or current. Company profiles, pipeline stages, funding amounts, and market data may contain errors or be out of date. If you spot an error, let us know at hello@biotechtube.com and we will correct it as quickly as we can.
+            We compile data from public sources and do our best to keep it accurate, but we cannot guarantee that every data point is correct, complete, or current. Company profiles, pipeline stages, funding amounts, and market data may contain errors or be out of date. If you spot an error, let us know at hello@biotechtube.io and we will correct it as quickly as we can.
           </p>
         </section>
 
@@ -91,8 +91,8 @@ export default function TermsPage() {
           <h2 className="text-14 font-medium mb-2" style={headingStyle}>Contact</h2>
           <p className="text-13" style={sectionStyle}>
             Questions about these terms? Email us at{" "}
-            <a href="mailto:hello@biotechtube.com" style={{ color: "var(--color-accent)" }}>
-              hello@biotechtube.com
+            <a href="mailto:hello@biotechtube.io" style={{ color: "var(--color-accent)" }}>
+              hello@biotechtube.io
             </a>.
           </p>
         </section>

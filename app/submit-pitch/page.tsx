@@ -3,6 +3,7 @@ import { Footer } from "@/components/Footer";
 
 export const metadata = {
   title: "Submit a Pitch — BiotechTube",
+  description: "Pitch your biotech company to investors and industry leaders. Choose from video, written, or featured pitch packages on BiotechTube.",
 };
 
 const pricingTiers = [

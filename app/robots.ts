@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/api/', '/login', '/signup', '/forgot-password', '/claim/'],
       },
     ],
-    sitemap: 'https://www.biotechtube.com/sitemap.xml',
+    sitemap: 'https://www.biotechtube.io/sitemap.xml',
   }
 }

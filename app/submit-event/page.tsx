@@ -3,6 +3,7 @@ import { Footer } from "@/components/Footer";
 
 export const metadata = {
   title: "Submit an Event — BiotechTube",
+  description: "Submit a biotech conference, summit, or investor event to the BiotechTube events calendar. Free listing for qualifying industry events.",
 };
 
 export default function SubmitEventPage() {

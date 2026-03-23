@@ -12,6 +12,22 @@ import { createServerClient } from "@/lib/supabase";
 
 import fundingData from "@/data/funding.json";
 import eventsData from "@/data/events.json";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "BiotechTube — Global Biotech Intelligence Platform",
+  description:
+    "Track 14,000+ biotech companies worldwide. Funding rounds, pipeline data, company rankings, market indices, and investment intelligence — all in one platform.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "BiotechTube — Global Biotech Intelligence Platform",
+    description:
+      "Track 14,000+ biotech companies worldwide. Funding rounds, pipeline data, company rankings, and investment intelligence.",
+    url: "/",
+    siteName: "BiotechTube",
+    type: "website",
+  },
+};
 
 // ISR: revalidate every hour (homepage data changes infrequently)
 export const revalidate = 3600;

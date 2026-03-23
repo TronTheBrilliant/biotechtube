@@ -1,6 +1,6 @@
 import { Company } from '@/lib/types'
 
-const SITE_URL = 'https://www.biotechtube.com'
+const SITE_URL = 'https://www.biotechtube.io'
 
 export function CompanyJsonLd({ company }: { company: Company }) {
   const logoUrl = company.logoUrl || (company.website

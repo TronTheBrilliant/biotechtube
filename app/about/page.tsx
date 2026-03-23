@@ -119,7 +119,7 @@ export default function AboutPage() {
               >
                 General inquiries:{" "}
                 <span style={{ color: "var(--color-accent)" }}>
-                  hello@biotechtube.com
+                  hello@biotechtube.io
                 </span>
               </p>
               <p
@@ -128,7 +128,7 @@ export default function AboutPage() {
               >
                 Press:{" "}
                 <span style={{ color: "var(--color-accent)" }}>
-                  press@biotechtube.com
+                  press@biotechtube.io
                 </span>
               </p>
               <p
@@ -137,7 +137,7 @@ export default function AboutPage() {
               >
                 Partnerships:{" "}
                 <span style={{ color: "var(--color-accent)" }}>
-                  partners@biotechtube.com
+                  partners@biotechtube.io
                 </span>
               </p>
             </div>

@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { PipelinePageClient } from "./PipelinePageClient";
 
-const SITE_URL = 'https://www.biotechtube.com';
+const SITE_URL = 'https://www.biotechtube.io';
 
 export const metadata: Metadata = {
   title: "Biotech Drug Pipeline Tracker — Clinical Trials & Stages | BiotechTube",

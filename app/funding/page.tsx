@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { FundingPageClient } from "./FundingPageClient";
 
-const SITE_URL = 'https://www.biotechtube.com';
+const SITE_URL = 'https://www.biotechtube.io';
 
 export const metadata: Metadata = {
   title: "Biotech Funding Rounds & Investment Data | BiotechTube",

@@ -12,11 +12,11 @@ import companiesData from "@/data/companies.json";
 export const metadata: Metadata = {
   title: "Biotech Events & Conferences Calendar | BiotechTube",
   description: "Upcoming biotech conferences, investor days, and industry events worldwide. Never miss a key biotech event.",
-  alternates: { canonical: 'https://www.biotechtube.com/events' },
+  alternates: { canonical: 'https://www.biotechtube.io/events' },
   openGraph: {
     title: "Biotech Events & Conferences Calendar",
     description: "Upcoming biotech conferences, investor days, and industry events worldwide.",
-    url: 'https://www.biotechtube.com/events',
+    url: 'https://www.biotechtube.io/events',
     siteName: 'BiotechTube',
     type: 'website',
   },
@@ -104,9 +104,39 @@ export default function EventsPage() {
   const grouped = groupByMonth(allEvents);
   const now = new Date();
 
+  const eventsJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Biotech Events & Conferences Calendar',
+    description: 'Upcoming biotech conferences, investor days, and industry events worldwide.',
+    url: 'https://www.biotechtube.io/events',
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: allEvents.filter(ev => !ev.past && new Date(ev.date) >= now).slice(0, 20).map((ev, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        item: {
+          '@type': 'Event',
+          name: ev.name,
+          startDate: ev.date,
+          ...(ev.endDate && { endDate: ev.endDate }),
+          location: {
+            '@type': 'Place',
+            name: ev.location,
+          },
+          eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+        },
+      })),
+    },
+  };
+
   return (
     <div style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
       <Nav />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(eventsJsonLd) }}
+      />
 
       <main className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}

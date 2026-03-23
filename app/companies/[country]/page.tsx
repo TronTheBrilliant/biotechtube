@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import countriesData from "@/data/countries.json";
 import { CountryPageClient } from "./CountryPageClient";
 
-const SITE_URL = 'https://www.biotechtube.com';
+const SITE_URL = 'https://www.biotechtube.io';
 
 interface CountryData {
   slug: string;
