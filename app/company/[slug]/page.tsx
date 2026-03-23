@@ -3,12 +3,13 @@ import { notFound } from "next/navigation";
 import { Company, FundingRound } from "@/lib/types";
 import { CompanyPageClient } from "./CompanyPageClient";
 import { dbRowToCompany, dbRowsToCompanies } from "@/lib/adapters";
-import { createClient } from "@supabase/supabase-js";
+import { createServerClient } from "@/lib/supabase";
 import { cache } from "react";
 
 import fundingData from "@/data/funding.json";
 
-export const dynamic = 'force-dynamic';
+// ISR: revalidate every 2 hours (company data changes infrequently)
+export const revalidate = 7200;
 
 const funding = fundingData as FundingRound[];
 
@@ -18,16 +19,9 @@ const COMPANY_COLUMNS = 'slug, name, country, city, website, domain, categories,
 // Fewer columns needed for similar companies cards
 const CARD_COLUMNS = 'slug, name, country, city, categories, logo_url, stage, company_type, ticker, total_raised, valuation, is_estimated, domain, founded, trending_rank, profile_views';
 
-function getSupabase() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!supabaseUrl || !supabaseKey) return null;
-  return createClient(supabaseUrl, supabaseKey);
-}
-
 // React cache deduplicates this call between generateMetadata and the page component
 const getCompany = cache(async (slug: string) => {
-  const supabase = getSupabase();
+  const supabase = createServerClient();
   if (!supabase) return null;
 
   const { data } = await supabase
@@ -40,10 +34,22 @@ const getCompany = cache(async (slug: string) => {
 });
 
 async function getSimilarCompanies(company: Company) {
-  const supabase = getSupabase();
+  const supabase = createServerClient();
   if (!supabase) return [];
 
-  // Find companies in same country or with overlapping categories
+  // Try to find companies with overlapping categories first
+  if (company.focus.length > 0) {
+    const { data } = await supabase
+      .from('companies')
+      .select(CARD_COLUMNS)
+      .contains('categories', [company.focus[0]])
+      .neq('slug', company.slug)
+      .limit(4);
+
+    if (data && data.length > 0) return dbRowsToCompanies(data);
+  }
+
+  // Fallback: same country
   const { data } = await supabase
     .from('companies')
     .select(CARD_COLUMNS)
@@ -76,8 +82,11 @@ export default async function CompanyPage({
   const company = await getCompany(params.slug);
   if (!company) notFound();
 
-  const companyFunding = funding.filter((f) => f.companySlug === company.slug);
-  const similar = await getSimilarCompanies(company);
+  // Run funding filter and similar companies fetch in parallel
+  const [companyFunding, similar] = await Promise.all([
+    Promise.resolve(funding.filter((f) => f.companySlug === company.slug)),
+    getSimilarCompanies(company),
+  ]);
 
   return (
     <CompanyPageClient

@@ -119,6 +119,10 @@ export interface Database {
         Args: Record<string, never>
         Returns: { country: string; count: number }[]
       }
+      increment_profile_views: {
+        Args: { company_slug: string }
+        Returns: void
+      }
     }
   }
 }

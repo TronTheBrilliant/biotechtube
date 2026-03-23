@@ -104,6 +104,11 @@ CREATE POLICY "Service role can manage scrape_log"
   ON scrape_log FOR ALL
   USING (auth.role() = 'service_role');
 
+-- Additional indexes for sorting queries
+CREATE INDEX IF NOT EXISTS idx_companies_total_raised ON companies(total_raised DESC NULLS LAST);
+CREATE INDEX IF NOT EXISTS idx_companies_created_at ON companies(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_companies_country_stage ON companies(country, stage);
+
 -- Helper function: count companies by country
 CREATE OR REPLACE FUNCTION get_country_counts()
 RETURNS TABLE(country TEXT, count BIGINT)
@@ -113,4 +118,14 @@ AS $$
   FROM companies
   GROUP BY country
   ORDER BY count DESC;
+$$;
+
+-- Atomic increment for profile views (avoids race conditions)
+CREATE OR REPLACE FUNCTION increment_profile_views(company_slug TEXT)
+RETURNS void
+LANGUAGE sql
+AS $$
+  UPDATE companies
+  SET profile_views = profile_views + 1
+  WHERE slug = company_slug;
 $$;

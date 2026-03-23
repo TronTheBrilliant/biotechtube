@@ -33,5 +33,8 @@ export async function GET(request: NextRequest) {
     data = ilikeData
   }
 
-  return NextResponse.json({ results: data || [] })
+  const response = NextResponse.json({ results: data || [] })
+  // Cache search results briefly (same queries are common)
+  response.headers.set('Cache-Control', 'public, s-maxage=120, stale-while-revalidate=300')
+  return response
 }

@@ -70,11 +70,14 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  return NextResponse.json({
+  const response = NextResponse.json({
     companies: data,
     total: count,
     page,
     limit,
     totalPages: Math.ceil((count || 0) / limit),
   })
+  // Cache for 5 minutes on CDN, serve stale while revalidating
+  response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600')
+  return response
 }

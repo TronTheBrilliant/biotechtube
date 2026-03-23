@@ -14,7 +14,7 @@ export async function GET(
 
   const { data, error } = await supabase
     .from('companies')
-    .select('id, slug, name, country, city, website, domain, categories, description, founded, employee_range, stage, company_type, ticker, logo_url, total_raised, valuation, is_estimated, trending_rank, profile_views')
+    .select('slug, name, country, city, website, domain, categories, description, founded, employee_range, stage, company_type, ticker, logo_url, total_raised, valuation, is_estimated, trending_rank, profile_views')
     .eq('slug', params.slug)
     .single()
 
@@ -25,17 +25,15 @@ export async function GET(
     )
   }
 
-  // Increment profile views (fire and forget, with error logging)
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  const row = data as any
-  ;(supabase as any)
-    .from('companies')
-    .update({ profile_views: (row.profile_views || 0) + 1 })
-    .eq('id', row.id)
-    .then(({ error: updateErr }: { error: { message: string } | null }) => {
-      if (updateErr) console.error('Failed to increment profile_views:', updateErr.message)
+  // Atomic increment of profile views (avoids race conditions)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ;(supabase.rpc as any)('increment_profile_views', { company_slug: params.slug })
+    .then(({ error: rpcErr }: { error: { message: string } | null }) => {
+      if (rpcErr) console.error('Failed to increment profile_views:', rpcErr.message)
     })
-  /* eslint-enable @typescript-eslint/no-explicit-any */
 
-  return NextResponse.json(data)
+  const response = NextResponse.json(data)
+  // Short cache — profile views need to stay fresh-ish
+  response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300')
+  return response
 }

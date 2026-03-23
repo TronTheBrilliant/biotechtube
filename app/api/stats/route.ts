@@ -22,9 +22,12 @@ export async function GET() {
       .rpc('get_country_counts'),
   ])
 
-  return NextResponse.json({
+  const response = NextResponse.json({
     totalCompanies: totalResult.count || 0,
     companiesWithPipeline: pipelineResult.count || 0,
     countryCounts: countryResult.data || [],
   })
+  // Stats change rarely — cache for 10 minutes
+  response.headers.set('Cache-Control', 'public, s-maxage=600, stale-while-revalidate=1200')
+  return response
 }

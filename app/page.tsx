@@ -8,22 +8,17 @@ import { UpcomingEvents } from "@/components/UpcomingEvents";
 import { HomePageClient } from "@/components/HomePageClient";
 import { FundingRound, BiotechEvent } from "@/lib/types";
 import { dbRowsToCompanies } from "@/lib/adapters";
-import { createClient } from "@supabase/supabase-js";
+import { createServerClient } from "@/lib/supabase";
 
 import fundingData from "@/data/funding.json";
 import eventsData from "@/data/events.json";
 
-export const dynamic = 'force-dynamic';
+// ISR: revalidate every hour (homepage data changes infrequently)
+export const revalidate = 3600;
 
 async function getTopCompanies() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!supabaseUrl || !supabaseKey) {
-    return [];
-  }
-
-  const supabase = createClient(supabaseUrl, supabaseKey);
+  const supabase = createServerClient();
+  if (!supabase) return [];
 
   const { data } = await supabase
     .from('companies')
