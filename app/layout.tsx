@@ -33,7 +33,7 @@ export const metadata: Metadata = {
       "Track 14,000+ biotech companies worldwide. Clinical pipeline data, biotech market intelligence, funding rounds, and investment analysis.",
     type: "website",
     siteName: "BiotechTube",
-    url: "https://biotechtube.vercel.app",
+    url: "https://biotechtube.io",
   },
   twitter: {
     card: "summary_large_image",
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     description:
       "Track 14,000+ biotech companies worldwide. Clinical pipeline data, biotech market intelligence, funding rounds, and investment analysis.",
   },
-  metadataBase: new URL("https://biotechtube.vercel.app"),
+  metadataBase: new URL("https://biotechtube.io"),
 };
 
 export default function RootLayout({

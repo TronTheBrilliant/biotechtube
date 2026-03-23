@@ -152,7 +152,7 @@ export default async function TherapeuticAreaPage({ params }: AreaPageProps) {
     "@type": "CollectionPage",
     name: `${area.name} Biotech Companies`,
     description: area.description,
-    url: `https://biotechtube.vercel.app/therapeutic-areas/${params.slug}`,
+    url: `https://biotechtube.io/therapeutic-areas/${params.slug}`,
     about: { "@type": "MedicalSpecialty", name: area.name },
     numberOfItems: companyData.length,
   };

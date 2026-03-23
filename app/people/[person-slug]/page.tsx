@@ -84,7 +84,7 @@ export default async function PersonPage({ params }: PersonPageProps) {
     worksFor: {
       "@type": "Organization",
       name: person.companyName,
-      url: `https://biotechtube.vercel.app/company/${person.companySlug}`,
+      url: `https://biotechtube.io/company/${person.companySlug}`,
     },
   };
 

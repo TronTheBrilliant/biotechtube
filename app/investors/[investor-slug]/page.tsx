@@ -72,7 +72,7 @@ export default async function InvestorPage({ params }: InvestorPageProps) {
     "@type": "Organization",
     name: investor.name,
     description: `${investor.name} is a biotech investor with ${investor.companies.length} portfolio companies.`,
-    url: `https://biotechtube.vercel.app/investors/${params["investor-slug"]}`,
+    url: `https://biotechtube.io/investors/${params["investor-slug"]}`,
   };
 
   return (

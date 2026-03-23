@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import countriesData from "@/data/countries.json";
 import { getAllDrugs, getAllPeople, getAllInvestors, drugSlug, personSlug } from "@/lib/seo-utils";
 
-const BASE_URL = "https://biotechtube.vercel.app";
+const BASE_URL = "https://biotechtube.io";
 
 interface CountryData {
   slug: string;

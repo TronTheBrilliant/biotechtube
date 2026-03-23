@@ -112,7 +112,7 @@ export async function generateMetadata({
       description,
       type: "profile",
       siteName: "BiotechTube",
-      url: `https://biotechtube.vercel.app/company/${params.slug}`,
+      url: `https://biotechtube.io/company/${params.slug}`,
     },
     twitter: {
       card: "summary",
@@ -143,7 +143,7 @@ export default async function CompanyPage({
     "@context": "https://schema.org",
     "@type": isPublic ? "Corporation" : "Organization",
     name: company.name,
-    url: company.website || `https://biotechtube.vercel.app/company/${params.slug}`,
+    url: company.website || `https://biotechtube.io/company/${params.slug}`,
     description: report?.summary || company.description || undefined,
     foundingDate: company.founded ? String(company.founded) : undefined,
     numberOfEmployees: report?.employee_estimate || company.employees || undefined,

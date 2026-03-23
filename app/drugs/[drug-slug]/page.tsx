@@ -84,7 +84,7 @@ export default async function DrugPage({ params }: DrugPageProps) {
     manufacturer: drugs.map((d) => ({
       "@type": "Organization",
       name: d.companyName,
-      url: `https://biotechtube.vercel.app/company/${d.companySlug}`,
+      url: `https://biotechtube.io/company/${d.companySlug}`,
     })),
   };
 
