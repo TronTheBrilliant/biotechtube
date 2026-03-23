@@ -1,0 +1,187 @@
+[
+  {
+    "year": 1990,
+    "amount": 1200,
+    "deals": 45
+  },
+  {
+    "year": 1991,
+    "amount": 1300,
+    "deals": 50
+  },
+  {
+    "year": 1992,
+    "amount": 1400,
+    "deals": 55
+  },
+  {
+    "year": 1993,
+    "amount": 1500,
+    "deals": 60
+  },
+  {
+    "year": 1994,
+    "amount": 1600,
+    "deals": 65
+  },
+  {
+    "year": 1995,
+    "amount": 1800,
+    "deals": 70
+  },
+  {
+    "year": 1996,
+    "amount": 2200,
+    "deals": 80
+  },
+  {
+    "year": 1997,
+    "amount": 2800,
+    "deals": 95
+  },
+  {
+    "year": 1998,
+    "amount": 3500,
+    "deals": 110
+  },
+  {
+    "year": 1999,
+    "amount": 4800,
+    "deals": 130
+  },
+  {
+    "year": 2000,
+    "amount": 5200,
+    "deals": 140
+  },
+  {
+    "year": 2001,
+    "amount": 3800,
+    "deals": 115
+  },
+  {
+    "year": 2002,
+    "amount": 3200,
+    "deals": 100
+  },
+  {
+    "year": 2003,
+    "amount": 3500,
+    "deals": 105
+  },
+  {
+    "year": 2004,
+    "amount": 4000,
+    "deals": 115
+  },
+  {
+    "year": 2005,
+    "amount": 4500,
+    "deals": 125
+  },
+  {
+    "year": 2006,
+    "amount": 5000,
+    "deals": 135
+  },
+  {
+    "year": 2007,
+    "amount": 5500,
+    "deals": 145
+  },
+  {
+    "year": 2008,
+    "amount": 4200,
+    "deals": 120
+  },
+  {
+    "year": 2009,
+    "amount": 3800,
+    "deals": 110
+  },
+  {
+    "year": 2010,
+    "amount": 4500,
+    "deals": 125
+  },
+  {
+    "year": 2011,
+    "amount": 5000,
+    "deals": 135
+  },
+  {
+    "year": 2012,
+    "amount": 5500,
+    "deals": 145
+  },
+  {
+    "year": 2013,
+    "amount": 6500,
+    "deals": 160
+  },
+  {
+    "year": 2014,
+    "amount": 8000,
+    "deals": 185
+  },
+  {
+    "year": 2015,
+    "amount": 10000,
+    "deals": 220
+  },
+  {
+    "year": 2016,
+    "amount": 12000,
+    "deals": 260
+  },
+  {
+    "year": 2017,
+    "amount": 14000,
+    "deals": 300
+  },
+  {
+    "year": 2018,
+    "amount": 16500,
+    "deals": 350
+  },
+  {
+    "year": 2019,
+    "amount": 15500,
+    "deals": 340
+  },
+  {
+    "year": 2020,
+    "amount": 27000,
+    "deals": 480
+  },
+  {
+    "year": 2021,
+    "amount": 35000,
+    "deals": 550
+  },
+  {
+    "year": 2022,
+    "amount": 20000,
+    "deals": 400
+  },
+  {
+    "year": 2023,
+    "amount": 16500,
+    "deals": 350
+  },
+  {
+    "year": 2024,
+    "amount": 18000,
+    "deals": 370
+  },
+  {
+    "year": 2025,
+    "amount": 19500,
+    "deals": 390
+  },
+  {
+    "year": 2026,
+    "amount": 21000,
+    "deals": 410
+  }
+]

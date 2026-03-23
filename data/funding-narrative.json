@@ -1,0 +1,27 @@
+[
+  {
+    "era": "1990-1999",
+    "title": "The Early Biotech/Genomics Era",
+    "description": "Driven by the launch of the Human Genome Project and early genomics tools, venture capital flowed into startups aiming to map and sequence genes. The era was characterized by high-risk, long-term bets on platform technologies, culminating in high-profile IPOs like Genentech's, though many companies struggled to translate discoveries into products."
+  },
+  {
+    "era": "2000-2007",
+    "title": "Post-Genome Boom and Bust",
+    "description": "The completion of the first human genome draft in 2000 sparked a funding boom, but the dot-com crash and high-profile clinical failures led to a severe downturn. VC funding became more cautious, shifting focus towards later-stage companies with clearer paths to market, aiding a gradual recovery by the mid-2000s."
+  },
+  {
+    "era": "2008-2012",
+    "title": "Financial Crisis and Selective Recovery",
+    "description": "The 2008 global financial crisis froze biotech VC funding, forcing a wave of consolidations and shutdowns. The recovery was slow and selective, driven by the 2010 JOBS Act and a growing interest in capital-efficient platforms like monoclonal antibodies, which began to demonstrate clinical and commercial success."
+  },
+  {
+    "era": "2013-2019",
+    "title": "The Therapeutic Revolution",
+    "description": "Unprecedented VC investment surged into novel modalities, fueled by breakthroughs in immunotherapy (CAR-T), gene therapy (Luxturna approval), and CRISPR gene editing. A robust IPO window and high-profile acquisitions validated the sector, attracting significant crossover investment from public market funds."
+  },
+  {
+    "era": "2020-2026",
+    "title": "Pandemic Peak and Market Correction",
+    "description": "The COVID-19 pandemic triggered a historic funding boom, with massive investment in mRNA platforms and diagnostics, leading to record IPOs and valuations. This was followed by a sharp market correction starting in 2021, as rising interest rates and macroeconomic pressures returned investor focus to profitability and clinical data over speculative growth."
+  }
+]

@@ -5,8 +5,9 @@ import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { PaywallCard } from "@/components/PaywallCard";
-import { InvestmentChart } from "@/components/InvestmentChart";
+import { TvAreaChart } from "@/components/charts/TvAreaChart";
 import fundingHistorical from "@/data/funding-historical.json";
+import fundingQuarterly from "@/data/funding-quarterly.json";
 
 interface HistoricalRound {
   company: string;
@@ -43,6 +44,17 @@ const uniqueCompanies = new Set(allRounds.map((r) => r.companySlug)).size;
 
 const roundTypes = ["All", ...Array.from(new Set(allRounds.map((r) => r.type)))];
 const dateRanges = ["All time", "Last 30 days", "Last 90 days", "Last 12 months"];
+
+const quarterToDate = (label: string) => {
+  const [q, year] = label.split(" ");
+  const month = { Q1: "02", Q2: "05", Q3: "08", Q4: "11" }[q] || "06";
+  return `${year}-${month}-15`;
+};
+
+const quarterlyChartData = (fundingQuarterly as { label: string; amount: number }[]).map((d) => ({
+  time: quarterToDate(d.label),
+  value: d.amount,
+}));
 
 function formatDate(dateStr: string) {
   const d = new Date(dateStr);
@@ -133,15 +145,27 @@ export default function FundingPage() {
           ))}
         </div>
 
-        {/* Investment chart */}
+        {/* Investment chart — quarterly */}
         <div
-          className="rounded-lg px-4 py-2 mb-6"
+          className="rounded-lg px-4 py-4 mb-6"
           style={{
             background: "var(--color-bg-secondary)",
             border: "0.5px solid var(--color-border-subtle)",
           }}
         >
-          <InvestmentChart />
+          <h2
+            className="text-10 uppercase tracking-[0.5px] font-medium mb-3"
+            style={{ color: "var(--color-text-secondary)" }}
+          >
+            QUARTERLY INVESTMENT VOLUME
+          </h2>
+          <TvAreaChart
+            data={quarterlyChartData}
+            height={300}
+            isPositive={true}
+            formatValue={(v: number) => `$${(v / 1000).toFixed(1)}B`}
+            tooltipTitle="Quarterly Funding"
+          />
         </div>
 
         {/* Two-column layout */}
