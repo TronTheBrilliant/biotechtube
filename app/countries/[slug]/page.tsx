@@ -80,21 +80,24 @@ export default async function CountryDetailPage({
   // 2. Companies in this country (for top companies)
   // 3. Total company count
 
-  const PAGE_SIZE = 1000;
-
-  // Start fetching history (paginated) + companies + count in parallel
-  const [firstHistoryPage, companiesResult, countResult] = await Promise.all([
+  // Fetch history (oldest 50 + newest 950) + companies + count — all in parallel
+  const historySelect = "country, snapshot_date, combined_market_cap, total_volume, change_1d_pct, change_7d_pct, change_30d_pct, public_company_count";
+  const [oldestHistory, newestHistory, companiesResult, countResult] = await Promise.all([
     supabase
       .from("country_market_data")
-      .select(
-        "country, snapshot_date, combined_market_cap, total_volume, change_1d_pct, change_7d_pct, change_30d_pct, public_company_count"
-      )
+      .select(historySelect)
       .eq("country", countryName)
       .order("snapshot_date", { ascending: true })
-      .range(0, PAGE_SIZE - 1),
+      .limit(50),
+    supabase
+      .from("country_market_data")
+      .select(historySelect)
+      .eq("country", countryName)
+      .order("snapshot_date", { ascending: false })
+      .limit(950),
     supabase
       .from("companies")
-      .select("id, slug, name, ticker, logo_url, country, city, stage, company_type, valuation, total_raised, categories")
+      .select("id, slug, name, ticker, logo_url, country, city, stage, company_type, valuation, total_raised, categories, website")
       .eq("country", countryName),
     supabase
       .from("companies")
@@ -102,51 +105,24 @@ export default async function CountryDetailPage({
       .eq("country", countryName),
   ]);
 
+  const oldRows = (oldestHistory.data ?? []) as CountryMarketDataRow[];
+  const newRows = ((newestHistory.data ?? []) as CountryMarketDataRow[]).reverse();
+
   // If no history data and no country meta, 404
-  const firstPageRows = (firstHistoryPage.data ?? []) as CountryMarketDataRow[];
-  if (firstPageRows.length === 0 && !countryMeta) {
+  if (oldRows.length === 0 && !countryMeta) {
     notFound();
   }
 
-  // Continue paginating history if needed
-  let allHistory: CountryMarketDataRow[] = [...firstPageRows];
-  if (firstPageRows.length >= PAGE_SIZE) {
-    let from = PAGE_SIZE;
-    let hasMore = true;
-    while (hasMore) {
-      const { data: page } = await supabase
-        .from("country_market_data")
-        .select(
-          "country, snapshot_date, combined_market_cap, total_volume, change_1d_pct, change_7d_pct, change_30d_pct, public_company_count"
-        )
-        .eq("country", countryName)
-        .order("snapshot_date", { ascending: true })
-        .range(from, from + PAGE_SIZE - 1);
-      const rows = (page ?? []) as CountryMarketDataRow[];
-      allHistory = allHistory.concat(rows);
-      hasMore = rows.length >= PAGE_SIZE;
-      from += PAGE_SIZE;
+  // Merge and deduplicate
+  const seen = new Set<string>();
+  const history: CountryMarketDataRow[] = [];
+  for (const row of [...oldRows, ...newRows]) {
+    if (!seen.has(row.snapshot_date)) {
+      seen.add(row.snapshot_date);
+      history.push(row);
     }
   }
-
-  // Thin history to max 1000 points to reduce payload size
-  // (client will further thin to 500 for chart rendering)
-  const maxServerPoints = 1000;
-  let history: CountryMarketDataRow[];
-  if (allHistory.length > maxServerPoints) {
-    const step = Math.ceil(allHistory.length / maxServerPoints);
-    history = [];
-    for (let i = 0; i < allHistory.length; i += step) {
-      history.push(allHistory[i]);
-    }
-    // Always include the last point
-    if (history[history.length - 1] !== allHistory[allHistory.length - 1]) {
-      history.push(allHistory[allHistory.length - 1]);
-    }
-  } else {
-    history = allHistory;
-  }
-  const latestSnapshot = allHistory.length > 0 ? allHistory[allHistory.length - 1] : null;
+  const latestSnapshot = history.length > 0 ? history[history.length - 1] : null;
 
   // Total company count (public + private)
   const totalCompanyCount = countResult.count ?? 0;
