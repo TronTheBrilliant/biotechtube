@@ -9,6 +9,7 @@ import { CompanyAvatar } from "@/components/CompanyAvatar";
 import { BarChart3, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { TvAreaChart } from "@/components/charts/TvAreaChart";
 import { formatMarketCap, formatPercent, pctColor } from "@/lib/market-utils";
+import { getSectorEmoji, SECTOR_DESCRIPTIONS } from "@/lib/sector-emojis";
 
 // ── Types ──
 
@@ -185,14 +186,15 @@ export default function SectorDetailClient({
             letterSpacing: "-0.5px",
           }}
         >
+          <span className="mr-2">{getSectorEmoji(sector.name)}</span>
           {sector.name}
         </h1>
-        {sector.description && (
+        {(sector.description || SECTOR_DESCRIPTIONS[sector.slug]) && (
           <p
-            className="text-13 max-w-2xl"
-            style={{ color: "var(--color-text-secondary)" }}
+            className="text-14 mt-2 max-w-[600px]"
+            style={{ color: "var(--color-text-secondary)", lineHeight: 1.6 }}
           >
-            {sector.description}
+            {sector.description || SECTOR_DESCRIPTIONS[sector.slug] || ""}
           </p>
         )}
       </div>

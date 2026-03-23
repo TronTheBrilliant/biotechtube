@@ -8,6 +8,7 @@ import {
   formatMarketCap,
   formatPercent,
 } from "@/lib/market-utils";
+import { getSectorEmoji } from "@/lib/sector-emojis";
 
 interface SectorWithMarketData {
   id: string;
@@ -96,7 +97,7 @@ export default function SectorsPageClient({ sectors }: Props) {
                 className="text-13 font-semibold mb-2 leading-tight"
                 style={{ color: "var(--color-text-primary)" }}
               >
-                {s.name}
+                {getSectorEmoji(s.name)} {s.name}
               </div>
 
               {/* Market cap */}

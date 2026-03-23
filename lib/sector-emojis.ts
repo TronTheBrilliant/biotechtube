@@ -1,0 +1,61 @@
+const SECTOR_EMOJIS: Record<string, string> = {
+  "Small Molecules": "\uD83D\uDC8A",
+  "Small Molecule Drugs": "\uD83D\uDC8A",
+  "Biologics": "\uD83E\uDDEC",
+  "Biologics / Biosimilars": "\uD83E\uDDEC",
+  "Cell Therapy": "\uD83D\uDD2C",
+  "Cell & Gene Therapy": "\uD83D\uDD2C",
+  "AI/ML": "\uD83E\uDD16",
+  "AI / Machine Learning": "\uD83E\uDD16",
+  "RNA Tx": "\uD83E\uDDEA",
+  "RNA Therapeutics": "\uD83E\uDDEA",
+  "RNA Therapeutics (non-mRNA)": "\uD83E\uDDEA",
+  "Drug Delivery": "\uD83D\uDC89",
+  "Drug Delivery & Formulation": "\uD83D\uDC89",
+  "Diagnostics": "\uD83D\uDD0D",
+  "Diagnostics & Precision Medicine": "\uD83D\uDD0D",
+  "Digital Health": "\uD83D\uDCF1",
+  "Rare Disease": "\uD83E\uDD8B",
+  "mRNA": "\uD83E\uDDEC",
+  "Oncology": "\uD83C\uDFAF",
+  "Oncology (General)": "\uD83C\uDFAF",
+  "ADC": "\uD83C\uDFAF",
+  "Antibody-Drug Conjugates": "\uD83C\uDFAF",
+  "Neuro": "\uD83E\uDDE0",
+  "Neuroscience": "\uD83E\uDDE0",
+  "Proteomics": "\uD83D\uDD2C",
+  "CRISPR": "\u2702\uFE0F",
+  "CRISPR / Gene Editing": "\u2702\uFE0F",
+  "Vaccines": "\uD83D\uDC89",
+  "Immunology": "\uD83D\uDEE1\uFE0F",
+  "Microbiome": "\uD83E\uDDA0",
+  "Synthetic Biology": "\u2697\uFE0F",
+};
+
+export function getSectorEmoji(name: string): string {
+  return SECTOR_EMOJIS[name] ?? "\uD83E\uDDEC";
+}
+
+export const SECTOR_DESCRIPTIONS: Record<string, string> = {
+  "small-molecules": "Traditional chemically synthesized drugs that can be taken orally. Includes blockbusters like statins, antivirals, and kinase inhibitors.",
+  "biologics": "Large molecule drugs produced from living cells — antibodies, proteins, and biosimilars that target diseases with high precision.",
+  "cell-therapy": "Living cell-based treatments including CAR-T, stem cells, and engineered immune cells for cancer and genetic diseases.",
+  "ai-machine-learning": "Companies using artificial intelligence and machine learning to accelerate drug discovery, clinical trials, and diagnostics.",
+  "rna-therapeutics": "RNA-based medicines including siRNA, antisense oligonucleotides, and RNA interference therapies for genetic diseases.",
+  "drug-delivery": "Technologies for delivering drugs more effectively — nanoparticles, liposomes, implants, and targeted delivery systems.",
+  "diagnostics": "Molecular diagnostics, companion diagnostics, and precision medicine tools for disease detection and treatment selection.",
+  "digital-health": "Digital therapeutics, health AI platforms, telemedicine, and software-as-medical-device companies.",
+  "rare-disease": "Orphan drug developers targeting diseases affecting fewer than 200,000 patients, often with premium pricing and regulatory incentives.",
+  "mrna": "Messenger RNA technology for vaccines and therapeutics — the platform behind COVID vaccines, now expanding to cancer and rare diseases.",
+  "oncology": "Cancer-focused biotechs developing novel therapies including immunotherapies, targeted therapies, and combination treatments.",
+  "adc": "Antibody-drug conjugates that combine targeting antibodies with potent cytotoxic payloads for precision cancer treatment.",
+  "neuroscience": "Companies developing treatments for neurological and psychiatric disorders including Alzheimer's, Parkinson's, and depression.",
+  "proteomics": "Protein analysis and engineering companies — proteomics platforms, protein degraders, and structural biology tools.",
+  "crispr": "Gene editing companies using CRISPR-Cas9 and related technologies to develop curative therapies for genetic diseases.",
+  "vaccines": "Vaccine developers using traditional and next-generation platforms for infectious diseases and cancer immunotherapy.",
+  "immunology": "Companies targeting the immune system for autoimmune diseases, inflammation, and transplant rejection.",
+  "microbiome": "Therapeutics targeting the gut microbiome and its role in disease — live biotherapeutics and microbiome-based diagnostics.",
+  "synthetic-biology": "Engineering biology companies designing organisms, pathways, and biological systems for therapeutics and industrial applications.",
+};
+
+export default SECTOR_EMOJIS;

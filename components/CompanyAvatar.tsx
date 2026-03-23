@@ -14,7 +14,20 @@ export function CompanyAvatar({ name, logoUrl, website, size = 28, className = "
   const initials = name.split(" ").slice(0, 2).map(w => w[0]).join("").toUpperCase();
 
   // Use Logo.dev service with the company website domain
-  const domain = website || (logoUrl ? logoUrl.replace("https://logo.clearbit.com/", "") : null);
+  let domain = website || (logoUrl ? logoUrl.replace("https://logo.clearbit.com/", "") : null);
+  // Extract bare domain from full URLs (e.g. "https://www.lilly.com/en" -> "lilly.com")
+  if (domain) {
+    try {
+      if (domain.includes("://")) {
+        domain = new URL(domain).hostname.replace(/^www\./, "");
+      } else if (domain.includes("/")) {
+        domain = domain.split("/")[0];
+      }
+      domain = domain.replace(/^www\./, "");
+    } catch {
+      // keep as-is
+    }
+  }
   const logoDevUrl = domain ? `https://img.logo.dev/${domain}?token=pk_FNHUWoZORpiR_7j_vzFnmQ` : null;
 
   if (logoDevUrl && !failed) {

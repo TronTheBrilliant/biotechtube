@@ -1,6 +1,7 @@
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { formatMarketCap, formatPercent, pctColor } from "@/lib/market-utils";
+import { getSectorEmoji } from "@/lib/sector-emojis";
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 
@@ -147,7 +148,7 @@ export default async function TopSectorsPage() {
       {/* Summary Cards */}
       <div className="px-4 md:px-6 pb-6 max-w-[1200px] mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {/* Total Market Cap */}
+          {/* Combined Sector Value */}
           <div
             className="rounded-lg border px-4 py-3"
             style={{
@@ -159,7 +160,7 @@ export default async function TopSectorsPage() {
               className="text-[11px] font-medium uppercase tracking-wide"
               style={{ color: "var(--color-text-tertiary)" }}
             >
-              Total Biotech Market Cap
+              Combined Sector Value
             </span>
             <div
               className="text-[20px] font-bold mt-0.5"
@@ -167,6 +168,12 @@ export default async function TopSectorsPage() {
             >
               {formatMarketCap(totalMarketCap)}
             </div>
+            <span
+              className="text-[10px]"
+              style={{ color: "var(--color-text-tertiary)" }}
+            >
+              (includes overlap)
+            </span>
           </div>
 
           {/* Number of Sectors */}
@@ -181,13 +188,13 @@ export default async function TopSectorsPage() {
               className="text-[11px] font-medium uppercase tracking-wide"
               style={{ color: "var(--color-text-tertiary)" }}
             >
-              Sectors Tracked
+              Active Sectors
             </span>
             <div
               className="text-[20px] font-bold mt-0.5"
               style={{ color: "var(--color-text-primary)" }}
             >
-              {sectors.length}
+              {sectors.length} sectors
             </div>
           </div>
 
@@ -203,7 +210,7 @@ export default async function TopSectorsPage() {
               className="text-[11px] font-medium uppercase tracking-wide"
               style={{ color: "var(--color-text-tertiary)" }}
             >
-              Best Performing (1D)
+              Top Mover Today
             </span>
             {bestSector ? (
               <div className="mt-0.5 flex items-baseline gap-2">
@@ -319,7 +326,7 @@ export default async function TopSectorsPage() {
                             style={{ color: "var(--color-text-primary)" }}
                           >
                             <span className="truncate max-w-[180px] md:max-w-none inline-block">
-                              {s.name}
+                              {getSectorEmoji(s.name)} {s.name}
                             </span>
                           </Link>
                           {s.companyCount != null && (

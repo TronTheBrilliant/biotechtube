@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { formatMarketCap, formatPercent, pctColor } from "@/lib/market-utils";
+import { getSectorEmoji } from "@/lib/sector-emojis";
 
 interface Sector {
   slug: string;
@@ -42,7 +43,7 @@ export default function TopSectors({ sectors }: { sectors: Sector[] }) {
             className="font-medium"
             style={{ fontSize: 13, color: "var(--color-text-primary)" }}
           >
-            {s.shortName || s.name}
+            {getSectorEmoji(s.name)} {s.shortName || s.name}
           </span>
 
           {/* Spacer */}
