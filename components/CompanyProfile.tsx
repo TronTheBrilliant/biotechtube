@@ -78,7 +78,14 @@ export function CompanyProfileHero({ company }: CompanyProfileProps) {
           </div>
           <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-[2px]">
             <span className="text-14" style={{ color: "var(--color-text-tertiary)" }}>
-              {company.city}, {company.country}
+              {company.city},{" "}
+              <Link
+                href={`/companies/${company.country.toLowerCase().replace(/\s+/g, '-')}`}
+                className="hover:underline"
+                style={{ color: "var(--color-text-tertiary)" }}
+              >
+                {company.country}
+              </Link>
             </span>
             <span className="text-14" style={{ color: "var(--color-text-tertiary)" }}>
               · Founded {company.founded}
@@ -150,9 +157,10 @@ export function CompanyProfileHero({ company }: CompanyProfileProps) {
             border: "var(--color-border-subtle)",
           };
           return (
-            <span
+            <Link
               key={f}
-              className="text-12 px-2 py-[3px] rounded-sm border"
+              href={`/companies?q=${encodeURIComponent(f)}`}
+              className="text-12 px-2 py-[3px] rounded-sm border hover:opacity-80 transition-opacity"
               style={{
                 background: fc.bg,
                 color: fc.text,
@@ -162,7 +170,7 @@ export function CompanyProfileHero({ company }: CompanyProfileProps) {
               }}
             >
               <span className="whitespace-nowrap">{focusEmoji[f] ? `${focusEmoji[f]} ${f}` : f}</span>
-            </span>
+            </Link>
           );
         })}
       </div>

@@ -10,7 +10,16 @@ import fundingData from "@/data/funding.json";
 import companiesData from "@/data/companies.json";
 
 export const metadata: Metadata = {
-  title: "Events — BiotechTube",
+  title: "Biotech Events & Conferences Calendar | BiotechTube",
+  description: "Upcoming biotech conferences, investor days, and industry events worldwide. Never miss a key biotech event.",
+  alternates: { canonical: 'https://www.biotechtube.com/events' },
+  openGraph: {
+    title: "Biotech Events & Conferences Calendar",
+    description: "Upcoming biotech conferences, investor days, and industry events worldwide.",
+    url: 'https://www.biotechtube.com/events',
+    siteName: 'BiotechTube',
+    type: 'website',
+  },
 };
 
 interface EventItem {

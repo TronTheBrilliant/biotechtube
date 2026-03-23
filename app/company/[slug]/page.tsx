@@ -2,11 +2,14 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Company, FundingRound } from "@/lib/types";
 import { CompanyPageClient } from "./CompanyPageClient";
+import { CompanyJsonLd } from "./CompanyJsonLd";
 import { dbRowToCompany, dbRowsToCompanies } from "@/lib/adapters";
 import { createServerClient } from "@/lib/supabase";
 import { cache } from "react";
 
 import fundingData from "@/data/funding.json";
+
+const SITE_URL = 'https://www.biotechtube.com';
 
 // ISR: revalidate every 2 hours (company data changes infrequently)
 export const revalidate = 7200;
@@ -68,9 +71,37 @@ export async function generateMetadata({
   const company = await getCompany(params.slug);
   if (!company) return { title: "Company Not Found" };
 
+  const title = `${company.name} — Biotech Company Profile | BiotechTube`;
+  const description = company.description
+    ? `${company.description.slice(0, 155)}${company.description.length > 155 ? '...' : ''}`
+    : `${company.name} is a ${company.type?.toLowerCase() || ''} biotech company based in ${company.city ? `${company.city}, ` : ''}${company.country}. ${company.focus.length > 0 ? `Focus areas: ${company.focus.join(', ')}.` : ''} ${company.stage ? `Stage: ${company.stage}.` : ''}`.trim();
+
+  const url = `${SITE_URL}/company/${company.slug}`;
+  const logoUrl = company.logoUrl || (company.website ? `https://img.logo.dev/${new URL(company.website).hostname}?token=pk_FNHUWoZORpiR_7j_vzFnmQ` : undefined);
+
   return {
-    title: `${company.name} — BiotechTube`,
-    description: company.description || `${company.name} - ${company.city}, ${company.country}`,
+    title,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title: `${company.name} — Biotech Company Profile`,
+      description,
+      url,
+      siteName: 'BiotechTube',
+      type: 'profile',
+      ...(logoUrl && { images: [{ url: logoUrl, width: 128, height: 128, alt: `${company.name} logo` }] }),
+    },
+    twitter: {
+      card: 'summary',
+      title: `${company.name} — Biotech Company Profile`,
+      description,
+      ...(logoUrl && { images: [logoUrl] }),
+    },
+    other: {
+      'og:locale': 'en_US',
+    },
   };
 }
 
@@ -89,10 +120,13 @@ export default async function CompanyPage({
   ]);
 
   return (
-    <CompanyPageClient
-      company={company}
-      companyFunding={companyFunding}
-      similar={similar}
-    />
+    <>
+      <CompanyJsonLd company={company} />
+      <CompanyPageClient
+        company={company}
+        companyFunding={companyFunding}
+        similar={similar}
+      />
+    </>
   );
 }

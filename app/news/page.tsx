@@ -4,9 +4,17 @@ import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "News — BiotechTube",
+  title: "Biotech News — Breakthroughs, Funding & Pipeline Updates | BiotechTube",
   description:
-    "AI-curated biotech news, breakthrough alerts, funding radar, and pipeline updates. Coming soon to BiotechTube.",
+    "AI-curated biotech news, breakthrough alerts, funding radar, and pipeline updates. Stay informed on the latest in biotech and pharmaceutical innovation.",
+  alternates: { canonical: 'https://www.biotechtube.com/news' },
+  openGraph: {
+    title: "Biotech News — Breakthroughs, Funding & Pipeline Updates",
+    description: "AI-curated biotech news, breakthrough alerts, funding radar, and pipeline updates.",
+    url: 'https://www.biotechtube.com/news',
+    siteName: 'BiotechTube',
+    type: 'website',
+  },
 };
 
 const features = [
