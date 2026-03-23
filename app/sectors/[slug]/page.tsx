@@ -104,39 +104,34 @@ export default async function SectorDetailPage({
 
   const sector = sectorRow as SectorRow;
 
-  // Fetch historical market data for this sector
-  // Strategy: fetch oldest 50 + newest 950 in 2 parallel queries (instead of paginating 10x)
-  // This gives us good coverage for Max charts while being fast
-  const [oldestResult, newestResult] = await Promise.all([
-    supabase
-      .from("sector_market_data")
-      .select("snapshot_date, combined_market_cap, total_volume, change_1d_pct, change_7d_pct, change_30d_pct, company_count, public_company_count")
+  // Fetch ALL historical data using parallel page fetches (not sequential)
+  // Each sector has ~9000-10000 rows. Fetch 10 pages of 1000 in parallel.
+  const selectCols = "snapshot_date, combined_market_cap, total_volume, change_1d_pct, change_7d_pct, change_30d_pct, company_count, public_company_count";
+  const PAGE_SIZE = 1000;
+  const pagePromises = Array.from({ length: 10 }, (_, i) =>
+    supabase.from("sector_market_data").select(selectCols)
       .eq("sector_id", sector.id)
       .order("snapshot_date", { ascending: true })
-      .limit(50),
-    supabase
-      .from("sector_market_data")
-      .select("snapshot_date, combined_market_cap, total_volume, change_1d_pct, change_7d_pct, change_30d_pct, company_count, public_company_count")
-      .eq("sector_id", sector.id)
-      .order("snapshot_date", { ascending: false })
-      .limit(950),
-  ]);
-
-  const oldRows = (oldestResult.data ?? []) as SectorMarketDataRow[];
-  const newRows = ((newestResult.data ?? []) as SectorMarketDataRow[]).reverse();
-
-  // Merge and deduplicate (oldest rows might overlap with newest)
-  const seen = new Set<string>();
-  const history: SectorMarketDataRow[] = [];
-  for (const row of [...oldRows, ...newRows]) {
-    if (!seen.has(row.snapshot_date)) {
-      seen.add(row.snapshot_date);
-      history.push(row);
-    }
+      .range(i * PAGE_SIZE, (i + 1) * PAGE_SIZE - 1)
+  );
+  const pageResults = await Promise.all(pagePromises);
+  const allRows: SectorMarketDataRow[] = [];
+  for (const result of pageResults) {
+    if (result.data) allRows.push(...(result.data as SectorMarketDataRow[]));
   }
 
-  // Get latest snapshot for key stats
-  const latestSnapshot = history.length > 0 ? history[history.length - 1] : null;
+  // Thin to ~1000 points for chart payload
+  let history: SectorMarketDataRow[];
+  if (allRows.length > 1000) {
+    const step = Math.ceil(allRows.length / 1000);
+    history = [];
+    for (let i = 0; i < allRows.length; i += step) history.push(allRows[i]);
+    if (history[history.length - 1] !== allRows[allRows.length - 1]) history.push(allRows[allRows.length - 1]);
+  } else {
+    history = allRows;
+  }
+
+  const latestSnapshot = allRows.length > 0 ? allRows[allRows.length - 1] : null;
 
   // Fetch top 20 companies in this sector by USD market cap
   // We use market_cap_usd from company_price_history (latest date) instead of

@@ -80,21 +80,17 @@ export default async function CountryDetailPage({
   // 2. Companies in this country (for top companies)
   // 3. Total company count
 
-  // Fetch history (oldest 50 + newest 950) + companies + count — all in parallel
+  // Fetch ALL history using parallel page fetches + companies + count
   const historySelect = "country, snapshot_date, combined_market_cap, total_volume, change_1d_pct, change_7d_pct, change_30d_pct, public_company_count";
-  const [oldestHistory, newestHistory, companiesResult, countResult] = await Promise.all([
-    supabase
-      .from("country_market_data")
-      .select(historySelect)
+  const PAGE_SIZE = 1000;
+  const historyPages = Array.from({ length: 10 }, (_, i) =>
+    supabase.from("country_market_data").select(historySelect)
       .eq("country", countryName)
       .order("snapshot_date", { ascending: true })
-      .limit(50),
-    supabase
-      .from("country_market_data")
-      .select(historySelect)
-      .eq("country", countryName)
-      .order("snapshot_date", { ascending: false })
-      .limit(950),
+      .range(i * PAGE_SIZE, (i + 1) * PAGE_SIZE - 1)
+  );
+
+  const [companiesResult, countResult, ...historyResults] = await Promise.all([
     supabase
       .from("companies")
       .select("id, slug, name, ticker, logo_url, country, city, stage, company_type, valuation, total_raised, categories, website")
@@ -103,24 +99,28 @@ export default async function CountryDetailPage({
       .from("companies")
       .select("id", { count: "exact", head: true })
       .eq("country", countryName),
+    ...historyPages,
   ]);
 
-  const oldRows = (oldestHistory.data ?? []) as CountryMarketDataRow[];
-  const newRows = ((newestHistory.data ?? []) as CountryMarketDataRow[]).reverse();
+  const allHistoryRows: CountryMarketDataRow[] = [];
+  for (const result of historyResults) {
+    if (result.data) allHistoryRows.push(...(result.data as CountryMarketDataRow[]));
+  }
 
   // If no history data and no country meta, 404
-  if (oldRows.length === 0 && !countryMeta) {
+  if (allHistoryRows.length === 0 && !countryMeta) {
     notFound();
   }
 
-  // Merge and deduplicate
-  const seen = new Set<string>();
-  const history: CountryMarketDataRow[] = [];
-  for (const row of [...oldRows, ...newRows]) {
-    if (!seen.has(row.snapshot_date)) {
-      seen.add(row.snapshot_date);
-      history.push(row);
-    }
+  // Thin to ~1000 points for chart payload
+  let history: CountryMarketDataRow[];
+  if (allHistoryRows.length > 1000) {
+    const step = Math.ceil(allHistoryRows.length / 1000);
+    history = [];
+    for (let i = 0; i < allHistoryRows.length; i += step) history.push(allHistoryRows[i]);
+    if (history[history.length - 1] !== allHistoryRows[allHistoryRows.length - 1]) history.push(allHistoryRows[allHistoryRows.length - 1]);
+  } else {
+    history = allHistoryRows;
   }
   const latestSnapshot = history.length > 0 ? history[history.length - 1] : null;
 
