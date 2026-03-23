@@ -7,10 +7,13 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { slug: string } }
 ) {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!supabaseUrl || !supabaseKey) {
+    return NextResponse.json({ error: 'Database not configured' }, { status: 503 })
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseKey)
 
   const { data, error } = await supabase
     .from('companies')

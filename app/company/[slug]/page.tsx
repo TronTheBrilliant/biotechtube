@@ -12,10 +12,11 @@ export const dynamic = 'force-dynamic';
 const funding = fundingData as FundingRound[];
 
 async function getCompany(slug: string) {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !supabaseKey) return null;
+
+  const supabase = createClient(supabaseUrl, supabaseKey);
 
   const { data } = await supabase
     .from('companies')
@@ -27,10 +28,11 @@ async function getCompany(slug: string) {
 }
 
 async function getSimilarCompanies(company: Company) {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !supabaseKey) return [];
+
+  const supabase = createClient(supabaseUrl, supabaseKey);
 
   // Find companies in same country or with overlapping categories
   const { data } = await supabase
