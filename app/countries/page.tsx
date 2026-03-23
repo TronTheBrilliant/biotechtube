@@ -251,7 +251,7 @@ export default async function CountriesPage() {
                     </td>
                     <td className="px-3 py-2">
                       <Link
-                        href={`/companies/${countrySlug(c.country)}`}
+                        href={`/countries/${countrySlug(c.country)}`}
                         className="flex items-center gap-2 hover:underline"
                       >
                         <span className="text-[16px]">

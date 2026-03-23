@@ -56,7 +56,7 @@ export default function MarketByCountry({
         return (
           <Link
             key={c.country}
-            href={`/companies/${countrySlug}`}
+            href={`/countries/${countrySlug}`}
             className="px-4 py-2.5 flex items-center gap-3 hover:bg-[var(--color-bg-secondary)] no-underline"
             style={
               i < 4 && i < countries.length - 1
