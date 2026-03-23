@@ -170,7 +170,7 @@ async function getTrendingCompanies() {
   // Fetch company details
   const { data: companyRows } = await supabase
     .from("companies")
-    .select("id, slug, name, ticker, country, logo_url")
+    .select("id, slug, name, ticker, country, logo_url, website")
     .in("id", top5Ids);
 
   if (!companyRows) return [];
@@ -186,6 +186,7 @@ async function getTrendingCompanies() {
       ticker: c?.ticker || null,
       country: c?.country || null,
       logo_url: c?.logo_url || null,
+      website: c?.website || null,
       change30d: ch.change30d,
       marketCap: ch.marketCap,
     };
@@ -331,6 +332,7 @@ export default async function HomePage() {
     country: c.country || null,
     valuation: c.valuation || null,
     logo_url: c.logoUrl || null,
+    website: c.website || null,
   }));
 
   return (

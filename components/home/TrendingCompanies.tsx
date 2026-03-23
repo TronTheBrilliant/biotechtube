@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CompanyAvatar } from "@/components/CompanyAvatar";
 import { pctColor, formatMarketCap } from "@/lib/market-utils";
 
 interface TrendingCompany {
@@ -7,6 +8,7 @@ interface TrendingCompany {
   ticker: string | null;
   country: string | null;
   logo_url: string | null;
+  website?: string | null;
   change30d: number;
   marketCap: number;
 }
@@ -52,20 +54,7 @@ export function TrendingCompanies({ companies }: TrendingCompaniesProps) {
           </span>
 
           {/* Logo */}
-          {company.logo_url ? (
-            <img
-              src={company.logo_url}
-              alt={company.name}
-              className="w-6 h-6 rounded-full object-cover flex-shrink-0"
-            />
-          ) : (
-            <div
-              className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-[9px] font-semibold text-white"
-              style={{ background: "var(--color-accent)" }}
-            >
-              {getInitials(company.name)}
-            </div>
-          )}
+          <CompanyAvatar name={company.name} logoUrl={company.logo_url ?? undefined} website={company.website ?? undefined} size={24} />
 
           {/* Name + ticker */}
           <div className="min-w-0">

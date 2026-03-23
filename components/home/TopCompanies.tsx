@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CompanyAvatar } from "@/components/CompanyAvatar";
 import { formatMarketCap } from "@/lib/market-utils";
 
 interface Company {
@@ -8,6 +9,7 @@ interface Company {
   country: string | null;
   valuation: number | null;
   logo_url: string | null;
+  website?: string | null;
 }
 
 export default function TopCompanies({ companies }: { companies: Company[] }) {
@@ -39,29 +41,7 @@ export default function TopCompanies({ companies }: { companies: Company[] }) {
           </span>
 
           {/* Logo */}
-          {c.logo_url ? (
-            <img
-              src={c.logo_url}
-              alt={c.name}
-              width={24}
-              height={24}
-              className="rounded-full"
-              style={{ width: 24, height: 24, objectFit: "cover" }}
-            />
-          ) : (
-            <span
-              className="rounded-full flex items-center justify-center font-medium"
-              style={{
-                width: 24,
-                height: 24,
-                fontSize: 11,
-                backgroundColor: "var(--color-bg-tertiary)",
-                color: "var(--color-text-secondary)",
-              }}
-            >
-              {c.name.charAt(0)}
-            </span>
-          )}
+          <CompanyAvatar name={c.name} logoUrl={c.logo_url ?? undefined} website={c.website ?? undefined} size={24} />
 
           {/* Name + Ticker */}
           <div className="flex flex-col">

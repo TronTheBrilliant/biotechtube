@@ -1,5 +1,6 @@
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
+import { CompanyAvatar } from "@/components/CompanyAvatar";
 import { formatMarketCap, formatPercent, pctColor } from "@/lib/market-utils";
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
@@ -12,6 +13,7 @@ interface TrendingCompany {
   ticker: string | null;
   country: string | null;
   logo_url: string | null;
+  website: string | null;
   change30d: number;
   marketCap: number;
 }
@@ -92,7 +94,7 @@ async function getTrendingCompanies(): Promise<TrendingCompany[]> {
   // Fetch company details
   const { data: companyRows } = await supabase
     .from("companies")
-    .select("id, slug, name, ticker, country, logo_url")
+    .select("id, slug, name, ticker, country, logo_url, website")
     .in("id", top50Ids);
 
   if (!companyRows) return [];
@@ -109,6 +111,7 @@ async function getTrendingCompanies(): Promise<TrendingCompany[]> {
         ticker: c?.ticker || null,
         country: c?.country || null,
         logo_url: c?.logo_url || null,
+        website: c?.website || null,
         change30d: ch.change30d,
         marketCap: ch.marketCap,
       };
@@ -260,28 +263,7 @@ export default async function TrendingPage() {
                         href={`/company/${c.slug}`}
                         className="flex items-center gap-2 hover:underline"
                       >
-                        {c.logo_url ? (
-                          <img
-                            src={c.logo_url}
-                            alt=""
-                            className="w-6 h-6 rounded-full object-cover flex-shrink-0"
-                            style={{
-                              background: "var(--color-bg-primary)",
-                              border: "1px solid var(--color-border-subtle)",
-                            }}
-                          />
-                        ) : (
-                          <div
-                            className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-bold"
-                            style={{
-                              background: "var(--color-bg-primary)",
-                              border: "1px solid var(--color-border-subtle)",
-                              color: "var(--color-text-tertiary)",
-                            }}
-                          >
-                            {c.name.charAt(0)}
-                          </div>
-                        )}
+                        <CompanyAvatar name={c.name} logoUrl={c.logo_url ?? undefined} website={c.website ?? undefined} size={24} />
                         <div className="flex flex-col">
                           <span
                             className="text-12 font-medium truncate max-w-[150px] md:max-w-none inline-block"
