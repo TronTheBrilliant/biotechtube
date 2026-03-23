@@ -22,9 +22,6 @@ const TRENDING_COMPANIES: Company[] = [
 const MOCK_SPONSORS: Company[] = [
   mc("eli-lilly", "Eli Lilly", "LLY", "United States", "Antibodies", "lilly.com"),
   mc("roche", "Roche", "ROG.SW", "Switzerland", "Diagnostics", "roche.com"),
-  mc("amgen", "Amgen", "AMGN", "United States", "Biologics", "amgen.com"),
-  mc("gilead-sciences", "Gilead Sciences", "GILD", "United States", "Antivirals", "gilead.com"),
-  mc("vertex-pharmaceuticals", "Vertex Pharmaceuticals", "VRTX", "United States", "Small Molecules", "vrtx.com"),
 ];
 
 const stageColors: Record<string, { bg: string; text: string; border: string }> = {

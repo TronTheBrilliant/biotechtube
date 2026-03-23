@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { TvSparkline } from "@/components/charts/TvSparkline";
-import { formatMarketCap, formatVolume, formatPercent } from "@/lib/market-utils";
+import { formatMarketCap, formatPercent } from "@/lib/market-utils";
+import { TrendingUp, Globe, Building2, BarChart3 } from "lucide-react";
 
 interface IndexCardsProps {
   snapshot: {
@@ -15,83 +16,108 @@ interface IndexCardsProps {
   };
 }
 
-function formatCount(n: number): string {
-  return n.toLocaleString();
-}
-
 export function IndexCards({ snapshot }: IndexCardsProps) {
   const change1d = snapshot.change_1d_pct;
+  const change7d = snapshot.change_7d_pct;
   const up1d = change1d === null ? true : change1d >= 0;
+  const topGainer = snapshot.top_gainer_pct;
 
-  const cardData = [
+  const cards = [
     {
-      label: "📊 BIOTECH MARKET CAP",
+      icon: <BarChart3 size={16} />,
+      label: "BIOTECH INDEX",
       value: formatMarketCap(snapshot.total_market_cap),
-      change: formatPercent(change1d),
-      up: up1d,
+      subtitle: `${formatPercent(change1d)} today`,
+      subtitleColor: up1d ? "var(--color-accent)" : "#c0392b",
+      accent: up1d ? "#1a7a5e" : "#c0392b",
       href: "/markets",
-      data: [40, 42, 38, 44, 46, 43, 48, 50, 47, 52, 55, 53],
+      sparkline: [40, 42, 38, 44, 46, 43, 48, 50, 47, 52, 55, 53],
+      sparkColor: up1d ? "#1a7a5e" : "#c0392b",
     },
     {
-      label: "🧬 BROWSE SECTORS",
-      value: "20 Sectors",
-      change: "Indexed charts →",
-      up: true,
-      href: "/sectors",
-      data: [30, 35, 33, 40, 45, 42, 50, 55, 52, 60, 65, 62],
+      icon: <TrendingUp size={16} />,
+      label: "TOP GAINER",
+      value: topGainer ? formatPercent(topGainer) : "—",
+      subtitle: "Best 24h performer",
+      subtitleColor: "var(--color-text-tertiary)",
+      accent: "#1a7a5e",
+      href: "/trending",
+      sparkline: [20, 28, 25, 35, 42, 38, 50, 58, 55, 68, 75, 80],
+      sparkColor: "#1a7a5e",
     },
     {
-      label: "🏢 PUBLIC COMPANIES",
-      value: formatCount(snapshot.public_companies_count),
-      change: "",
-      up: true,
-      href: "/companies",
-      data: [200, 210, 220, 235, 248, 260, 275, 290, 305, 318, 330, 345],
+      icon: <Globe size={16} />,
+      label: "COUNTRIES",
+      value: "30+",
+      subtitle: "Explore markets →",
+      subtitleColor: "var(--color-accent)",
+      accent: "#1a7a5e",
+      href: "/countries",
+      sparkline: [10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 30],
+      sparkColor: "#1a7a5e",
     },
     {
-      label: "💹 24H VOLUME",
-      value: formatVolume(snapshot.total_volume),
-      change: "",
-      up: true,
-      href: "/markets",
-      data: [100, 105, 108, 106, 112, 115, 118, 120, 122, 125, 128, 130],
+      icon: <Building2 size={16} />,
+      label: "COMPANIES TRACKED",
+      value: "10,600+",
+      subtitle: `${snapshot.public_companies_count} public · ${change7d !== null ? formatPercent(change7d) + " 7d" : ""}`,
+      subtitleColor: "var(--color-text-tertiary)",
+      accent: "#1a7a5e",
+      href: "/top-companies",
+      sparkline: [200, 210, 220, 235, 248, 260, 275, 290, 305, 318, 330, 345],
+      sparkColor: "#1a7a5e",
     },
   ];
 
   return (
-    <div className="flex md:grid md:grid-cols-4 gap-2.5 px-4 md:px-6 py-3 overflow-x-auto max-w-[1200px] mx-auto" style={{ scrollbarWidth: "none" }}>
-      {cardData.map((card) => (
+    <div
+      className="flex md:grid md:grid-cols-4 gap-2.5 px-4 md:px-6 py-3 overflow-x-auto max-w-[1200px] mx-auto"
+      style={{ scrollbarWidth: "none" }}
+    >
+      {cards.map((card) => (
         <Link
           key={card.label}
           href={card.href}
-          className="rounded-md px-3.5 py-3 border min-w-[160px] md:min-w-0 min-h-[160px] flex-shrink-0 md:flex-shrink transition-all duration-150 hover:border-[var(--color-border-medium)] hover:shadow-sm"
+          className="rounded-lg min-w-[170px] md:min-w-0 flex-shrink-0 md:flex-shrink transition-all duration-200 hover:shadow-md hover:scale-[1.02] overflow-hidden"
           style={{
-            background: "var(--color-bg-secondary)",
-            borderColor: "var(--color-border-subtle)",
-            borderLeft: card.up ? "3px solid #1a7a5e" : "3px solid #c0392b",
+            background: "var(--color-bg-primary)",
+            border: "1px solid var(--color-border-subtle)",
           }}
         >
-          <div
-            className="text-12 uppercase tracking-[0.4px] mb-1 whitespace-nowrap"
-            style={{ color: "var(--color-text-secondary)" }}
-          >
-            {card.label}
-          </div>
-          <div
-            className="text-[32px] font-medium tracking-tight mb-[3px]"
-            style={{ color: "var(--color-text-primary)", letterSpacing: "-0.5px" }}
-          >
-            {card.value}
-          </div>
-          <div className="flex items-center justify-between">
-            <span
-              className="text-13 font-medium"
-              style={{ color: card.up ? "var(--color-accent)" : "#c0392b" }}
-            >
-              {card.change}
-            </span>
-            <div className="w-[80px] h-[48px]">
-              <TvSparkline data={card.data} width={80} height={48} />
+          {/* Top accent bar */}
+          <div style={{ height: 3, background: card.accent }} />
+
+          <div className="px-3.5 pt-3 pb-3">
+            {/* Header */}
+            <div className="flex items-center gap-1.5 mb-2">
+              <span style={{ color: card.accent }}>{card.icon}</span>
+              <span
+                className="text-[10px] uppercase tracking-[0.5px] font-semibold"
+                style={{ color: "var(--color-text-tertiary)" }}
+              >
+                {card.label}
+              </span>
+            </div>
+
+            {/* Value + Sparkline */}
+            <div className="flex items-end justify-between gap-2">
+              <div>
+                <div
+                  className="text-[28px] font-bold tracking-tight leading-none mb-1"
+                  style={{ color: "var(--color-text-primary)", letterSpacing: "-0.5px" }}
+                >
+                  {card.value}
+                </div>
+                <div
+                  className="text-12 font-medium"
+                  style={{ color: card.subtitleColor }}
+                >
+                  {card.subtitle}
+                </div>
+              </div>
+              <div className="w-[72px] h-[40px] flex-shrink-0 opacity-60">
+                <TvSparkline data={card.sparkline} width={72} height={40} color={card.sparkColor} />
+              </div>
             </div>
           </div>
         </Link>

@@ -384,34 +384,59 @@ export default async function HomePage() {
       <TickerBar />
 
       {/* Hero */}
-      <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-6 md:py-8">
-        <h1
-          className="text-[44px] md:text-[72px] font-bold tracking-tight"
-          style={{
-            color: "var(--color-text-primary)",
-            letterSpacing: "-1.5px",
-            lineHeight: 1.05,
-          }}
-        >
-          The Biotech Market Tracker.
-        </h1>
-        <p
-          className="text-[16px] md:text-[19px] mt-3 max-w-[560px]"
-          style={{ color: "var(--color-text-secondary)", lineHeight: 1.5 }}
-        >
-          Track {snapshot ? formatMarketCap(snapshot.total_market_cap) : "$7.0T"}+ in
-          biotech market cap across 20 sectors and 30+ countries.
-        </p>
-        {/* Stats ticker */}
-        <StatsTicker snapshot={snapshot} />
-        <div className="flex items-center gap-2 mt-3 md:mt-4">
-          <Link
-            href="/claim/oncoinvent"
-            className="flex items-center gap-1.5 text-13 md:text-14 font-medium"
-            style={{ color: "var(--color-accent)" }}
-          >
-            🏢 Is your company listed? Claim your profile →
-          </Link>
+      <div
+        className="max-w-[1200px] mx-auto px-4 md:px-6 pt-6 md:pt-10 pb-4 md:pb-6"
+      >
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <div
+                className="w-2 h-2 rounded-full animate-pulse"
+                style={{ background: "var(--color-accent)" }}
+              />
+              <span className="text-12 font-semibold uppercase tracking-wider" style={{ color: "var(--color-accent)" }}>
+                Live Data
+              </span>
+            </div>
+            <h1
+              className="text-[36px] md:text-[56px] font-bold tracking-tight"
+              style={{
+                color: "var(--color-text-primary)",
+                letterSpacing: "-1.5px",
+                lineHeight: 1.05,
+              }}
+            >
+              Global Biotech
+              <br />
+              Intelligence.
+            </h1>
+            <p
+              className="text-[15px] md:text-[17px] mt-3 max-w-[480px]"
+              style={{ color: "var(--color-text-secondary)", lineHeight: 1.6 }}
+            >
+              Market data, company rankings, and sector analysis across{" "}
+              <span style={{ color: "var(--color-text-primary)", fontWeight: 600 }}>
+                {snapshot ? formatMarketCap(snapshot.total_market_cap) : "$7.0T"}
+              </span>{" "}
+              in biotech market cap.
+            </p>
+          </div>
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <Link
+              href="/markets"
+              className="text-13 font-semibold px-5 py-2.5 rounded-lg transition-all duration-150 hover:opacity-90"
+              style={{ background: "var(--color-accent)", color: "white" }}
+            >
+              Explore Markets
+            </Link>
+            <Link
+              href="/top-companies"
+              className="text-13 font-semibold px-5 py-2.5 rounded-lg transition-all duration-150 hover:opacity-90"
+              style={{ background: "var(--color-bg-tertiary)", color: "var(--color-text-primary)", border: "1px solid var(--color-border-medium)" }}
+            >
+              Browse Companies
+            </Link>
+          </div>
         </div>
       </div>
 
