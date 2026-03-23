@@ -8,6 +8,25 @@ import { formatCurrency } from "@/lib/formatting";
 import { CompanyAvatar } from "@/components/CompanyAvatar";
 import { dbRowToCompany } from "@/lib/adapters";
 
+// Hardcoded trending companies (top 30-day performers from the homepage data)
+const mc = (s: string, n: string, t: string, c: string, f: string, w: string): Company => ({ slug: s, name: n, ticker: t, country: c, focus: [f], city: "", founded: 0, website: w, description: "", stage: "" as Company["stage"], type: "Public", totalRaised: 0, employees: "" });
+
+const TRENDING_COMPANIES: Company[] = [
+  mc("day-one-biopharmaceuticals", "Day One Biopharmaceuticals", "DAWN", "United States", "Oncology", "dayonebio.com"),
+  mc("tango-therapeutics", "Tango Therapeutics", "TNGX", "United States", "Oncology", "tangotx.com"),
+  mc("telix-pharmaceuticals", "Telix Pharmaceuticals", "TLX.AX", "Australia", "Radiopharmaceuticals", "telixpharma.com"),
+  mc("veradermics", "Veradermics", "MANE", "United States", "Dermatology", "veradermics.com"),
+  mc("xenon-pharmaceuticals", "Xenon Pharmaceuticals", "XENE", "Canada", "Neuroscience", "xenon-pharma.com"),
+];
+
+const MOCK_SPONSORS: Company[] = [
+  mc("eli-lilly", "Eli Lilly", "LLY", "United States", "Antibodies", "lilly.com"),
+  mc("roche", "Roche", "ROG.SW", "Switzerland", "Diagnostics", "roche.com"),
+  mc("amgen", "Amgen", "AMGN", "United States", "Biologics", "amgen.com"),
+  mc("gilead-sciences", "Gilead Sciences", "GILD", "United States", "Antivirals", "gilead.com"),
+  mc("vertex-pharmaceuticals", "Vertex Pharmaceuticals", "VRTX", "United States", "Small Molecules", "vrtx.com"),
+];
+
 const stageColors: Record<string, { bg: string; text: string; border: string }> = {
   Approved: { bg: "#e8f5f0", text: "#0a3d2e", border: "#5DCAA5" },
   "Phase 3": { bg: "#eff6ff", text: "#1d4ed8", border: "#93c5fd" },
@@ -41,7 +60,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   // Load featured companies on open
   useEffect(() => {
     if (isOpen && featured.length === 0) {
-      fetch("/api/companies?limit=8&sort=name")
+      fetch("/api/companies?limit=5&sort=trending")
         .then((r) => r.json())
         .then((d) => {
           if (d.companies) {
@@ -90,8 +109,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   if (!isOpen) return null;
 
   const hasQuery = query.trim().length > 0;
-  const trending = featured.slice(0, 5);
-  const boosted = featured.slice(3, 6);
+  const trending = TRENDING_COMPANIES;
 
   return (
     <div className="fixed inset-0 z-[60]">
@@ -178,35 +196,54 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
           {!hasQuery && (
             <>
               {/* Trending */}
-              <div className="px-4 pt-3 pb-2">
-                <div className="flex items-center gap-1.5 mb-2.5">
-                  <TrendingUp size={13} style={{ color: "var(--color-accent)" }} />
-                  <span className="text-10 uppercase tracking-[0.5px] font-medium" style={{ color: "var(--color-text-secondary)" }}>
-                    Trending
+              <div
+                className="mx-3 mt-3 rounded-lg overflow-hidden"
+                style={{
+                  background: "linear-gradient(135deg, rgba(26, 122, 94, 0.05) 0%, rgba(26, 122, 94, 0.01) 100%)",
+                  border: "1px solid rgba(26, 122, 94, 0.12)",
+                }}
+              >
+                <div className="flex items-center gap-2 px-4 pt-3 pb-2">
+                  <TrendingUp size={14} style={{ color: "var(--color-accent)" }} />
+                  <span className="text-11 uppercase tracking-[0.5px] font-semibold" style={{ color: "var(--color-accent)" }}>
+                    Trending Now
+                  </span>
+                  <span className="text-[9px] px-2 py-[2px] rounded-full font-medium" style={{ background: "var(--color-accent)", color: "white" }}>
+                    Hot
                   </span>
                 </div>
-                {trending.map((c, i) => (
-                  <CompanyRow key={c.slug} company={c} onClose={onClose} showRank rank={i + 1} />
-                ))}
+                <div className="px-2 pb-2">
+                  {trending.map((c, i) => (
+                    <CompanyRow key={c.slug} company={c} onClose={onClose} showRank rank={i + 1} />
+                  ))}
+                </div>
               </div>
 
-              {/* Divider */}
-              <div className="mx-4" style={{ borderTop: "0.5px solid var(--color-border-subtle)" }} />
+              {/* Spacer */}
+              <div className="h-2" />
 
               {/* Boosted / Sponsored */}
-              <div className="px-4 pt-3 pb-2">
-                <div className="flex items-center gap-1.5 mb-2.5">
-                  <Sparkles size={13} style={{ color: "#b45309" }} />
-                  <span className="text-10 uppercase tracking-[0.5px] font-medium" style={{ color: "var(--color-text-secondary)" }}>
+              <div
+                className="mx-3 rounded-lg overflow-hidden"
+                style={{
+                  background: "linear-gradient(135deg, rgba(180, 83, 9, 0.06) 0%, rgba(180, 83, 9, 0.02) 100%)",
+                  border: "1px solid rgba(180, 83, 9, 0.12)",
+                }}
+              >
+                <div className="flex items-center gap-2 px-4 pt-3 pb-2">
+                  <Sparkles size={14} style={{ color: "#b45309" }} />
+                  <span className="text-11 uppercase tracking-[0.5px] font-semibold" style={{ color: "#b45309" }}>
                     Featured Companies
                   </span>
-                  <span className="text-[9px] px-1.5 py-[1px] rounded-sm" style={{ background: "#fef3e2", color: "#b45309" }}>
+                  <span className="text-[9px] px-2 py-[2px] rounded-full font-medium" style={{ background: "#b45309", color: "white" }}>
                     Sponsored
                   </span>
                 </div>
-                {boosted.map((c) => (
-                  <CompanyRow key={c.slug} company={c} onClose={onClose} sponsored />
-                ))}
+                <div className="px-2 pb-2">
+                  {MOCK_SPONSORS.map((c) => (
+                    <CompanyRow key={c.slug} company={c} onClose={onClose} sponsored />
+                  ))}
+                </div>
               </div>
 
               {/* Browse all */}
