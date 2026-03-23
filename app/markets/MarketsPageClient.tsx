@@ -119,7 +119,7 @@ export default function MarketsPageClient({
   sectors,
   countries,
 }: Props) {
-  const [timescale, setTimescale] = useState<Timescale>("1Y");
+  const [timescale, setTimescale] = useState<Timescale>("Max");
 
   // Filter server-provided history client-side based on selected timescale.
   // All data is already available from SSR -- no client-side API call needed.

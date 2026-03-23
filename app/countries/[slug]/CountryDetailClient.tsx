@@ -57,7 +57,7 @@ export default function CountryDetailClient({
 }: Props) {
   type Timeframe = "1M" | "3M" | "6M" | "1Y" | "3Y" | "5Y" | "Max";
   const timeframes: Timeframe[] = ["1M", "3M", "6M", "1Y", "3Y", "5Y", "Max"];
-  const [selectedTimeframe, setSelectedTimeframe] = useState<Timeframe>("1Y");
+  const [selectedTimeframe, setSelectedTimeframe] = useState<Timeframe>("Max");
 
   // Company pagination
   const [companyPage, setCompanyPage] = useState(1);

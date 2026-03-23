@@ -294,7 +294,7 @@ interface CompanyPageProps {
    ═══════════════════════════════════════════════ */
 export function CompanyPageClient({ company, companyFunding, similar, report: initialReport, sectors }: CompanyPageProps) {
   const [activeTab, setActiveTab] = useState<Tab>("Overview");
-  const [stockTimescale, setStockTimescale] = useState<Timescale>("6M");
+  const [stockTimescale, setStockTimescale] = useState<Timescale>("ALL");
   const [logScale, setLogScale] = useState(false);
 
   // On-demand report generation state
