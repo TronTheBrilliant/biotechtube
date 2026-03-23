@@ -35,6 +35,7 @@ interface Props {
     ticker: string | null;
     valuation: number | null;
     logo_url: string | null;
+    website: string | null;
     city: string | null;
     stage: string | null;
     company_type: string | null;
@@ -489,6 +490,7 @@ export default function CountryDetailClient({
                             <CompanyAvatar
                               name={c.name}
                               logoUrl={c.logo_url ?? undefined}
+                              website={c.website ?? undefined}
                               size={28}
                             />
                             <div className="flex flex-col">

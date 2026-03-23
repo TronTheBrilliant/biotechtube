@@ -31,6 +31,7 @@ interface CompanyRow {
   name: string;
   ticker: string | null;
   logo_url: string | null;
+  website: string | null;
   country: string | null;
   city: string | null;
   stage: string | null;
@@ -178,6 +179,7 @@ export default async function CountryDetailPage({
       ticker: c.ticker,
       valuation: marketCapMap.get(c.id) ?? c.valuation ?? null,
       logo_url: c.logo_url,
+      website: c.website,
       city: c.city,
       stage: c.stage,
       company_type: c.company_type,
