@@ -1,11 +1,13 @@
 "use client";
 
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { Star } from "lucide-react";
-import { LineChart, Line, ResponsiveContainer } from "recharts";
+import { Info, X } from "lucide-react";
 import { Company, FundingRound } from "@/lib/types";
 import { formatCurrency } from "@/lib/formatting";
 import { CompanyAvatar } from "@/components/CompanyAvatar";
+
+/* ── Constants ──────────────────────────────────────────────── */
 
 const stageColors: Record<string, { bg: string; text: string; border: string }> = {
   Approved: { bg: "#e8f5f0", text: "#0a3d2e", border: "#5DCAA5" },
@@ -14,15 +16,6 @@ const stageColors: Record<string, { bg: string; text: string; border: string }> 
   "Phase 1/2": { bg: "#f5f3ff", text: "#5b21b6", border: "#c4b5fd" },
   "Phase 1": { bg: "#f5f3ff", text: "#5b21b6", border: "#c4b5fd" },
   "Pre-clinical": { bg: "#f7f7f6", text: "#6b6b65", border: "rgba(0,0,0,0.14)" },
-};
-
-const stageEmoji: Record<string, string> = {
-  "Pre-clinical": "🔬",
-  "Phase 1": "1️⃣",
-  "Phase 1/2": "🔄",
-  "Phase 2": "2️⃣",
-  "Phase 3": "3️⃣",
-  Approved: "✅",
 };
 
 const roundBadgeColors: Record<string, { bg: string; text: string }> = {
@@ -37,16 +30,6 @@ const roundEmoji: Record<string, string> = {
   Seed: "🌱", "Series A": "🅰️", "Series B": "🅱️", "Series C": "🚀", Grant: "🏛️",
 };
 
-const rankChanges: Record<string, number> = {
-  oncoinvent: 2, "nykode-therapeutics": -1, "pci-biotech": 0,
-  photocure: 1, "lytix-biopharma": -2, "caedo-oncology": 0,
-  "domore-diagnostics": 3, "zelluna-immunotherapy": -1,
-};
-
-function generateSparkline() {
-  return Array.from({ length: 12 }, (_, i) => ({ v: 50 + Math.random() * 50 + i * 3 }));
-}
-
 function relativeDate(dateStr: string): string {
   const d = new Date(dateStr);
   const now = new Date();
@@ -58,385 +41,611 @@ function relativeDate(dateStr: string): string {
   return `${Math.round(days / 365)}y ago`;
 }
 
+function formatPrice(price: number, currency: string | null): string {
+  const sym = currency === "EUR" ? "€" : currency === "GBP" ? "£" : currency === "NOK" ? "kr" : currency === "SEK" ? "kr" : currency === "CHF" ? "CHF " : currency === "JPY" ? "¥" : "$";
+  if (currency === "JPY") return `${sym}${Math.round(price).toLocaleString()}`;
+  return `${sym}${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+/* ── Types ──────────────────────────────────────────────────── */
+
 type Mode = "top" | "trending" | "funded" | "new";
+
+interface StockQuote {
+  price: number | null;
+  change30d: number | null;
+  currency: string | null;
+}
 
 interface RankingTableProps {
   companies: Company[];
   mode?: Mode;
   funding?: FundingRound[];
+  startRank?: number;
 }
 
-// Grid configs per mode
-const gridConfigs: Record<Mode, { mobile: string; desktop: string }> = {
-  top:      { mobile: "30px 1fr auto",       desktop: "32px 1fr 80px 70px 80px 90px 30px" },
-  trending: { mobile: "30px 1fr auto",       desktop: "32px 1fr 90px 70px 80px 90px 30px" },
-  funded:   { mobile: "30px 1fr auto",       desktop: "32px 1fr 80px 80px 1fr 80px 30px" },
-  new:      { mobile: "30px 1fr auto",       desktop: "32px 1fr 70px 70px 1fr 30px" },
-};
+/* ── Top mode grid ─────────────────────────────────────────── */
 
-export function RankingTable({ companies, mode = "top", funding = [] }: RankingTableProps) {
-  const m = mode;
-  const paywallIndex = m === "trending" ? Math.max(companies.length, 5) : 5;
-  const grid = gridConfigs[m];
+const TOP_GRID = "32px minmax(130px, 1fr) 74px 74px 58px 56px 78px";
 
-  // Build funding lookup for "funded" mode
-  const fundingMap = new Map<string, FundingRound>();
-  for (const f of funding) {
-    if (!fundingMap.has(f.companySlug)) fundingMap.set(f.companySlug, f);
-  }
+/* ── Component ─────────────────────────────────────────────── */
 
-  return (
-    <div>
-      {/* Header */}
-      <div
-        className="ranking-grid grid items-center gap-2 py-2 border-b px-3 md:px-5"
-        style={{ color: "var(--color-text-tertiary)" }}
-      >
-        <style>{`
-          .ranking-grid { grid-template-columns: ${grid.mobile}; }
-          @media (min-width: 768px) { .ranking-grid { grid-template-columns: ${grid.desktop}; } }
-        `}</style>
-        <span className="text-11 uppercase tracking-[0.5px] text-center">#</span>
-        <span className="text-11 uppercase tracking-[0.5px]">Company</span>
+export function RankingTable({ companies, mode = "top", funding = [], startRank = 0 }: RankingTableProps) {
+  const [stockData, setStockData] = useState<Record<string, StockQuote>>({});
+  const [stockLoading, setStockLoading] = useState(false);
+  const [trendingInfoOpen, setTrendingInfoOpen] = useState(false);
 
-        {/* Mode-specific desktop headers */}
-        {m === "top" && (
-          <>
-            <span className="text-11 uppercase tracking-[0.5px] text-right hidden md:block">Valuation</span>
-            <span className="text-11 uppercase tracking-[0.5px] text-right md:text-right">Stage</span>
-            <span className="text-11 uppercase tracking-[0.5px] text-right hidden md:block">Raised</span>
-            <span className="text-11 uppercase tracking-[0.5px] text-right hidden md:block">30d</span>
-            <span className="hidden md:block" />
-          </>
-        )}
-        {m === "trending" && (
-          <>
-            <span className="text-11 uppercase tracking-[0.5px] text-right hidden md:block">Views</span>
-            <span className="text-11 uppercase tracking-[0.5px] text-right md:text-right">Stage</span>
-            <span className="text-11 uppercase tracking-[0.5px] text-right hidden md:block">Trend</span>
-            <span className="text-11 uppercase tracking-[0.5px] text-right hidden md:block">30d</span>
-            <span className="hidden md:block" />
-          </>
-        )}
-        {m === "funded" && (
-          <>
-            <span className="text-11 uppercase tracking-[0.5px] text-right hidden md:block">Round</span>
-            <span className="text-11 uppercase tracking-[0.5px] text-right hidden md:block">Amount</span>
-            <span className="text-11 uppercase tracking-[0.5px] hidden md:block">Lead Investor</span>
-            <span className="text-11 uppercase tracking-[0.5px] text-right hidden md:block">Date</span>
-            <span className="hidden md:block" />
-          </>
-        )}
-        {m === "new" && (
-          <>
-            <span className="text-11 uppercase tracking-[0.5px] text-right hidden md:block">Founded</span>
-            <span className="text-11 uppercase tracking-[0.5px] text-right md:text-right">Stage</span>
-            <span className="text-11 uppercase tracking-[0.5px] hidden md:block">About</span>
-            <span className="hidden md:block" />
-          </>
-        )}
-      </div>
+  // Fetch stock data for "top" mode
+  const fetchStockData = useCallback(async (tickers: string[]) => {
+    if (tickers.length === 0) return;
+    setStockLoading(true);
+    try {
+      const res = await fetch(`/api/stock/batch?symbols=${tickers.join(",")}`);
+      if (res.ok) {
+        const data = await res.json();
+        setStockData(data);
+      }
+    } catch {
+      // silently fail — rows will show "—"
+    } finally {
+      setStockLoading(false);
+    }
+  }, []);
 
-      {/* Rows */}
-      {companies.map((company, index) => {
-        const isLocked = index >= paywallIndex;
-        const sparkData = generateSparkline();
-        const sc = stageColors[company.stage] || stageColors["Pre-clinical"];
-        const isPublic = company.type === "Public";
-        const fr = fundingMap.get(company.slug);
+  useEffect(() => {
+    if (mode !== "top") return;
+    const tickers = companies
+      .filter((c) => c.type === "Public" && c.ticker)
+      .map((c) => c.ticker!)
+      .filter((t, i, arr) => arr.indexOf(t) === i);
+    fetchStockData(tickers);
+  }, [companies, mode, fetchStockData]);
 
-        return (
-          <Link
-            key={company.slug}
-            href={`/company/${company.slug}`}
-            className="ranking-grid grid items-center gap-2 py-2.5 md:py-3 cursor-pointer transition-colors duration-100 rounded-lg md:rounded-none mx-3 md:mx-0 mb-1.5 md:mb-0 border md:border-0 md:border-b px-3 md:px-5"
-            style={{
-              ...(isLocked ? { filter: "blur(2px)", opacity: 0.4, pointerEvents: "none", userSelect: "none" } : {}),
-            }}
-            onMouseEnter={(e) => { if (!isLocked) e.currentTarget.style.background = "var(--color-bg-secondary)"; }}
-            onMouseLeave={(e) => { if (!isLocked) e.currentTarget.style.background = ""; }}
+  /* ═══════════════════════════════════════════════════════════
+   * TOP MODE — Horizontally scrollable clean table
+   * ═══════════════════════════════════════════════════════════ */
+  if (mode === "top") {
+    return (
+      <div>
+        {/* Trending score info banner */}
+        {trendingInfoOpen && (
+          <div
+            className="flex items-start gap-2.5 mx-3 md:mx-5 mt-2 mb-1 px-3.5 py-3 rounded-lg"
+            style={{ background: "var(--color-bg-secondary)", border: "0.5px solid var(--color-border-subtle)" }}
           >
-            {/* Rank number + change */}
-            <div className="flex flex-col items-center">
-              <span className="text-[20px] font-medium" style={{ color: "var(--color-text-primary)" }}>{index + 1}</span>
-              {(() => {
-                const change = rankChanges[company.slug] || 0;
-                if (change > 0) return <span className="text-[10px]" style={{ color: "#1a7a5e" }}>▲{change}</span>;
-                if (change < 0) return <span className="text-[10px]" style={{ color: "#c0392b" }}>▼{Math.abs(change)}</span>;
-                return null;
-              })()}
-            </div>
-
-            {/* Company info — adapts per mode on mobile */}
-            <div className="flex items-center gap-2 md:gap-3 min-w-0">
-              <div className="hidden md:block"><CompanyAvatar name={company.name} logoUrl={company.logoUrl} website={company.website} size={36} /></div>
-              <div className="md:hidden"><CompanyAvatar name={company.name} logoUrl={company.logoUrl} website={company.website} size={28} /></div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[15px] font-medium truncate" style={{ color: "var(--color-text-primary)" }}>
-                    {company.name}
-                  </span>
-                  {company.ticker && (
-                    <span
-                      className="text-[9px] font-medium px-1 py-[1px] rounded-sm flex-shrink-0"
-                      style={{ background: "var(--color-bg-secondary)", color: "var(--color-text-tertiary)", border: "0.5px solid var(--color-border-subtle)" }}
-                    >
-                      {company.ticker}
-                    </span>
-                  )}
-                </div>
-
-                {/* Mobile secondary info — varies by mode */}
-                <div className="flex items-center gap-1.5 mt-[1px] md:hidden">
-                  {m === "top" && (
-                    <>
-                      <span className="text-12" style={{ color: "var(--color-text-tertiary)" }}>{company.city}, {company.country}</span>
-                      <span className="text-12" style={{ color: "var(--color-text-tertiary)" }}>·</span>
-                      <span className="text-12 font-medium" style={{ color: "var(--color-accent)" }}>{formatCurrency(company.totalRaised)}</span>
-                    </>
-                  )}
-                  {m === "trending" && (
-                    <>
-                      <span className="text-12" style={{ color: "var(--color-accent)" }}>🔥 #{company.trending}</span>
-                      <span className="text-12" style={{ color: "var(--color-text-tertiary)" }}>·</span>
-                      <span className="text-12" style={{ color: "var(--color-text-tertiary)" }}>{company.profileViews} views</span>
-                    </>
-                  )}
-                  {m === "funded" && fr && (
-                    <>
-                      <span className="text-11 px-1.5 py-[1px] rounded-sm" style={{ background: (roundBadgeColors[fr.type] || roundBadgeColors.Seed).bg, color: (roundBadgeColors[fr.type] || roundBadgeColors.Seed).text }}>
-                        {roundEmoji[fr.type] || ""} {fr.type}
-                      </span>
-                      <span className="text-12 font-medium" style={{ color: "var(--color-accent)" }}>{formatCurrency(fr.amount, fr.currency)}</span>
-                    </>
-                  )}
-                  {m === "funded" && !fr && (
-                    <span className="text-12" style={{ color: "var(--color-text-tertiary)" }}>{company.city}, {company.country}</span>
-                  )}
-                  {m === "new" && (
-                    <>
-                      <span className="text-12 font-medium" style={{ color: "var(--color-text-primary)" }}>Est. {company.founded}</span>
-                      {company.founded >= 2023 && (
-                        <span className="text-[9px] px-1.5 py-[1px] rounded-sm font-medium" style={{ background: "#e8f5f0", color: "#0a3d2e" }}>New</span>
-                      )}
-                    </>
-                  )}
-                </div>
-
-                {/* Desktop secondary: location + tags */}
-                <div className="hidden md:flex items-center gap-1.5 mt-[1px]">
-                  <span className="text-12" style={{ color: "var(--color-text-tertiary)" }}>{company.city}, {company.country}</span>
-                  <span className="text-10" style={{ color: "var(--color-border-medium)" }}>·</span>
-                  {company.focus.slice(0, 2).map((f) => (
-                    <span key={f} className="text-[10px] px-1.5 py-[1px] rounded-sm" style={{ background: "var(--color-bg-tertiary)", color: "var(--color-text-tertiary)" }}>
-                      {f}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Mobile secondary: location + tags */}
-                {m === "top" && (
-                  <div className="flex items-center gap-1 mt-[2px] md:hidden">
-                    {company.focus.slice(0, 2).map((f) => (
-                      <span key={f} className="text-[9px] px-1.5 py-[1px] rounded-sm" style={{ background: "var(--color-bg-tertiary)", color: "var(--color-text-tertiary)" }}>
-                        {f}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {/* Mobile description snippet (new mode) */}
-                {m === "new" && (
-                  <div className="text-11 mt-[2px] md:hidden truncate" style={{ color: "var(--color-text-tertiary)", maxWidth: "220px" }}>
-                    {company.description.slice(0, 60)}...
-                  </div>
-                )}
+            <Info size={14} className="flex-shrink-0 mt-0.5" style={{ color: "var(--color-accent)" }} />
+            <div className="flex-1 min-w-0">
+              <div className="text-12 font-medium" style={{ color: "var(--color-text-primary)" }}>
+                Trending Score
+              </div>
+              <div className="text-11 mt-0.5 leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                Based on profile views over the past 7 days. A higher score means more investor and researcher interest in the company.
               </div>
             </div>
+            <button
+              onClick={() => setTrendingInfoOpen(false)}
+              className="flex-shrink-0 p-0.5 rounded hover:bg-black/5 transition-colors"
+            >
+              <X size={12} style={{ color: "var(--color-text-tertiary)" }} />
+            </button>
+          </div>
+        )}
 
-            {/* === MODE-SPECIFIC DESKTOP COLUMNS === */}
+        {/* Scrollable table container */}
+        <div
+          className="overflow-x-auto"
+          style={{ scrollbarWidth: "thin", WebkitOverflowScrolling: "touch" }}
+        >
+          <div style={{ minWidth: "620px" }}>
+            {/* Header */}
+            <div
+              className="grid items-center py-2.5 px-3 md:px-5"
+              style={{
+                gridTemplateColumns: TOP_GRID,
+                gap: "8px",
+                borderBottom: "0.5px solid var(--color-border-subtle)",
+              }}
+            >
+              <span className="text-[10px] uppercase tracking-[0.6px] text-center font-medium" style={{ color: "var(--color-text-tertiary)" }}>
+                #
+              </span>
+              <span className="text-[10px] uppercase tracking-[0.6px] font-medium" style={{ color: "var(--color-text-tertiary)" }}>
+                Company
+              </span>
+              <span className="text-[10px] uppercase tracking-[0.6px] text-right font-medium" style={{ color: "var(--color-text-tertiary)" }}>
+                Mkt Cap
+              </span>
+              <span className="text-[10px] uppercase tracking-[0.6px] text-right font-medium" style={{ color: "var(--color-text-tertiary)" }}>
+                Price
+              </span>
+              <span className="text-[10px] uppercase tracking-[0.6px] text-right font-medium" style={{ color: "var(--color-text-tertiary)" }}>
+                30d
+              </span>
+              <button
+                onClick={() => setTrendingInfoOpen(!trendingInfoOpen)}
+                className="flex items-center justify-end gap-[3px] text-[10px] uppercase tracking-[0.6px] font-medium"
+                style={{ color: "var(--color-text-tertiary)" }}
+              >
+                Score
+                <Info size={9} style={{ opacity: 0.6 }} />
+              </button>
+              <span className="text-[10px] uppercase tracking-[0.6px] text-right font-medium" style={{ color: "var(--color-text-tertiary)" }}>
+                Stage
+              </span>
+            </div>
 
-            {/* TOP MODE: Valuation | Stage | Raised | Sparkline | Star */}
-            {m === "top" && (
-              <>
-                <div className="text-right hidden md:block">
+            {/* Rows */}
+            {companies.map((company, index) => {
+              const rank = startRank + index + 1;
+              const stock = stockData[company.ticker || ""];
+              const sc = stageColors[company.stage] || stageColors["Pre-clinical"];
+              const isPublic = company.type === "Public" && !!company.ticker;
+
+              return (
+                <Link
+                  key={company.slug}
+                  href={`/company/${company.slug}`}
+                  className="grid items-center py-2.5 md:py-3 px-3 md:px-5 transition-colors duration-100 cursor-pointer"
+                  style={{
+                    gridTemplateColumns: TOP_GRID,
+                    gap: "8px",
+                    borderBottom: "0.5px solid var(--color-border-subtle)",
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "var(--color-bg-secondary)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = ""; }}
+                >
+                  {/* Rank */}
+                  <div className="text-center">
+                    <span
+                      className="text-[14px] md:text-[16px] font-semibold tabular-nums"
+                      style={{ color: rank <= 3 ? "var(--color-accent)" : "var(--color-text-primary)" }}
+                    >
+                      {rank}
+                    </span>
+                  </div>
+
+                  {/* Company */}
+                  <div className="flex items-center gap-2 min-w-0">
+                    <CompanyAvatar name={company.name} logoUrl={company.logoUrl} website={company.website} size={30} />
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[13px] md:text-[14px] font-medium truncate" style={{ color: "var(--color-text-primary)" }}>
+                          {company.name}
+                        </span>
+                        {company.ticker && (
+                          <span
+                            className="text-[9px] font-medium px-[4px] py-[1px] rounded-[3px] flex-shrink-0"
+                            style={{
+                              background: "var(--color-bg-tertiary)",
+                              color: "var(--color-text-tertiary)",
+                            }}
+                          >
+                            {company.ticker}
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-[10px] md:text-[11px] mt-[1px] truncate" style={{ color: "var(--color-text-tertiary)" }}>
+                        {company.country}
+                        {company.focus[0] && <span style={{ opacity: 0.6 }}> · </span>}
+                        {company.focus[0] && company.focus[0]}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Market Cap */}
+                  <div className="text-right">
+                    {company.valuation ? (
+                      <span className="text-[12px] md:text-[13px] font-semibold tabular-nums" style={{ color: "var(--color-text-primary)" }}>
+                        {formatCurrency(company.valuation)}
+                      </span>
+                    ) : (
+                      <span className="text-[12px]" style={{ color: "var(--color-text-tertiary)" }}>—</span>
+                    )}
+                  </div>
+
+                  {/* Price */}
+                  <div className="text-right">
+                    {stock?.price != null ? (
+                      <span className="text-[12px] md:text-[13px] tabular-nums" style={{ color: "var(--color-text-secondary)" }}>
+                        {formatPrice(stock.price, stock.currency)}
+                      </span>
+                    ) : stockLoading && isPublic ? (
+                      <div className="h-3.5 w-14 rounded-sm ml-auto animate-pulse" style={{ background: "var(--color-bg-tertiary)" }} />
+                    ) : (
+                      <span className="text-[12px]" style={{ color: "var(--color-text-tertiary)" }}>—</span>
+                    )}
+                  </div>
+
+                  {/* 30d Change */}
+                  <div className="text-right">
+                    {stock?.change30d != null ? (
+                      <span
+                        className="text-[12px] md:text-[13px] font-semibold tabular-nums"
+                        style={{ color: stock.change30d >= 0 ? "#1a7a5e" : "#c0392b" }}
+                      >
+                        {stock.change30d >= 0 ? "+" : ""}{stock.change30d.toFixed(1)}%
+                      </span>
+                    ) : stockLoading && isPublic ? (
+                      <div className="h-3.5 w-11 rounded-sm ml-auto animate-pulse" style={{ background: "var(--color-bg-tertiary)" }} />
+                    ) : (
+                      <span className="text-[12px]" style={{ color: "var(--color-text-tertiary)" }}>—</span>
+                    )}
+                  </div>
+
+                  {/* Trending Score */}
+                  <div className="text-right">
+                    {company.profileViews ? (
+                      <span className="text-[12px] md:text-[13px] tabular-nums" style={{ color: "var(--color-text-secondary)" }}>
+                        {company.profileViews >= 1000
+                          ? `${(company.profileViews / 1000).toFixed(1)}K`
+                          : company.profileViews.toLocaleString()}
+                      </span>
+                    ) : (
+                      <span className="text-[12px]" style={{ color: "var(--color-text-tertiary)" }}>—</span>
+                    )}
+                  </div>
+
+                  {/* Stage */}
+                  <div className="flex justify-end">
+                    {company.stage ? (
+                      <span
+                        className="text-[10px] md:text-[11px] px-[5px] py-[2px] rounded-[3px] border whitespace-nowrap"
+                        style={{ background: sc.bg, color: sc.text, borderColor: sc.border, borderWidth: "0.5px" }}
+                      >
+                        {company.stage}
+                      </span>
+                    ) : (
+                      <span
+                        className="text-[10px] md:text-[11px] px-[5px] py-[2px] rounded-[3px] border whitespace-nowrap"
+                        style={{ background: "#f7f7f6", color: "#6b6b65", borderColor: "rgba(0,0,0,0.14)", borderWidth: "0.5px" }}
+                      >
+                        —
+                      </span>
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Scroll hint on mobile */}
+        <div className="md:hidden px-4 py-2 text-center">
+          <span className="text-[10px]" style={{ color: "var(--color-text-tertiary)" }}>
+            ← Swipe for more data →
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+   * TRENDING MODE — Views, rank, momentum
+   * ═══════════════════════════════════════════════════════════ */
+  if (mode === "trending") {
+    const TRENDING_GRID = "32px minmax(130px, 1fr) 68px 58px 60px 78px";
+    return (
+      <div>
+        <div className="overflow-x-auto" style={{ scrollbarWidth: "thin", WebkitOverflowScrolling: "touch" }}>
+          <div style={{ minWidth: "540px" }}>
+            {/* Header */}
+            <div
+              className="grid items-center py-2.5 px-3 md:px-5"
+              style={{ gridTemplateColumns: TRENDING_GRID, gap: "8px", borderBottom: "0.5px solid var(--color-border-subtle)" }}
+            >
+              <span className="text-[10px] uppercase tracking-[0.6px] text-center font-medium" style={{ color: "var(--color-text-tertiary)" }}>#</span>
+              <span className="text-[10px] uppercase tracking-[0.6px] font-medium" style={{ color: "var(--color-text-tertiary)" }}>Company</span>
+              <span className="text-[10px] uppercase tracking-[0.6px] text-right font-medium" style={{ color: "var(--color-text-tertiary)" }}>Views</span>
+              <span className="text-[10px] uppercase tracking-[0.6px] text-right font-medium" style={{ color: "var(--color-text-tertiary)" }}>Rank</span>
+              <span className="text-[10px] uppercase tracking-[0.6px] text-right font-medium" style={{ color: "var(--color-text-tertiary)" }}>Mkt Cap</span>
+              <span className="text-[10px] uppercase tracking-[0.6px] text-right font-medium" style={{ color: "var(--color-text-tertiary)" }}>Stage</span>
+            </div>
+
+            {/* Rows */}
+            {companies.map((company, index) => {
+              const rank = startRank + index + 1;
+              const sc = stageColors[company.stage] || stageColors["Pre-clinical"];
+              return (
+                <Link
+                  key={company.slug}
+                  href={`/company/${company.slug}`}
+                  className="grid items-center py-2.5 md:py-3 px-3 md:px-5 transition-colors duration-100 cursor-pointer"
+                  style={{ gridTemplateColumns: TRENDING_GRID, gap: "8px", borderBottom: "0.5px solid var(--color-border-subtle)" }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "var(--color-bg-secondary)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = ""; }}
+                >
+                  <div className="text-center">
+                    <span className="text-[14px] md:text-[16px] font-semibold tabular-nums" style={{ color: "var(--color-text-primary)" }}>{rank}</span>
+                  </div>
+
+                  <div className="flex items-center gap-2 min-w-0">
+                    <CompanyAvatar name={company.name} logoUrl={company.logoUrl} website={company.website} size={30} />
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[13px] md:text-[14px] font-medium truncate" style={{ color: "var(--color-text-primary)" }}>{company.name}</span>
+                        {company.ticker && (
+                          <span className="text-[9px] font-medium px-[4px] py-[1px] rounded-[3px] flex-shrink-0" style={{ background: "var(--color-bg-tertiary)", color: "var(--color-text-tertiary)" }}>
+                            {company.ticker}
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-[10px] md:text-[11px] mt-[1px] truncate" style={{ color: "var(--color-text-tertiary)" }}>
+                        {company.country}{company.focus[0] && <span style={{ opacity: 0.6 }}> · </span>}{company.focus[0]}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Views */}
+                  <div className="text-right">
+                    {company.profileViews ? (
+                      <span className="text-[12px] md:text-[13px] font-semibold tabular-nums" style={{ color: "var(--color-text-primary)" }}>
+                        {company.profileViews >= 1000 ? `${(company.profileViews / 1000).toFixed(1)}K` : company.profileViews.toLocaleString()}
+                      </span>
+                    ) : (
+                      <span className="text-[12px]" style={{ color: "var(--color-text-tertiary)" }}>—</span>
+                    )}
+                  </div>
+
+                  {/* Trending rank */}
+                  <div className="text-right">
+                    {company.trending ? (
+                      <span className="text-[12px] md:text-[13px] font-medium tabular-nums" style={{ color: "var(--color-accent)" }}>
+                        #{company.trending}
+                      </span>
+                    ) : (
+                      <span className="text-[12px]" style={{ color: "var(--color-text-tertiary)" }}>—</span>
+                    )}
+                  </div>
+
+                  {/* Mkt Cap */}
+                  <div className="text-right">
+                    {company.valuation ? (
+                      <span className="text-[12px] md:text-[13px] tabular-nums" style={{ color: "var(--color-text-secondary)" }}>
+                        {formatCurrency(company.valuation)}
+                      </span>
+                    ) : (
+                      <span className="text-[12px]" style={{ color: "var(--color-text-tertiary)" }}>—</span>
+                    )}
+                  </div>
+
+                  {/* Stage */}
+                  <div className="flex justify-end">
+                    {company.stage ? (
+                      <span className="text-[10px] md:text-[11px] px-[5px] py-[2px] rounded-[3px] border whitespace-nowrap" style={{ background: sc.bg, color: sc.text, borderColor: sc.border, borderWidth: "0.5px" }}>
+                        {company.stage}
+                      </span>
+                    ) : (
+                      <span className="text-[10px] md:text-[11px] px-[5px] py-[2px] rounded-[3px] border whitespace-nowrap" style={{ background: "#f7f7f6", color: "#6b6b65", borderColor: "rgba(0,0,0,0.14)", borderWidth: "0.5px" }}>—</span>
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+        <div className="md:hidden px-4 py-2 text-center">
+          <span className="text-[10px]" style={{ color: "var(--color-text-tertiary)" }}>← Swipe for more data →</span>
+        </div>
+      </div>
+    );
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+   * FUNDED MODE — Recent funding rounds
+   * ═══════════════════════════════════════════════════════════ */
+  if (mode === "funded") {
+    const FUNDED_GRID = "32px minmax(130px, 1fr) 72px 74px minmax(100px, 1fr) 62px";
+    const fundingMap = new Map<string, FundingRound>();
+    for (const f of funding) {
+      if (!fundingMap.has(f.companySlug)) fundingMap.set(f.companySlug, f);
+    }
+
+    return (
+      <div>
+        <div className="overflow-x-auto" style={{ scrollbarWidth: "thin", WebkitOverflowScrolling: "touch" }}>
+          <div style={{ minWidth: "580px" }}>
+            {/* Header */}
+            <div
+              className="grid items-center py-2.5 px-3 md:px-5"
+              style={{ gridTemplateColumns: FUNDED_GRID, gap: "8px", borderBottom: "0.5px solid var(--color-border-subtle)" }}
+            >
+              <span className="text-[10px] uppercase tracking-[0.6px] text-center font-medium" style={{ color: "var(--color-text-tertiary)" }}>#</span>
+              <span className="text-[10px] uppercase tracking-[0.6px] font-medium" style={{ color: "var(--color-text-tertiary)" }}>Company</span>
+              <span className="text-[10px] uppercase tracking-[0.6px] text-right font-medium" style={{ color: "var(--color-text-tertiary)" }}>Round</span>
+              <span className="text-[10px] uppercase tracking-[0.6px] text-right font-medium" style={{ color: "var(--color-text-tertiary)" }}>Amount</span>
+              <span className="text-[10px] uppercase tracking-[0.6px] font-medium" style={{ color: "var(--color-text-tertiary)" }}>Lead Investor</span>
+              <span className="text-[10px] uppercase tracking-[0.6px] text-right font-medium" style={{ color: "var(--color-text-tertiary)" }}>When</span>
+            </div>
+
+            {/* Rows */}
+            {companies.map((company, index) => {
+              const rank = startRank + index + 1;
+              const fr = fundingMap.get(company.slug);
+              return (
+                <Link
+                  key={company.slug}
+                  href={`/company/${company.slug}`}
+                  className="grid items-center py-2.5 md:py-3 px-3 md:px-5 transition-colors duration-100 cursor-pointer"
+                  style={{ gridTemplateColumns: FUNDED_GRID, gap: "8px", borderBottom: "0.5px solid var(--color-border-subtle)" }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "var(--color-bg-secondary)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = ""; }}
+                >
+                  <div className="text-center">
+                    <span className="text-[14px] md:text-[16px] font-semibold tabular-nums" style={{ color: "var(--color-text-primary)" }}>{rank}</span>
+                  </div>
+
+                  <div className="flex items-center gap-2 min-w-0">
+                    <CompanyAvatar name={company.name} logoUrl={company.logoUrl} website={company.website} size={30} />
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[13px] md:text-[14px] font-medium truncate" style={{ color: "var(--color-text-primary)" }}>{company.name}</span>
+                      </div>
+                      <div className="text-[10px] md:text-[11px] mt-[1px] truncate" style={{ color: "var(--color-text-tertiary)" }}>
+                        {company.country}{company.focus[0] && <span style={{ opacity: 0.6 }}> · </span>}{company.focus[0]}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Round type */}
+                  <div className="flex justify-end">
+                    {fr ? (
+                      <span
+                        className="text-[10px] md:text-[11px] px-[5px] py-[2px] rounded-[3px] whitespace-nowrap font-medium"
+                        style={{ background: (roundBadgeColors[fr.type] || roundBadgeColors.Seed).bg, color: (roundBadgeColors[fr.type] || roundBadgeColors.Seed).text }}
+                      >
+                        {roundEmoji[fr.type] || ""} {fr.type}
+                      </span>
+                    ) : (
+                      <span className="text-[12px]" style={{ color: "var(--color-text-tertiary)" }}>—</span>
+                    )}
+                  </div>
+
+                  {/* Amount */}
+                  <div className="text-right">
+                    {fr ? (
+                      <span className="text-[12px] md:text-[13px] font-semibold tabular-nums" style={{ color: "var(--color-accent)" }}>
+                        {formatCurrency(fr.amount, fr.currency)}
+                      </span>
+                    ) : (
+                      <span className="text-[12px]" style={{ color: "var(--color-text-tertiary)" }}>—</span>
+                    )}
+                  </div>
+
+                  {/* Lead Investor */}
+                  <div className="truncate">
+                    <span className="text-[12px] md:text-[13px]" style={{ color: "var(--color-text-secondary)" }}>
+                      {fr?.leadInvestor || "—"}
+                    </span>
+                  </div>
+
+                  {/* When */}
+                  <div className="text-right">
+                    <span className="text-[12px] md:text-[13px]" style={{ color: "var(--color-text-tertiary)" }}>
+                      {fr ? relativeDate(fr.date) : "—"}
+                    </span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+        <div className="md:hidden px-4 py-2 text-center">
+          <span className="text-[10px]" style={{ color: "var(--color-text-tertiary)" }}>← Swipe for more data →</span>
+        </div>
+      </div>
+    );
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+   * NEW MODE — Newest companies
+   * ═══════════════════════════════════════════════════════════ */
+  const NEW_GRID = "32px minmax(130px, 1fr) 56px 68px 78px minmax(100px, 1fr)";
+  return (
+    <div>
+      <div className="overflow-x-auto" style={{ scrollbarWidth: "thin", WebkitOverflowScrolling: "touch" }}>
+        <div style={{ minWidth: "580px" }}>
+          {/* Header */}
+          <div
+            className="grid items-center py-2.5 px-3 md:px-5"
+            style={{ gridTemplateColumns: NEW_GRID, gap: "8px", borderBottom: "0.5px solid var(--color-border-subtle)" }}
+          >
+            <span className="text-[10px] uppercase tracking-[0.6px] text-center font-medium" style={{ color: "var(--color-text-tertiary)" }}>#</span>
+            <span className="text-[10px] uppercase tracking-[0.6px] font-medium" style={{ color: "var(--color-text-tertiary)" }}>Company</span>
+            <span className="text-[10px] uppercase tracking-[0.6px] text-right font-medium" style={{ color: "var(--color-text-tertiary)" }}>Est.</span>
+            <span className="text-[10px] uppercase tracking-[0.6px] text-right font-medium" style={{ color: "var(--color-text-tertiary)" }}>Mkt Cap</span>
+            <span className="text-[10px] uppercase tracking-[0.6px] text-right font-medium" style={{ color: "var(--color-text-tertiary)" }}>Stage</span>
+            <span className="text-[10px] uppercase tracking-[0.6px] font-medium" style={{ color: "var(--color-text-tertiary)" }}>About</span>
+          </div>
+
+          {/* Rows */}
+          {companies.map((company, index) => {
+            const rank = startRank + index + 1;
+            const sc = stageColors[company.stage] || stageColors["Pre-clinical"];
+            return (
+              <Link
+                key={company.slug}
+                href={`/company/${company.slug}`}
+                className="grid items-center py-2.5 md:py-3 px-3 md:px-5 transition-colors duration-100 cursor-pointer"
+                style={{ gridTemplateColumns: NEW_GRID, gap: "8px", borderBottom: "0.5px solid var(--color-border-subtle)" }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "var(--color-bg-secondary)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = ""; }}
+              >
+                <div className="text-center">
+                  <span className="text-[14px] md:text-[16px] font-semibold tabular-nums" style={{ color: "var(--color-text-primary)" }}>{rank}</span>
+                </div>
+
+                <div className="flex items-center gap-2 min-w-0">
+                  <CompanyAvatar name={company.name} logoUrl={company.logoUrl} website={company.website} size={30} />
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[13px] md:text-[14px] font-medium truncate" style={{ color: "var(--color-text-primary)" }}>{company.name}</span>
+                      {company.ticker && (
+                        <span className="text-[9px] font-medium px-[4px] py-[1px] rounded-[3px] flex-shrink-0" style={{ background: "var(--color-bg-tertiary)", color: "var(--color-text-tertiary)" }}>
+                          {company.ticker}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-[10px] md:text-[11px] mt-[1px] truncate" style={{ color: "var(--color-text-tertiary)" }}>
+                      {company.country}{company.focus[0] && <span style={{ opacity: 0.6 }}> · </span>}{company.focus[0]}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Founded year */}
+                <div className="text-right">
+                  {company.founded > 0 ? (
+                    <div className="flex items-center justify-end gap-1">
+                      <span className="text-[12px] md:text-[13px] font-semibold tabular-nums" style={{ color: "var(--color-text-primary)" }}>
+                        {company.founded}
+                      </span>
+                      {company.founded >= 2023 && (
+                        <span className="text-[8px] px-[3px] py-[1px] rounded-[2px] font-semibold" style={{ background: "#e8f5f0", color: "#0a3d2e" }}>NEW</span>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="text-[12px]" style={{ color: "var(--color-text-tertiary)" }}>—</span>
+                  )}
+                </div>
+
+                {/* Mkt Cap */}
+                <div className="text-right">
                   {company.valuation ? (
-                    <span className="text-14 font-medium" style={{ color: isPublic ? "var(--color-text-primary)" : "var(--color-text-tertiary)" }}>
-                      {company.isEstimated && <span style={{ color: "var(--color-text-tertiary)" }}>est. </span>}
+                    <span className="text-[12px] md:text-[13px] tabular-nums" style={{ color: "var(--color-text-secondary)" }}>
                       {formatCurrency(company.valuation)}
                     </span>
                   ) : (
-                    <span className="text-14 font-medium" style={{ color: "var(--color-text-tertiary)" }}>—</span>
+                    <span className="text-[12px]" style={{ color: "var(--color-text-tertiary)" }}>—</span>
                   )}
                 </div>
-                <div className="flex justify-end">
-                  <span className="text-11 px-[8px] py-[3px] rounded-sm border whitespace-nowrap" style={{ background: sc.bg, color: sc.text, borderColor: sc.border, borderWidth: "0.5px" }}>
-                    {stageEmoji[company.stage] ? `${stageEmoji[company.stage]} ${company.stage}` : company.stage}
-                  </span>
-                </div>
-                <div className="text-right hidden md:block">
-                  <span className="text-14 font-medium" style={{ color: "var(--color-accent)" }}>{formatCurrency(company.totalRaised)}</span>
-                </div>
-                <div className="hidden md:flex justify-end">
-                  <div className="w-[80px] h-[28px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={sparkData}>
-                        <Line type="monotone" dataKey="v" stroke={isPublic ? "#1a7a5e" : "#9e9e96"} strokeWidth={1.5} strokeDasharray={isPublic ? undefined : "3 2"} dot={false} />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-                <div className="hidden md:flex justify-center">
-                  <Star size={14} className="cursor-pointer transition-colors duration-150" style={{ color: "var(--color-text-tertiary)" }} />
-                </div>
-              </>
-            )}
 
-            {/* TRENDING MODE: Views | Stage | Trend fire | Sparkline | Star */}
-            {m === "trending" && (
-              <>
-                <div className="text-right hidden md:block">
-                  <span className="text-14 font-medium" style={{ color: "var(--color-text-primary)" }}>
-                    {company.profileViews?.toLocaleString() || "—"}
-                  </span>
-                  <div className="text-[10px]" style={{ color: "var(--color-text-tertiary)" }}>views</div>
-                </div>
+                {/* Stage */}
                 <div className="flex justify-end">
-                  <span className="text-11 px-[8px] py-[3px] rounded-sm border whitespace-nowrap" style={{ background: sc.bg, color: sc.text, borderColor: sc.border, borderWidth: "0.5px" }}>
-                    {stageEmoji[company.stage] ? `${stageEmoji[company.stage]} ${company.stage}` : company.stage}
-                  </span>
-                </div>
-                <div className="text-right hidden md:block">
-                  <span className="text-14">
-                    {company.trending && company.trending <= 2 ? "🔥🔥🔥" : company.trending && company.trending <= 4 ? "🔥🔥" : "🔥"}
-                  </span>
-                </div>
-                <div className="hidden md:flex justify-end">
-                  <div className="w-[80px] h-[28px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={sparkData}>
-                        <Line type="monotone" dataKey="v" stroke="#1a7a5e" strokeWidth={1.5} dot={false} />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-                <div className="hidden md:flex justify-center">
-                  <Star size={14} className="cursor-pointer transition-colors duration-150" style={{ color: "var(--color-text-tertiary)" }} />
-                </div>
-              </>
-            )}
-
-            {/* FUNDED MODE: Round | Amount | Lead Investor | Date | Star */}
-            {m === "funded" && (
-              <>
-                <div className="text-right hidden md:block">
-                  {fr ? (
-                    <span className="text-11 px-[8px] py-[3px] rounded-sm inline-block whitespace-nowrap" style={{ background: (roundBadgeColors[fr.type] || roundBadgeColors.Seed).bg, color: (roundBadgeColors[fr.type] || roundBadgeColors.Seed).text }}>
-                      {roundEmoji[fr.type] || ""} {fr.type}
+                  {company.stage ? (
+                    <span className="text-[10px] md:text-[11px] px-[5px] py-[2px] rounded-[3px] border whitespace-nowrap" style={{ background: sc.bg, color: sc.text, borderColor: sc.border, borderWidth: "0.5px" }}>
+                      {company.stage}
                     </span>
                   ) : (
-                    <span className="text-12" style={{ color: "var(--color-text-tertiary)" }}>—</span>
+                    <span className="text-[10px] md:text-[11px] px-[5px] py-[2px] rounded-[3px] border whitespace-nowrap" style={{ background: "#f7f7f6", color: "#6b6b65", borderColor: "rgba(0,0,0,0.14)", borderWidth: "0.5px" }}>—</span>
                   )}
                 </div>
-                <div className="text-right hidden md:block">
-                  {fr ? (
-                    <span className="text-14 font-medium" style={{ color: "var(--color-accent)" }}>{formatCurrency(fr.amount, fr.currency)}</span>
-                  ) : (
-                    <span className="text-12" style={{ color: "var(--color-text-tertiary)" }}>—</span>
-                  )}
-                </div>
-                <div className="hidden md:block truncate">
-                  <span className="text-12" style={{ color: "var(--color-text-secondary)" }}>{fr?.leadInvestor || "—"}</span>
-                </div>
-                <div className="text-right hidden md:block">
-                  <span className="text-12" style={{ color: "var(--color-text-tertiary)" }}>{fr ? relativeDate(fr.date) : "—"}</span>
-                </div>
-                <div className="hidden md:flex justify-center">
-                  <Star size={14} className="cursor-pointer transition-colors duration-150" style={{ color: "var(--color-text-tertiary)" }} />
-                </div>
-              </>
-            )}
 
-            {/* NEW MODE: Founded | Stage | Description | Star */}
-            {m === "new" && (
-              <>
-                <div className="text-right hidden md:block">
-                  <span className="text-14 font-medium" style={{ color: "var(--color-text-primary)" }}>{company.founded}</span>
-                  {company.founded >= 2023 && (
-                    <div className="text-[9px] mt-0.5 px-1.5 py-[1px] rounded-sm inline-block font-medium" style={{ background: "#e8f5f0", color: "#0a3d2e" }}>New</div>
-                  )}
-                </div>
-                <div className="flex justify-end">
-                  <span className="text-11 px-[8px] py-[3px] rounded-sm border whitespace-nowrap" style={{ background: sc.bg, color: sc.text, borderColor: sc.border, borderWidth: "0.5px" }}>
-                    {stageEmoji[company.stage] ? `${stageEmoji[company.stage]} ${company.stage}` : company.stage}
+                {/* About */}
+                <div className="truncate">
+                  <span className="text-[11px] md:text-[12px]" style={{ color: "var(--color-text-tertiary)" }}>
+                    {company.description
+                      ? (company.description.length > 60 ? company.description.slice(0, 60) + "..." : company.description)
+                      : "—"
+                    }
                   </span>
                 </div>
-                <div className="hidden md:block truncate">
-                  <span className="text-12" style={{ color: "var(--color-text-secondary)" }}>
-                    {company.description.length > 55 ? company.description.slice(0, 55) + "..." : company.description}
-                  </span>
-                </div>
-                <div className="hidden md:flex justify-center">
-                  <Star size={14} className="cursor-pointer transition-colors duration-150" style={{ color: "var(--color-text-tertiary)" }} />
-                </div>
-              </>
-            )}
-
-            {/* Mobile: stage badge (funded mode shows round badge instead) */}
-            {m === "funded" && (
-              <div className="flex justify-end md:hidden">
-                {fr ? (
-                  <span className="text-11 px-[8px] py-[3px] rounded-sm whitespace-nowrap" style={{ background: (roundBadgeColors[fr.type] || roundBadgeColors.Seed).bg, color: (roundBadgeColors[fr.type] || roundBadgeColors.Seed).text }}>
-                    {roundEmoji[fr.type] || ""} {fr.type}
-                  </span>
-                ) : (
-                  <span className="text-11 px-[8px] py-[3px] rounded-sm border whitespace-nowrap" style={{ background: sc.bg, color: sc.text, borderColor: sc.border, borderWidth: "0.5px" }}>
-                    {stageEmoji[company.stage] ? `${stageEmoji[company.stage]} ${company.stage}` : company.stage}
-                  </span>
-                )}
-              </div>
-            )}
-          </Link>
-        );
-      })}
-
-      {/* Paywall CTA */}
-      {companies.length > paywallIndex && (
-        <div className="mx-3 md:mx-5 my-4 rounded-xl overflow-hidden" style={{ border: "0.5px solid var(--color-border-subtle)" }}>
-          {/* Dark header */}
-          <div className="px-5 py-4" style={{ background: "#0a3d2e" }}>
-            <div className="flex items-center gap-2 mb-1.5">
-              <span className="text-[18px]">🔓</span>
-              <h3 className="text-[17px] font-medium text-white">Unlock the full ranking</h3>
-            </div>
-            <p className="text-13" style={{ color: "#5DCAA5" }}>
-              See all 14,000+ biotech companies with real-time pipeline data, funding alerts, and market intelligence.
-            </p>
-          </div>
-          {/* Features + CTA */}
-          <div className="px-5 py-4" style={{ background: "var(--color-bg-secondary)" }}>
-            <div className="flex flex-wrap gap-x-4 gap-y-1.5 mb-4">
-              {["Full company rankings", "Pipeline & catalyst tracking", "Funding round database", "Watchlist & alerts"].map((f) => (
-                <span key={f} className="flex items-center gap-1.5 text-12" style={{ color: "var(--color-text-secondary)" }}>
-                  <span style={{ color: "var(--color-accent)" }}>✓</span> {f}
-                </span>
-              ))}
-            </div>
-            <div className="flex items-center gap-3">
-              <Link
-                href="/signup"
-                className="text-13 font-medium px-5 py-2.5 rounded-lg text-white"
-                style={{ background: "var(--color-accent)" }}
-              >
-                Start free trial →
               </Link>
-              <span className="text-12" style={{ color: "var(--color-text-tertiary)" }}>
-                First month free · $49/mo after
-              </span>
-            </div>
-          </div>
+            );
+          })}
         </div>
-      )}
+      </div>
+      <div className="md:hidden px-4 py-2 text-center">
+        <span className="text-[10px]" style={{ color: "var(--color-text-tertiary)" }}>← Swipe for more data →</span>
+      </div>
     </div>
   );
 }

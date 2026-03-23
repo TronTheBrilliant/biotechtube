@@ -33,26 +33,41 @@ async function main() {
   console.log("\n📊 Historical Aggregation Backfill");
   console.log("==================================\n");
 
-  // Get all distinct dates from price history using RPC (paginated)
-  console.log("Fetching all trading dates...");
-  const allDateRows: { d: string }[] = [];
-  let dateOffset = 0;
-  while (true) {
-    const { data, error } = await supabase
-      .rpc("get_distinct_price_dates")
-      .range(dateOffset, dateOffset + 999);
-    if (error) {
-      console.error("Error fetching dates:", error.message);
-      console.error("Make sure the get_distinct_price_dates() function exists in your database.");
-      process.exit(1);
-    }
-    if (!data || data.length === 0) break;
-    allDateRows.push(...(data as { d: string }[]));
-    dateOffset += 1000;
-    if (data.length < 1000) break;
+  // Get the date range from price history, then generate all weekdays
+  console.log("Determining date range...");
+  const { data: minRow } = await supabase
+    .from("company_price_history")
+    .select("date")
+    .not("market_cap_usd", "is", null)
+    .order("date", { ascending: true })
+    .limit(1)
+    .single();
+  const { data: maxRow } = await supabase
+    .from("company_price_history")
+    .select("date")
+    .not("market_cap_usd", "is", null)
+    .order("date", { ascending: false })
+    .limit(1)
+    .single();
+
+  if (!minRow || !maxRow) {
+    console.error("No price data found");
+    process.exit(1);
   }
-  const dates = allDateRows.map((r) => r.d);
-  console.log(`  Found ${dates.length} unique trading dates (${dates[0]} to ${dates[dates.length - 1]})\n`);
+
+  // Generate all weekdays between min and max date
+  // (the script handles dates with no data gracefully via carry-forward)
+  const dates: string[] = [];
+  const startDate = new Date(minRow.date + "T00:00:00Z");
+  const endDate = new Date(maxRow.date + "T00:00:00Z");
+  for (let d = new Date(startDate); d <= endDate; d.setUTCDate(d.getUTCDate() + 1)) {
+    const dow = d.getUTCDay();
+    if (dow !== 0 && dow !== 6) { // Skip weekends
+      dates.push(d.toISOString().split("T")[0]);
+    }
+  }
+  console.log(`  Date range: ${minRow.date} to ${maxRow.date}`);
+  console.log(`  Processing ${dates.length} weekdays\n`);
 
   // Pre-fetch sector memberships
   console.log("Fetching sector memberships...");
@@ -139,6 +154,9 @@ async function main() {
   const pctChange = (curr: number, prev: number | null) =>
     prev && prev !== 0 ? Math.round(((curr - prev) / prev) * 10000) / 100 : null;
 
+  // Carry-forward map: tracks last-known market_cap_usd for each company
+  const lastKnownMcap = new Map<string, number>();
+
   for (let batchStart = 0; batchStart < dates.length; batchStart += BATCH_SIZE) {
     const batchDates = dates.slice(batchStart, batchStart + BATCH_SIZE);
 
@@ -168,11 +186,20 @@ async function main() {
         priceOffset += 1000;
       }
 
-      if (prices.length === 0) continue;
+      // Update carry-forward map with today's prices
+      for (const p of prices) {
+        if (p.market_cap_usd) {
+          lastKnownMcap.set(p.company_id, p.market_cap_usd);
+        }
+      }
 
-      // MARKET SNAPSHOT
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const totalMC = prices.reduce((s: number, p: any) => s + (p.market_cap_usd || 0), 0);
+      // Skip dates before we have any data
+      if (lastKnownMcap.size === 0) continue;
+
+      // MARKET SNAPSHOT - use carry-forward values for ALL known companies
+      let totalMC = 0;
+      lastKnownMcap.forEach((mcap) => { totalMC += mcap; });
+      // Volume is day-specific (no carry-forward)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const totalVol = prices.reduce((s: number, p: any) => s + (p.volume || 0), 0);
 
@@ -184,7 +211,7 @@ async function main() {
       snapshotBatch.push({
         snapshot_date: date,
         total_market_cap: Math.round(totalMC),
-        public_companies_count: prices.length,
+        public_companies_count: lastKnownMcap.size,
         total_volume: Math.round(totalVol),
         change_1d_pct: pctChange(totalMC, prevGlobalMC),
         change_7d_pct: pctChange(totalMC, findPrevSnapshot(recentGlobalSnapshots, date, 7)),
@@ -215,14 +242,20 @@ async function main() {
         let topCompanyMC = 0;
 
         for (const companyId of members) {
+          // Use carry-forward market cap
+          const mcap = lastKnownMcap.get(companyId);
+          if (mcap) {
+            sectorMC += mcap;
+            publicCount++;
+            if (mcap > topCompanyMC) {
+              topCompanyMC = mcap;
+              topCompanyId = companyId;
+            }
+          }
+          // Volume is day-specific
           const p = priceByCompany.get(companyId);
-          if (!p) continue;
-          sectorMC += p.market_cap_usd || 0;
-          sectorVol += p.volume || 0;
-          publicCount++;
-          if ((p.market_cap_usd || 0) > topCompanyMC) {
-            topCompanyMC = p.market_cap_usd;
-            topCompanyId = companyId;
+          if (p) {
+            sectorVol += p.volume || 0;
           }
         }
 
@@ -250,16 +283,27 @@ async function main() {
         recentSectorSnapshots.set(sectorId, sectorHistory);
       }
 
-      // COUNTRY DATA
+      // COUNTRY DATA - use carry-forward for market cap
       const countryAgg = new Map<string, { mc: number; vol: number; publicCount: number }>();
+
+      // First, aggregate carry-forward market caps by country
+      lastKnownMcap.forEach((mcap, companyId) => {
+        const country = companyCountry.get(companyId);
+        if (!country) return;
+        const existing = countryAgg.get(country) || { mc: 0, vol: 0, publicCount: 0 };
+        existing.mc += mcap;
+        existing.publicCount++;
+        countryAgg.set(country, existing);
+      });
+
+      // Then add day-specific volume
       for (const p of prices) {
         const country = companyCountry.get(p.company_id);
         if (!country) continue;
-        const existing = countryAgg.get(country) || { mc: 0, vol: 0, publicCount: 0 };
-        existing.mc += p.market_cap_usd || 0;
-        existing.vol += p.volume || 0;
-        existing.publicCount++;
-        countryAgg.set(country, existing);
+        const existing = countryAgg.get(country);
+        if (existing) {
+          existing.vol += p.volume || 0;
+        }
       }
 
       for (const [country, data] of countryAgg) {

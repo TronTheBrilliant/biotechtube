@@ -249,8 +249,8 @@ export function PipelinePageClient() {
   const distribution = getStageDistribution(filtered);
   const totalPrograms = pipelineData.length;
 
-  const visibleRows = filtered.slice(0, 5);
-  const blurredRows = filtered.slice(5);
+  const visibleRows = filtered; // paywall disabled
+  const blurredRows: typeof filtered = [];
 
   /* Active filter count */
   const activeFilterCount =
@@ -443,7 +443,7 @@ export function PipelinePageClient() {
   /* ─── Render ─── */
 
   return (
-    <div style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
+    <div className="page-content" style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
       <Nav />
 
       {/* Page Header */}

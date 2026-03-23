@@ -172,6 +172,7 @@ export default function ClaimProfilePage({
 
   return (
     <div
+      className="page-content"
       style={{
         background: "var(--color-bg-primary)",
         minHeight: "100vh",

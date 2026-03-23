@@ -107,7 +107,7 @@ const faqs = [
 
 export default function SponsorsPage() {
   return (
-    <div style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
+    <div className="page-content" style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
       <Nav />
 
       {/* Hero */}

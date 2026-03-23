@@ -1,0 +1,312 @@
+import { Nav } from "@/components/Nav";
+import { Footer } from "@/components/Footer";
+import { formatMarketCap, formatPercent, pctColor } from "@/lib/market-utils";
+import { createClient } from "@supabase/supabase-js";
+import Link from "next/link";
+
+export const dynamic = "force-dynamic";
+
+interface SectorRanked {
+  slug: string;
+  name: string;
+  combinedMarketCap: number | null;
+  change1d: number | null;
+  change7d: number | null;
+  change30d: number | null;
+  companyCount: number | null;
+}
+
+interface SectorRow {
+  id: string;
+  slug: string;
+  name: string;
+  company_count: number | null;
+}
+
+interface SectorMarketRow {
+  sector_id: string;
+  combined_market_cap: number | null;
+  change_1d_pct: number | null;
+  change_7d_pct: number | null;
+  change_30d_pct: number | null;
+}
+
+async function getTopSectors(): Promise<SectorRanked[]> {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  // Get latest snapshot date for sector market data
+  const { data: latestDateRow } = await supabase
+    .from("sector_market_data")
+    .select("snapshot_date")
+    .order("snapshot_date", { ascending: false })
+    .limit(1)
+    .single();
+
+  if (!latestDateRow) {
+    // No market data -- still show sectors without metrics
+    const { data: sectorRows } = await supabase
+      .from("sectors")
+      .select("id, slug, name, company_count");
+
+    return ((sectorRows ?? []) as SectorRow[]).map((s) => ({
+      slug: s.slug,
+      name: s.name,
+      combinedMarketCap: null,
+      change1d: null,
+      change7d: null,
+      change30d: null,
+      companyCount: s.company_count,
+    }));
+  }
+
+  const [sectorMarketResult, sectorResult] = await Promise.all([
+    supabase
+      .from("sector_market_data")
+      .select(
+        "sector_id, combined_market_cap, change_1d_pct, change_7d_pct, change_30d_pct"
+      )
+      .eq("snapshot_date", latestDateRow.snapshot_date)
+      .then((r) => (r.data ?? []) as SectorMarketRow[]),
+    supabase
+      .from("sectors")
+      .select("id, slug, name, company_count")
+      .then((r) => (r.data ?? []) as SectorRow[]),
+  ]);
+
+  const sectorMap = new Map<string, SectorRow>();
+  for (const s of sectorResult) sectorMap.set(s.id, s);
+
+  const sectors: SectorRanked[] = sectorMarketResult
+    .map((m) => {
+      const s = sectorMap.get(m.sector_id);
+      if (!s) return null;
+      return {
+        slug: s.slug,
+        name: s.name,
+        combinedMarketCap: m.combined_market_cap,
+        change1d: m.change_1d_pct,
+        change7d: m.change_7d_pct,
+        change30d: m.change_30d_pct,
+        companyCount: s.company_count,
+      };
+    })
+    .filter((x): x is NonNullable<typeof x> => x != null);
+
+  sectors.sort(
+    (a, b) => (b.combinedMarketCap ?? 0) - (a.combinedMarketCap ?? 0)
+  );
+
+  return sectors;
+}
+
+export default async function TopSectorsPage() {
+  const sectors = await getTopSectors();
+
+  const totalMarketCap = sectors.reduce(
+    (sum, s) => sum + (s.combinedMarketCap ?? 0),
+    0
+  );
+
+  return (
+    <div
+      className="page-content"
+      style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}
+    >
+      <Nav />
+
+      {/* Hero */}
+      <div className="px-5 md:px-8 py-6 md:py-8">
+        <h1
+          className="text-[32px] md:text-[48px] font-bold tracking-tight"
+          style={{
+            color: "var(--color-text-primary)",
+            letterSpacing: "-1px",
+            lineHeight: 1.1,
+          }}
+        >
+          Top Biotech Sectors
+        </h1>
+        <p
+          className="text-[15px] md:text-[17px] mt-2 max-w-[560px]"
+          style={{ color: "var(--color-text-secondary)", lineHeight: 1.5 }}
+        >
+          Performance and market cap breakdown across {sectors.length} biotech
+          sectors.
+        </p>
+
+        {/* Stats strip */}
+        <div className="flex flex-wrap items-center gap-4 md:gap-6 mt-4">
+          <div className="flex items-center gap-1.5">
+            <span
+              className="text-[13px]"
+              style={{ color: "var(--color-text-tertiary)" }}
+            >
+              Showing
+            </span>
+            <span
+              className="text-[13px] font-semibold"
+              style={{ color: "var(--color-text-primary)" }}
+            >
+              {sectors.length} sectors
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span
+              className="text-[13px]"
+              style={{ color: "var(--color-text-tertiary)" }}
+            >
+              Total market cap
+            </span>
+            <span
+              className="text-[13px] font-semibold"
+              style={{ color: "var(--color-text-primary)" }}
+            >
+              {formatMarketCap(totalMarketCap)}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="px-4 md:px-6 pb-8 max-w-[1200px] mx-auto">
+        <div
+          className="rounded-lg border overflow-hidden"
+          style={{
+            background: "var(--color-bg-secondary)",
+            borderColor: "var(--color-border-subtle)",
+          }}
+        >
+          <div className="overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+            <table className="w-full min-w-[700px]">
+              <thead>
+                <tr
+                  style={{
+                    borderBottom: "0.5px solid var(--color-border-subtle)",
+                  }}
+                >
+                  <th
+                    className="text-left text-10 font-medium px-3 py-2 w-10"
+                    style={{ color: "var(--color-text-tertiary)" }}
+                  >
+                    #
+                  </th>
+                  <th
+                    className="text-left text-10 font-medium px-3 py-2"
+                    style={{ color: "var(--color-text-tertiary)" }}
+                  >
+                    Sector
+                  </th>
+                  <th
+                    className="text-right text-10 font-medium px-3 py-2"
+                    style={{ color: "var(--color-text-tertiary)" }}
+                  >
+                    Market Cap
+                  </th>
+                  <th
+                    className="text-right text-10 font-medium px-3 py-2"
+                    style={{ color: "var(--color-text-tertiary)" }}
+                  >
+                    1D %
+                  </th>
+                  <th
+                    className="text-right text-10 font-medium px-3 py-2"
+                    style={{ color: "var(--color-text-tertiary)" }}
+                  >
+                    7D %
+                  </th>
+                  <th
+                    className="text-right text-10 font-medium px-3 py-2"
+                    style={{ color: "var(--color-text-tertiary)" }}
+                  >
+                    30D %
+                  </th>
+                  <th
+                    className="text-right text-10 font-medium px-3 py-2"
+                    style={{ color: "var(--color-text-tertiary)" }}
+                  >
+                    Companies
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {sectors.map((s, i) => (
+                  <tr
+                    key={s.slug}
+                    className="transition-colors duration-100 hover:bg-[var(--color-bg-primary)]"
+                    style={{
+                      borderBottom: "0.5px solid var(--color-border-subtle)",
+                    }}
+                  >
+                    <td
+                      className="px-3 py-2 text-12"
+                      style={{ color: "var(--color-text-tertiary)" }}
+                    >
+                      {i + 1}
+                    </td>
+                    <td className="px-3 py-2">
+                      <Link
+                        href={`/sectors/${s.slug}`}
+                        className="text-12 font-medium hover:underline"
+                        style={{ color: "var(--color-text-primary)" }}
+                      >
+                        {s.name}
+                      </Link>
+                    </td>
+                    <td
+                      className="text-right text-12 px-3 py-2"
+                      style={{ color: "var(--color-text-primary)" }}
+                    >
+                      {s.combinedMarketCap
+                        ? formatMarketCap(s.combinedMarketCap)
+                        : "\u2014"}
+                    </td>
+                    <td
+                      className="text-right text-12 px-3 py-2 font-semibold"
+                      style={{ color: pctColor(s.change1d) }}
+                    >
+                      {formatPercent(s.change1d)}
+                    </td>
+                    <td
+                      className="text-right text-12 px-3 py-2 font-semibold"
+                      style={{ color: pctColor(s.change7d) }}
+                    >
+                      {formatPercent(s.change7d)}
+                    </td>
+                    <td
+                      className="text-right text-12 px-3 py-2 font-semibold"
+                      style={{ color: pctColor(s.change30d) }}
+                    >
+                      {formatPercent(s.change30d)}
+                    </td>
+                    <td
+                      className="text-right text-12 px-3 py-2"
+                      style={{ color: "var(--color-text-secondary)" }}
+                    >
+                      {s.companyCount ?? "\u2014"}
+                    </td>
+                  </tr>
+                ))}
+                {sectors.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={7}
+                      className="px-3 py-8 text-center text-13"
+                      style={{ color: "var(--color-text-tertiary)" }}
+                    >
+                      No sector data available at this time.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <Footer />
+    </div>
+  );
+}

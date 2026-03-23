@@ -107,7 +107,7 @@ export default function FundingPage() {
   };
 
   return (
-    <div style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
+    <div className="page-content" style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
       <Nav />
 
       <main className="max-w-6xl mx-auto px-4 py-8">
@@ -236,10 +236,9 @@ export default function FundingPage() {
               </div>
 
               {/* Table rows */}
-              <div style={{ position: "relative" }}>
+              <div>
                 {filtered.map((row, i) => {
                   const badge = roundBadgeColors[row.type] || roundBadgeColors.Seed;
-                  const isBlurred = i >= 5;
 
                   return (
                     <div
@@ -248,22 +247,19 @@ export default function FundingPage() {
                       style={{
                         borderBottom: "0.5px solid var(--color-border-subtle)",
                         alignItems: "center",
-                        filter: isBlurred ? "blur(5px)" : "none",
-                        userSelect: isBlurred ? "none" : "auto",
-                        cursor: isBlurred ? "default" : "pointer",
+                        cursor: "pointer",
                       }}
                       onMouseEnter={(e) => {
-                        if (!isBlurred) e.currentTarget.style.background = "var(--color-bg-tertiary)";
+                        e.currentTarget.style.background = "var(--color-bg-tertiary)";
                       }}
                       onMouseLeave={(e) => {
-                        if (!isBlurred) e.currentTarget.style.background = "";
+                        e.currentTarget.style.background = "";
                       }}
                     >
                       <span className="text-12 font-medium" style={{ color: "var(--color-text-primary)" }}>
                         <Link
                           href={`/company/${row.companySlug}`}
                           style={{ color: "inherit", textDecoration: "none" }}
-                          onClick={(e) => isBlurred && e.preventDefault()}
                         >
                           {row.company}
                         </Link>
@@ -292,33 +288,7 @@ export default function FundingPage() {
                   );
                 })}
 
-                {/* Paywall overlay */}
-                {filtered.length > 5 && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      height: "180px",
-                      background: "linear-gradient(transparent, var(--color-bg-secondary) 80%)",
-                      display: "flex",
-                      alignItems: "flex-end",
-                      justifyContent: "center",
-                      paddingBottom: 20,
-                      pointerEvents: "auto",
-                      zIndex: 2,
-                    }}
-                  >
-                    <Link
-                      href="/signup"
-                      className="text-13 font-medium px-5 py-2.5 rounded-lg text-white"
-                      style={{ background: "var(--color-accent)" }}
-                    >
-                      Sign up to see all funding rounds
-                    </Link>
-                  </div>
-                )}
+                {/* Paywall overlay — disabled */}
               </div>
             </div>
           </div>

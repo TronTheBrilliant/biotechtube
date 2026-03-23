@@ -13,7 +13,7 @@ export function SimilarCompanies({ companies }: SimilarCompaniesProps) {
     <div>
       <div className="px-3.5 py-2.5 border-b">
         <span
-          className="text-10 uppercase tracking-[0.5px] font-medium"
+          className="text-12 uppercase tracking-[0.5px] font-medium"
           style={{ color: "var(--color-text-secondary)" }}
         >
           SIMILAR COMPANIES
@@ -32,12 +32,12 @@ export function SimilarCompanies({ companies }: SimilarCompaniesProps) {
           <CompanyAvatar name={c.name} logoUrl={c.logoUrl} website={c.website} size={24} />
           <div className="min-w-0">
             <div
-              className="text-11 font-medium truncate"
+              className="text-13 font-medium truncate"
               style={{ color: "var(--color-text-primary)" }}
             >
               {c.name}
             </div>
-            <div className="text-10" style={{ color: "var(--color-text-tertiary)" }}>
+            <div className="text-11" style={{ color: "var(--color-text-tertiary)" }}>
               {c.stage} · {c.city}
             </div>
           </div>

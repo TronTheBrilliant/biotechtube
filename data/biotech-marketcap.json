@@ -1,0 +1,5840 @@
+[
+  {
+    "rank": 1,
+    "name": "Eli Lilly",
+    "ticker": "LLY",
+    "marketCapUsd": 811510000000,
+    "country": "USA"
+  },
+  {
+    "rank": 2,
+    "name": "Johnson & Johnson",
+    "ticker": "JNJ",
+    "marketCapUsd": 567210000000,
+    "country": "USA"
+  },
+  {
+    "rank": 3,
+    "name": "AbbVie",
+    "ticker": "ABBV",
+    "marketCapUsd": 362590000000,
+    "country": "USA"
+  },
+  {
+    "rank": 4,
+    "name": "Roche",
+    "ticker": "ROG.SW",
+    "marketCapUsd": 325200000000,
+    "country": "Switzerland"
+  },
+  {
+    "rank": 5,
+    "name": "AstraZeneca",
+    "ticker": "AZN",
+    "marketCapUsd": 284630000000,
+    "country": "UK"
+  },
+  {
+    "rank": 6,
+    "name": "Merck",
+    "ticker": "MRK",
+    "marketCapUsd": 282290000000,
+    "country": "USA"
+  },
+  {
+    "rank": 7,
+    "name": "Novartis",
+    "ticker": "NVS",
+    "marketCapUsd": 282280000000,
+    "country": "Switzerland"
+  },
+  {
+    "rank": 8,
+    "name": "Amgen",
+    "ticker": "AMGN",
+    "marketCapUsd": 187480000000,
+    "country": "USA"
+  },
+  {
+    "rank": 9,
+    "name": "Thermo Fisher Scientific",
+    "ticker": "TMO",
+    "marketCapUsd": 176220000000,
+    "country": "USA"
+  },
+  {
+    "rank": 10,
+    "name": "Gilead Sciences",
+    "ticker": "GILD",
+    "marketCapUsd": 170330000000,
+    "country": "USA"
+  },
+  {
+    "rank": 11,
+    "name": "Novo Nordisk",
+    "ticker": "NVO",
+    "marketCapUsd": 162830000000,
+    "country": "Denmark"
+  },
+  {
+    "rank": 12,
+    "name": "Pfizer",
+    "ticker": "PFE",
+    "marketCapUsd": 153410000000,
+    "country": "USA"
+  },
+  {
+    "rank": 13,
+    "name": "Bristol-Myers Squibb",
+    "ticker": "BMY",
+    "marketCapUsd": 117050000000,
+    "country": "USA"
+  },
+  {
+    "rank": 14,
+    "name": "Vertex Pharmaceuticals",
+    "ticker": "VRTX",
+    "marketCapUsd": 115330000000,
+    "country": "USA"
+  },
+  {
+    "rank": 15,
+    "name": "Sanofi",
+    "ticker": "SNY",
+    "marketCapUsd": 108610000000,
+    "country": "France"
+  },
+  {
+    "rank": 16,
+    "name": "GSK plc",
+    "ticker": "GSK",
+    "marketCapUsd": 104110000000,
+    "country": "UK"
+  },
+  {
+    "rank": 17,
+    "name": "Chugai Pharmaceutical",
+    "ticker": "4519.T",
+    "marketCapUsd": 89350000000,
+    "country": "Japan"
+  },
+  {
+    "rank": 18,
+    "name": "Regeneron Pharmaceuticals",
+    "ticker": "REGN",
+    "marketCapUsd": 77470000000,
+    "country": "USA"
+  },
+  {
+    "rank": 19,
+    "name": "Takeda Pharmaceutical",
+    "ticker": "TAK",
+    "marketCapUsd": 56320000000,
+    "country": "Japan"
+  },
+  {
+    "rank": 20,
+    "name": "UCB",
+    "ticker": "UCB.VI",
+    "marketCapUsd": 54340000000,
+    "country": "Belgium"
+  },
+  {
+    "rank": 21,
+    "name": "Jiangsu Hengrui Medicine",
+    "ticker": "600276.SS",
+    "marketCapUsd": 53150000000,
+    "country": "China"
+  },
+  {
+    "rank": 22,
+    "name": "Zoetis",
+    "ticker": "ZTS",
+    "marketCapUsd": 50970000000,
+    "country": "USA"
+  },
+  {
+    "rank": 23,
+    "name": "Samsung Biologics",
+    "ticker": "207940.KS",
+    "marketCapUsd": 49230000000,
+    "country": "South Korea"
+  },
+  {
+    "rank": 24,
+    "name": "CSL",
+    "ticker": "CSL.AX",
+    "marketCapUsd": 47140000000,
+    "country": "Australia"
+  },
+  {
+    "rank": 25,
+    "name": "Sun Pharmaceutical",
+    "ticker": "SUNPHARMA.NS",
+    "marketCapUsd": 45480000000,
+    "country": "India"
+  },
+  {
+    "rank": 26,
+    "name": "Bayer",
+    "ticker": "BAYN.DE",
+    "marketCapUsd": 43580000000,
+    "country": "Germany"
+  },
+  {
+    "rank": 27,
+    "name": "Galderma Group",
+    "ticker": "GALD.SW",
+    "marketCapUsd": 42270000000,
+    "country": "Switzerland"
+  },
+  {
+    "rank": 28,
+    "name": "Lonza",
+    "ticker": "LONN.SW",
+    "marketCapUsd": 41510000000,
+    "country": "Switzerland"
+  },
+  {
+    "rank": 29,
+    "name": "Alnylam Pharmaceuticals",
+    "ticker": "ALNY",
+    "marketCapUsd": 41400000000,
+    "country": "USA"
+  },
+  {
+    "rank": 30,
+    "name": "WuXi AppTec",
+    "ticker": "2359.HK",
+    "marketCapUsd": 41330000000,
+    "country": "China"
+  },
+  {
+    "rank": 31,
+    "name": "Argenx",
+    "ticker": "ARGX",
+    "marketCapUsd": 41080000000,
+    "country": "Netherlands"
+  },
+  {
+    "rank": 32,
+    "name": "Otsuka Holdings",
+    "ticker": "4578.T",
+    "marketCapUsd": 35510000000,
+    "country": "Japan"
+  },
+  {
+    "rank": 33,
+    "name": "Teva Pharmaceutical Industries",
+    "ticker": "TEVA",
+    "marketCapUsd": 33460000000,
+    "country": "Israel"
+  },
+  {
+    "rank": 34,
+    "name": "Daiichi Sankyo",
+    "ticker": "4568.T",
+    "marketCapUsd": 33420000000,
+    "country": "Japan"
+  },
+  {
+    "rank": 35,
+    "name": "Sandoz Group",
+    "ticker": "SDZ.SW",
+    "marketCapUsd": 33360000000,
+    "country": "Switzerland"
+  },
+  {
+    "rank": 36,
+    "name": "BeOne Medicines",
+    "ticker": "ONC",
+    "marketCapUsd": 31610000000,
+    "country": "USA"
+  },
+  {
+    "rank": 37,
+    "name": "Agilent Technologies",
+    "ticker": "A",
+    "marketCapUsd": 31480000000,
+    "country": "USA"
+  },
+  {
+    "rank": 38,
+    "name": "Celltrion",
+    "ticker": "068270.KS",
+    "marketCapUsd": 29350000000,
+    "country": "South Korea"
+  },
+  {
+    "rank": 39,
+    "name": "Insmed",
+    "ticker": "INSM",
+    "marketCapUsd": 29310000000,
+    "country": "USA"
+  },
+  {
+    "rank": 40,
+    "name": "Astellas Pharma",
+    "ticker": "4503.T",
+    "marketCapUsd": 26780000000,
+    "country": "Japan"
+  },
+  {
+    "rank": 41,
+    "name": "Biogen",
+    "ticker": "BIIB",
+    "marketCapUsd": 26630000000,
+    "country": "USA"
+  },
+  {
+    "rank": 42,
+    "name": "Royalty Pharma",
+    "ticker": "RPRX",
+    "marketCapUsd": 26230000000,
+    "country": "UK"
+  },
+  {
+    "rank": 43,
+    "name": "DexCom",
+    "ticker": "DXCM",
+    "marketCapUsd": 26110000000,
+    "country": "USA"
+  },
+  {
+    "rank": 44,
+    "name": "Novonesis",
+    "ticker": "NZYM.VI",
+    "marketCapUsd": 25220000000,
+    "country": "Denmark"
+  },
+  {
+    "rank": 45,
+    "name": "Hansoh Pharma",
+    "ticker": "3692.HK",
+    "marketCapUsd": 24450000000,
+    "country": "China"
+  },
+  {
+    "rank": 46,
+    "name": "United Therapeutics",
+    "ticker": "UTHR",
+    "marketCapUsd": 22970000000,
+    "country": "USA"
+  },
+  {
+    "rank": 47,
+    "name": "BioNTech",
+    "ticker": "BNTX",
+    "marketCapUsd": 22430000000,
+    "country": "Germany"
+  },
+  {
+    "rank": 48,
+    "name": "LabCorp",
+    "ticker": "LH",
+    "marketCapUsd": 21800000000,
+    "country": "USA"
+  },
+  {
+    "rank": 49,
+    "name": "Moderna",
+    "ticker": "MRNA",
+    "marketCapUsd": 20370000000,
+    "country": "USA"
+  },
+  {
+    "rank": 50,
+    "name": "Exact Sciences",
+    "ticker": "EXAS",
+    "marketCapUsd": 20020000000,
+    "country": "USA"
+  },
+  {
+    "rank": 51,
+    "name": "Roivant Sciences",
+    "ticker": "ROIV",
+    "marketCapUsd": 19820000000,
+    "country": "UK"
+  },
+  {
+    "rank": 52,
+    "name": "Illumina",
+    "ticker": "ILMN",
+    "marketCapUsd": 19010000000,
+    "country": "USA"
+  },
+  {
+    "rank": 53,
+    "name": "Revolution Medicines",
+    "ticker": "RVMD",
+    "marketCapUsd": 18980000000,
+    "country": "USA"
+  },
+  {
+    "rank": 54,
+    "name": "Incyte",
+    "ticker": "INCY",
+    "marketCapUsd": 18060000000,
+    "country": "USA"
+  },
+  {
+    "rank": 55,
+    "name": "Shionogi",
+    "ticker": "4507.T",
+    "marketCapUsd": 17980000000,
+    "country": "Japan"
+  },
+  {
+    "rank": 56,
+    "name": "Innovent Biologics",
+    "ticker": "1801.HK",
+    "marketCapUsd": 17800000000,
+    "country": "China"
+  },
+  {
+    "rank": 57,
+    "name": "Divis Laboratories",
+    "ticker": "DIVISLAB.NS",
+    "marketCapUsd": 17270000000,
+    "country": "India"
+  },
+  {
+    "rank": 58,
+    "name": "WuXi Biologics",
+    "ticker": "WXXWY",
+    "marketCapUsd": 17170000000,
+    "country": "China"
+  },
+  {
+    "rank": 59,
+    "name": "Sichuan Biokin Pharmaceutical",
+    "ticker": "688506.SS",
+    "marketCapUsd": 16270000000,
+    "country": "China"
+  },
+  {
+    "rank": 60,
+    "name": "Genmab",
+    "ticker": "GMAB",
+    "marketCapUsd": 15490000000,
+    "country": "Denmark"
+  },
+  {
+    "rank": 61,
+    "name": "Torrent Pharmaceuticals",
+    "ticker": "TORNTPHARM.NS",
+    "marketCapUsd": 15410000000,
+    "country": "India"
+  },
+  {
+    "rank": 62,
+    "name": "Viatris",
+    "ticker": "VTRS",
+    "marketCapUsd": 15200000000,
+    "country": "USA"
+  },
+  {
+    "rank": 63,
+    "name": "Ipsen",
+    "ticker": "IPN.PA",
+    "marketCapUsd": 14240000000,
+    "country": "France"
+  },
+  {
+    "rank": 64,
+    "name": "Ascendis Pharma",
+    "ticker": "ASND",
+    "marketCapUsd": 13620000000,
+    "country": "Denmark"
+  },
+  {
+    "rank": 65,
+    "name": "Akeso",
+    "ticker": "9926.HK",
+    "marketCapUsd": 13590000000,
+    "country": "China"
+  },
+  {
+    "rank": 66,
+    "name": "Regencell Bioscience",
+    "ticker": "RGC",
+    "marketCapUsd": 13530000000,
+    "country": "Hong Kong"
+  },
+  {
+    "rank": 67,
+    "name": "Swedish Orphan Biovitrum",
+    "ticker": "SOBI.ST",
+    "marketCapUsd": 13320000000,
+    "country": "Sweden"
+  },
+  {
+    "rank": 68,
+    "name": "BridgeBio Pharma",
+    "ticker": "BBIO",
+    "marketCapUsd": 13280000000,
+    "country": "USA"
+  },
+  {
+    "rank": 69,
+    "name": "Medpace",
+    "ticker": "MEDP",
+    "marketCapUsd": 12840000000,
+    "country": "USA"
+  },
+  {
+    "rank": 70,
+    "name": "CSPC Pharmaceutical Group Limited",
+    "ticker": "1093.HK",
+    "marketCapUsd": 12830000000,
+    "country": "China"
+  },
+  {
+    "rank": 71,
+    "name": "Neurocrine Biosciences",
+    "ticker": "NBIX",
+    "marketCapUsd": 12810000000,
+    "country": "USA"
+  },
+  {
+    "rank": 72,
+    "name": "Alteogen",
+    "ticker": "196170.KQ",
+    "marketCapUsd": 12550000000,
+    "country": "South Korea"
+  },
+  {
+    "rank": 73,
+    "name": "bioMerieux",
+    "ticker": "BIM.PA",
+    "marketCapUsd": 12370000000,
+    "country": "France"
+  },
+  {
+    "rank": 74,
+    "name": "Summit Therapeutics",
+    "ticker": "SMMT",
+    "marketCapUsd": 12020000000,
+    "country": "UK"
+  },
+  {
+    "rank": 75,
+    "name": "Elanco",
+    "ticker": "ELAN",
+    "marketCapUsd": 11920000000,
+    "country": "USA"
+  },
+  {
+    "rank": 76,
+    "name": "Ionis Pharmaceuticals",
+    "ticker": "IONS",
+    "marketCapUsd": 11720000000,
+    "country": "USA"
+  },
+  {
+    "rank": 77,
+    "name": "Dr. Reddy's Laboratories",
+    "ticker": "RDY",
+    "marketCapUsd": 11450000000,
+    "country": "India"
+  },
+  {
+    "rank": 78,
+    "name": "Lupin Limited",
+    "ticker": "LUPIN.NS",
+    "marketCapUsd": 11320000000,
+    "country": "India"
+  },
+  {
+    "rank": 79,
+    "name": "Orion Corporation",
+    "ticker": "ORNAV.HE",
+    "marketCapUsd": 11270000000,
+    "country": "Finland"
+  },
+  {
+    "rank": 80,
+    "name": "Avidity Biosciences",
+    "ticker": "RNAM",
+    "marketCapUsd": 11240000000,
+    "country": "USA"
+  },
+  {
+    "rank": 81,
+    "name": "Jazz Pharmaceuticals",
+    "ticker": "JAZZ",
+    "marketCapUsd": 11110000000,
+    "country": "Ireland"
+  },
+  {
+    "rank": 82,
+    "name": "Exelixis",
+    "ticker": "EXEL",
+    "marketCapUsd": 11060000000,
+    "country": "USA"
+  },
+  {
+    "rank": 83,
+    "name": "Cipla",
+    "ticker": "CIPLA.NS",
+    "marketCapUsd": 10820000000,
+    "country": "India"
+  },
+  {
+    "rank": 84,
+    "name": "Recordati",
+    "ticker": "REC.MI",
+    "marketCapUsd": 10520000000,
+    "country": "Italy"
+  },
+  {
+    "rank": 85,
+    "name": "Financiere de Tubize",
+    "ticker": "TUB.BR",
+    "marketCapUsd": 10490000000,
+    "country": "Belgium"
+  },
+  {
+    "rank": 86,
+    "name": "BioMarin Pharmaceutical",
+    "ticker": "BMRN",
+    "marketCapUsd": 10410000000,
+    "country": "USA"
+  },
+  {
+    "rank": 87,
+    "name": "Madrigal Pharmaceuticals",
+    "ticker": "MDGL",
+    "marketCapUsd": 10120000000,
+    "country": "USA"
+  },
+  {
+    "rank": 88,
+    "name": "Fosun Pharma",
+    "ticker": "600196.SS",
+    "marketCapUsd": 9640000000,
+    "country": "China"
+  },
+  {
+    "rank": 89,
+    "name": "Revvity",
+    "ticker": "RVTY",
+    "marketCapUsd": 9600000000,
+    "country": "USA"
+  },
+  {
+    "rank": 90,
+    "name": "Zydus Lifesciences",
+    "ticker": "ZYDUSLIFE.NS",
+    "marketCapUsd": 9560000000,
+    "country": "India"
+  },
+  {
+    "rank": 91,
+    "name": "Abivax",
+    "ticker": "ABVX",
+    "marketCapUsd": 9530000000,
+    "country": "France"
+  },
+  {
+    "rank": 92,
+    "name": "Shenzhen Salubris Pharmaceuticals",
+    "ticker": "002294.SZ",
+    "marketCapUsd": 9400000000,
+    "country": "China"
+  },
+  {
+    "rank": 93,
+    "name": "Huadong Medicine (HD Medicine)",
+    "ticker": "000963.SZ",
+    "marketCapUsd": 8900000000,
+    "country": "China"
+  },
+  {
+    "rank": 94,
+    "name": "ImmunityBio",
+    "ticker": "IBRX",
+    "marketCapUsd": 8700000000,
+    "country": "USA"
+  },
+  {
+    "rank": 95,
+    "name": "Mankind Pharma",
+    "ticker": "MANKIND.NS",
+    "marketCapUsd": 8540000000,
+    "country": "India"
+  },
+  {
+    "rank": 96,
+    "name": "Eisai",
+    "ticker": "4523.T",
+    "marketCapUsd": 8420000000,
+    "country": "Japan"
+  },
+  {
+    "rank": 97,
+    "name": "Tempus AI",
+    "ticker": "TEM",
+    "marketCapUsd": 8390000000,
+    "country": "USA"
+  },
+  {
+    "rank": 98,
+    "name": "Sinopharm",
+    "ticker": "1099.HK",
+    "marketCapUsd": 8310000000,
+    "country": "China"
+  },
+  {
+    "rank": 99,
+    "name": "Baxter",
+    "ticker": "BAX",
+    "marketCapUsd": 8300000000,
+    "country": "USA"
+  },
+  {
+    "rank": 100,
+    "name": "Praxis Precision Medicines",
+    "ticker": "PRAX",
+    "marketCapUsd": 8300000000,
+    "country": "USA"
+  },
+  {
+    "rank": 101,
+    "name": "Haisco Pharmaceutical Group",
+    "ticker": "002653.SZ",
+    "marketCapUsd": 8300000000,
+    "country": "China"
+  },
+  {
+    "rank": 102,
+    "name": "Qiagen",
+    "ticker": "QGEN",
+    "marketCapUsd": 8220000000,
+    "country": "Netherlands"
+  },
+  {
+    "rank": 103,
+    "name": "Bio-Techne",
+    "ticker": "TECH",
+    "marketCapUsd": 8050000000,
+    "country": "USA"
+  },
+  {
+    "rank": 104,
+    "name": "Axsome Therapeutics",
+    "ticker": "AXSM",
+    "marketCapUsd": 8020000000,
+    "country": "USA"
+  },
+  {
+    "rank": 105,
+    "name": "Aurobindo Pharma",
+    "ticker": "AUROPHARMA.NS",
+    "marketCapUsd": 8000000000,
+    "country": "India"
+  },
+  {
+    "rank": 106,
+    "name": "Vaxcyte",
+    "ticker": "PCVX",
+    "marketCapUsd": 7940000000,
+    "country": "USA"
+  },
+  {
+    "rank": 107,
+    "name": "Arrowhead Pharmaceuticals",
+    "ticker": "ARWR",
+    "marketCapUsd": 7880000000,
+    "country": "USA"
+  },
+  {
+    "rank": 108,
+    "name": "ICON plc",
+    "ticker": "ICLR",
+    "marketCapUsd": 7750000000,
+    "country": "Ireland"
+  },
+  {
+    "rank": 109,
+    "name": "Kyowa Kirin",
+    "ticker": "4151.T",
+    "marketCapUsd": 7710000000,
+    "country": "Japan"
+  },
+  {
+    "rank": 110,
+    "name": "Cytokinetics",
+    "ticker": "CYTK",
+    "marketCapUsd": 7590000000,
+    "country": "USA"
+  },
+  {
+    "rank": 111,
+    "name": "Charles River Laboratories",
+    "ticker": "CRL",
+    "marketCapUsd": 7560000000,
+    "country": "USA"
+  },
+  {
+    "rank": 112,
+    "name": "Halozyme Therapeutics",
+    "ticker": "HALO",
+    "marketCapUsd": 7480000000,
+    "country": "USA"
+  },
+  {
+    "rank": 113,
+    "name": "Nuvalent",
+    "ticker": "NUVL",
+    "marketCapUsd": 7450000000,
+    "country": "USA"
+  },
+  {
+    "rank": 114,
+    "name": "PharmaEssentia",
+    "ticker": "6446.TW",
+    "marketCapUsd": 7410000000,
+    "country": "Taiwan"
+  },
+  {
+    "rank": 115,
+    "name": "Krystal Biotech",
+    "ticker": "KRYS",
+    "marketCapUsd": 7350000000,
+    "country": "USA"
+  },
+  {
+    "rank": 116,
+    "name": "ALK-Abello",
+    "ticker": "ALK-B.CO",
+    "marketCapUsd": 7050000000,
+    "country": "Denmark"
+  },
+  {
+    "rank": 117,
+    "name": "Pharmaron Beijing",
+    "ticker": "300759.SZ",
+    "marketCapUsd": 7000000000,
+    "country": "China"
+  },
+  {
+    "rank": 118,
+    "name": "Ono Pharmaceutical",
+    "ticker": "4528.T",
+    "marketCapUsd": 6930000000,
+    "country": "Japan"
+  },
+  {
+    "rank": 119,
+    "name": "Arcellx",
+    "ticker": "ACLX",
+    "marketCapUsd": 6710000000,
+    "country": "USA"
+  },
+  {
+    "rank": 120,
+    "name": "Alkem Laboratories",
+    "ticker": "ALKEM.NS",
+    "marketCapUsd": 6700000000,
+    "country": "India"
+  },
+  {
+    "rank": 121,
+    "name": "Biocon",
+    "ticker": "BIOCON.NS",
+    "marketCapUsd": 6580000000,
+    "country": "India"
+  },
+  {
+    "rank": 122,
+    "name": "Glenmark Pharmaceuticals",
+    "ticker": "GLENMARK.NS",
+    "marketCapUsd": 6560000000,
+    "country": "India"
+  },
+  {
+    "rank": 123,
+    "name": "Repligen",
+    "ticker": "RGEN",
+    "marketCapUsd": 6410000000,
+    "country": "USA"
+  },
+  {
+    "rank": 124,
+    "name": "Kymera Therapeutics",
+    "ticker": "KYMR",
+    "marketCapUsd": 6360000000,
+    "country": "USA"
+  },
+  {
+    "rank": 125,
+    "name": "Protagonist Therapeutics",
+    "ticker": "PTGX",
+    "marketCapUsd": 6300000000,
+    "country": "USA"
+  },
+  {
+    "rank": 126,
+    "name": "Richter Gedeon",
+    "ticker": "RIG2.F",
+    "marketCapUsd": 6240000000,
+    "country": "Hungary"
+  },
+  {
+    "rank": 127,
+    "name": "Grifols",
+    "ticker": "GRFS",
+    "marketCapUsd": 6220000000,
+    "country": "Spain"
+  },
+  {
+    "rank": 128,
+    "name": "CSPC Innovation Pharmaceutical",
+    "ticker": "300765.SZ",
+    "marketCapUsd": 6150000000,
+    "country": "China"
+  },
+  {
+    "rank": 129,
+    "name": "Belite Bio",
+    "ticker": "BLTE",
+    "marketCapUsd": 6080000000,
+    "country": "USA"
+  },
+  {
+    "rank": 130,
+    "name": "Abbott India",
+    "ticker": "ABBOTINDIA.NS",
+    "marketCapUsd": 6050000000,
+    "country": "India"
+  },
+  {
+    "rank": 131,
+    "name": "Rhythm Pharmaceuticals",
+    "ticker": "RYTM",
+    "marketCapUsd": 5970000000,
+    "country": "USA"
+  },
+  {
+    "rank": 132,
+    "name": "Guangzhou Baiyunshan Pharmaceutical Holdings",
+    "ticker": "600332.SS",
+    "marketCapUsd": 5930000000,
+    "country": "China"
+  },
+  {
+    "rank": 133,
+    "name": "Tong Ren Tang",
+    "ticker": "600085.SS",
+    "marketCapUsd": 5910000000,
+    "country": "China"
+  },
+  {
+    "rank": 134,
+    "name": "Shanghai Allist Pharmaceuticals",
+    "ticker": "688578.SS",
+    "marketCapUsd": 5890000000,
+    "country": "China"
+  },
+  {
+    "rank": 135,
+    "name": "Bachem",
+    "ticker": "BANB.SW",
+    "marketCapUsd": 5870000000,
+    "country": "Switzerland"
+  },
+  {
+    "rank": 136,
+    "name": "Glaukos",
+    "ticker": "GKOS",
+    "marketCapUsd": 5860000000,
+    "country": "USA"
+  },
+  {
+    "rank": 137,
+    "name": "Shanghai RAAS Blood Products",
+    "ticker": "002252.SZ",
+    "marketCapUsd": 5800000000,
+    "country": "China"
+  },
+  {
+    "rank": 138,
+    "name": "Galenica",
+    "ticker": "GALE.SW",
+    "marketCapUsd": 5790000000,
+    "country": "Switzerland"
+  },
+  {
+    "rank": 139,
+    "name": "Lundbeck",
+    "ticker": "HLUN-B.CO",
+    "marketCapUsd": 5750000000,
+    "country": "Denmark"
+  },
+  {
+    "rank": 140,
+    "name": "Laurus Labs",
+    "ticker": "LAURUSLABS.NS",
+    "marketCapUsd": 5680000000,
+    "country": "India"
+  },
+  {
+    "rank": 141,
+    "name": "Imeik Technology Development",
+    "ticker": "300896.SZ",
+    "marketCapUsd": 5660000000,
+    "country": "China"
+  },
+  {
+    "rank": 142,
+    "name": "CG Oncology",
+    "ticker": "CGON",
+    "marketCapUsd": 5490000000,
+    "country": "USA"
+  },
+  {
+    "rank": 143,
+    "name": "Zhifei Biological Products",
+    "ticker": "300122.SZ",
+    "marketCapUsd": 5440000000,
+    "country": "China"
+  },
+  {
+    "rank": 144,
+    "name": "Cogent Biosciences",
+    "ticker": "COGT",
+    "marketCapUsd": 5410000000,
+    "country": "USA"
+  },
+  {
+    "rank": 145,
+    "name": "PTC Therapeutics",
+    "ticker": "PTCT",
+    "marketCapUsd": 5400000000,
+    "country": "USA"
+  },
+  {
+    "rank": 146,
+    "name": "Mirum Pharmaceuticals",
+    "ticker": "MIRM",
+    "marketCapUsd": 5340000000,
+    "country": "USA"
+  },
+  {
+    "rank": 147,
+    "name": "Terns Pharmaceuticals",
+    "ticker": "TERN",
+    "marketCapUsd": 5260000000,
+    "country": "USA"
+  },
+  {
+    "rank": 148,
+    "name": "Xenon Pharmaceuticals",
+    "ticker": "XENE",
+    "marketCapUsd": 5240000000,
+    "country": "Canada"
+  },
+  {
+    "rank": 149,
+    "name": "Changchun High-Tech Industry",
+    "ticker": "000661.SZ",
+    "marketCapUsd": 5200000000,
+    "country": "China"
+  },
+  {
+    "rank": 150,
+    "name": "Caris Life Sciences",
+    "ticker": "CAI",
+    "marketCapUsd": 5200000000,
+    "country": "USA"
+  },
+  {
+    "rank": 151,
+    "name": "Scholar Rock Holding",
+    "ticker": "SRRK",
+    "marketCapUsd": 5120000000,
+    "country": "USA"
+  },
+  {
+    "rank": 152,
+    "name": "Hebei Changshan Biochemical Pharmaceutical Co., Ltd.",
+    "ticker": "300255.SZ",
+    "marketCapUsd": 5100000000,
+    "country": "China"
+  },
+  {
+    "rank": 153,
+    "name": "Lantheus Holdings",
+    "ticker": "LNTH",
+    "marketCapUsd": 5060000000,
+    "country": "USA"
+  },
+  {
+    "rank": 154,
+    "name": "Yuhan",
+    "ticker": "000100.KS",
+    "marketCapUsd": 4980000000,
+    "country": "South Korea"
+  },
+  {
+    "rank": 155,
+    "name": "Caliway Biopharmaceuticals",
+    "ticker": "6919.TW",
+    "marketCapUsd": 4920000000,
+    "country": "Taiwan"
+  },
+  {
+    "rank": 156,
+    "name": "TG Therapeutics",
+    "ticker": "TGTX",
+    "marketCapUsd": 4800000000,
+    "country": "USA"
+  },
+  {
+    "rank": 157,
+    "name": "Alkermes",
+    "ticker": "ALKS",
+    "marketCapUsd": 4690000000,
+    "country": "Ireland"
+  },
+  {
+    "rank": 158,
+    "name": "Immunovant",
+    "ticker": "IMVT",
+    "marketCapUsd": 4670000000,
+    "country": "USA"
+  },
+  {
+    "rank": 159,
+    "name": "Laboratorios Farmaceuticos Rovi",
+    "ticker": "ROVI.MC",
+    "marketCapUsd": 4630000000,
+    "country": "Spain"
+  },
+  {
+    "rank": 160,
+    "name": "Sumitomo Pharma",
+    "ticker": "4506.T",
+    "marketCapUsd": 4620000000,
+    "country": "Japan"
+  },
+  {
+    "rank": 161,
+    "name": "Apogee Therapeutics",
+    "ticker": "APGE",
+    "marketCapUsd": 4540000000,
+    "country": "USA"
+  },
+  {
+    "rank": 162,
+    "name": "Erasca",
+    "ticker": "ERAS",
+    "marketCapUsd": 4530000000,
+    "country": "USA"
+  },
+  {
+    "rank": 163,
+    "name": "Amicus Therapeutics",
+    "ticker": "FOLD",
+    "marketCapUsd": 4530000000,
+    "country": "USA"
+  },
+  {
+    "rank": 164,
+    "name": "Tiantan Bio",
+    "ticker": "600161.SS",
+    "marketCapUsd": 4450000000,
+    "country": "China"
+  },
+  {
+    "rank": 165,
+    "name": "CRISPR Therapeutics",
+    "ticker": "CRSP",
+    "marketCapUsd": 4430000000,
+    "country": "Switzerland"
+  },
+  {
+    "rank": 166,
+    "name": "Ipca Laboratories",
+    "ticker": "IPCALAB.NS",
+    "marketCapUsd": 4190000000,
+    "country": "India"
+  },
+  {
+    "rank": 167,
+    "name": "Giant Biogene",
+    "ticker": "2367.HK",
+    "marketCapUsd": 4110000000,
+    "country": "China"
+  },
+  {
+    "rank": 168,
+    "name": "Siegfried Holding",
+    "ticker": "SFZN.SW",
+    "marketCapUsd": 4060000000,
+    "country": "Switzerland"
+  },
+  {
+    "rank": 169,
+    "name": "Centessa Pharmaceuticals",
+    "ticker": "CNTA",
+    "marketCapUsd": 4000000000,
+    "country": "UK"
+  },
+  {
+    "rank": 170,
+    "name": "Hualan Biological Engineering",
+    "ticker": "002007.SZ",
+    "marketCapUsd": 3930000000,
+    "country": "China"
+  },
+  {
+    "rank": 171,
+    "name": "DiaSorin",
+    "ticker": "DIA.MI",
+    "marketCapUsd": 3810000000,
+    "country": "Italy"
+  },
+  {
+    "rank": 172,
+    "name": "Viking Therapeutics",
+    "ticker": "VKTX",
+    "marketCapUsd": 3730000000,
+    "country": "USA"
+  },
+  {
+    "rank": 173,
+    "name": "Crinetics Pharmaceuticals",
+    "ticker": "CRNX",
+    "marketCapUsd": 3720000000,
+    "country": "USA"
+  },
+  {
+    "rank": 174,
+    "name": "Amneal Pharmaceuticals",
+    "ticker": "AMRX",
+    "marketCapUsd": 3720000000,
+    "country": "USA"
+  },
+  {
+    "rank": 175,
+    "name": "China Resources Pharmaceutical Group",
+    "ticker": "3320.HK",
+    "marketCapUsd": 3700000000,
+    "country": "Hong Kong"
+  },
+  {
+    "rank": 176,
+    "name": "Corcept Therapeutics",
+    "ticker": "CORT",
+    "marketCapUsd": 3680000000,
+    "country": "USA"
+  },
+  {
+    "rank": 177,
+    "name": "Hikma Pharmaceuticals",
+    "ticker": "HIK.L",
+    "marketCapUsd": 3660000000,
+    "country": "UK"
+  },
+  {
+    "rank": 178,
+    "name": "Indivior PLC",
+    "ticker": "INDV",
+    "marketCapUsd": 3660000000,
+    "country": "USA"
+  },
+  {
+    "rank": 179,
+    "name": "ACADIA Pharmaceuticals",
+    "ticker": "ACAD",
+    "marketCapUsd": 3530000000,
+    "country": "USA"
+  },
+  {
+    "rank": 180,
+    "name": "Kiniksa Pharmaceuticals",
+    "ticker": "KNSA",
+    "marketCapUsd": 3520000000,
+    "country": "Bermuda"
+  },
+  {
+    "rank": 181,
+    "name": "BillionToOne",
+    "ticker": "BLLN",
+    "marketCapUsd": 3490000000,
+    "country": "USA"
+  },
+  {
+    "rank": 182,
+    "name": "Structure Therapeutics",
+    "ticker": "GPCR",
+    "marketCapUsd": 3440000000,
+    "country": "USA"
+  },
+  {
+    "rank": 183,
+    "name": "ADMA Biologics",
+    "ticker": "ADMA",
+    "marketCapUsd": 3410000000,
+    "country": "USA"
+  },
+  {
+    "rank": 184,
+    "name": "Aspen Pharmacare",
+    "ticker": "APN.JO",
+    "marketCapUsd": 3410000000,
+    "country": "South Africa"
+  },
+  {
+    "rank": 185,
+    "name": "Virbac SA",
+    "ticker": "VIRP.PA",
+    "marketCapUsd": 3400000000,
+    "country": "France"
+  },
+  {
+    "rank": 186,
+    "name": "Santen Pharmaceutical",
+    "ticker": "4536.T",
+    "marketCapUsd": 3400000000,
+    "country": "Japan"
+  },
+  {
+    "rank": 187,
+    "name": "Rohto Pharmaceutical",
+    "ticker": "4527.T",
+    "marketCapUsd": 3340000000,
+    "country": "Japan"
+  },
+  {
+    "rank": 188,
+    "name": "NewAmsterdam Pharma Company",
+    "ticker": "NAMS",
+    "marketCapUsd": 3320000000,
+    "country": "Netherlands"
+  },
+  {
+    "rank": 189,
+    "name": "SYNLAB",
+    "ticker": "SYAB.VI",
+    "marketCapUsd": 3300000000,
+    "country": "Germany"
+  },
+  {
+    "rank": 190,
+    "name": "Spyre Therapeutics",
+    "ticker": "SYRE",
+    "marketCapUsd": 3230000000,
+    "country": "USA"
+  },
+  {
+    "rank": 191,
+    "name": "Legend Biotech",
+    "ticker": "LEGN",
+    "marketCapUsd": 3220000000,
+    "country": "USA"
+  },
+  {
+    "rank": 192,
+    "name": "Liquidia Corporation",
+    "ticker": "LQDA",
+    "marketCapUsd": 3200000000,
+    "country": "USA"
+  },
+  {
+    "rank": 193,
+    "name": "Denali Therapeutics",
+    "ticker": "DNLI",
+    "marketCapUsd": 3190000000,
+    "country": "USA"
+  },
+  {
+    "rank": 194,
+    "name": "BB Biotech",
+    "ticker": "BION.SW",
+    "marketCapUsd": 3170000000,
+    "country": "Switzerland"
+  },
+  {
+    "rank": 195,
+    "name": "Alumis",
+    "ticker": "ALMS",
+    "marketCapUsd": 3170000000,
+    "country": "USA"
+  },
+  {
+    "rank": 196,
+    "name": "Zealand Pharma",
+    "ticker": "ZEAL.CO",
+    "marketCapUsd": 3140000000,
+    "country": "Denmark"
+  },
+  {
+    "rank": 197,
+    "name": "Genscript Biotech",
+    "ticker": "1548.HK",
+    "marketCapUsd": 3090000000,
+    "country": "China"
+  },
+  {
+    "rank": 198,
+    "name": "Telix Pharmaceuticals",
+    "ticker": "TLX.AX",
+    "marketCapUsd": 3020000000,
+    "country": "Australia"
+  },
+  {
+    "rank": 199,
+    "name": "BioArctic AB",
+    "ticker": "BIOA-B.ST",
+    "marketCapUsd": 2890000000,
+    "country": "Sweden"
+  },
+  {
+    "rank": 200,
+    "name": "Dyne Therapeutics",
+    "ticker": "DYN",
+    "marketCapUsd": 2890000000,
+    "country": "USA"
+  },
+  {
+    "rank": 201,
+    "name": "Vera Therapeutics",
+    "ticker": "VERA",
+    "marketCapUsd": 2890000000,
+    "country": "USA"
+  },
+  {
+    "rank": 202,
+    "name": "IDEAYA Biosciences",
+    "ticker": "IDYA",
+    "marketCapUsd": 2870000000,
+    "country": "USA"
+  },
+  {
+    "rank": 203,
+    "name": "Gland Pharma",
+    "ticker": "GLAND.NS",
+    "marketCapUsd": 2850000000,
+    "country": "India"
+  },
+  {
+    "rank": 204,
+    "name": "Almirall",
+    "ticker": "ALM.MC",
+    "marketCapUsd": 2830000000,
+    "country": "Spain"
+  },
+  {
+    "rank": 205,
+    "name": "Catalyst Pharmaceuticals",
+    "ticker": "CPRX",
+    "marketCapUsd": 2800000000,
+    "country": "USA"
+  },
+  {
+    "rank": 206,
+    "name": "Tango Therapeutics",
+    "ticker": "TNGX",
+    "marketCapUsd": 2770000000,
+    "country": "USA"
+  },
+  {
+    "rank": 207,
+    "name": "Viridian Therapeutics",
+    "ticker": "VRDN",
+    "marketCapUsd": 2750000000,
+    "country": "USA"
+  },
+  {
+    "rank": 208,
+    "name": "Arcutis Biotherapeutics",
+    "ticker": "ARQT",
+    "marketCapUsd": 2750000000,
+    "country": "USA"
+  },
+  {
+    "rank": 209,
+    "name": "Supernus Pharmaceuticals",
+    "ticker": "SUPN",
+    "marketCapUsd": 2750000000,
+    "country": "USA"
+  },
+  {
+    "rank": 210,
+    "name": "Tarsus Pharmaceuticals",
+    "ticker": "TARS",
+    "marketCapUsd": 2740000000,
+    "country": "USA"
+  },
+  {
+    "rank": 211,
+    "name": "Arcus Biosciences",
+    "ticker": "RCUS",
+    "marketCapUsd": 2710000000,
+    "country": "USA"
+  },
+  {
+    "rank": 212,
+    "name": "KOBAYASHI Pharmaceutical",
+    "ticker": "4967.T",
+    "marketCapUsd": 2600000000,
+    "country": "Japan"
+  },
+  {
+    "rank": 213,
+    "name": "Jamjoom Pharmaceuticals Factory Company",
+    "ticker": "4015.SR",
+    "marketCapUsd": 2590000000,
+    "country": "Saudi Arabia"
+  },
+  {
+    "rank": 214,
+    "name": "Twist Bioscience",
+    "ticker": "TWST",
+    "marketCapUsd": 2570000000,
+    "country": "USA"
+  },
+  {
+    "rank": 215,
+    "name": "Dermapharm",
+    "ticker": "DMP.F",
+    "marketCapUsd": 2520000000,
+    "country": "Germany"
+  },
+  {
+    "rank": 216,
+    "name": "HUTCHMED",
+    "ticker": "HCM",
+    "marketCapUsd": 2510000000,
+    "country": "Hong Kong"
+  },
+  {
+    "rank": 217,
+    "name": "Beam Therapeutics",
+    "ticker": "BEAM",
+    "marketCapUsd": 2500000000,
+    "country": "USA"
+  },
+  {
+    "rank": 218,
+    "name": "Travere Therapeutics",
+    "ticker": "TVTX",
+    "marketCapUsd": 2470000000,
+    "country": "USA"
+  },
+  {
+    "rank": 219,
+    "name": "Atrium Therapeutics",
+    "ticker": "RNA",
+    "marketCapUsd": 2430000000,
+    "country": "USA"
+  },
+  {
+    "rank": 220,
+    "name": "BioCryst Pharmaceuticals",
+    "ticker": "BCRX",
+    "marketCapUsd": 2430000000,
+    "country": "USA"
+  },
+  {
+    "rank": 221,
+    "name": "10x Genomics",
+    "ticker": "TXG",
+    "marketCapUsd": 2340000000,
+    "country": "USA"
+  },
+  {
+    "rank": 222,
+    "name": "Maze Therapeutics",
+    "ticker": "MAZE",
+    "marketCapUsd": 2310000000,
+    "country": "USA"
+  },
+  {
+    "rank": 223,
+    "name": "Bavarian Nordic",
+    "ticker": "BAVA.CO",
+    "marketCapUsd": 2280000000,
+    "country": "Denmark"
+  },
+  {
+    "rank": 224,
+    "name": "Immunome",
+    "ticker": "IMNM",
+    "marketCapUsd": 2260000000,
+    "country": "USA"
+  },
+  {
+    "rank": 225,
+    "name": "Genus",
+    "ticker": "GNS.L",
+    "marketCapUsd": 2260000000,
+    "country": "UK"
+  },
+  {
+    "rank": 226,
+    "name": "SCHOTT Pharma",
+    "ticker": "1SXP.DE",
+    "marketCapUsd": 2250000000,
+    "country": "Germany"
+  },
+  {
+    "rank": 227,
+    "name": "Disc Medicine",
+    "ticker": "IRON",
+    "marketCapUsd": 2210000000,
+    "country": "USA"
+  },
+  {
+    "rank": 228,
+    "name": "HeartFlow",
+    "ticker": "HTFL",
+    "marketCapUsd": 2210000000,
+    "country": "USA"
+  },
+  {
+    "rank": 229,
+    "name": "Day One Biopharmaceuticals",
+    "ticker": "DAWN",
+    "marketCapUsd": 2210000000,
+    "country": "USA"
+  },
+  {
+    "rank": 230,
+    "name": "Wave Life Sciences",
+    "ticker": "WVE",
+    "marketCapUsd": 2210000000,
+    "country": "Singapore"
+  },
+  {
+    "rank": 231,
+    "name": "Apellis Pharmaceuticals",
+    "ticker": "APLS",
+    "marketCapUsd": 2190000000,
+    "country": "USA"
+  },
+  {
+    "rank": 232,
+    "name": "Syndax Pharmaceuticals",
+    "ticker": "SNDX",
+    "marketCapUsd": 2130000000,
+    "country": "USA"
+  },
+  {
+    "rank": 233,
+    "name": "Nippon Shinyaku",
+    "ticker": "4516.T",
+    "marketCapUsd": 2120000000,
+    "country": "Japan"
+  },
+  {
+    "rank": 234,
+    "name": "Galapagos NV",
+    "ticker": "GLPG",
+    "marketCapUsd": 2110000000,
+    "country": "Belgium"
+  },
+  {
+    "rank": 235,
+    "name": "Adaptive Biotechnologies",
+    "ticker": "ADPT",
+    "marketCapUsd": 2090000000,
+    "country": "USA"
+  },
+  {
+    "rank": 236,
+    "name": "Nektar Therapeutics",
+    "ticker": "NKTR",
+    "marketCapUsd": 2070000000,
+    "country": "USA"
+  },
+  {
+    "rank": 237,
+    "name": "Veradermics",
+    "ticker": "MANE",
+    "marketCapUsd": 2060000000,
+    "country": "USA"
+  },
+  {
+    "rank": 238,
+    "name": "Celldex Therapeutics",
+    "ticker": "CLDX",
+    "marketCapUsd": 2050000000,
+    "country": "USA"
+  },
+  {
+    "rank": 239,
+    "name": "GeneDx Holdings",
+    "ticker": "WGS",
+    "marketCapUsd": 2040000000,
+    "country": "USA"
+  },
+  {
+    "rank": 240,
+    "name": "Zai Lab",
+    "ticker": "ZLAB",
+    "marketCapUsd": 2000000000,
+    "country": "China"
+  },
+  {
+    "rank": 241,
+    "name": "Tyra Biosciences",
+    "ticker": "TYRA",
+    "marketCapUsd": 2000000000,
+    "country": "USA"
+  },
+  {
+    "rank": 242,
+    "name": "Mineralys Therapeutics",
+    "ticker": "MLYS",
+    "marketCapUsd": 1980000000,
+    "country": "USA"
+  },
+  {
+    "rank": 243,
+    "name": "Stoke Therapeutics",
+    "ticker": "STOK",
+    "marketCapUsd": 1980000000,
+    "country": "USA"
+  },
+  {
+    "rank": 244,
+    "name": "Piramal Pharma",
+    "ticker": "PPLPHARMA.NS",
+    "marketCapUsd": 1950000000,
+    "country": "India"
+  },
+  {
+    "rank": 245,
+    "name": "Bora Pharmaceuticals",
+    "ticker": "6472.TW",
+    "marketCapUsd": 1920000000,
+    "country": "Taiwan"
+  },
+  {
+    "rank": 246,
+    "name": "GRAIL",
+    "ticker": "GRAL",
+    "marketCapUsd": 1920000000,
+    "country": "USA"
+  },
+  {
+    "rank": 247,
+    "name": "Ultragenyx Pharmaceutical",
+    "ticker": "RARE",
+    "marketCapUsd": 1920000000,
+    "country": "USA"
+  },
+  {
+    "rank": 248,
+    "name": "Mesoblast",
+    "ticker": "MESO",
+    "marketCapUsd": 1900000000,
+    "country": "Australia"
+  },
+  {
+    "rank": 249,
+    "name": "Aurinia Pharmaceuticals",
+    "ticker": "AUPH",
+    "marketCapUsd": 1860000000,
+    "country": "Canada"
+  },
+  {
+    "rank": 250,
+    "name": "Tecan",
+    "ticker": "TECN.SW",
+    "marketCapUsd": 1860000000,
+    "country": "Switzerland"
+  },
+  {
+    "rank": 251,
+    "name": "Bausch Health",
+    "ticker": "BHC",
+    "marketCapUsd": 1850000000,
+    "country": "Canada"
+  },
+  {
+    "rank": 252,
+    "name": "Definium Therapeutics",
+    "ticker": "DFTX",
+    "marketCapUsd": 1830000000,
+    "country": "USA"
+  },
+  {
+    "rank": 253,
+    "name": "Natco Pharma",
+    "ticker": "NATCOPHARM.NS",
+    "marketCapUsd": 1830000000,
+    "country": "India"
+  },
+  {
+    "rank": 254,
+    "name": "Fagron",
+    "ticker": "FAGR.BR",
+    "marketCapUsd": 1830000000,
+    "country": "Belgium"
+  },
+  {
+    "rank": 255,
+    "name": "AnaptysBio",
+    "ticker": "ANAB",
+    "marketCapUsd": 1790000000,
+    "country": "USA"
+  },
+  {
+    "rank": 256,
+    "name": "Soleno Therapeutics",
+    "ticker": "SLNO",
+    "marketCapUsd": 1780000000,
+    "country": "USA"
+  },
+  {
+    "rank": 257,
+    "name": "Ocular Therapeutix",
+    "ticker": "OCUL",
+    "marketCapUsd": 1780000000,
+    "country": "USA"
+  },
+  {
+    "rank": 258,
+    "name": "Relay Therapeutics",
+    "ticker": "RLAY",
+    "marketCapUsd": 1770000000,
+    "country": "USA"
+  },
+  {
+    "rank": 259,
+    "name": "Sarepta Therapeutics",
+    "ticker": "SRPT",
+    "marketCapUsd": 1750000000,
+    "country": "USA"
+  },
+  {
+    "rank": 260,
+    "name": "Enliven Therapeutics",
+    "ticker": "ELVN",
+    "marketCapUsd": 1730000000,
+    "country": "USA"
+  },
+  {
+    "rank": 261,
+    "name": "Zymeworks",
+    "ticker": "ZYME",
+    "marketCapUsd": 1730000000,
+    "country": "Canada"
+  },
+  {
+    "rank": 262,
+    "name": "HBM Healthcare Investments",
+    "ticker": "HBMN.SW",
+    "marketCapUsd": 1720000000,
+    "country": "Switzerland"
+  },
+  {
+    "rank": 263,
+    "name": "Recursion Pharmaceuticals",
+    "ticker": "RXRX",
+    "marketCapUsd": 1710000000,
+    "country": "USA"
+  },
+  {
+    "rank": 264,
+    "name": "Artivion",
+    "ticker": "AORT",
+    "marketCapUsd": 1690000000,
+    "country": "USA"
+  },
+  {
+    "rank": 265,
+    "name": "Pharvaris",
+    "ticker": "PHVS",
+    "marketCapUsd": 1680000000,
+    "country": "Netherlands"
+  },
+  {
+    "rank": 266,
+    "name": "Capricor Therapeutics",
+    "ticker": "CAPR",
+    "marketCapUsd": 1660000000,
+    "country": "USA"
+  },
+  {
+    "rank": 267,
+    "name": "Pharma Mar",
+    "ticker": "PHM.MC",
+    "marketCapUsd": 1660000000,
+    "country": "Spain"
+  },
+  {
+    "rank": 268,
+    "name": "Neuland Laboratories",
+    "ticker": "NEULANDLAB.NS",
+    "marketCapUsd": 1640000000,
+    "country": "India"
+  },
+  {
+    "rank": 269,
+    "name": "Sionna Therapeutics",
+    "ticker": "SION",
+    "marketCapUsd": 1630000000,
+    "country": "USA"
+  },
+  {
+    "rank": 270,
+    "name": "Agios Pharmaceuticals",
+    "ticker": "AGIO",
+    "marketCapUsd": 1630000000,
+    "country": "USA"
+  },
+  {
+    "rank": 271,
+    "name": "Cosmo Pharmaceuticals",
+    "ticker": "C43.F",
+    "marketCapUsd": 1620000000,
+    "country": "Ireland"
+  },
+  {
+    "rank": 272,
+    "name": "Innoviva",
+    "ticker": "INVA",
+    "marketCapUsd": 1620000000,
+    "country": "USA"
+  },
+  {
+    "rank": 273,
+    "name": "Harmony Biosciences",
+    "ticker": "HRMY",
+    "marketCapUsd": 1600000000,
+    "country": "USA"
+  },
+  {
+    "rank": 274,
+    "name": "Axogen",
+    "ticker": "AXGN",
+    "marketCapUsd": 1590000000,
+    "country": "USA"
+  },
+  {
+    "rank": 275,
+    "name": "Vericel",
+    "ticker": "VCEL",
+    "marketCapUsd": 1590000000,
+    "country": "USA"
+  },
+  {
+    "rank": 276,
+    "name": "Faes Farma",
+    "ticker": "FAE.MC",
+    "marketCapUsd": 1590000000,
+    "country": "Spain"
+  },
+  {
+    "rank": 277,
+    "name": "Organon",
+    "ticker": "OGN",
+    "marketCapUsd": 1560000000,
+    "country": "USA"
+  },
+  {
+    "rank": 278,
+    "name": "Novavax",
+    "ticker": "NVAX",
+    "marketCapUsd": 1560000000,
+    "country": "USA"
+  },
+  {
+    "rank": 279,
+    "name": "Generate Biomedicines",
+    "ticker": "GENB",
+    "marketCapUsd": 1560000000,
+    "country": "USA"
+  },
+  {
+    "rank": 280,
+    "name": "Granules India",
+    "ticker": "GRANULES.NS",
+    "marketCapUsd": 1560000000,
+    "country": "India"
+  },
+  {
+    "rank": 281,
+    "name": "Amylyx Pharmaceuticals",
+    "ticker": "AMLX",
+    "marketCapUsd": 1520000000,
+    "country": "USA"
+  },
+  {
+    "rank": 282,
+    "name": "Nipro Corporation",
+    "ticker": "8086.T",
+    "marketCapUsd": 1520000000,
+    "country": "Japan"
+  },
+  {
+    "rank": 283,
+    "name": "Iovance Biotherapeutics",
+    "ticker": "IOVA",
+    "marketCapUsd": 1520000000,
+    "country": "USA"
+  },
+  {
+    "rank": 284,
+    "name": "Intellia Therapeutics",
+    "ticker": "NTLA",
+    "marketCapUsd": 1510000000,
+    "country": "USA"
+  },
+  {
+    "rank": 285,
+    "name": "Immunocore",
+    "ticker": "IMCR",
+    "marketCapUsd": 1510000000,
+    "country": "UK"
+  },
+  {
+    "rank": 286,
+    "name": "Nurix Therapeutics",
+    "ticker": "NRIX",
+    "marketCapUsd": 1480000000,
+    "country": "USA"
+  },
+  {
+    "rank": 287,
+    "name": "Nuvation Bio",
+    "ticker": "NUVB",
+    "marketCapUsd": 1460000000,
+    "country": "USA"
+  },
+  {
+    "rank": 288,
+    "name": "Vir Biotechnology",
+    "ticker": "VIR",
+    "marketCapUsd": 1450000000,
+    "country": "USA"
+  },
+  {
+    "rank": 289,
+    "name": "Oculis Holding AG",
+    "ticker": "OCS",
+    "marketCapUsd": 1440000000,
+    "country": "Switzerland"
+  },
+  {
+    "rank": 290,
+    "name": "Alembic Pharmaceuticals",
+    "ticker": "APLLTD.NS",
+    "marketCapUsd": 1420000000,
+    "country": "India"
+  },
+  {
+    "rank": 291,
+    "name": "Jubilant Pharmova",
+    "ticker": "JUBLPHARMA.NS",
+    "marketCapUsd": 1400000000,
+    "country": "India"
+  },
+  {
+    "rank": 292,
+    "name": "Nanobiotix",
+    "ticker": "NBTX",
+    "marketCapUsd": 1400000000,
+    "country": "France"
+  },
+  {
+    "rank": 293,
+    "name": "MBX Biosciences",
+    "ticker": "MBX",
+    "marketCapUsd": 1360000000,
+    "country": "USA"
+  },
+  {
+    "rank": 294,
+    "name": "Trevi Therapeutics",
+    "ticker": "TRVI",
+    "marketCapUsd": 1360000000,
+    "country": "USA"
+  },
+  {
+    "rank": 295,
+    "name": "Kodiak Sciences",
+    "ticker": "KOD",
+    "marketCapUsd": 1350000000,
+    "country": "USA"
+  },
+  {
+    "rank": 296,
+    "name": "Novocure",
+    "ticker": "NVCR",
+    "marketCapUsd": 1340000000,
+    "country": "Jersey"
+  },
+  {
+    "rank": 297,
+    "name": "Biohaven",
+    "ticker": "BHVN",
+    "marketCapUsd": 1340000000,
+    "country": "USA"
+  },
+  {
+    "rank": 298,
+    "name": "Ardelyx",
+    "ticker": "ARDX",
+    "marketCapUsd": 1300000000,
+    "country": "USA"
+  },
+  {
+    "rank": 299,
+    "name": "Rapport Therapeutics",
+    "ticker": "RAPP",
+    "marketCapUsd": 1290000000,
+    "country": "USA"
+  },
+  {
+    "rank": 300,
+    "name": "Perrigo",
+    "ticker": "PRGO",
+    "marketCapUsd": 1270000000,
+    "country": "Ireland"
+  },
+  {
+    "rank": 301,
+    "name": "Vitrolife AB",
+    "ticker": "VITR.ST",
+    "marketCapUsd": 1270000000,
+    "country": "Sweden"
+  },
+  {
+    "rank": 302,
+    "name": "atai Life Sciences",
+    "ticker": "ATAI",
+    "marketCapUsd": 1260000000,
+    "country": "Germany"
+  },
+  {
+    "rank": 303,
+    "name": "Immatics",
+    "ticker": "IMTX",
+    "marketCapUsd": 1260000000,
+    "country": "Germany"
+  },
+  {
+    "rank": 304,
+    "name": "Monte Rosa Therapeutics",
+    "ticker": "GLUE",
+    "marketCapUsd": 1250000000,
+    "country": "USA"
+  },
+  {
+    "rank": 305,
+    "name": "Bonesupport Holding AB",
+    "ticker": "BONEX.ST",
+    "marketCapUsd": 1240000000,
+    "country": "Sweden"
+  },
+  {
+    "rank": 306,
+    "name": "Harrow Health",
+    "ticker": "HROW",
+    "marketCapUsd": 1230000000,
+    "country": "USA"
+  },
+  {
+    "rank": 307,
+    "name": "Towa Pharmaceutical",
+    "ticker": "4553.T",
+    "marketCapUsd": 1220000000,
+    "country": "Japan"
+  },
+  {
+    "rank": 308,
+    "name": "Olema Pharmaceuticals",
+    "ticker": "OLMA",
+    "marketCapUsd": 1220000000,
+    "country": "USA"
+  },
+  {
+    "rank": 309,
+    "name": "Taysha Gene Therapies",
+    "ticker": "TSHA",
+    "marketCapUsd": 1200000000,
+    "country": "USA"
+  },
+  {
+    "rank": 310,
+    "name": "Inventiva",
+    "ticker": "IVA",
+    "marketCapUsd": 1200000000,
+    "country": "France"
+  },
+  {
+    "rank": 311,
+    "name": "Zenas BioPharma",
+    "ticker": "ZBIO",
+    "marketCapUsd": 1190000000,
+    "country": "USA"
+  },
+  {
+    "rank": 312,
+    "name": "Bicara Therapeutics",
+    "ticker": "BCAX",
+    "marketCapUsd": 1190000000,
+    "country": "USA"
+  },
+  {
+    "rank": 313,
+    "name": "Kissei Pharmaceutical",
+    "ticker": "4547.T",
+    "marketCapUsd": 1180000000,
+    "country": "Japan"
+  },
+  {
+    "rank": 314,
+    "name": "MoonLake Immunotherapeutics",
+    "ticker": "MLTX",
+    "marketCapUsd": 1160000000,
+    "country": "Switzerland"
+  },
+  {
+    "rank": 315,
+    "name": "Kuros Biosciences",
+    "ticker": "KURN.SW",
+    "marketCapUsd": 1160000000,
+    "country": "Switzerland"
+  },
+  {
+    "rank": 316,
+    "name": "Precigen",
+    "ticker": "PGEN",
+    "marketCapUsd": 1160000000,
+    "country": "USA"
+  },
+  {
+    "rank": 317,
+    "name": "Collegium Pharmaceutical",
+    "ticker": "COLL",
+    "marketCapUsd": 1120000000,
+    "country": "USA"
+  },
+  {
+    "rank": 318,
+    "name": "Corvus Pharmaceuticals",
+    "ticker": "CRVS",
+    "marketCapUsd": 1110000000,
+    "country": "USA"
+  },
+  {
+    "rank": 319,
+    "name": "H.U. Group Holdings",
+    "ticker": "4544.T",
+    "marketCapUsd": 1110000000,
+    "country": "Japan"
+  },
+  {
+    "rank": 320,
+    "name": "EyePoint Pharmaceuticals",
+    "ticker": "EYPT",
+    "marketCapUsd": 1100000000,
+    "country": "USA"
+  },
+  {
+    "rank": 321,
+    "name": "Alvotech",
+    "ticker": "ALVO",
+    "marketCapUsd": 1090000000,
+    "country": "Iceland"
+  },
+  {
+    "rank": 322,
+    "name": "Maravai LifeSciences",
+    "ticker": "MRVI",
+    "marketCapUsd": 1090000000,
+    "country": "USA"
+  },
+  {
+    "rank": 323,
+    "name": "Septerna",
+    "ticker": "SEPN",
+    "marketCapUsd": 1080000000,
+    "country": "USA"
+  },
+  {
+    "rank": 324,
+    "name": "Vetoquinol",
+    "ticker": "VETO.PA",
+    "marketCapUsd": 1070000000,
+    "country": "France"
+  },
+  {
+    "rank": 325,
+    "name": "ChemoMetec",
+    "ticker": "CHEMM.CO",
+    "marketCapUsd": 1070000000,
+    "country": "Denmark"
+  },
+  {
+    "rank": 326,
+    "name": "DBV Technologies",
+    "ticker": "DBVT",
+    "marketCapUsd": 1070000000,
+    "country": "France"
+  },
+  {
+    "rank": 327,
+    "name": "Pharming Group",
+    "ticker": "PHAR",
+    "marketCapUsd": 1070000000,
+    "country": "Netherlands"
+  },
+  {
+    "rank": 328,
+    "name": "NeoGenomics",
+    "ticker": "NEO",
+    "marketCapUsd": 1030000000,
+    "country": "USA"
+  },
+  {
+    "rank": 329,
+    "name": "AbCellera",
+    "ticker": "ABCL",
+    "marketCapUsd": 1030000000,
+    "country": "Canada"
+  },
+  {
+    "rank": 330,
+    "name": "PolyPeptide Group",
+    "ticker": "PPGN.SW",
+    "marketCapUsd": 1020000000,
+    "country": "Switzerland"
+  },
+  {
+    "rank": 331,
+    "name": "Neuren Pharmaceuticals",
+    "ticker": "NEU.AX",
+    "marketCapUsd": 1010000000,
+    "country": "Australia"
+  },
+  {
+    "rank": 332,
+    "name": "Savara",
+    "ticker": "SVRA",
+    "marketCapUsd": 1010000000,
+    "country": "USA"
+  },
+  {
+    "rank": 333,
+    "name": "Idorsia",
+    "ticker": "IDIA.SW",
+    "marketCapUsd": 1000000000,
+    "country": "Switzerland"
+  },
+  {
+    "rank": 334,
+    "name": "uniQure",
+    "ticker": "QURE",
+    "marketCapUsd": 1000000000,
+    "country": "Netherlands"
+  },
+  {
+    "rank": 335,
+    "name": "Ventyx Biosciences",
+    "ticker": "VTYX",
+    "marketCapUsd": 1000000000,
+    "country": "USA"
+  },
+  {
+    "rank": 336,
+    "name": "Oxford Biomedica",
+    "ticker": "OXB.L",
+    "marketCapUsd": 990000000,
+    "country": "UK"
+  },
+  {
+    "rank": 337,
+    "name": "Certara",
+    "ticker": "CERT",
+    "marketCapUsd": 970000000,
+    "country": "USA"
+  },
+  {
+    "rank": 338,
+    "name": "ArriVent BioPharma",
+    "ticker": "AVBP",
+    "marketCapUsd": 970000000,
+    "country": "USA"
+  },
+  {
+    "rank": 339,
+    "name": "PeptiDream",
+    "ticker": "4587.T",
+    "marketCapUsd": 970000000,
+    "country": "Japan"
+  },
+  {
+    "rank": 340,
+    "name": "Pacira Biosciences",
+    "ticker": "PCRX",
+    "marketCapUsd": 950000000,
+    "country": "USA"
+  },
+  {
+    "rank": 341,
+    "name": "BML, Inc.",
+    "ticker": "4694.T",
+    "marketCapUsd": 940000000,
+    "country": "Japan"
+  },
+  {
+    "rank": 342,
+    "name": "Xeris Pharmaceuticals",
+    "ticker": "XERS",
+    "marketCapUsd": 930000000,
+    "country": "USA"
+  },
+  {
+    "rank": 343,
+    "name": "Geron",
+    "ticker": "GERN",
+    "marketCapUsd": 930000000,
+    "country": "USA"
+  },
+  {
+    "rank": 344,
+    "name": "Azenta",
+    "ticker": "AZTA",
+    "marketCapUsd": 920000000,
+    "country": "USA"
+  },
+  {
+    "rank": 345,
+    "name": "Compass Therapeutics",
+    "ticker": "CMPX",
+    "marketCapUsd": 920000000,
+    "country": "USA"
+  },
+  {
+    "rank": 346,
+    "name": "SPIMACO",
+    "ticker": "2070.SR",
+    "marketCapUsd": 910000000,
+    "country": "Saudi Arabia"
+  },
+  {
+    "rank": 347,
+    "name": "Biolife Solutions",
+    "ticker": "BLFS",
+    "marketCapUsd": 910000000,
+    "country": "USA"
+  },
+  {
+    "rank": 348,
+    "name": "Valneva SE",
+    "ticker": "VALN",
+    "marketCapUsd": 890000000,
+    "country": "France"
+  },
+  {
+    "rank": 349,
+    "name": "Amphastar Pharmaceuticals",
+    "ticker": "AMPH",
+    "marketCapUsd": 890000000,
+    "country": "USA"
+  },
+  {
+    "rank": 350,
+    "name": "Xencor",
+    "ticker": "XNCR",
+    "marketCapUsd": 880000000,
+    "country": "USA"
+  },
+  {
+    "rank": 351,
+    "name": "Strides Pharma",
+    "ticker": "STAR.NS",
+    "marketCapUsd": 880000000,
+    "country": "India"
+  },
+  {
+    "rank": 352,
+    "name": "Allergy Therapeutics",
+    "ticker": "AGY.L",
+    "marketCapUsd": 880000000,
+    "country": "UK"
+  },
+  {
+    "rank": 353,
+    "name": "Inhibrx Biosciences",
+    "ticker": "INBX",
+    "marketCapUsd": 880000000,
+    "country": "USA"
+  },
+  {
+    "rank": 354,
+    "name": "Phathom Pharmaceuticals",
+    "ticker": "PHAT",
+    "marketCapUsd": 880000000,
+    "country": "USA"
+  },
+  {
+    "rank": 355,
+    "name": "Genomma Lab Internacional",
+    "ticker": "LABB.MX",
+    "marketCapUsd": 870000000,
+    "country": "Mexico"
+  },
+  {
+    "rank": 356,
+    "name": "Evotec",
+    "ticker": "EVO",
+    "marketCapUsd": 870000000,
+    "country": "Germany"
+  },
+  {
+    "rank": 357,
+    "name": "Takara Bio",
+    "ticker": "4974.T",
+    "marketCapUsd": 860000000,
+    "country": "Japan"
+  },
+  {
+    "rank": 358,
+    "name": "GH Research",
+    "ticker": "GHRS",
+    "marketCapUsd": 860000000,
+    "country": "Ireland"
+  },
+  {
+    "rank": 359,
+    "name": "SpyGlass Pharma",
+    "ticker": "SGP",
+    "marketCapUsd": 860000000,
+    "country": "USA"
+  },
+  {
+    "rank": 360,
+    "name": "KalVista Pharmaceuticals",
+    "ticker": "KALV",
+    "marketCapUsd": 850000000,
+    "country": "USA"
+  },
+  {
+    "rank": 361,
+    "name": "UroGen Pharma",
+    "ticker": "URGN",
+    "marketCapUsd": 850000000,
+    "country": "USA"
+  },
+  {
+    "rank": 362,
+    "name": "Janux Therapeutics",
+    "ticker": "JANX",
+    "marketCapUsd": 850000000,
+    "country": "USA"
+  },
+  {
+    "rank": 363,
+    "name": "SELLAS Life Sciences",
+    "ticker": "SLS",
+    "marketCapUsd": 850000000,
+    "country": "USA"
+  },
+  {
+    "rank": 364,
+    "name": "Pharmanutra",
+    "ticker": "PHN.MI",
+    "marketCapUsd": 830000000,
+    "country": "Italy"
+  },
+  {
+    "rank": 365,
+    "name": "Sana Biotechnology",
+    "ticker": "SANA",
+    "marketCapUsd": 820000000,
+    "country": "USA"
+  },
+  {
+    "rank": 366,
+    "name": "Arbutus Biopharma",
+    "ticker": "ABUS",
+    "marketCapUsd": 810000000,
+    "country": "USA"
+  },
+  {
+    "rank": 367,
+    "name": "ARS Pharmaceuticals",
+    "ticker": "SPRY",
+    "marketCapUsd": 810000000,
+    "country": "USA"
+  },
+  {
+    "rank": 368,
+    "name": "Basilea Pharmaceutica",
+    "ticker": "BSLN.SW",
+    "marketCapUsd": 810000000,
+    "country": "Switzerland"
+  },
+  {
+    "rank": 369,
+    "name": "BioAge Labs",
+    "ticker": "BIOA",
+    "marketCapUsd": 800000000,
+    "country": "USA"
+  },
+  {
+    "rank": 370,
+    "name": "MapLight Therapeutics",
+    "ticker": "MPLT",
+    "marketCapUsd": 790000000,
+    "country": "USA"
+  },
+  {
+    "rank": 371,
+    "name": "Mochida Pharmaceutical",
+    "ticker": "4534.T",
+    "marketCapUsd": 790000000,
+    "country": "Japan"
+  },
+  {
+    "rank": 372,
+    "name": "Omeros Corporation",
+    "ticker": "OMER",
+    "marketCapUsd": 770000000,
+    "country": "USA"
+  },
+  {
+    "rank": 373,
+    "name": "Cullinan Therapeutics",
+    "ticker": "CGEM",
+    "marketCapUsd": 770000000,
+    "country": "USA"
+  },
+  {
+    "rank": 374,
+    "name": "Annexon",
+    "ticker": "ANNX",
+    "marketCapUsd": 760000000,
+    "country": "USA"
+  },
+  {
+    "rank": 375,
+    "name": "MannKind Corp",
+    "ticker": "MNKD",
+    "marketCapUsd": 760000000,
+    "country": "USA"
+  },
+  {
+    "rank": 376,
+    "name": "Personalis",
+    "ticker": "PSNL",
+    "marketCapUsd": 750000000,
+    "country": "USA"
+  },
+  {
+    "rank": 377,
+    "name": "CytomX Therapeutics",
+    "ticker": "CTMX",
+    "marketCapUsd": 750000000,
+    "country": "USA"
+  },
+  {
+    "rank": 378,
+    "name": "Evommune",
+    "ticker": "EVMN",
+    "marketCapUsd": 730000000,
+    "country": "USA"
+  },
+  {
+    "rank": 379,
+    "name": "MedCap",
+    "ticker": "MCAP.ST",
+    "marketCapUsd": 730000000,
+    "country": "Sweden"
+  },
+  {
+    "rank": 380,
+    "name": "Kura Oncology",
+    "ticker": "KURA",
+    "marketCapUsd": 720000000,
+    "country": "USA"
+  },
+  {
+    "rank": 381,
+    "name": "Theravance Biopharma",
+    "ticker": "TBPH",
+    "marketCapUsd": 720000000,
+    "country": "Cayman Islands"
+  },
+  {
+    "rank": 382,
+    "name": "Tilray",
+    "ticker": "TLRY",
+    "marketCapUsd": 720000000,
+    "country": "Canada"
+  },
+  {
+    "rank": 383,
+    "name": "Arvinas",
+    "ticker": "ARVN",
+    "marketCapUsd": 700000000,
+    "country": "USA"
+  },
+  {
+    "rank": 384,
+    "name": "Bright Minds Biosciences",
+    "ticker": "DRUG",
+    "marketCapUsd": 700000000,
+    "country": "USA"
+  },
+  {
+    "rank": 385,
+    "name": "Integra LifeSciences",
+    "ticker": "IART",
+    "marketCapUsd": 690000000,
+    "country": "USA"
+  },
+  {
+    "rank": 386,
+    "name": "Ocugen",
+    "ticker": "OCGN",
+    "marketCapUsd": 660000000,
+    "country": "USA"
+  },
+  {
+    "rank": 387,
+    "name": "Alto Neuroscience",
+    "ticker": "ANRO",
+    "marketCapUsd": 660000000,
+    "country": "USA"
+  },
+  {
+    "rank": 388,
+    "name": "Lexicon Pharmaceuticals",
+    "ticker": "LXRX",
+    "marketCapUsd": 660000000,
+    "country": "USA"
+  },
+  {
+    "rank": 389,
+    "name": "Esperion Therapeutics",
+    "ticker": "ESPR",
+    "marketCapUsd": 650000000,
+    "country": "USA"
+  },
+  {
+    "rank": 390,
+    "name": "Gyre Therapeutics",
+    "ticker": "GYRE",
+    "marketCapUsd": 640000000,
+    "country": "USA"
+  },
+  {
+    "rank": 391,
+    "name": "DRI Healthcare Trust",
+    "ticker": "DHT-UN.TO",
+    "marketCapUsd": 640000000,
+    "country": "Canada"
+  },
+  {
+    "rank": 392,
+    "name": "Eikon Therapeutics",
+    "ticker": "EIKN",
+    "marketCapUsd": 630000000,
+    "country": "USA"
+  },
+  {
+    "rank": 393,
+    "name": "Design Therapeutics",
+    "ticker": "DSGN",
+    "marketCapUsd": 630000000,
+    "country": "USA"
+  },
+  {
+    "rank": 394,
+    "name": "Prime Medicine",
+    "ticker": "PRME",
+    "marketCapUsd": 630000000,
+    "country": "USA"
+  },
+  {
+    "rank": 395,
+    "name": "Alpha Tau Medical",
+    "ticker": "DRTS",
+    "marketCapUsd": 620000000,
+    "country": "Israel"
+  },
+  {
+    "rank": 396,
+    "name": "SD BioSensor",
+    "ticker": "137310.KS",
+    "marketCapUsd": 620000000,
+    "country": "South Korea"
+  },
+  {
+    "rank": 397,
+    "name": "MiMedx Group",
+    "ticker": "MDXG",
+    "marketCapUsd": 610000000,
+    "country": "USA"
+  },
+  {
+    "rank": 398,
+    "name": "AgomAb Therapeutics",
+    "ticker": "AGMB",
+    "marketCapUsd": 590000000,
+    "country": "Belgium"
+  },
+  {
+    "rank": 399,
+    "name": "Anteris Technologies",
+    "ticker": "AVR.AX",
+    "marketCapUsd": 580000000,
+    "country": "Australia"
+  },
+  {
+    "rank": 400,
+    "name": "KYORIN Pharmaceutical",
+    "ticker": "4569.T",
+    "marketCapUsd": 580000000,
+    "country": "Japan"
+  },
+  {
+    "rank": 401,
+    "name": "Zeria Pharmaceutical",
+    "ticker": "4559.T",
+    "marketCapUsd": 580000000,
+    "country": "Japan"
+  },
+  {
+    "rank": 402,
+    "name": "Opthea",
+    "ticker": "OPT",
+    "marketCapUsd": 580000000,
+    "country": "Australia"
+  },
+  {
+    "rank": 403,
+    "name": "ProKidney",
+    "ticker": "PROK",
+    "marketCapUsd": 580000000,
+    "country": "USA"
+  },
+  {
+    "rank": 404,
+    "name": "MeiraGTx",
+    "ticker": "MGTX",
+    "marketCapUsd": 570000000,
+    "country": "USA"
+  },
+  {
+    "rank": 405,
+    "name": "FDC India",
+    "ticker": "FDC.NS",
+    "marketCapUsd": 570000000,
+    "country": "India"
+  },
+  {
+    "rank": 406,
+    "name": "Replimune",
+    "ticker": "REPL",
+    "marketCapUsd": 570000000,
+    "country": "USA"
+  },
+  {
+    "rank": 407,
+    "name": "SI-BONE",
+    "ticker": "SIBN",
+    "marketCapUsd": 560000000,
+    "country": "USA"
+  },
+  {
+    "rank": 408,
+    "name": "Tectonic Therapeutic",
+    "ticker": "TECX",
+    "marketCapUsd": 560000000,
+    "country": "USA"
+  },
+  {
+    "rank": 409,
+    "name": "Advanced Medical Solutions Group",
+    "ticker": "AMS.L",
+    "marketCapUsd": 550000000,
+    "country": "UK"
+  },
+  {
+    "rank": 410,
+    "name": "Solid Biosciences",
+    "ticker": "SLDB",
+    "marketCapUsd": 540000000,
+    "country": "USA"
+  },
+  {
+    "rank": 411,
+    "name": "Zevra Therapeutics",
+    "ticker": "ZVRA",
+    "marketCapUsd": 540000000,
+    "country": "USA"
+  },
+  {
+    "rank": 412,
+    "name": "Zura Bio",
+    "ticker": "ZURA",
+    "marketCapUsd": 520000000,
+    "country": "USA"
+  },
+  {
+    "rank": 413,
+    "name": "Boiron",
+    "ticker": "BOI.PA",
+    "marketCapUsd": 520000000,
+    "country": "France"
+  },
+  {
+    "rank": 414,
+    "name": "Avalon Pharma (Middle East Pharmaceutical)",
+    "ticker": "4016.SR",
+    "marketCapUsd": 510000000,
+    "country": "Saudi Arabia"
+  },
+  {
+    "rank": 415,
+    "name": "Perspective Therapeutics",
+    "ticker": "CATX",
+    "marketCapUsd": 500000000,
+    "country": "USA"
+  },
+  {
+    "rank": 416,
+    "name": "Vor Biopharma",
+    "ticker": "VOR",
+    "marketCapUsd": 490000000,
+    "country": "USA"
+  },
+  {
+    "rank": 417,
+    "name": "Nxera Pharma",
+    "ticker": "4565.T",
+    "marketCapUsd": 490000000,
+    "country": "Japan"
+  },
+  {
+    "rank": 418,
+    "name": "Ironwood Pharmaceuticals",
+    "ticker": "IRWD",
+    "marketCapUsd": 490000000,
+    "country": "USA"
+  },
+  {
+    "rank": 419,
+    "name": "4D Molecular Therapeutics",
+    "ticker": "FDMT",
+    "marketCapUsd": 490000000,
+    "country": "USA"
+  },
+  {
+    "rank": 420,
+    "name": "Kamada",
+    "ticker": "KMDA",
+    "marketCapUsd": 490000000,
+    "country": "Israel"
+  },
+  {
+    "rank": 421,
+    "name": "ADC Therapeutics",
+    "ticker": "ADCT",
+    "marketCapUsd": 490000000,
+    "country": "Switzerland"
+  },
+  {
+    "rank": 422,
+    "name": "Aquestive Therapeutics",
+    "ticker": "AQST",
+    "marketCapUsd": 480000000,
+    "country": "USA"
+  },
+  {
+    "rank": 423,
+    "name": "Verastem Oncology",
+    "ticker": "VSTM",
+    "marketCapUsd": 480000000,
+    "country": "USA"
+  },
+  {
+    "rank": 424,
+    "name": "Fulgent Genetics",
+    "ticker": "FLGT",
+    "marketCapUsd": 480000000,
+    "country": "USA"
+  },
+  {
+    "rank": 425,
+    "name": "enGene",
+    "ticker": "ENGN",
+    "marketCapUsd": 480000000,
+    "country": "Canada"
+  },
+  {
+    "rank": 426,
+    "name": "Immix Biopharma",
+    "ticker": "IMMX",
+    "marketCapUsd": 480000000,
+    "country": "USA"
+  },
+  {
+    "rank": 427,
+    "name": "Rigel Pharmaceuticals",
+    "ticker": "RIGL",
+    "marketCapUsd": 470000000,
+    "country": "USA"
+  },
+  {
+    "rank": 428,
+    "name": "Kyverna Therapeutics",
+    "ticker": "KYTX",
+    "marketCapUsd": 470000000,
+    "country": "USA"
+  },
+  {
+    "rank": 429,
+    "name": "Prothena",
+    "ticker": "PRTA",
+    "marketCapUsd": 470000000,
+    "country": "Ireland"
+  },
+  {
+    "rank": 430,
+    "name": "Upstream Bio",
+    "ticker": "UPB",
+    "marketCapUsd": 460000000,
+    "country": "USA"
+  },
+  {
+    "rank": 431,
+    "name": "Allogene Therapeutics",
+    "ticker": "ALLO",
+    "marketCapUsd": 460000000,
+    "country": "USA"
+  },
+  {
+    "rank": 432,
+    "name": "Larimar Therapeutics",
+    "ticker": "LRMR",
+    "marketCapUsd": 460000000,
+    "country": "USA"
+  },
+  {
+    "rank": 433,
+    "name": "JCR Pharmaceuticals",
+    "ticker": "4552.T",
+    "marketCapUsd": 450000000,
+    "country": "Japan"
+  },
+  {
+    "rank": 434,
+    "name": "Contineum Therapeutics",
+    "ticker": "CTNM",
+    "marketCapUsd": 450000000,
+    "country": "USA"
+  },
+  {
+    "rank": 435,
+    "name": "Atea Pharmaceuticals",
+    "ticker": "AVIR",
+    "marketCapUsd": 450000000,
+    "country": "USA"
+  },
+  {
+    "rank": 436,
+    "name": "Fulcrum Therapeutics",
+    "ticker": "FULC",
+    "marketCapUsd": 450000000,
+    "country": "USA"
+  },
+  {
+    "rank": 437,
+    "name": "Rocket Pharmaceuticals",
+    "ticker": "RCKT",
+    "marketCapUsd": 440000000,
+    "country": "USA"
+  },
+  {
+    "rank": 438,
+    "name": "Aclaris Therapeutics",
+    "ticker": "ACRS",
+    "marketCapUsd": 440000000,
+    "country": "USA"
+  },
+  {
+    "rank": 439,
+    "name": "Lyell Immunopharma",
+    "ticker": "LYEL",
+    "marketCapUsd": 440000000,
+    "country": "USA"
+  },
+  {
+    "rank": 440,
+    "name": "Relmada Therapeutics",
+    "ticker": "RLMD",
+    "marketCapUsd": 440000000,
+    "country": "USA"
+  },
+  {
+    "rank": 441,
+    "name": "Shattuck Labs",
+    "ticker": "STTK",
+    "marketCapUsd": 440000000,
+    "country": "USA"
+  },
+  {
+    "rank": 442,
+    "name": "Absci",
+    "ticker": "ABSI",
+    "marketCapUsd": 440000000,
+    "country": "USA"
+  },
+  {
+    "rank": 443,
+    "name": "PolyNovo",
+    "ticker": "PNV.AX",
+    "marketCapUsd": 440000000,
+    "country": "Australia"
+  },
+  {
+    "rank": 444,
+    "name": "Adlai Nortye",
+    "ticker": "ANL",
+    "marketCapUsd": 430000000,
+    "country": "Cayman Islands"
+  },
+  {
+    "rank": 445,
+    "name": "Altimmune",
+    "ticker": "ALT",
+    "marketCapUsd": 430000000,
+    "country": "USA"
+  },
+  {
+    "rank": 446,
+    "name": "Entrada Therapeutics",
+    "ticker": "TRDA",
+    "marketCapUsd": 430000000,
+    "country": "USA"
+  },
+  {
+    "rank": 447,
+    "name": "Emergent BioSolutions",
+    "ticker": "EBS",
+    "marketCapUsd": 430000000,
+    "country": "USA"
+  },
+  {
+    "rank": 448,
+    "name": "Myriad Genetics",
+    "ticker": "MYGN",
+    "marketCapUsd": 420000000,
+    "country": "USA"
+  },
+  {
+    "rank": 449,
+    "name": "Neumora Therapeutics",
+    "ticker": "NMRA",
+    "marketCapUsd": 420000000,
+    "country": "USA"
+  },
+  {
+    "rank": 450,
+    "name": "Vanda Pharmaceuticals",
+    "ticker": "VNDA",
+    "marketCapUsd": 420000000,
+    "country": "USA"
+  },
+  {
+    "rank": 451,
+    "name": "REGENXBIO",
+    "ticker": "RGNX",
+    "marketCapUsd": 410000000,
+    "country": "USA"
+  },
+  {
+    "rank": 452,
+    "name": "Aura Biosciences",
+    "ticker": "AURA",
+    "marketCapUsd": 410000000,
+    "country": "USA"
+  },
+  {
+    "rank": 453,
+    "name": "Ginkgo Bioworks",
+    "ticker": "DNA",
+    "marketCapUsd": 410000000,
+    "country": "USA"
+  },
+  {
+    "rank": 454,
+    "name": "Lexeo Therapeutics",
+    "ticker": "LXEO",
+    "marketCapUsd": 410000000,
+    "country": "USA"
+  },
+  {
+    "rank": 455,
+    "name": "Avacta Group",
+    "ticker": "AVCT.L",
+    "marketCapUsd": 400000000,
+    "country": "UK"
+  },
+  {
+    "rank": 456,
+    "name": "Pacific Biosciences",
+    "ticker": "PACB",
+    "marketCapUsd": 400000000,
+    "country": "USA"
+  },
+  {
+    "rank": 457,
+    "name": "SPARC",
+    "ticker": "SPARC.NS",
+    "marketCapUsd": 390000000,
+    "country": "India"
+  },
+  {
+    "rank": 458,
+    "name": "Medios AG",
+    "ticker": "ILM1.DE",
+    "marketCapUsd": 390000000,
+    "country": "Germany"
+  },
+  {
+    "rank": 459,
+    "name": "Invivyd",
+    "ticker": "IVVD",
+    "marketCapUsd": 380000000,
+    "country": "USA"
+  },
+  {
+    "rank": 460,
+    "name": "X4 Pharmaceuticals",
+    "ticker": "XFOR",
+    "marketCapUsd": 380000000,
+    "country": "USA"
+  },
+  {
+    "rank": 461,
+    "name": "PharmaSGP",
+    "ticker": "PSG.DE",
+    "marketCapUsd": 380000000,
+    "country": "Germany"
+  },
+  {
+    "rank": 462,
+    "name": "PureTech Health",
+    "ticker": "PRTC",
+    "marketCapUsd": 380000000,
+    "country": "USA"
+  },
+  {
+    "rank": 463,
+    "name": "Nautilus Biotechnology",
+    "ticker": "NAUT",
+    "marketCapUsd": 380000000,
+    "country": "USA"
+  },
+  {
+    "rank": 464,
+    "name": "Akebia Therapeutics",
+    "ticker": "AKBA",
+    "marketCapUsd": 380000000,
+    "country": "USA"
+  },
+  {
+    "rank": 465,
+    "name": "Anavex Life Sciences",
+    "ticker": "AVXL",
+    "marketCapUsd": 370000000,
+    "country": "USA"
+  },
+  {
+    "rank": 466,
+    "name": "Benitec Biopharma",
+    "ticker": "BNTC",
+    "marketCapUsd": 370000000,
+    "country": "USA"
+  },
+  {
+    "rank": 467,
+    "name": "Shinpoong Pharm",
+    "ticker": "019170.KS",
+    "marketCapUsd": 370000000,
+    "country": "South Korea"
+  },
+  {
+    "rank": 468,
+    "name": "Sensorion",
+    "ticker": "ALSEN.PA",
+    "marketCapUsd": 360000000,
+    "country": "France"
+  },
+  {
+    "rank": 469,
+    "name": "Newron Pharmaceuticals",
+    "ticker": "NWRN.SW",
+    "marketCapUsd": 360000000,
+    "country": "Italy"
+  },
+  {
+    "rank": 470,
+    "name": "Monopar Therapeutics",
+    "ticker": "MNPR",
+    "marketCapUsd": 360000000,
+    "country": "USA"
+  },
+  {
+    "rank": 471,
+    "name": "Autolus Therapeutics",
+    "ticker": "AUTL",
+    "marketCapUsd": 360000000,
+    "country": "UK"
+  },
+  {
+    "rank": 472,
+    "name": "Enanta Pharmaceuticals",
+    "ticker": "ENTA",
+    "marketCapUsd": 360000000,
+    "country": "USA"
+  },
+  {
+    "rank": 473,
+    "name": "Lineage Cell Therapeutics",
+    "ticker": "LCTX",
+    "marketCapUsd": 360000000,
+    "country": "USA"
+  },
+  {
+    "rank": 474,
+    "name": "Race Oncology",
+    "ticker": "RAC.AX",
+    "marketCapUsd": 360000000,
+    "country": "Australia"
+  },
+  {
+    "rank": 475,
+    "name": "XOMA",
+    "ticker": "XOMA",
+    "marketCapUsd": 350000000,
+    "country": "USA"
+  },
+  {
+    "rank": 476,
+    "name": "SIGA Technologies",
+    "ticker": "SIGA",
+    "marketCapUsd": 350000000,
+    "country": "USA"
+  },
+  {
+    "rank": 477,
+    "name": "Formycon AG",
+    "ticker": "FYB.DE",
+    "marketCapUsd": 340000000,
+    "country": "Germany"
+  },
+  {
+    "rank": 478,
+    "name": "COLTENE Holding AG",
+    "ticker": "CLTN.SW",
+    "marketCapUsd": 340000000,
+    "country": "Switzerland"
+  },
+  {
+    "rank": 479,
+    "name": "Clinuvel Pharmaceuticals",
+    "ticker": "CUV.AX",
+    "marketCapUsd": 330000000,
+    "country": "Australia"
+  },
+  {
+    "rank": 480,
+    "name": "Sutro Biopharma",
+    "ticker": "STRO",
+    "marketCapUsd": 330000000,
+    "country": "USA"
+  },
+  {
+    "rank": 481,
+    "name": "Gulf Pharmaceutical Industries",
+    "ticker": "JULPHAR.AE",
+    "marketCapUsd": 330000000,
+    "country": "UAE"
+  },
+  {
+    "rank": 482,
+    "name": "Cellectis",
+    "ticker": "CLLS",
+    "marketCapUsd": 330000000,
+    "country": "France"
+  },
+  {
+    "rank": 483,
+    "name": "Aarti Drugs",
+    "ticker": "AARTIDRUGS.NS",
+    "marketCapUsd": 330000000,
+    "country": "India"
+  },
+  {
+    "rank": 484,
+    "name": "Keros Therapeutics",
+    "ticker": "KROS",
+    "marketCapUsd": 330000000,
+    "country": "USA"
+  },
+  {
+    "rank": 485,
+    "name": "Greenwich LifeSciences",
+    "ticker": "GLSI",
+    "marketCapUsd": 330000000,
+    "country": "USA"
+  },
+  {
+    "rank": 486,
+    "name": "RPG Life Sciences",
+    "ticker": "RPGLIFE.NS",
+    "marketCapUsd": 330000000,
+    "country": "India"
+  },
+  {
+    "rank": 487,
+    "name": "Cerus",
+    "ticker": "CERS",
+    "marketCapUsd": 330000000,
+    "country": "USA"
+  },
+  {
+    "rank": 488,
+    "name": "Prenetics",
+    "ticker": "PRE",
+    "marketCapUsd": 330000000,
+    "country": "Hong Kong"
+  },
+  {
+    "rank": 489,
+    "name": "LENZ Therapeutics",
+    "ticker": "LENZ",
+    "marketCapUsd": 320000000,
+    "country": "USA"
+  },
+  {
+    "rank": 490,
+    "name": "Minerva Neurosciences",
+    "ticker": "NERV",
+    "marketCapUsd": 320000000,
+    "country": "USA"
+  },
+  {
+    "rank": 491,
+    "name": "PepGen",
+    "ticker": "PEPG",
+    "marketCapUsd": 320000000,
+    "country": "USA"
+  },
+  {
+    "rank": 492,
+    "name": "Immuneering",
+    "ticker": "IMRX",
+    "marketCapUsd": 320000000,
+    "country": "USA"
+  },
+  {
+    "rank": 493,
+    "name": "CapsoVision",
+    "ticker": "CV",
+    "marketCapUsd": 320000000,
+    "country": "USA"
+  },
+  {
+    "rank": 494,
+    "name": "Puma Biotechnology",
+    "ticker": "PBYI",
+    "marketCapUsd": 310000000,
+    "country": "USA"
+  },
+  {
+    "rank": 495,
+    "name": "Organogenesis",
+    "ticker": "ORGO",
+    "marketCapUsd": 300000000,
+    "country": "USA"
+  },
+  {
+    "rank": 496,
+    "name": "Armata Pharmaceuticals",
+    "ticker": "ARMP",
+    "marketCapUsd": 300000000,
+    "country": "USA"
+  },
+  {
+    "rank": 497,
+    "name": "Evolus",
+    "ticker": "EOLS",
+    "marketCapUsd": 300000000,
+    "country": "USA"
+  },
+  {
+    "rank": 498,
+    "name": "Bicycle Therapeutics",
+    "ticker": "BCYC",
+    "marketCapUsd": 300000000,
+    "country": "UK"
+  },
+  {
+    "rank": 499,
+    "name": "Amarin Corporation",
+    "ticker": "AMRN",
+    "marketCapUsd": 300000000,
+    "country": "Ireland"
+  },
+  {
+    "rank": 500,
+    "name": "NervGen Pharma",
+    "ticker": "NGEN.V",
+    "marketCapUsd": 290000000,
+    "country": "Canada"
+  },
+  {
+    "rank": 501,
+    "name": "Shoulder Innovations",
+    "ticker": "SI",
+    "marketCapUsd": 290000000,
+    "country": "USA"
+  },
+  {
+    "rank": 502,
+    "name": "Neurogene",
+    "ticker": "NGNE",
+    "marketCapUsd": 290000000,
+    "country": "USA"
+  },
+  {
+    "rank": 503,
+    "name": "Foghorn Therapeutics",
+    "ticker": "FHTX",
+    "marketCapUsd": 290000000,
+    "country": "USA"
+  },
+  {
+    "rank": 504,
+    "name": "Silence Therapeutics",
+    "ticker": "SLN",
+    "marketCapUsd": 290000000,
+    "country": "UK"
+  },
+  {
+    "rank": 505,
+    "name": "Celon Pharma",
+    "ticker": "CLN.WA",
+    "marketCapUsd": 290000000,
+    "country": "Poland"
+  },
+  {
+    "rank": 506,
+    "name": "ALX Oncology",
+    "ticker": "ALXO",
+    "marketCapUsd": 280000000,
+    "country": "USA"
+  },
+  {
+    "rank": 507,
+    "name": "AC Immune",
+    "ticker": "ACIU",
+    "marketCapUsd": 280000000,
+    "country": "Switzerland"
+  },
+  {
+    "rank": 508,
+    "name": "Cabaletta Bio",
+    "ticker": "CABA",
+    "marketCapUsd": 280000000,
+    "country": "USA"
+  },
+  {
+    "rank": 509,
+    "name": "Protara Therapeutics",
+    "ticker": "TARA",
+    "marketCapUsd": 280000000,
+    "country": "USA"
+  },
+  {
+    "rank": 510,
+    "name": "Orchestra BioMed",
+    "ticker": "OBIO",
+    "marketCapUsd": 270000000,
+    "country": "USA"
+  },
+  {
+    "rank": 511,
+    "name": "Context Therapeutics",
+    "ticker": "CNTX",
+    "marketCapUsd": 260000000,
+    "country": "USA"
+  },
+  {
+    "rank": 512,
+    "name": "C4 Therapeutics",
+    "ticker": "CCCC",
+    "marketCapUsd": 260000000,
+    "country": "USA"
+  },
+  {
+    "rank": 513,
+    "name": "Polaryx Therapeutics",
+    "ticker": "PLYX",
+    "marketCapUsd": 260000000,
+    "country": "USA"
+  },
+  {
+    "rank": 514,
+    "name": "CAMP4 Therapeutics",
+    "ticker": "CAMP",
+    "marketCapUsd": 250000000,
+    "country": "USA"
+  },
+  {
+    "rank": 515,
+    "name": "OmniAb",
+    "ticker": "OABI",
+    "marketCapUsd": 250000000,
+    "country": "USA"
+  },
+  {
+    "rank": 516,
+    "name": "OpGen",
+    "ticker": "OPGN",
+    "marketCapUsd": 250000000,
+    "country": "USA"
+  },
+  {
+    "rank": 517,
+    "name": "Santhera Pharmaceuticals",
+    "ticker": "SANN.SW",
+    "marketCapUsd": 240000000,
+    "country": "Switzerland"
+  },
+  {
+    "rank": 518,
+    "name": "Eurobio Scientific",
+    "ticker": "ALERS.PA",
+    "marketCapUsd": 240000000,
+    "country": "France"
+  },
+  {
+    "rank": 519,
+    "name": "Oryzon Genomics",
+    "ticker": "ORY.MC",
+    "marketCapUsd": 240000000,
+    "country": "Spain"
+  },
+  {
+    "rank": 520,
+    "name": "Genfit",
+    "ticker": "GNFT",
+    "marketCapUsd": 240000000,
+    "country": "France"
+  },
+  {
+    "rank": 521,
+    "name": "Third Harmonic Bio",
+    "ticker": "THRD",
+    "marketCapUsd": 240000000,
+    "country": "USA"
+  },
+  {
+    "rank": 522,
+    "name": "Abeona Therapeutics",
+    "ticker": "ABEO",
+    "marketCapUsd": 240000000,
+    "country": "USA"
+  },
+  {
+    "rank": 523,
+    "name": "Rezolute",
+    "ticker": "RZLT",
+    "marketCapUsd": 230000000,
+    "country": "USA"
+  },
+  {
+    "rank": 524,
+    "name": "Bliss GVS Pharma",
+    "ticker": "BLISSGVS.NS",
+    "marketCapUsd": 230000000,
+    "country": "India"
+  },
+  {
+    "rank": 525,
+    "name": "Transgene SA",
+    "ticker": "TNG.PA",
+    "marketCapUsd": 230000000,
+    "country": "France"
+  },
+  {
+    "rank": 526,
+    "name": "Laboratorio Reig Jofre",
+    "ticker": "RJF.MC",
+    "marketCapUsd": 230000000,
+    "country": "Spain"
+  },
+  {
+    "rank": 527,
+    "name": "Helus Pharma",
+    "ticker": "HELP",
+    "marketCapUsd": 230000000,
+    "country": "Canada"
+  },
+  {
+    "rank": 528,
+    "name": "Eledon Pharmaceuticals",
+    "ticker": "ELDN",
+    "marketCapUsd": 220000000,
+    "country": "USA"
+  },
+  {
+    "rank": 529,
+    "name": "Voyager Therapeutics",
+    "ticker": "VYGR",
+    "marketCapUsd": 220000000,
+    "country": "USA"
+  },
+  {
+    "rank": 530,
+    "name": "Editas Medicine",
+    "ticker": "EDIT",
+    "marketCapUsd": 220000000,
+    "country": "USA"
+  },
+  {
+    "rank": 531,
+    "name": "Coherus BioSciences",
+    "ticker": "CHRS",
+    "marketCapUsd": 220000000,
+    "country": "USA"
+  },
+  {
+    "rank": 532,
+    "name": "Alector",
+    "ticker": "ALEC",
+    "marketCapUsd": 220000000,
+    "country": "USA"
+  },
+  {
+    "rank": 533,
+    "name": "Carvolix",
+    "ticker": "CVX.PA",
+    "marketCapUsd": 220000000,
+    "country": "France"
+  },
+  {
+    "rank": 534,
+    "name": "Hikal",
+    "ticker": "HIKAL.NS",
+    "marketCapUsd": 220000000,
+    "country": "India"
+  },
+  {
+    "rank": 535,
+    "name": "Journey Medical",
+    "ticker": "DERM",
+    "marketCapUsd": 220000000,
+    "country": "USA"
+  },
+  {
+    "rank": 536,
+    "name": "Nuvectis Pharma",
+    "ticker": "NVCT",
+    "marketCapUsd": 210000000,
+    "country": "USA"
+  },
+  {
+    "rank": 537,
+    "name": "MediWound",
+    "ticker": "MDWD",
+    "marketCapUsd": 210000000,
+    "country": "Israel"
+  },
+  {
+    "rank": 538,
+    "name": "CARGO Therapeutics",
+    "ticker": "CRGX",
+    "marketCapUsd": 210000000,
+    "country": "USA"
+  },
+  {
+    "rank": 539,
+    "name": "Kala Pharmaceuticals",
+    "ticker": "KALA",
+    "marketCapUsd": 210000000,
+    "country": "USA"
+  },
+  {
+    "rank": 540,
+    "name": "Achieve Life Sciences",
+    "ticker": "ACHV",
+    "marketCapUsd": 210000000,
+    "country": "Canada"
+  },
+  {
+    "rank": 541,
+    "name": "Cereno Scientific",
+    "ticker": "CRNO-B.ST",
+    "marketCapUsd": 200000000,
+    "country": "Sweden"
+  },
+  {
+    "rank": 542,
+    "name": "AFT Pharmaceuticals",
+    "ticker": "AFT.NZ",
+    "marketCapUsd": 200000000,
+    "country": "New Zealand"
+  },
+  {
+    "rank": 543,
+    "name": "Burning Rock Biotech",
+    "ticker": "BNR",
+    "marketCapUsd": 200000000,
+    "country": "China"
+  },
+  {
+    "rank": 544,
+    "name": "OraSure Technologies",
+    "ticker": "OSUR",
+    "marketCapUsd": 200000000,
+    "country": "USA"
+  },
+  {
+    "rank": 545,
+    "name": "Sol-Gel Technologies",
+    "ticker": "SLGL",
+    "marketCapUsd": 200000000,
+    "country": "Israel"
+  },
+  {
+    "rank": 546,
+    "name": "Tonix Pharmaceuticals",
+    "ticker": "TNXP",
+    "marketCapUsd": 200000000,
+    "country": "USA"
+  },
+  {
+    "rank": 547,
+    "name": "Quanterix",
+    "ticker": "QTRX",
+    "marketCapUsd": 200000000,
+    "country": "USA"
+  },
+  {
+    "rank": 548,
+    "name": "Compugen",
+    "ticker": "CGEN",
+    "marketCapUsd": 190000000,
+    "country": "Israel"
+  },
+  {
+    "rank": 549,
+    "name": "Indoco Remedies",
+    "ticker": "INDOCO.NS",
+    "marketCapUsd": 180000000,
+    "country": "India"
+  },
+  {
+    "rank": 550,
+    "name": "Arcturus Therapeutics",
+    "ticker": "ARCT",
+    "marketCapUsd": 180000000,
+    "country": "USA"
+  },
+  {
+    "rank": 551,
+    "name": "Prelude Therapeutics",
+    "ticker": "PRLD",
+    "marketCapUsd": 180000000,
+    "country": "USA"
+  },
+  {
+    "rank": 552,
+    "name": "Sight Sciences",
+    "ticker": "SGHT",
+    "marketCapUsd": 180000000,
+    "country": "USA"
+  },
+  {
+    "rank": 553,
+    "name": "Tharimmune",
+    "ticker": "THAR",
+    "marketCapUsd": 180000000,
+    "country": "USA"
+  },
+  {
+    "rank": 554,
+    "name": "Ovid Therapeutics",
+    "ticker": "OVID",
+    "marketCapUsd": 180000000,
+    "country": "USA"
+  },
+  {
+    "rank": 555,
+    "name": "Profound Medical",
+    "ticker": "PROF",
+    "marketCapUsd": 180000000,
+    "country": "Canada"
+  },
+  {
+    "rank": 556,
+    "name": "Quantum-Si",
+    "ticker": "QSI",
+    "marketCapUsd": 180000000,
+    "country": "USA"
+  },
+  {
+    "rank": 557,
+    "name": "MacroGenics",
+    "ticker": "MGNX",
+    "marketCapUsd": 180000000,
+    "country": "USA"
+  },
+  {
+    "rank": 558,
+    "name": "Selvita",
+    "ticker": "SLV.WA",
+    "marketCapUsd": 170000000,
+    "country": "Poland"
+  },
+  {
+    "rank": 559,
+    "name": "Galectin Therapeutics",
+    "ticker": "GALT",
+    "marketCapUsd": 170000000,
+    "country": "USA"
+  },
+  {
+    "rank": 560,
+    "name": "Protalix BioTherapeutics",
+    "ticker": "PLX",
+    "marketCapUsd": 170000000,
+    "country": "Israel"
+  },
+  {
+    "rank": 561,
+    "name": "Molecular Partners",
+    "ticker": "MOLN",
+    "marketCapUsd": 170000000,
+    "country": "Switzerland"
+  },
+  {
+    "rank": 562,
+    "name": "Adagene",
+    "ticker": "ADAG",
+    "marketCapUsd": 170000000,
+    "country": "China"
+  },
+  {
+    "rank": 563,
+    "name": "Zentalis Pharmaceuticals",
+    "ticker": "ZNTL",
+    "marketCapUsd": 160000000,
+    "country": "USA"
+  },
+  {
+    "rank": 564,
+    "name": "Whitehawk Therapeutics",
+    "ticker": "WHWK",
+    "marketCapUsd": 160000000,
+    "country": "USA"
+  },
+  {
+    "rank": 565,
+    "name": "Cartesian Therapeutics",
+    "ticker": "RNAC",
+    "marketCapUsd": 160000000,
+    "country": "USA"
+  },
+  {
+    "rank": 566,
+    "name": "Sanara MedTech",
+    "ticker": "SMTI",
+    "marketCapUsd": 160000000,
+    "country": "USA"
+  },
+  {
+    "rank": 567,
+    "name": "Lucid Diagnostics",
+    "ticker": "LUCD",
+    "marketCapUsd": 160000000,
+    "country": "USA"
+  },
+  {
+    "rank": 568,
+    "name": "Tenaya Therapeutics",
+    "ticker": "TNYA",
+    "marketCapUsd": 160000000,
+    "country": "USA"
+  },
+  {
+    "rank": 569,
+    "name": "MDxHealth",
+    "ticker": "MDXH",
+    "marketCapUsd": 160000000,
+    "country": "Belgium"
+  },
+  {
+    "rank": 570,
+    "name": "ProQR",
+    "ticker": "PRQR",
+    "marketCapUsd": 160000000,
+    "country": "Netherlands"
+  },
+  {
+    "rank": 571,
+    "name": "Acumen Pharmaceuticals",
+    "ticker": "ABOS",
+    "marketCapUsd": 160000000,
+    "country": "USA"
+  },
+  {
+    "rank": 572,
+    "name": "Precision BioSciences",
+    "ticker": "DTIL",
+    "marketCapUsd": 160000000,
+    "country": "USA"
+  },
+  {
+    "rank": 573,
+    "name": "Xlife Sciences",
+    "ticker": "XLS.SW",
+    "marketCapUsd": 160000000,
+    "country": "Switzerland"
+  },
+  {
+    "rank": 574,
+    "name": "Sagimet Biosciences",
+    "ticker": "SGMT",
+    "marketCapUsd": 150000000,
+    "country": "USA"
+  },
+  {
+    "rank": 575,
+    "name": "Vaxart",
+    "ticker": "VXRT",
+    "marketCapUsd": 150000000,
+    "country": "USA"
+  },
+  {
+    "rank": 576,
+    "name": "Tiziana Life Sciences",
+    "ticker": "TLSA",
+    "marketCapUsd": 150000000,
+    "country": "UK"
+  },
+  {
+    "rank": 577,
+    "name": "Nkarta",
+    "ticker": "NKTX",
+    "marketCapUsd": 150000000,
+    "country": "USA"
+  },
+  {
+    "rank": 578,
+    "name": "Humacyte",
+    "ticker": "HUMA",
+    "marketCapUsd": 150000000,
+    "country": "USA"
+  },
+  {
+    "rank": 579,
+    "name": "Corbus Pharmaceuticals",
+    "ticker": "CRBP",
+    "marketCapUsd": 150000000,
+    "country": "USA"
+  },
+  {
+    "rank": 580,
+    "name": "Lifecore Biomedical",
+    "ticker": "LFCR",
+    "marketCapUsd": 150000000,
+    "country": "USA"
+  },
+  {
+    "rank": 581,
+    "name": "Curatis",
+    "ticker": "CURN.SW",
+    "marketCapUsd": 150000000,
+    "country": "Switzerland"
+  },
+  {
+    "rank": 582,
+    "name": "Carbios SAS",
+    "ticker": "ALCRB.PA",
+    "marketCapUsd": 140000000,
+    "country": "France"
+  },
+  {
+    "rank": 583,
+    "name": "Heron Therapeutics",
+    "ticker": "HRTX",
+    "marketCapUsd": 140000000,
+    "country": "USA"
+  },
+  {
+    "rank": 584,
+    "name": "Biodesix",
+    "ticker": "BDSX",
+    "marketCapUsd": 140000000,
+    "country": "USA"
+  },
+  {
+    "rank": 585,
+    "name": "Codexis",
+    "ticker": "CDXS",
+    "marketCapUsd": 140000000,
+    "country": "USA"
+  },
+  {
+    "rank": 586,
+    "name": "AN2 Therapeutics",
+    "ticker": "ANTX",
+    "marketCapUsd": 140000000,
+    "country": "USA"
+  },
+  {
+    "rank": 587,
+    "name": "Euroapi",
+    "ticker": "EAPI.PA",
+    "marketCapUsd": 140000000,
+    "country": "France"
+  },
+  {
+    "rank": 588,
+    "name": "Immunic",
+    "ticker": "IMUX",
+    "marketCapUsd": 140000000,
+    "country": "USA"
+  },
+  {
+    "rank": 589,
+    "name": "Agenus",
+    "ticker": "AGEN",
+    "marketCapUsd": 140000000,
+    "country": "USA"
+  },
+  {
+    "rank": 590,
+    "name": "vTv Therapeutics",
+    "ticker": "VTVT",
+    "marketCapUsd": 140000000,
+    "country": "USA"
+  },
+  {
+    "rank": 591,
+    "name": "Global Cord Blood",
+    "ticker": "CORBF",
+    "marketCapUsd": 140000000,
+    "country": "Hong Kong"
+  },
+  {
+    "rank": 592,
+    "name": "Karyopharm Therapeutics",
+    "ticker": "KPTI",
+    "marketCapUsd": 130000000,
+    "country": "USA"
+  },
+  {
+    "rank": 593,
+    "name": "Oramed Pharmaceuticals",
+    "ticker": "ORMP",
+    "marketCapUsd": 130000000,
+    "country": "USA"
+  },
+  {
+    "rank": 594,
+    "name": "Rani Therapeutics",
+    "ticker": "RANI",
+    "marketCapUsd": 130000000,
+    "country": "USA"
+  },
+  {
+    "rank": 595,
+    "name": "Guerbet",
+    "ticker": "GBT.PA",
+    "marketCapUsd": 130000000,
+    "country": "France"
+  },
+  {
+    "rank": 596,
+    "name": "Spero Therapeutics",
+    "ticker": "SPRO",
+    "marketCapUsd": 130000000,
+    "country": "USA"
+  },
+  {
+    "rank": 597,
+    "name": "Artiva Biotherapeutics",
+    "ticker": "ARTV",
+    "marketCapUsd": 130000000,
+    "country": "USA"
+  },
+  {
+    "rank": 598,
+    "name": "Equillium",
+    "ticker": "EQ",
+    "marketCapUsd": 120000000,
+    "country": "USA"
+  },
+  {
+    "rank": 599,
+    "name": "Fate Therapeutics",
+    "ticker": "FATE",
+    "marketCapUsd": 120000000,
+    "country": "USA"
+  },
+  {
+    "rank": 600,
+    "name": "Hester Biosciences",
+    "ticker": "HESTERBIO.NS",
+    "marketCapUsd": 120000000,
+    "country": "India"
+  },
+  {
+    "rank": 601,
+    "name": "BICO Group",
+    "ticker": "BICO.ST",
+    "marketCapUsd": 120000000,
+    "country": "Sweden"
+  },
+  {
+    "rank": 602,
+    "name": "Mayne Pharma Group",
+    "ticker": "MYX.AX",
+    "marketCapUsd": 120000000,
+    "country": "Australia"
+  },
+  {
+    "rank": 603,
+    "name": "Sangamo Therapeutics",
+    "ticker": "SGMO",
+    "marketCapUsd": 120000000,
+    "country": "USA"
+  },
+  {
+    "rank": 604,
+    "name": "Insight Molecular Diagnostics",
+    "ticker": "IMDX",
+    "marketCapUsd": 120000000,
+    "country": "USA"
+  },
+  {
+    "rank": 605,
+    "name": "AVITA Medical",
+    "ticker": "RCEL",
+    "marketCapUsd": 120000000,
+    "country": "USA"
+  },
+  {
+    "rank": 606,
+    "name": "Milestone Pharmaceuticals",
+    "ticker": "MIST",
+    "marketCapUsd": 110000000,
+    "country": "Canada"
+  },
+  {
+    "rank": 607,
+    "name": "Cassava Sciences",
+    "ticker": "SAVA",
+    "marketCapUsd": 110000000,
+    "country": "USA"
+  },
+  {
+    "rank": 608,
+    "name": "Genovis AB",
+    "ticker": "GENO.ST",
+    "marketCapUsd": 110000000,
+    "country": "Sweden"
+  },
+  {
+    "rank": 609,
+    "name": "Captor Therapeutics",
+    "ticker": "CTX.WA",
+    "marketCapUsd": 110000000,
+    "country": "Poland"
+  },
+  {
+    "rank": 610,
+    "name": "Innate Pharma",
+    "ticker": "IPHA",
+    "marketCapUsd": 110000000,
+    "country": "France"
+  },
+  {
+    "rank": 611,
+    "name": "Inovio Pharmaceuticals",
+    "ticker": "INO",
+    "marketCapUsd": 100000000,
+    "country": "USA"
+  },
+  {
+    "rank": 612,
+    "name": "Aldeyra Therapeutics",
+    "ticker": "ALDX",
+    "marketCapUsd": 100000000,
+    "country": "USA"
+  },
+  {
+    "rank": 613,
+    "name": "Genelux",
+    "ticker": "GNLX",
+    "marketCapUsd": 100000000,
+    "country": "USA"
+  },
+  {
+    "rank": 614,
+    "name": "4basebio",
+    "ticker": "4BB.L",
+    "marketCapUsd": 100000000,
+    "country": "UK"
+  },
+  {
+    "rank": 615,
+    "name": "Korro Bio",
+    "ticker": "KRRO",
+    "marketCapUsd": 100000000,
+    "country": "USA"
+  },
+  {
+    "rank": 616,
+    "name": "Nykode Therapeutics",
+    "ticker": "NYKD.OL",
+    "marketCapUsd": 100000000,
+    "country": "Norway"
+  },
+  {
+    "rank": 617,
+    "name": "Eurofins-Cerep",
+    "ticker": "ALECR.PA",
+    "marketCapUsd": 100000000,
+    "country": "France"
+  },
+  {
+    "rank": 618,
+    "name": "ArcticZymes Technologies ASA",
+    "ticker": "AZT.OL",
+    "marketCapUsd": 100000000,
+    "country": "Norway"
+  },
+  {
+    "rank": 619,
+    "name": "HilleVax",
+    "ticker": "HLVX",
+    "marketCapUsd": 100000000,
+    "country": "USA"
+  },
+  {
+    "rank": 620,
+    "name": "Oncolytics Biotech",
+    "ticker": "ONCY",
+    "marketCapUsd": 100000000,
+    "country": "Canada"
+  },
+  {
+    "rank": 621,
+    "name": "Turn Therapeutics",
+    "ticker": "TTRX",
+    "marketCapUsd": 100000000,
+    "country": "USA"
+  },
+  {
+    "rank": 622,
+    "name": "Bioventix",
+    "ticker": "BVXP.L",
+    "marketCapUsd": 100000000,
+    "country": "UK"
+  },
+  {
+    "rank": 623,
+    "name": "Vistin Pharma",
+    "ticker": "VISTN.OL",
+    "marketCapUsd": 100000000,
+    "country": "Norway"
+  },
+  {
+    "rank": 624,
+    "name": "Gossamer Bio",
+    "ticker": "GOSS",
+    "marketCapUsd": 99130000,
+    "country": "USA"
+  },
+  {
+    "rank": 625,
+    "name": "Coya Therapeutics",
+    "ticker": "COYA",
+    "marketCapUsd": 98750000,
+    "country": "USA"
+  },
+  {
+    "rank": 626,
+    "name": "Q32 Bio",
+    "ticker": "QTTB",
+    "marketCapUsd": 97720000,
+    "country": "USA"
+  },
+  {
+    "rank": 627,
+    "name": "VITA 34",
+    "ticker": "V3V.DE",
+    "marketCapUsd": 97110000,
+    "country": "Germany"
+  },
+  {
+    "rank": 628,
+    "name": "Zomedica Pharmaceuticals",
+    "ticker": "ZOM",
+    "marketCapUsd": 95340000,
+    "country": "USA"
+  },
+  {
+    "rank": 629,
+    "name": "Seer Inc",
+    "ticker": "SEER",
+    "marketCapUsd": 94780000,
+    "country": "USA"
+  },
+  {
+    "rank": 630,
+    "name": "Vivani Medical",
+    "ticker": "VANI",
+    "marketCapUsd": 94190000,
+    "country": "USA"
+  },
+  {
+    "rank": 631,
+    "name": "Verrica Pharmaceuticals",
+    "ticker": "VRCA",
+    "marketCapUsd": 93620000,
+    "country": "USA"
+  },
+  {
+    "rank": 632,
+    "name": "Fortress Biotech",
+    "ticker": "FBIO",
+    "marketCapUsd": 92800000,
+    "country": "USA"
+  },
+  {
+    "rank": 633,
+    "name": "LeonaBio",
+    "ticker": "LONA",
+    "marketCapUsd": 92610000,
+    "country": "USA"
+  },
+  {
+    "rank": 634,
+    "name": "Pyxis Oncology",
+    "ticker": "PYXS",
+    "marketCapUsd": 91520000,
+    "country": "USA"
+  },
+  {
+    "rank": 635,
+    "name": "OSE Immunotherapeutics",
+    "ticker": "OSE.PA",
+    "marketCapUsd": 89010000,
+    "country": "France"
+  },
+  {
+    "rank": 636,
+    "name": "Anixa Biosciences",
+    "ticker": "ANIX",
+    "marketCapUsd": 88840000,
+    "country": "USA"
+  },
+  {
+    "rank": 637,
+    "name": "Aardvark Therapeutics",
+    "ticker": "AARD",
+    "marketCapUsd": 88610000,
+    "country": "USA"
+  },
+  {
+    "rank": 638,
+    "name": "Assertio Holdings",
+    "ticker": "ASRT",
+    "marketCapUsd": 86170000,
+    "country": "USA"
+  },
+  {
+    "rank": 639,
+    "name": "MAIA Biotechnology",
+    "ticker": "MAIA",
+    "marketCapUsd": 85640000,
+    "country": "USA"
+  },
+  {
+    "rank": 640,
+    "name": "MaxCyte",
+    "ticker": "MXCT",
+    "marketCapUsd": 81620000,
+    "country": "USA"
+  },
+  {
+    "rank": 641,
+    "name": "Cingulate",
+    "ticker": "CING",
+    "marketCapUsd": 80720000,
+    "country": "USA"
+  },
+  {
+    "rank": 642,
+    "name": "OKYO Pharma",
+    "ticker": "OKYO",
+    "marketCapUsd": 80650000,
+    "country": "UK"
+  },
+  {
+    "rank": 643,
+    "name": "Spruce Biosciences",
+    "ticker": "SPRB",
+    "marketCapUsd": 80120000,
+    "country": "USA"
+  },
+  {
+    "rank": 644,
+    "name": "Pliant Therapeutics",
+    "ticker": "PLRX",
+    "marketCapUsd": 79860000,
+    "country": "USA"
+  },
+  {
+    "rank": 645,
+    "name": "aTyr Pharma",
+    "ticker": "ATYR",
+    "marketCapUsd": 79250000,
+    "country": "USA"
+  },
+  {
+    "rank": 646,
+    "name": "PMV Pharmaceuticals",
+    "ticker": "PMVP",
+    "marketCapUsd": 78390000,
+    "country": "USA"
+  },
+  {
+    "rank": 647,
+    "name": "Seres Therapeutics",
+    "ticker": "MCRB",
+    "marketCapUsd": 76890000,
+    "country": "USA"
+  },
+  {
+    "rank": 648,
+    "name": "MediciNova",
+    "ticker": "MNOV",
+    "marketCapUsd": 76780000,
+    "country": "USA"
+  },
+  {
+    "rank": 649,
+    "name": "Synthaverse",
+    "ticker": "SVE.WA",
+    "marketCapUsd": 76370000,
+    "country": "Poland"
+  },
+  {
+    "rank": 650,
+    "name": "Annovis Bio",
+    "ticker": "ANVS",
+    "marketCapUsd": 73720000,
+    "country": "USA"
+  },
+  {
+    "rank": 651,
+    "name": "XBiotech",
+    "ticker": "XBIT",
+    "marketCapUsd": 72860000,
+    "country": "USA"
+  },
+  {
+    "rank": 652,
+    "name": "iBio",
+    "ticker": "IBIO",
+    "marketCapUsd": 72190000,
+    "country": "USA"
+  },
+  {
+    "rank": 653,
+    "name": "Amoeba S.A.",
+    "ticker": "ALMIB.PA",
+    "marketCapUsd": 72130000,
+    "country": "France"
+  },
+  {
+    "rank": 654,
+    "name": "Sera Prognostics",
+    "ticker": "SERA",
+    "marketCapUsd": 70820000,
+    "country": "USA"
+  },
+  {
+    "rank": 655,
+    "name": "Infant Bacterial Therapeutics AB",
+    "ticker": "IBT-B.ST",
+    "marketCapUsd": 69370000,
+    "country": "Sweden"
+  },
+  {
+    "rank": 656,
+    "name": "Grace Therapeutics",
+    "ticker": "GRCE",
+    "marketCapUsd": 68390000,
+    "country": "USA"
+  },
+  {
+    "rank": 657,
+    "name": "Nanexa AB",
+    "ticker": "NANEXA.ST",
+    "marketCapUsd": 67820000,
+    "country": "Sweden"
+  },
+  {
+    "rank": 658,
+    "name": "Fractyl Health",
+    "ticker": "GUTS",
+    "marketCapUsd": 67680000,
+    "country": "USA"
+  },
+  {
+    "rank": 659,
+    "name": "Botanix Pharmaceuticals",
+    "ticker": "BOT.AX",
+    "marketCapUsd": 66890000,
+    "country": "Australia"
+  },
+  {
+    "rank": 660,
+    "name": "Adicet Bio",
+    "ticker": "ACET",
+    "marketCapUsd": 66430000,
+    "country": "USA"
+  },
+  {
+    "rank": 661,
+    "name": "Nanoform Finland",
+    "ticker": "NANOFS.ST",
+    "marketCapUsd": 65900000,
+    "country": "Finland"
+  },
+  {
+    "rank": 662,
+    "name": "BeyondSpring",
+    "ticker": "BYSI",
+    "marketCapUsd": 65790000,
+    "country": "USA"
+  },
+  {
+    "rank": 663,
+    "name": "Rafael Holdings",
+    "ticker": "RFL",
+    "marketCapUsd": 64490000,
+    "country": "USA"
+  },
+  {
+    "rank": 664,
+    "name": "InflaRx",
+    "ticker": "IFRX",
+    "marketCapUsd": 63680000,
+    "country": "Germany"
+  },
+  {
+    "rank": 665,
+    "name": "hVIVO",
+    "ticker": "HVO.L",
+    "marketCapUsd": 63300000,
+    "country": "UK"
+  },
+  {
+    "rank": 666,
+    "name": "eXoZymes",
+    "ticker": "EXOZ",
+    "marketCapUsd": 60560000,
+    "country": "USA"
+  },
+  {
+    "rank": 667,
+    "name": "TScan Therapeutics",
+    "ticker": "TCRX",
+    "marketCapUsd": 59170000,
+    "country": "USA"
+  },
+  {
+    "rank": 668,
+    "name": "NRx Pharmaceuticals",
+    "ticker": "NRXP",
+    "marketCapUsd": 58960000,
+    "country": "USA"
+  },
+  {
+    "rank": 669,
+    "name": "BRAIN Biotech",
+    "ticker": "BNN.DE",
+    "marketCapUsd": 58830000,
+    "country": "Germany"
+  },
+  {
+    "rank": 670,
+    "name": "Immutep",
+    "ticker": "IMMP",
+    "marketCapUsd": 58160000,
+    "country": "Australia"
+  },
+  {
+    "rank": 671,
+    "name": "Instil Bio",
+    "ticker": "TIL",
+    "marketCapUsd": 57980000,
+    "country": "USA"
+  },
+  {
+    "rank": 672,
+    "name": "OnKure Therapeutics",
+    "ticker": "OKUR",
+    "marketCapUsd": 57290000,
+    "country": "USA"
+  },
+  {
+    "rank": 673,
+    "name": "Mereo BioPharma Group",
+    "ticker": "MREO",
+    "marketCapUsd": 54420000,
+    "country": "UK"
+  },
+  {
+    "rank": 674,
+    "name": "OS Therapies",
+    "ticker": "OSTX",
+    "marketCapUsd": 54230000,
+    "country": "USA"
+  },
+  {
+    "rank": 675,
+    "name": "MindWalk Holdings",
+    "ticker": "HYFT",
+    "marketCapUsd": 54160000,
+    "country": "USA"
+  },
+  {
+    "rank": 676,
+    "name": "Metagenomi",
+    "ticker": "MGX",
+    "marketCapUsd": 53420000,
+    "country": "USA"
+  },
+  {
+    "rank": 677,
+    "name": "Scilex Holding",
+    "ticker": "SCLX",
+    "marketCapUsd": 52880000,
+    "country": "USA"
+  },
+  {
+    "rank": 678,
+    "name": "Fermentalg",
+    "ticker": "ALGAE.PA",
+    "marketCapUsd": 52660000,
+    "country": "France"
+  },
+  {
+    "rank": 679,
+    "name": "Acrivon Therapeutics",
+    "ticker": "ACRV",
+    "marketCapUsd": 52380000,
+    "country": "USA"
+  },
+  {
+    "rank": 680,
+    "name": "Entera Bio",
+    "ticker": "ENTX",
+    "marketCapUsd": 50900000,
+    "country": "Israel"
+  },
+  {
+    "rank": 681,
+    "name": "electroCore",
+    "ticker": "ECOR",
+    "marketCapUsd": 49970000,
+    "country": "USA"
+  },
+  {
+    "rank": 682,
+    "name": "Precipio",
+    "ticker": "PRPO",
+    "marketCapUsd": 48840000,
+    "country": "USA"
+  },
+  {
+    "rank": 683,
+    "name": "Kezar Life Sciences",
+    "ticker": "KZR",
+    "marketCapUsd": 47080000,
+    "country": "USA"
+  },
+  {
+    "rank": 684,
+    "name": "Rallybio",
+    "ticker": "RLYB",
+    "marketCapUsd": 46910000,
+    "country": "USA"
+  },
+  {
+    "rank": 685,
+    "name": "Atossa Therapeutics",
+    "ticker": "ATOS",
+    "marketCapUsd": 45890000,
+    "country": "USA"
+  },
+  {
+    "rank": 686,
+    "name": "Telomir Pharmaceuticals",
+    "ticker": "TELO",
+    "marketCapUsd": 45380000,
+    "country": "USA"
+  },
+  {
+    "rank": 687,
+    "name": "MiNK Therapeutics",
+    "ticker": "INKT",
+    "marketCapUsd": 44170000,
+    "country": "USA"
+  },
+  {
+    "rank": 688,
+    "name": "InterCure",
+    "ticker": "INCR",
+    "marketCapUsd": 42300000,
+    "country": "Israel"
+  },
+  {
+    "rank": 689,
+    "name": "SCYNEXIS",
+    "ticker": "SCYX",
+    "marketCapUsd": 41640000,
+    "country": "USA"
+  },
+  {
+    "rank": 690,
+    "name": "Cytosorbents",
+    "ticker": "CTSO",
+    "marketCapUsd": 41450000,
+    "country": "USA"
+  },
+  {
+    "rank": 691,
+    "name": "Rockwell Medical",
+    "ticker": "RMTI",
+    "marketCapUsd": 41370000,
+    "country": "USA"
+  },
+  {
+    "rank": 692,
+    "name": "Atara Biotherapeutics",
+    "ticker": "ATRA",
+    "marketCapUsd": 40150000,
+    "country": "USA"
+  },
+  {
+    "rank": 693,
+    "name": "Talphera",
+    "ticker": "TLPH",
+    "marketCapUsd": 38820000,
+    "country": "USA"
+  },
+  {
+    "rank": 694,
+    "name": "Werewolf Therapeutics",
+    "ticker": "HOWL",
+    "marketCapUsd": 38150000,
+    "country": "USA"
+  },
+  {
+    "rank": 695,
+    "name": "Palatin Technologies",
+    "ticker": "PTN",
+    "marketCapUsd": 38010000,
+    "country": "USA"
+  },
+  {
+    "rank": 696,
+    "name": "Imugene",
+    "ticker": "IMU.AX",
+    "marketCapUsd": 37890000,
+    "country": "Australia"
+  },
+  {
+    "rank": 697,
+    "name": "CervoMed",
+    "ticker": "CRVO",
+    "marketCapUsd": 37220000,
+    "country": "USA"
+  },
+  {
+    "rank": 698,
+    "name": "BioXcel Therapeutics",
+    "ticker": "BTAI",
+    "marketCapUsd": 36760000,
+    "country": "USA"
+  },
+  {
+    "rank": 699,
+    "name": "Veru",
+    "ticker": "VERU",
+    "marketCapUsd": 36430000,
+    "country": "USA"
+  },
+  {
+    "rank": 700,
+    "name": "genOway",
+    "ticker": "ALGEN.PA",
+    "marketCapUsd": 35360000,
+    "country": "France"
+  },
+  {
+    "rank": 701,
+    "name": "Celularity",
+    "ticker": "CELU",
+    "marketCapUsd": 35180000,
+    "country": "USA"
+  },
+  {
+    "rank": 702,
+    "name": "Actinium Pharmaceuticals",
+    "ticker": "ATNM",
+    "marketCapUsd": 34620000,
+    "country": "USA"
+  },
+  {
+    "rank": 703,
+    "name": "LianBio",
+    "ticker": "LIAN",
+    "marketCapUsd": 34470000,
+    "country": "USA"
+  },
+  {
+    "rank": 704,
+    "name": "Jasper Therapeutics",
+    "ticker": "JSPR",
+    "marketCapUsd": 34420000,
+    "country": "USA"
+  },
+  {
+    "rank": 705,
+    "name": "Rein Therapeutics",
+    "ticker": "RNTX",
+    "marketCapUsd": 32590000,
+    "country": "USA"
+  },
+  {
+    "rank": 706,
+    "name": "PDS Biotechnology",
+    "ticker": "PDSB",
+    "marketCapUsd": 31240000,
+    "country": "USA"
+  },
+  {
+    "rank": 707,
+    "name": "INmune Bio",
+    "ticker": "INMB",
+    "marketCapUsd": 31100000,
+    "country": "USA"
+  },
+  {
+    "rank": 708,
+    "name": "Tempest Therapeutics",
+    "ticker": "TPST",
+    "marketCapUsd": 30870000,
+    "country": "USA"
+  },
+  {
+    "rank": 709,
+    "name": "Outlook Therapeutics",
+    "ticker": "OTLK",
+    "marketCapUsd": 29160000,
+    "country": "USA"
+  },
+  {
+    "rank": 710,
+    "name": "Cel-Sci",
+    "ticker": "CVM",
+    "marketCapUsd": 29090000,
+    "country": "USA"
+  },
+  {
+    "rank": 711,
+    "name": "Longeveron",
+    "ticker": "LGVN",
+    "marketCapUsd": 28690000,
+    "country": "USA"
+  },
+  {
+    "rank": 712,
+    "name": "Aytu BioScience",
+    "ticker": "AYTU",
+    "marketCapUsd": 28010000,
+    "country": "USA"
+  },
+  {
+    "rank": 713,
+    "name": "Serina Therapeutics",
+    "ticker": "SER",
+    "marketCapUsd": 27390000,
+    "country": "USA"
+  },
+  {
+    "rank": 714,
+    "name": "AEON Biopharma",
+    "ticker": "AEON",
+    "marketCapUsd": 27070000,
+    "country": "USA"
+  },
+  {
+    "rank": 715,
+    "name": "Boundless Bio",
+    "ticker": "BOLD",
+    "marketCapUsd": 26660000,
+    "country": "USA"
+  },
+  {
+    "rank": 716,
+    "name": "Cue Biopharma",
+    "ticker": "CUE",
+    "marketCapUsd": 25950000,
+    "country": "USA"
+  },
+  {
+    "rank": 717,
+    "name": "TherapeuticsMD",
+    "ticker": "TXMD",
+    "marketCapUsd": 25920000,
+    "country": "USA"
+  },
+  {
+    "rank": 718,
+    "name": "LakeShore Biopharma",
+    "ticker": "LSB",
+    "marketCapUsd": 25840000,
+    "country": "China"
+  },
+  {
+    "rank": 719,
+    "name": "Barinthus Biotherapeutics",
+    "ticker": "BRNS",
+    "marketCapUsd": 25720000,
+    "country": "UK"
+  },
+  {
+    "rank": 720,
+    "name": "Cryo-Cell",
+    "ticker": "CCEL",
+    "marketCapUsd": 25130000,
+    "country": "USA"
+  },
+  {
+    "rank": 721,
+    "name": "Neuphoria Therapeutics",
+    "ticker": "NEUP",
+    "marketCapUsd": 24850000,
+    "country": "USA"
+  },
+  {
+    "rank": 722,
+    "name": "Senti Biosciences",
+    "ticker": "SNTI",
+    "marketCapUsd": 24180000,
+    "country": "USA"
+  },
+  {
+    "rank": 723,
+    "name": "VistaGen Therapeutics",
+    "ticker": "VTGN",
+    "marketCapUsd": 24120000,
+    "country": "USA"
+  },
+  {
+    "rank": 724,
+    "name": "Passage Bio",
+    "ticker": "PASG",
+    "marketCapUsd": 23830000,
+    "country": "USA"
+  },
+  {
+    "rank": 725,
+    "name": "Lantern Pharma",
+    "ticker": "LTRN",
+    "marketCapUsd": 23820000,
+    "country": "USA"
+  },
+  {
+    "rank": 726,
+    "name": "Nectar Lifesciences",
+    "ticker": "NECLIFE.NS",
+    "marketCapUsd": 22710000,
+    "country": "India"
+  },
+  {
+    "rank": 727,
+    "name": "NanoViricides",
+    "ticker": "NNVC",
+    "marketCapUsd": 22240000,
+    "country": "USA"
+  },
+  {
+    "rank": 728,
+    "name": "GenSight Biologics",
+    "ticker": "SIGHT.PA",
+    "marketCapUsd": 22110000,
+    "country": "France"
+  },
+  {
+    "rank": 729,
+    "name": "180 Life Sciences",
+    "ticker": "ATNF",
+    "marketCapUsd": 21620000,
+    "country": "USA"
+  },
+  {
+    "rank": 730,
+    "name": "VYNE Therapeutics",
+    "ticker": "VYNE",
+    "marketCapUsd": 20990000,
+    "country": "USA"
+  },
+  {
+    "rank": 731,
+    "name": "Skye Bioscience",
+    "ticker": "SKYE",
+    "marketCapUsd": 20800000,
+    "country": "USA"
+  },
+  {
+    "rank": 732,
+    "name": "Scienture Holdings",
+    "ticker": "SCNX",
+    "marketCapUsd": 19500000,
+    "country": "USA"
+  },
+  {
+    "rank": 733,
+    "name": "Dare Bioscience",
+    "ticker": "DARE",
+    "marketCapUsd": 19430000,
+    "country": "USA"
+  },
+  {
+    "rank": 734,
+    "name": "Nymox Pharmaceutical",
+    "ticker": "NYMX",
+    "marketCapUsd": 18250000,
+    "country": "Bahamas"
+  },
+  {
+    "rank": 735,
+    "name": "FibroBiologics",
+    "ticker": "FBLG",
+    "marketCapUsd": 17310000,
+    "country": "USA"
+  },
+  {
+    "rank": 736,
+    "name": "Citius Pharmaceuticals",
+    "ticker": "CTXR",
+    "marketCapUsd": 17240000,
+    "country": "USA"
+  },
+  {
+    "rank": 737,
+    "name": "Psychemedics",
+    "ticker": "PMD",
+    "marketCapUsd": 15730000,
+    "country": "USA"
+  },
+  {
+    "rank": 738,
+    "name": "Regentis Biomaterials",
+    "ticker": "RGNT",
+    "marketCapUsd": 15690000,
+    "country": "Israel"
+  },
+  {
+    "rank": 739,
+    "name": "Cadrenal Therapeutics",
+    "ticker": "CVKD",
+    "marketCapUsd": 15240000,
+    "country": "USA"
+  },
+  {
+    "rank": 740,
+    "name": "Intensity Therapeutics",
+    "ticker": "INTS",
+    "marketCapUsd": 15150000,
+    "country": "USA"
+  },
+  {
+    "rank": 741,
+    "name": "Genenta Science",
+    "ticker": "GNTA",
+    "marketCapUsd": 14770000,
+    "country": "Italy"
+  },
+  {
+    "rank": 742,
+    "name": "Renalytix",
+    "ticker": "RENX.L",
+    "marketCapUsd": 14560000,
+    "country": "UK"
+  },
+  {
+    "rank": 743,
+    "name": "Adaptimmune Therapeutics",
+    "ticker": "ADAP",
+    "marketCapUsd": 14550000,
+    "country": "UK"
+  },
+  {
+    "rank": 744,
+    "name": "Cocrystal Pharma",
+    "ticker": "COCP",
+    "marketCapUsd": 14190000,
+    "country": "USA"
+  },
+  {
+    "rank": 745,
+    "name": "Hoth Therapeutics",
+    "ticker": "HOTH",
+    "marketCapUsd": 14180000,
+    "country": "USA"
+  },
+  {
+    "rank": 746,
+    "name": "Phio Pharmaceuticals",
+    "ticker": "PHIO",
+    "marketCapUsd": 14170000,
+    "country": "USA"
+  },
+  {
+    "rank": 747,
+    "name": "HOOKIPA Pharma",
+    "ticker": "HOOK",
+    "marketCapUsd": 12940000,
+    "country": "USA"
+  },
+  {
+    "rank": 748,
+    "name": "CytoMed Therapeutics",
+    "ticker": "GDTC",
+    "marketCapUsd": 12900000,
+    "country": "Singapore"
+  },
+  {
+    "rank": 749,
+    "name": "Quoin Pharmaceuticals",
+    "ticker": "QNRX",
+    "marketCapUsd": 12830000,
+    "country": "USA"
+  },
+  {
+    "rank": 750,
+    "name": "IO Biotech",
+    "ticker": "IOBT",
+    "marketCapUsd": 12700000,
+    "country": "Denmark"
+  },
+  {
+    "rank": 751,
+    "name": "BioAtla",
+    "ticker": "BCAB",
+    "marketCapUsd": 12520000,
+    "country": "USA"
+  },
+  {
+    "rank": 752,
+    "name": "BioLineRx",
+    "ticker": "BLRX",
+    "marketCapUsd": 12430000,
+    "country": "Israel"
+  },
+  {
+    "rank": 753,
+    "name": "bioAffinity Technologies",
+    "ticker": "BIAF",
+    "marketCapUsd": 12280000,
+    "country": "USA"
+  },
+  {
+    "rank": 754,
+    "name": "Soligenix",
+    "ticker": "SNGX",
+    "marketCapUsd": 12100000,
+    "country": "USA"
+  },
+  {
+    "rank": 755,
+    "name": "Trinity Biotech",
+    "ticker": "TRIB",
+    "marketCapUsd": 12030000,
+    "country": "Ireland"
+  },
+  {
+    "rank": 756,
+    "name": "Bionano Genomics",
+    "ticker": "BNGO",
+    "marketCapUsd": 11700000,
+    "country": "USA"
+  },
+  {
+    "rank": 757,
+    "name": "Curis",
+    "ticker": "CRIS",
+    "marketCapUsd": 10590000,
+    "country": "USA"
+  },
+  {
+    "rank": 758,
+    "name": "Mainz Biomed",
+    "ticker": "MYNZ",
+    "marketCapUsd": 10560000,
+    "country": "Germany"
+  },
+  {
+    "rank": 759,
+    "name": "Alligator Bioscience AB",
+    "ticker": "ATORX.ST",
+    "marketCapUsd": 10280000,
+    "country": "Sweden"
+  },
+  {
+    "rank": 760,
+    "name": "Inotiv",
+    "ticker": "NOTV",
+    "marketCapUsd": 10200000,
+    "country": "USA"
+  },
+  {
+    "rank": 761,
+    "name": "Biofrontera",
+    "ticker": "BFRI",
+    "marketCapUsd": 10130000,
+    "country": "USA"
+  },
+  {
+    "rank": 762,
+    "name": "Oncodesign Precision Medicine",
+    "ticker": "ALOPM.PA",
+    "marketCapUsd": 10000000,
+    "country": "France"
+  },
+  {
+    "rank": 763,
+    "name": "Imunon",
+    "ticker": "IMNN",
+    "marketCapUsd": 9750000,
+    "country": "USA"
+  },
+  {
+    "rank": 764,
+    "name": "BrainStorm Cell Therapeutics",
+    "ticker": "BCLI",
+    "marketCapUsd": 9260000,
+    "country": "USA"
+  },
+  {
+    "rank": 765,
+    "name": "Pulmatrix",
+    "ticker": "PULM",
+    "marketCapUsd": 9090000,
+    "country": "USA"
+  },
+  {
+    "rank": 766,
+    "name": "Futura Medical",
+    "ticker": "FUM.L",
+    "marketCapUsd": 8920000,
+    "country": "UK"
+  },
+  {
+    "rank": 767,
+    "name": "Aptorum Group",
+    "ticker": "APM",
+    "marketCapUsd": 8790000,
+    "country": "Hong Kong"
+  },
+  {
+    "rank": 768,
+    "name": "Aprea Therapeutics",
+    "ticker": "APRE",
+    "marketCapUsd": 8720000,
+    "country": "USA"
+  },
+  {
+    "rank": 769,
+    "name": "Iterum Therapeutics",
+    "ticker": "ITRM",
+    "marketCapUsd": 8590000,
+    "country": "Ireland"
+  },
+  {
+    "rank": 770,
+    "name": "SeaStar Medical",
+    "ticker": "ICU",
+    "marketCapUsd": 8470000,
+    "country": "USA"
+  },
+  {
+    "rank": 771,
+    "name": "Synlogic",
+    "ticker": "SYBX",
+    "marketCapUsd": 8360000,
+    "country": "USA"
+  },
+  {
+    "rank": 772,
+    "name": "Gelteq Limited",
+    "ticker": "GELS",
+    "marketCapUsd": 8140000,
+    "country": "Australia"
+  },
+  {
+    "rank": 773,
+    "name": "Evolva Holding SA",
+    "ticker": "EVE.SW",
+    "marketCapUsd": 7490000,
+    "country": "Switzerland"
+  },
+  {
+    "rank": 774,
+    "name": "Xenetic Biosciences",
+    "ticker": "XBIO",
+    "marketCapUsd": 7460000,
+    "country": "USA"
+  },
+  {
+    "rank": 775,
+    "name": "Eterna Therapeutics",
+    "ticker": "ERNA",
+    "marketCapUsd": 7190000,
+    "country": "USA"
+  },
+  {
+    "rank": 776,
+    "name": "Alaunos Therapeutics",
+    "ticker": "TCRT",
+    "marketCapUsd": 7180000,
+    "country": "USA"
+  },
+  {
+    "rank": 777,
+    "name": "Addex Therapeutics",
+    "ticker": "ADXN",
+    "marketCapUsd": 6970000,
+    "country": "Switzerland"
+  },
+  {
+    "rank": 778,
+    "name": "Can Fite Biopharma",
+    "ticker": "CANF",
+    "marketCapUsd": 6950000,
+    "country": "Israel"
+  },
+  {
+    "rank": 779,
+    "name": "MindMaze Therapeutics",
+    "ticker": "V6M.F",
+    "marketCapUsd": 6950000,
+    "country": "Switzerland"
+  },
+  {
+    "rank": 780,
+    "name": "NuCana",
+    "ticker": "NCNA",
+    "marketCapUsd": 6860000,
+    "country": "UK"
+  },
+  {
+    "rank": 781,
+    "name": "Biomerica",
+    "ticker": "BMRA",
+    "marketCapUsd": 6610000,
+    "country": "USA"
+  },
+  {
+    "rank": 782,
+    "name": "Bullfrog AI",
+    "ticker": "BFRG",
+    "marketCapUsd": 6400000,
+    "country": "USA"
+  },
+  {
+    "rank": 783,
+    "name": "Cyclerion Therapeutics",
+    "ticker": "CYCN",
+    "marketCapUsd": 6050000,
+    "country": "USA"
+  },
+  {
+    "rank": 784,
+    "name": "BioNexus Gene Lab",
+    "ticker": "BGLC",
+    "marketCapUsd": 5750000,
+    "country": "Malaysia"
+  },
+  {
+    "rank": 785,
+    "name": "Talis Biomedical",
+    "ticker": "TLIS",
+    "marketCapUsd": 5170000,
+    "country": "USA"
+  },
+  {
+    "rank": 786,
+    "name": "Jaguar Health",
+    "ticker": "JAGX",
+    "marketCapUsd": 4700000,
+    "country": "USA"
+  },
+  {
+    "rank": 787,
+    "name": "Mallinckrodt Pharmaceuticals",
+    "ticker": "MNK",
+    "marketCapUsd": 4520000,
+    "country": "UK"
+  },
+  {
+    "rank": 788,
+    "name": "Azitra",
+    "ticker": "AZTR",
+    "marketCapUsd": 4490000,
+    "country": "USA"
+  },
+  {
+    "rank": 789,
+    "name": "Redhill Biopharma",
+    "ticker": "RDHL",
+    "marketCapUsd": 4490000,
+    "country": "Israel"
+  },
+  {
+    "rank": 790,
+    "name": "Quince Therapeutics",
+    "ticker": "QNCX",
+    "marketCapUsd": 4450000,
+    "country": "USA"
+  },
+  {
+    "rank": 791,
+    "name": "Genprex",
+    "ticker": "GNPX",
+    "marketCapUsd": 4260000,
+    "country": "USA"
+  },
+  {
+    "rank": 792,
+    "name": "CASI Pharmaceuticals",
+    "ticker": "CASI",
+    "marketCapUsd": 4260000,
+    "country": "USA"
+  },
+  {
+    "rank": 793,
+    "name": "Sonoma Pharmaceuticals",
+    "ticker": "SNOA",
+    "marketCapUsd": 4200000,
+    "country": "USA"
+  },
+  {
+    "rank": 794,
+    "name": "Matinas BioPharma",
+    "ticker": "MTNB",
+    "marketCapUsd": 4090000,
+    "country": "USA"
+  },
+  {
+    "rank": 795,
+    "name": "AIM ImmunoTech",
+    "ticker": "AIM",
+    "marketCapUsd": 4040000,
+    "country": "USA"
+  },
+  {
+    "rank": 796,
+    "name": "Galmed Pharmaceuticals",
+    "ticker": "GLMD",
+    "marketCapUsd": 3940000,
+    "country": "Israel"
+  },
+  {
+    "rank": 797,
+    "name": "Arcadia Biosciences",
+    "ticker": "RKDA",
+    "marketCapUsd": 3810000,
+    "country": "USA"
+  },
+  {
+    "rank": 798,
+    "name": "Unity Biotechnology",
+    "ticker": "UBX",
+    "marketCapUsd": 3440000,
+    "country": "USA"
+  },
+  {
+    "rank": 799,
+    "name": "Eagle Pharmaceuticals",
+    "ticker": "EGRX",
+    "marketCapUsd": 3280000,
+    "country": "USA"
+  },
+  {
+    "rank": 800,
+    "name": "Avalon GloboCare",
+    "ticker": "ALBT",
+    "marketCapUsd": 3280000,
+    "country": "USA"
+  },
+  {
+    "rank": 801,
+    "name": "Oragenics",
+    "ticker": "OGEN",
+    "marketCapUsd": 3100000,
+    "country": "USA"
+  },
+  {
+    "rank": 802,
+    "name": "Affimed",
+    "ticker": "AFMD",
+    "marketCapUsd": 2970000,
+    "country": "Germany"
+  },
+  {
+    "rank": 803,
+    "name": "Adial Pharmaceuticals",
+    "ticker": "ADIL",
+    "marketCapUsd": 2850000,
+    "country": "USA"
+  },
+  {
+    "rank": 804,
+    "name": "Xilio Therapeutics",
+    "ticker": "XLO",
+    "marketCapUsd": 2670000,
+    "country": "USA"
+  },
+  {
+    "rank": 805,
+    "name": "Mangoceuticals",
+    "ticker": "MGRX",
+    "marketCapUsd": 2480000,
+    "country": "USA"
+  },
+  {
+    "rank": 806,
+    "name": "Vaccinex",
+    "ticker": "VCNX",
+    "marketCapUsd": 2380000,
+    "country": "USA"
+  },
+  {
+    "rank": 807,
+    "name": "Nuwellis",
+    "ticker": "NUWE",
+    "marketCapUsd": 2370000,
+    "country": "USA"
+  },
+  {
+    "rank": 808,
+    "name": "Clearside Biomedical",
+    "ticker": "CLSD",
+    "marketCapUsd": 2140000,
+    "country": "USA"
+  },
+  {
+    "rank": 809,
+    "name": "Ensysce Biosciences",
+    "ticker": "ENSC",
+    "marketCapUsd": 2120000,
+    "country": "USA"
+  },
+  {
+    "rank": 810,
+    "name": "Incannex Healthcare",
+    "ticker": "IXHL",
+    "marketCapUsd": 1990000,
+    "country": "Australia"
+  },
+  {
+    "rank": 811,
+    "name": "iSpecimen",
+    "ticker": "ISPC",
+    "marketCapUsd": 1910000,
+    "country": "USA"
+  },
+  {
+    "rank": 812,
+    "name": "Propanc Biopharma",
+    "ticker": "PPCB",
+    "marketCapUsd": 1880000,
+    "country": "Australia"
+  },
+  {
+    "rank": 813,
+    "name": "PainReform",
+    "ticker": "PRFX",
+    "marketCapUsd": 1780000,
+    "country": "Israel"
+  },
+  {
+    "rank": 814,
+    "name": "Carisma Therapeutics",
+    "ticker": "CARM",
+    "marketCapUsd": 1500000,
+    "country": "USA"
+  },
+  {
+    "rank": 815,
+    "name": "Virax Biolabs",
+    "ticker": "VRAX",
+    "marketCapUsd": 1280000,
+    "country": "UK"
+  },
+  {
+    "rank": 816,
+    "name": "Altamira Therapeutics",
+    "ticker": "CYTO",
+    "marketCapUsd": 1130000,
+    "country": "Bermuda"
+  },
+  {
+    "rank": 817,
+    "name": "Evofem Biosciences",
+    "ticker": "EVFM",
+    "marketCapUsd": 1060000,
+    "country": "USA"
+  },
+  {
+    "rank": 818,
+    "name": "Lucy Scientific Discovery",
+    "ticker": "LSDI",
+    "marketCapUsd": 900000,
+    "country": "Canada"
+  },
+  {
+    "rank": 819,
+    "name": "Lyra Therapeutics",
+    "ticker": "LYRA",
+    "marketCapUsd": 870000,
+    "country": "USA"
+  },
+  {
+    "rank": 820,
+    "name": "Hepion Pharmaceuticals",
+    "ticker": "HEPA",
+    "marketCapUsd": 690000,
+    "country": "USA"
+  },
+  {
+    "rank": 821,
+    "name": "Lipella Pharmaceuticals",
+    "ticker": "LIPO",
+    "marketCapUsd": 690000,
+    "country": "USA"
+  },
+  {
+    "rank": 822,
+    "name": "Tevogen Bio",
+    "ticker": "TVGN",
+    "marketCapUsd": 620000,
+    "country": "USA"
+  },
+  {
+    "rank": 823,
+    "name": "ProPhase Labs",
+    "ticker": "PRPH",
+    "marketCapUsd": 420000,
+    "country": "USA"
+  },
+  {
+    "rank": 824,
+    "name": "Viracta Therapeutics",
+    "ticker": "VIRX",
+    "marketCapUsd": 380000,
+    "country": "USA"
+  },
+  {
+    "rank": 825,
+    "name": "Petros Pharmaceuticals",
+    "ticker": "PTPI",
+    "marketCapUsd": 290000,
+    "country": "USA"
+  },
+  {
+    "rank": 826,
+    "name": "Ocean Biomedical",
+    "ticker": "OCEA",
+    "marketCapUsd": 200000,
+    "country": "USA"
+  },
+  {
+    "rank": 827,
+    "name": "Telesis Bio",
+    "ticker": "TBIO",
+    "marketCapUsd": 90000,
+    "country": "USA"
+  },
+  {
+    "rank": 828,
+    "name": "PaxMedica",
+    "ticker": "PXMD",
+    "marketCapUsd": 80000,
+    "country": "USA"
+  },
+  {
+    "rank": 829,
+    "name": "Vincerx Pharma",
+    "ticker": "VINC",
+    "marketCapUsd": 60000,
+    "country": "USA"
+  },
+  {
+    "rank": 830,
+    "name": "Vaxxinity",
+    "ticker": "VAXX",
+    "marketCapUsd": 10000,
+    "country": "USA"
+  },
+  {
+    "rank": 831,
+    "name": "Trevena",
+    "ticker": "TRVN",
+    "marketCapUsd": 0,
+    "country": "USA"
+  },
+  {
+    "rank": 832,
+    "name": "Syros Pharmaceuticals",
+    "ticker": "SYRS",
+    "marketCapUsd": 0,
+    "country": "USA"
+  },
+  {
+    "rank": 833,
+    "name": "Calithera Biosciences",
+    "ticker": "CALA",
+    "marketCapUsd": 0,
+    "country": "USA"
+  },
+  {
+    "rank": 834,
+    "name": "eFFECTOR Therapeutics",
+    "ticker": "EFTR",
+    "marketCapUsd": 0,
+    "country": "USA"
+  }
+]

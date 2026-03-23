@@ -1,12 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  ResponsiveContainer,
-} from "recharts";
+import { TvAreaChart } from "@/components/charts/TvAreaChart";
 
 const generateData = (months: number) => {
   const labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -26,6 +21,10 @@ const tabs = [
 export function InvestmentChart() {
   const [activeTab, setActiveTab] = useState("1Y");
   const data = generateData(12);
+  const chartData = data.map((d, i) => ({
+    time: `2025-${String(i + 1).padStart(2, "0")}-01`,
+    value: d.value,
+  }));
 
   return (
     <div className="py-4">
@@ -53,26 +52,13 @@ export function InvestmentChart() {
           ))}
         </div>
       </div>
-      <div className="h-[160px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
-            <XAxis
-              dataKey="name"
-              tick={{ fontSize: 10, fill: "var(--color-text-tertiary)" }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <Area
-              type="monotone"
-              dataKey="value"
-              stroke="#1a7a5e"
-              strokeWidth={1.5}
-              fill="#1a7a5e"
-              fillOpacity={0.12}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
+      <TvAreaChart
+        data={chartData}
+        height={160}
+        isPositive={true}
+        formatValue={(v) => `$${Math.round(v)}M`}
+        tooltipTitle="Investment"
+      />
     </div>
   );
 }

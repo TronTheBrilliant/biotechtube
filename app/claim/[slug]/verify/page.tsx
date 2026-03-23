@@ -17,6 +17,7 @@ export default function VerifyPage({
 }) {
   return (
     <div
+      className="page-content"
       style={{
         background: "var(--color-bg-primary)",
         minHeight: "100vh",

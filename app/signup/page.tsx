@@ -20,7 +20,7 @@ const features = [
 
 export default function SignupPage() {
   return (
-    <div style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
+    <div className="page-content" style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
       <Nav />
 
       <main

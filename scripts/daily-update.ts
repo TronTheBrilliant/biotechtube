@@ -80,7 +80,7 @@ async function fetchLatestPrices(supabase: ReturnType<typeof getSupabase>) {
   // Fetch exchange rates
   const exchangeRates = new Map<string, number>();
   exchangeRates.set("USD", 1.0);
-  const pairs = ["EUR", "GBP", "NOK", "SEK", "DKK", "CHF", "JPY", "AUD", "CAD", "INR", "CNY", "HKD", "ILS", "KRW", "TWD", "PLN", "SGD"];
+  const pairs = ["EUR", "GBP", "NOK", "SEK", "DKK", "CHF", "JPY", "AUD", "CAD", "INR", "CNY", "HKD", "ILS", "KRW", "TWD", "PLN", "SGD", "ZAR"];
   for (const curr of pairs) {
     try {
       const q = await yahooFinance.quote(`${curr}USD=X`);
@@ -125,7 +125,17 @@ async function fetchLatestPrices(supabase: ReturnType<typeof getSupabase>) {
 
       if (!hist || hist.length === 0) return;
 
-      const usdRate = exchangeRates.get(currency) || 1.0;
+      // Normalize sub-unit currencies (GBp=pence, ZAc=cents) to main units
+      let mainCurrency = currency;
+      let subUnitDivisor = 1;
+      if (currency === 'GBp' || currency === 'GBX' || currency === 'GBx') {
+        mainCurrency = 'GBP';
+        subUnitDivisor = 100;
+      } else if (currency === 'ZAc' || currency === 'ZAC') {
+        mainCurrency = 'ZAR';
+        subUnitDivisor = 100;
+      }
+      const usdRate = exchangeRates.get(mainCurrency) || 1.0;
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const rows = hist.map((h: any, i: number) => {
@@ -141,7 +151,7 @@ async function fetchLatestPrices(supabase: ReturnType<typeof getSupabase>) {
         const marketCapUsd = isToday && liveMarketCap
           ? Math.round(liveMarketCap * (currency === "USD" ? 1 : usdRate))
           : sharesOut && adjClose
-            ? Math.round(adjClose * sharesOut * usdRate)
+            ? Math.round((adjClose / subUnitDivisor) * sharesOut * usdRate)
             : null;
 
         return {
@@ -230,6 +240,38 @@ async function fetchSectorCompanyIds(
   return all;
 }
 
+// Helper: fetch carry-forward market caps (most recent per company from last 5 days)
+async function fetchCarryForwardMarketCaps(
+  supabase: ReturnType<typeof getSupabase>,
+  latestDate: string
+): Promise<Map<string, number>> {
+  const cutoff = new Date(latestDate);
+  cutoff.setDate(cutoff.getDate() - 5);
+  const cutoffStr = cutoff.toISOString().split("T")[0];
+
+  const lastKnownMcap = new Map<string, number>();
+  let priceOffset = 0;
+  while (true) {
+    const { data, error } = await supabase
+      .from("company_price_history")
+      .select("company_id, market_cap_usd, date")
+      .gte("date", cutoffStr)
+      .not("market_cap_usd", "is", null)
+      .order("date", { ascending: false })
+      .range(priceOffset, priceOffset + 999);
+    if (error || !data || data.length === 0) break;
+    for (const row of data) {
+      // Only keep first (most recent) per company
+      if (!lastKnownMcap.has(row.company_id)) {
+        lastKnownMcap.set(row.company_id, row.market_cap_usd);
+      }
+    }
+    if (data.length < 1000) break;
+    priceOffset += 1000;
+  }
+  return lastKnownMcap;
+}
+
 // ============================================================
 // STEP 2: Calculate market snapshot
 // ============================================================
@@ -251,22 +293,26 @@ async function calculateMarketSnapshot(supabase: ReturnType<typeof getSupabase>)
   const latestDate = latestRow[0].date;
   console.log(`  Latest date: ${latestDate}`);
 
-  // Get all prices for latest date (paginated)
-  const prices = await fetchPricesForDate(supabase, latestDate);
+  // Get carry-forward market caps: most recent market_cap_usd for each company from last 5 days
+  const lastKnownMcap = await fetchCarryForwardMarketCaps(supabase, latestDate);
 
-  if (!prices || prices.length === 0) {
-    console.log("  ⚠️  No market cap data for latest date");
+  if (lastKnownMcap.size === 0) {
+    console.log("  ⚠️  No market cap data found");
     return;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const totalMarketCap = prices.reduce((sum: number, p: any) => sum + (p.market_cap_usd || 0), 0);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const totalVolume = prices.reduce((sum: number, p: any) => sum + (p.volume || 0), 0);
+  // Sum carry-forward market caps for total
+  let totalMarketCap = 0;
+  lastKnownMcap.forEach((mcap) => { totalMarketCap += mcap; });
 
-  // Find top gainer and loser
+  // Volume from today's actual trading only
+  const todayPrices = await fetchPricesForDate(supabase, latestDate);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const withChange = prices.filter((p: any) => p.change_pct !== null);
+  const totalVolume = todayPrices.reduce((sum: number, p: any) => sum + (p.volume || 0), 0);
+
+  // Find top gainer and loser (day-specific, from today's prices)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const withChange = todayPrices.filter((p: any) => p.change_pct !== null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   withChange.sort((a: any, b: any) => b.change_pct - a.change_pct);
   const topGainer = withChange[0];
@@ -303,7 +349,7 @@ async function calculateMarketSnapshot(supabase: ReturnType<typeof getSupabase>)
   const snapshot = {
     snapshot_date: latestDate,
     total_market_cap: Math.round(totalMarketCap),
-    public_companies_count: prices.length,
+    public_companies_count: lastKnownMcap.size,
     total_volume: Math.round(totalVolume),
     change_1d_pct: pctChange(totalMarketCap, prevDayMc),
     change_7d_pct: pctChange(totalMarketCap, prev7dMc),
@@ -320,7 +366,7 @@ async function calculateMarketSnapshot(supabase: ReturnType<typeof getSupabase>)
     .upsert(snapshot, { onConflict: "snapshot_date" });
 
   if (error) console.log(`  ❌ Snapshot error: ${error.message}`);
-  else console.log(`  ✅ Snapshot: $${(totalMarketCap / 1e9).toFixed(1)}B total, ${prices.length} companies`);
+  else console.log(`  ✅ Snapshot: $${(totalMarketCap / 1e9).toFixed(1)}B total, ${lastKnownMcap.size} companies`);
 }
 
 // ============================================================
@@ -342,29 +388,48 @@ async function calculateSectorData(supabase: ReturnType<typeof getSupabase>) {
   const { data: sectors } = await supabase.from("sectors").select("id, name");
   if (!sectors) return;
 
-  // Pre-fetch all prices for latest date (paginated, done once)
+  // Pre-fetch today's prices for volume/change data
   const allPricesForSectors = await fetchPricesForDate(supabase, latestDate);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const priceByCompanyId = new Map(allPricesForSectors.map((p: any) => [p.company_id, p]));
+
+  // Get carry-forward market caps for all companies
+  const lastKnownMcap = await fetchCarryForwardMarketCaps(supabase, latestDate);
 
   for (const sector of sectors) {
     // Get companies in this sector (paginated)
     const companyIds = await fetchSectorCompanyIds(supabase, sector.id);
     if (companyIds.length === 0) continue;
 
-    // Filter price data to companies in this sector
-    const prices = companyIds
+    // Calculate market cap using carry-forward data
+    let combinedMarketCap = 0;
+    let publicCompanyCount = 0;
+    for (const id of companyIds) {
+      const mcap = lastKnownMcap.get(id);
+      if (mcap) {
+        combinedMarketCap += mcap;
+        publicCompanyCount++;
+      }
+    }
+
+    // Volume from today's actual trading only
+    const todayPrices = companyIds
       .map((id) => priceByCompanyId.get(id))
       .filter((p): p is NonNullable<typeof p> => p != null);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const combinedMarketCap = prices.reduce((s: number, p: any) => s + (p.market_cap_usd || 0), 0);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const totalVolume = prices.reduce((s: number, p: any) => s + (p.volume || 0), 0);
+    const totalVolume = todayPrices.reduce((s: number, p: any) => s + (p.volume || 0), 0);
 
-    // Find top company by market cap
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const topCompany = [...prices].sort((a: any, b: any) => (b.market_cap_usd || 0) - (a.market_cap_usd || 0))[0];
+    // Find top company by carry-forward market cap
+    let topCompanyId: string | null = null;
+    let topMcap = 0;
+    for (const id of companyIds) {
+      const mcap = lastKnownMcap.get(id);
+      if (mcap && mcap > topMcap) {
+        topMcap = mcap;
+        topCompanyId = id;
+      }
+    }
 
     // Get previous sector snapshot for % change
     const getPrevSector = async (beforeDate: string) => {
@@ -392,23 +457,23 @@ async function calculateSectorData(supabase: ReturnType<typeof getSupabase>) {
         snapshot_date: latestDate,
         combined_market_cap: Math.round(combinedMarketCap),
         company_count: companyIds.length,
-        public_company_count: prices?.length || 0,
+        public_company_count: publicCompanyCount,
         total_volume: Math.round(totalVolume),
         change_1d_pct: pctChange(combinedMarketCap, prev1d),
         change_7d_pct: pctChange(combinedMarketCap, prev7d),
         change_30d_pct: pctChange(combinedMarketCap, prev30d),
-        top_company_id: topCompany?.company_id ?? null,
+        top_company_id: topCompanyId,
       }, { onConflict: "sector_id,snapshot_date" });
 
     if (error) console.log(`  ❌ ${sector.name}: ${error.message}`);
-    else console.log(`  ✅ ${sector.name}: $${(combinedMarketCap / 1e9).toFixed(1)}B, ${prices?.length || 0} public cos`);
+    else console.log(`  ✅ ${sector.name}: $${(combinedMarketCap / 1e9).toFixed(1)}B, ${publicCompanyCount} public cos`);
 
     // Update denormalized counts on sectors table
     await supabase
       .from("sectors")
       .update({
         company_count: companyIds.length,
-        public_company_count: prices?.length || 0,
+        public_company_count: publicCompanyCount,
         combined_market_cap: Math.round(combinedMarketCap),
       })
       .eq("id", sector.id);
@@ -430,18 +495,22 @@ async function calculateCountryData(supabase: ReturnType<typeof getSupabase>) {
   if (!latestRow?.[0]) return;
   const latestDate = latestRow[0].date;
 
-  // Get all companies with price data on latest date (paginated)
-  const priceData = await fetchPricesForDate(supabase, latestDate);
-  if (priceData.length === 0) return;
+  // Get carry-forward market caps for all companies
+  const lastKnownMcap = await fetchCarryForwardMarketCaps(supabase, latestDate);
+  if (lastKnownMcap.size === 0) return;
 
-  // Get company → country mapping
+  // Get today's prices for volume data
+  const todayPrices = await fetchPricesForDate(supabase, latestDate);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const companyIds = priceData.map((p: any) => p.company_id);
+  const todayVolumeByCompany = new Map(todayPrices.map((p: any) => [p.company_id, p.volume || 0]));
+
+  // Get company → country mapping for all companies with known market caps
+  const allCompanyIds = Array.from(lastKnownMcap.keys());
   const companyCountry = new Map<string, string>();
 
   // Fetch in batches (Supabase .in() has limits)
-  for (let i = 0; i < companyIds.length; i += 500) {
-    const batch = companyIds.slice(i, i + 500);
+  for (let i = 0; i < allCompanyIds.length; i += 500) {
+    const batch = allCompanyIds.slice(i, i + 500);
     const { data: companies } = await supabase
       .from("companies")
       .select("id, country")
@@ -450,15 +519,15 @@ async function calculateCountryData(supabase: ReturnType<typeof getSupabase>) {
     companies?.forEach((c: any) => companyCountry.set(c.id, c.country));
   }
 
-  // Group by country
-  const countryData = new Map<string, { marketCap: number; volume: number; totalCount: number; publicCount: number }>();
+  // Group by country using carry-forward market caps
+  const countryData = new Map<string, { marketCap: number; volume: number; publicCount: number }>();
 
-  for (const p of priceData) {
-    const country = companyCountry.get(p.company_id);
+  for (const [companyId, mcap] of lastKnownMcap) {
+    const country = companyCountry.get(companyId);
     if (!country) continue;
-    const existing = countryData.get(country) || { marketCap: 0, volume: 0, totalCount: 0, publicCount: 0 };
-    existing.marketCap += p.market_cap_usd || 0;
-    existing.volume += p.volume || 0;
+    const existing = countryData.get(country) || { marketCap: 0, volume: 0, publicCount: 0 };
+    existing.marketCap += mcap;
+    existing.volume += todayVolumeByCompany.get(companyId) || 0;
     existing.publicCount++;
     countryData.set(country, existing);
   }

@@ -154,7 +154,7 @@ export function CountryPageClient({ country, nearbyCountries }: CountryPageClien
   }, [apiCompanies, country.name, selectedCategory, sortMode]);
 
   const hasCompanies = countryCompanies.length > 0;
-  const paywallIndex = 5;
+  const paywallIndex = Infinity; // paywall disabled
 
   const sortTabs: { key: SortMode; label: string; emoji: string }[] = [
     { key: "marketcap", label: "Market Cap", emoji: "📈" },
@@ -164,7 +164,7 @@ export function CountryPageClient({ country, nearbyCountries }: CountryPageClien
   ];
 
   return (
-    <div style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
+    <div className="page-content" style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
       <Nav />
 
       {/* ═══ HERO SECTION ═══ */}

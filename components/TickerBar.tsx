@@ -1,4 +1,7 @@
 export function TickerBar() {
+  // Hidden for now — will re-enable with real data
+  return null;
+
   const items = [
     { label: "Listed Companies", value: "14,207", change: "+12", up: true },
     { label: "Total Investment (YTD)", value: "$4.2B", change: "+8.3%", up: true },
@@ -20,7 +23,7 @@ export function TickerBar() {
         <div className="flex items-center gap-1.5">
           <div className="live-dot" />
           <span
-            className="text-11 font-medium"
+            className="text-12 font-medium"
             style={{ color: "var(--color-text-primary)" }}
           >
             Live
@@ -28,17 +31,17 @@ export function TickerBar() {
         </div>
         {items.map((item) => (
           <div key={item.label} className="flex items-center gap-1.5">
-            <span className="text-11" style={{ color: "var(--color-text-secondary)" }}>
+            <span className="text-12" style={{ color: "var(--color-text-secondary)" }}>
               {item.label}
             </span>
             <span
-              className="text-11 font-medium"
+              className="text-12 font-medium"
               style={{ color: "var(--color-text-primary)" }}
             >
               {item.value}
             </span>
             <span
-              className="text-10"
+              className="text-11"
               style={{ color: item.up ? "var(--color-accent)" : "#c0392b" }}
             >
               {item.change}

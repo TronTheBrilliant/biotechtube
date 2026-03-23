@@ -129,7 +129,7 @@ export function CompaniesPageClient() {
   const showResults = search.length > 0 || selectedCategory;
 
   return (
-    <div style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
+    <div className="page-content" style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
       <Nav />
 
       {/* ═══ HERO + SEARCH ═══ */}

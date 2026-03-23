@@ -67,7 +67,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     setQuery(value);
     if (searchTimeout.current) clearTimeout(searchTimeout.current);
 
-    if (!value || value.length < 2) {
+    if (!value || value.length < 1) {
       setResults([]);
       setLoading(false);
       return;

@@ -34,7 +34,7 @@ const pricingTiers = [
 
 export default function SubmitPitchPage() {
   return (
-    <div style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
+    <div className="page-content" style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
       <Nav />
       <main
         className="mx-auto px-4 py-12"

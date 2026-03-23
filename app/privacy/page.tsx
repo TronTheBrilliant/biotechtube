@@ -12,7 +12,7 @@ const headingStyle: React.CSSProperties = { color: "var(--color-text-primary)", 
 
 export default function PrivacyPage() {
   return (
-    <div style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
+    <div className="page-content" style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
       <Nav />
 
       <main className="max-w-3xl mx-auto px-5 py-10">

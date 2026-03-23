@@ -181,7 +181,17 @@ async function backfillTicker(
     // Default to USD
   }
 
-  const usdRate = exchangeRates.get(currency) || 1.0;
+  // Normalize sub-unit currencies (GBp=pence, ZAc=cents) to main units
+  let mainCurrency = currency;
+  let subUnitDivisor = 1;
+  if (currency === 'GBp' || currency === 'GBX' || currency === 'GBx') {
+    mainCurrency = 'GBP';
+    subUnitDivisor = 100;
+  } else if (currency === 'ZAc' || currency === 'ZAC') {
+    mainCurrency = 'ZAR';
+    subUnitDivisor = 100;
+  }
+  const usdRate = exchangeRates.get(mainCurrency) || 1.0;
 
   // Build rows with change_pct calculation
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -193,7 +203,7 @@ async function backfillTicker(
       : null;
 
     const marketCapUsd = sharesOutstanding && adjClose
-      ? adjClose * sharesOutstanding * usdRate
+      ? (adjClose / subUnitDivisor) * sharesOutstanding * usdRate
       : null;
 
     return {

@@ -2,6 +2,9 @@ import Link from "next/link";
 import { Check } from "lucide-react";
 
 export function PaywallCard() {
+  // Paywall disabled — return nothing
+  return null;
+
   const features = [
     { text: "Full company rankings", soon: false },
     { text: "All company profiles", soon: false },

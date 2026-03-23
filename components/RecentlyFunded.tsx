@@ -75,18 +75,18 @@ export function RecentlyFunded({ funding, companies }: RecentlyFundedProps) {
               </div>
               <div className="flex items-center gap-1.5">
                 <span
-                  className="inline-flex items-center gap-1 px-1.5 py-[1px] rounded-sm text-[10px] font-medium whitespace-nowrap"
+                  className="inline-flex items-center gap-1 px-1.5 py-[1px] rounded-sm text-11 font-medium whitespace-nowrap"
                   style={{ background: rc.bg, color: rc.text }}
                 >
                   {roundEmoji[round.type] || "💰"} {round.type}
                 </span>
                 {round.leadInvestor && (
-                  <span className="text-11 truncate" style={{ color: "var(--color-text-tertiary)" }}>
+                  <span className="text-12 truncate" style={{ color: "var(--color-text-tertiary)" }}>
                     {round.leadInvestor}
                   </span>
                 )}
               </div>
-              <div className="text-11 mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>
+              <div className="text-12 mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>
                 {formatRelativeTime(round.daysAgo || 0)} · {company?.city || ""}
               </div>
             </div>

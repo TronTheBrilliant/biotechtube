@@ -2,10 +2,12 @@
 
 import { useState, useMemo, useRef, useEffect } from "react";
 import Link from "next/link";
-import { SlidersHorizontal, Lock, Star, ChevronDown, Globe } from "lucide-react";
+import { SlidersHorizontal, Lock, Star, ChevronDown, Globe, ChevronLeft, ChevronRight } from "lucide-react";
 import { RankingTable } from "./RankingTable";
 import { FiltersModal, Filters, defaultFilters } from "./FiltersModal";
 import { Company, FundingRound } from "@/lib/types";
+
+const PAGE_SIZE = 100;
 
 const homeTabs = [
   { key: "top", label: "📈 Top" },
@@ -94,6 +96,7 @@ export function HomePageClient({ companies, funding }: HomePageClientProps) {
   const [countryOpen, setCountryOpen] = useState(false);
   const [mobileTabOpen, setMobileTabOpen] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState<{ code: string; name: string; flag: string }>({ code: "global", name: "All Countries", flag: "🌍" });
+  const [currentPage, setCurrentPage] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const tabSheetRef = useRef<HTMLDivElement>(null);
 
@@ -157,7 +160,7 @@ export function HomePageClient({ companies, funding }: HomePageClientProps) {
     const arr = [...filteredCompanies];
     switch (activeTab) {
       case "top":
-        return arr;
+        return arr.sort((a, b) => (b.valuation || 0) - (a.valuation || 0));
       case "trending":
         return arr.sort((a, b) => (a.trending || 99) - (b.trending || 99));
       case "funded": {
@@ -178,6 +181,20 @@ export function HomePageClient({ companies, funding }: HomePageClientProps) {
     }
   }, [filteredCompanies, activeTab, funding]);
 
+  // Reset page when tab, filters, or country changes
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [activeTab, filters, selectedCountry]);
+
+  // Pagination
+  const totalPages = Math.ceil(sortedCompanies.length / PAGE_SIZE);
+  const paginatedCompanies = useMemo(() => {
+    const start = currentPage * PAGE_SIZE;
+    return sortedCompanies.slice(start, start + PAGE_SIZE);
+  }, [sortedCompanies, currentPage]);
+
+  const startRank = currentPage * PAGE_SIZE;
+
   return (
     <>
       {/* Tabs + Country Selector + Filter Bar */}
@@ -191,11 +208,11 @@ export function HomePageClient({ companies, funding }: HomePageClientProps) {
             <button
               key={tab.key}
               onClick={() => tab.key !== "watchlist" && setActiveTab(tab.key)}
-              className="text-14 py-2.5 px-2 transition-all duration-200 border-b-[1.5px] whitespace-nowrap flex items-center gap-1"
+              className="text-[15px] py-2.5 px-2 transition-all duration-200 border-b-[1.5px] whitespace-nowrap flex items-center gap-1"
               style={{
                 color: activeTab === tab.key ? "var(--color-accent)" : tab.key === "watchlist" ? "var(--color-text-tertiary)" : "var(--color-text-secondary)",
                 borderBottomColor: activeTab === tab.key ? "var(--color-accent)" : "transparent",
-                fontWeight: activeTab === tab.key ? 500 : 400,
+                fontWeight: activeTab === tab.key ? 600 : 500,
                 ...(activeTab === tab.key ? { background: "var(--color-bg-secondary)", borderTopLeftRadius: 4, borderTopRightRadius: 4 } : {}),
               }}
             >
@@ -430,7 +447,99 @@ export function HomePageClient({ companies, funding }: HomePageClientProps) {
       {activeTab !== "watchlist" && (
         <div className="pt-0 pb-3">
           {sortedCompanies.length > 0 ? (
-            <RankingTable companies={sortedCompanies} mode={activeTab} funding={funding} />
+            <>
+              <RankingTable companies={paginatedCompanies} mode={activeTab} funding={funding} startRank={startRank} />
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex flex-col items-center gap-3 px-4 py-5 mt-2">
+                  {/* Prev / page numbers / Next */}
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => setCurrentPage((p) => Math.max(0, p - 1))}
+                      disabled={currentPage === 0}
+                      className="flex items-center justify-center h-9 px-2.5 rounded-lg text-13 font-medium transition-colors duration-150 gap-1"
+                      style={{
+                        color: currentPage === 0 ? "var(--color-text-tertiary)" : "var(--color-text-primary)",
+                        opacity: currentPage === 0 ? 0.4 : 1,
+                        cursor: currentPage === 0 ? "default" : "pointer",
+                        border: "0.5px solid var(--color-border-subtle)",
+                      }}
+                    >
+                      <ChevronLeft size={14} />
+                      <span className="hidden sm:inline">Prev</span>
+                    </button>
+
+                    {/* Smart page buttons with ellipsis */}
+                    {(() => {
+                      const pages: (number | "ellipsis-start" | "ellipsis-end")[] = [];
+                      // Always show first page
+                      pages.push(0);
+                      // Ellipsis after first if needed
+                      if (currentPage > 2) pages.push("ellipsis-start");
+                      // Pages around current
+                      for (let i = Math.max(1, currentPage - 1); i <= Math.min(totalPages - 2, currentPage + 1); i++) {
+                        pages.push(i);
+                      }
+                      // Ellipsis before last if needed
+                      if (currentPage < totalPages - 3) pages.push("ellipsis-end");
+                      // Always show last page (if more than 1 page)
+                      if (totalPages > 1) pages.push(totalPages - 1);
+                      // Deduplicate
+                      const unique = pages.filter((p, idx) => pages.indexOf(p) === idx);
+
+                      return unique.map((p) => {
+                        if (p === "ellipsis-start" || p === "ellipsis-end") {
+                          return (
+                            <span key={p} className="text-13 px-1" style={{ color: "var(--color-text-tertiary)" }}>
+                              ···
+                            </span>
+                          );
+                        }
+                        const pageNum = p as number;
+                        const isActive = pageNum === currentPage;
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={() => setCurrentPage(pageNum)}
+                            className="flex items-center justify-center h-9 min-w-[36px] px-2 rounded-lg text-13 font-medium transition-colors duration-150"
+                            style={{
+                              background: isActive ? "var(--color-accent)" : "transparent",
+                              color: isActive ? "white" : "var(--color-text-secondary)",
+                              border: isActive ? "none" : "0.5px solid var(--color-border-subtle)",
+                            }}
+                            onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = "var(--color-bg-secondary)"; }}
+                            onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = ""; }}
+                          >
+                            {pageNum + 1}
+                          </button>
+                        );
+                      });
+                    })()}
+
+                    <button
+                      onClick={() => setCurrentPage((p) => Math.min(totalPages - 1, p + 1))}
+                      disabled={currentPage === totalPages - 1}
+                      className="flex items-center justify-center h-9 px-2.5 rounded-lg text-13 font-medium transition-colors duration-150 gap-1"
+                      style={{
+                        color: currentPage === totalPages - 1 ? "var(--color-text-tertiary)" : "var(--color-text-primary)",
+                        opacity: currentPage === totalPages - 1 ? 0.4 : 1,
+                        cursor: currentPage === totalPages - 1 ? "default" : "pointer",
+                        border: "0.5px solid var(--color-border-subtle)",
+                      }}
+                    >
+                      <span className="hidden sm:inline">Next</span>
+                      <ChevronRight size={14} />
+                    </button>
+                  </div>
+
+                  {/* Results count */}
+                  <span className="text-12" style={{ color: "var(--color-text-tertiary)" }}>
+                    Showing {startRank + 1}–{Math.min(startRank + PAGE_SIZE, sortedCompanies.length)} of {sortedCompanies.length} companies
+                  </span>
+                </div>
+              )}
+            </>
           ) : (
             <div className="px-5 py-8 text-center">
               <p className="text-13" style={{ color: "var(--color-text-tertiary)" }}>

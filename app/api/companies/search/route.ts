@@ -6,28 +6,23 @@ export const dynamic = 'force-dynamic'
 export async function GET(request: NextRequest) {
   const q = request.nextUrl.searchParams.get('q')
 
-  if (!q || q.length < 2) {
+  if (!q || q.length < 1) {
     return NextResponse.json({ results: [] })
   }
 
   const supabase = createServerClient()
 
-  // Try full-text search first
-  let { data } = await supabase
+  // Search by name (ILIKE for partial matches)
+  const { data, error } = await supabase
     .from('companies')
-    .select('slug, name, country, city, categories, logo_url, stage, company_type')
-    .textSearch('fts', q, { type: 'websearch' })
+    .select('slug, name, country, city, categories, logo_url, stage, company_type, ticker, total_raised, website, description')
+    .ilike('name', `%${q}%`)
+    .order('name', { ascending: true })
     .limit(10)
 
-  // Fallback to ILIKE if FTS returns nothing (handles partial word matches)
-  if (!data || data.length === 0) {
-    const { data: ilikeData } = await supabase
-      .from('companies')
-      .select('slug, name, country, city, categories, logo_url, stage, company_type')
-      .ilike('name', `%${q}%`)
-      .limit(10)
-
-    data = ilikeData
+  if (error) {
+    console.error('Search error:', error)
+    return NextResponse.json({ results: [] })
   }
 
   return NextResponse.json({ results: data || [] })

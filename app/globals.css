@@ -2,6 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+/* TradingView Lightweight Charts watermark — subtle on all charts */
+#tv-attr-logo {
+  transform: scale(0.5);
+  transform-origin: bottom right;
+  opacity: 0.25;
+}
+/* Hide watermark entirely on tiny sparkline charts (80x48) */
+table[style*="height: 48px"] #tv-attr-logo {
+  display: none;
+}
+
+/* Horizontal scrolling marquee for homepage stats */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 20s linear infinite;
+}
+
 :root {
   --color-accent: #1a7a5e;
   --color-accent-dark: #0a3d2e;
@@ -76,5 +96,16 @@ body {
   .live-dot,
   .live-dot-lg {
     animation: none;
+  }
+}
+
+/* Top nav layout offset */
+.page-content {
+  padding-top: 56px;
+}
+
+@media (max-width: 767px) {
+  .page-content {
+    padding-top: 48px;
   }
 }

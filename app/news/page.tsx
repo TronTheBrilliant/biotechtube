@@ -32,7 +32,7 @@ const features = [
 
 export default function NewsPage() {
   return (
-    <div style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
+    <div className="page-content" style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
       <Nav />
 
       <main className="max-w-3xl mx-auto px-4 py-10">

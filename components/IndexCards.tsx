@@ -1,59 +1,60 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
-import {
-  AreaChart,
-  Area,
-  ResponsiveContainer,
-} from "recharts";
+import { TvSparkline } from "@/components/charts/TvSparkline";
+import { formatMarketCap, formatVolume, formatPercent } from "@/lib/market-utils";
+
+interface IndexCardsProps {
+  snapshot: {
+    total_market_cap: number;
+    total_volume: number;
+    public_companies_count: number;
+    change_1d_pct: number | null;
+    change_7d_pct: number | null;
+    top_gainer_pct: number | null;
+  };
+}
 
 function formatCount(n: number): string {
   return n.toLocaleString();
 }
 
-export function IndexCards() {
-  const [companyCount, setCompanyCount] = useState<number | null>(null);
-
-  useEffect(() => {
-    fetch("/api/stats")
-      .then((r) => r.json())
-      .then((d) => setCompanyCount(d.totalCompanies))
-      .catch(() => {});
-  }, []);
+export function IndexCards({ snapshot }: IndexCardsProps) {
+  const change1d = snapshot.change_1d_pct;
+  const up1d = change1d === null ? true : change1d >= 0;
 
   const cardData = [
     {
-      label: "📊 GLOBAL BIOTECH INDEX",
-      value: "4,207",
-      change: "+3.2%",
-      up: true,
+      label: "📊 BIOTECH MARKET CAP",
+      value: formatMarketCap(snapshot.total_market_cap),
+      change: formatPercent(change1d),
+      up: up1d,
       href: "/markets",
       data: [40, 42, 38, 44, 46, 43, 48, 50, 47, 52, 55, 53],
     },
     {
-      label: "💰 INVESTMENT VOLUME (YTD)",
-      value: "$4.2B",
-      change: "+8.3%",
+      label: "🧬 BROWSE SECTORS",
+      value: "20 Sectors",
+      change: "Indexed charts →",
       up: true,
-      href: "/funding",
-      data: [20, 24, 22, 28, 32, 30, 35, 33, 38, 42, 40, 44],
+      href: "/sectors",
+      data: [30, 35, 33, 40, 45, 42, 50, 55, 52, 60, 65, 62],
     },
     {
-      label: "🧪 ACTIVE CLINICAL TRIALS",
-      value: "3,841",
-      change: "+24",
-      up: true,
-      href: "/pipeline",
-      data: [100, 105, 108, 106, 112, 115, 118, 120, 122, 125, 128, 130],
-    },
-    {
-      label: "🏢 COMPANIES TRACKED",
-      value: companyCount !== null ? formatCount(companyCount) : "...",
-      change: companyCount !== null ? `+${formatCount(companyCount)}` : "",
+      label: "🏢 PUBLIC COMPANIES",
+      value: formatCount(snapshot.public_companies_count),
+      change: "",
       up: true,
       href: "/companies",
       data: [200, 210, 220, 235, 248, 260, 275, 290, 305, 318, 330, 345],
+    },
+    {
+      label: "💹 24H VOLUME",
+      value: formatVolume(snapshot.total_volume),
+      change: "",
+      up: true,
+      href: "/markets",
+      data: [100, 105, 108, 106, 112, 115, 118, 120, 122, 125, 128, 130],
     },
   ];
 
@@ -90,21 +91,7 @@ export function IndexCards() {
               {card.change}
             </span>
             <div className="w-[80px] h-[48px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={card.data.map((v, i) => ({ v, i }))}
-                  margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
-                >
-                  <Area
-                    type="monotone"
-                    dataKey="v"
-                    stroke="#1a7a5e"
-                    strokeWidth={2}
-                    fill="#1a7a5e"
-                    fillOpacity={0.12}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+              <TvSparkline data={card.data} width={80} height={48} />
             </div>
           </div>
         </Link>

@@ -29,7 +29,7 @@ const pillars = [
 
 export default function AboutPage() {
   return (
-    <div style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
+    <div className="page-content" style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
       <Nav />
 
       <main className="max-w-6xl mx-auto px-4 py-10">
