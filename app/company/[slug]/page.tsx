@@ -4,6 +4,7 @@ import { Company, FundingRound } from "@/lib/types";
 import { CompanyPageClient } from "./CompanyPageClient";
 import { dbRowToCompany, dbRowsToCompanies } from "@/lib/adapters";
 import { createClient } from "@supabase/supabase-js";
+import { cache } from "react";
 
 import fundingData from "@/data/funding.json";
 
@@ -11,33 +12,41 @@ export const dynamic = 'force-dynamic';
 
 const funding = fundingData as FundingRound[];
 
-async function getCompany(slug: string) {
+// Columns needed for the company detail page
+const COMPANY_COLUMNS = 'slug, name, country, city, website, domain, categories, description, founded, employee_range, stage, company_type, ticker, logo_url, total_raised, valuation, is_estimated, trending_rank, profile_views';
+
+// Fewer columns needed for similar companies cards
+const CARD_COLUMNS = 'slug, name, country, city, categories, logo_url, stage, company_type, ticker, total_raised, valuation, is_estimated, domain, founded, trending_rank, profile_views';
+
+function getSupabase() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!supabaseUrl || !supabaseKey) return null;
+  return createClient(supabaseUrl, supabaseKey);
+}
 
-  const supabase = createClient(supabaseUrl, supabaseKey);
+// React cache deduplicates this call between generateMetadata and the page component
+const getCompany = cache(async (slug: string) => {
+  const supabase = getSupabase();
+  if (!supabase) return null;
 
   const { data } = await supabase
     .from('companies')
-    .select('*')
+    .select(COMPANY_COLUMNS)
     .eq('slug', slug)
     .single();
 
   return data ? dbRowToCompany(data) : null;
-}
+});
 
 async function getSimilarCompanies(company: Company) {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!supabaseUrl || !supabaseKey) return [];
-
-  const supabase = createClient(supabaseUrl, supabaseKey);
+  const supabase = getSupabase();
+  if (!supabase) return [];
 
   // Find companies in same country or with overlapping categories
   const { data } = await supabase
     .from('companies')
-    .select('*')
+    .select(CARD_COLUMNS)
     .eq('country', company.country)
     .neq('slug', company.slug)
     .limit(4);

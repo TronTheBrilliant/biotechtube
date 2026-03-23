@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
@@ -96,35 +96,49 @@ export function CompaniesPageClient() {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [companies, setCompanies] = useState<Company[]>([]);
+  const [filtered, setFiltered] = useState<Company[]>([]);
   const [totalCount, setTotalCount] = useState(10632);
+  const searchTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  // Fetch companies from API
+  // Fetch initial companies from API
   useEffect(() => {
     fetch("/api/companies?limit=50&sort=name")
       .then((r) => r.json())
       .then((d) => {
-        if (d.companies) setCompanies(dbRowsToCompanies(d.companies));
+        if (d.companies) {
+          const mapped = dbRowsToCompanies(d.companies);
+          setCompanies(mapped);
+          setFiltered(mapped);
+        }
         if (d.total) setTotalCount(d.total);
       })
       .catch(() => {});
   }, []);
 
-  // Filter companies based on search and category
-  const filtered = useMemo(() => {
-    let result = [...companies];
-    if (search) {
-      const q = search.toLowerCase();
-      result = result.filter((c) =>
-        c.name.toLowerCase().includes(q) ||
-        c.focus.some((f) => f.toLowerCase().includes(q)) ||
-        c.city.toLowerCase().includes(q)
-      );
+  // When search or category changes, fetch from API with server-side filtering
+  useEffect(() => {
+    if (!search && !selectedCategory) {
+      setFiltered(companies);
+      return;
     }
-    if (selectedCategory) {
-      result = result.filter((c) => c.focus.some((f) => f.toLowerCase().includes(selectedCategory.toLowerCase())));
-    }
-    return result;
-  }, [search, selectedCategory]);
+
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
+
+    searchTimeout.current = setTimeout(() => {
+      const params = new URLSearchParams({ limit: "50", sort: "name" });
+      if (search) params.set("q", search);
+      if (selectedCategory) params.set("category", selectedCategory);
+
+      fetch(`/api/companies?${params}`)
+        .then((r) => r.json())
+        .then((d) => {
+          if (d.companies) setFiltered(dbRowsToCompanies(d.companies));
+        })
+        .catch(() => {});
+    }, search ? 300 : 0); // debounce text search, instant for category
+
+    return () => { if (searchTimeout.current) clearTimeout(searchTimeout.current); };
+  }, [search, selectedCategory, companies]);
 
   const showResults = search.length > 0 || selectedCategory;
 

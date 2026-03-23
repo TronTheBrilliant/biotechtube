@@ -230,15 +230,28 @@ async function scrapeCategories() {
           .in('domain', domainBatch)
 
         if (existing) {
+          // Collect all updates, then batch them
+          const updates: { id: string; categories: string[] }[] = []
           for (const company of existing) {
             const cats = company.categories || []
             if (!cats.includes(page.category)) {
               cats.push(page.category)
-              await supabase
+              updates.push({ id: company.id, categories: cats })
+            }
+          }
+
+          // Batch update using upsert (much faster than individual updates)
+          if (updates.length > 0) {
+            for (let j = 0; j < updates.length; j += BATCH_SIZE) {
+              const updateBatch = updates.slice(j, j + BATCH_SIZE)
+              const { error } = await supabase
                 .from('companies')
-                .update({ categories: cats })
-                .eq('id', company.id)
-              matched++
+                .upsert(updateBatch, { onConflict: 'id' })
+              if (error) {
+                console.error(`    ✗ Batch category update failed: ${error.message}`)
+              } else {
+                matched += updateBatch.length
+              }
             }
           }
         }
@@ -286,7 +299,7 @@ async function main() {
 
   const { count } = await supabase
     .from('companies')
-    .select('*', { count: 'exact', head: true })
+    .select('id', { count: 'exact', head: true })
 
   console.log('╔══════════════════════════════════════════╗')
   console.log(`║   Done! ${count} companies in database`)

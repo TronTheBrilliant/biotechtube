@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createServerClient } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
 
@@ -7,17 +7,14 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { slug: string } }
 ) {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!supabaseUrl || !supabaseKey) {
+  const supabase = createServerClient()
+  if (!supabase) {
     return NextResponse.json({ error: 'Database not configured' }, { status: 503 })
   }
 
-  const supabase = createClient(supabaseUrl, supabaseKey)
-
   const { data, error } = await supabase
     .from('companies')
-    .select('*')
+    .select('id, slug, name, country, city, website, domain, categories, description, founded, employee_range, stage, company_type, ticker, logo_url, total_raised, valuation, is_estimated, trending_rank, profile_views')
     .eq('slug', params.slug)
     .single()
 
@@ -28,13 +25,17 @@ export async function GET(
     )
   }
 
-  // Increment profile views (fire and forget)
-  const row = data as Record<string, unknown>
-  supabase
+  // Increment profile views (fire and forget, with error logging)
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const row = data as any
+  ;(supabase as any)
     .from('companies')
-    .update({ profile_views: ((row.profile_views as number) || 0) + 1 })
-    .eq('id', row.id as string)
-    .then(() => {})
+    .update({ profile_views: (row.profile_views || 0) + 1 })
+    .eq('id', row.id)
+    .then(({ error: updateErr }: { error: { message: string } | null }) => {
+      if (updateErr) console.error('Failed to increment profile_views:', updateErr.message)
+    })
+  /* eslint-enable @typescript-eslint/no-explicit-any */
 
   return NextResponse.json(data)
 }

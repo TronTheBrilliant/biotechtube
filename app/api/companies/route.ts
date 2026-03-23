@@ -17,10 +17,16 @@ export async function GET(request: NextRequest) {
   const sort = searchParams.get('sort') || 'name'
 
   const supabase = createServerClient()
+  if (!supabase) {
+    return NextResponse.json({ error: 'Database not configured' }, { status: 503 })
+  }
+
+  // Select only columns needed for listing cards (skip description, source_url, enriched_at, fts, etc.)
+  const LISTING_COLUMNS = 'slug, name, country, city, categories, logo_url, stage, company_type, ticker, total_raised, valuation, is_estimated, domain, founded, trending_rank, profile_views, employee_range, created_at'
 
   let query = supabase
     .from('companies')
-    .select('*', { count: 'exact' })
+    .select(LISTING_COLUMNS, { count: 'exact' })
 
   // Filters
   if (country) {

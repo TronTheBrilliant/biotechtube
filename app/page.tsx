@@ -27,7 +27,7 @@ async function getTopCompanies() {
 
   const { data } = await supabase
     .from('companies')
-    .select('*')
+    .select('slug, name, country, city, categories, logo_url, stage, company_type, ticker, total_raised, valuation, is_estimated, domain, founded, trending_rank, profile_views, employee_range')
     .order('name', { ascending: true })
     .limit(50);
 

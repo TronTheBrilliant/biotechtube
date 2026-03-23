@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
@@ -82,76 +82,75 @@ const categories = [
 
 type SortMode = "marketcap" | "trending" | "funded" | "newest";
 
+// Map sort mode to API sort parameter
+const apiSortMap: Record<SortMode, string> = {
+  marketcap: "funded", // closest API sort (by total_raised)
+  trending: "trending",
+  funded: "funded",
+  newest: "newest",
+};
+
 export function CountryPageClient({ country, nearbyCountries }: CountryPageClientProps) {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortMode, setSortMode] = useState<SortMode>("marketcap");
   const [apiCompanies, setApiCompanies] = useState<Company[]>([]);
   const [, setLoadingCompanies] = useState(true);
+  const fetchTimeout = useRef<NodeJS.Timeout | null>(null);
 
+  // Fetch from API with server-side filtering whenever filters change
   useEffect(() => {
-    fetch(`/api/companies?country=${encodeURIComponent(country.name)}&limit=100&sort=name`)
-      .then(r => r.json())
-      .then(d => {
-        if (d.companies) {
-          setApiCompanies(d.companies.map((row: Record<string, unknown>) => ({
-            slug: row.slug as string,
-            name: row.name as string,
-            country: row.country as string,
-            city: (row.city as string) || '',
-            founded: (row.founded as number) || 0,
-            stage: (row.stage as string) || 'Pre-clinical',
-            type: (row.company_type as string) || 'Private',
-            ticker: row.ticker as string || undefined,
-            focus: (row.categories as string[]) || [],
-            employees: (row.employee_range as string) || '',
-            totalRaised: (row.total_raised as number) || 0,
-            valuation: row.valuation as number || undefined,
-            isEstimated: (row.is_estimated as boolean) || false,
-            description: (row.description as string) || '',
-            website: (row.domain as string) || (row.website as string) || '',
-            logoUrl: row.logo_url as string || undefined,
-            trending: row.trending_rank as number || null,
-            profileViews: (row.profile_views as number) || 0,
-          })));
-        }
-        setLoadingCompanies(false);
-      })
-      .catch(() => setLoadingCompanies(false));
-  }, [country.name]);
+    if (fetchTimeout.current) clearTimeout(fetchTimeout.current);
 
-  // Filter companies by country name
+    fetchTimeout.current = setTimeout(() => {
+      const params = new URLSearchParams({
+        country: country.name,
+        limit: "100",
+        sort: apiSortMap[sortMode],
+      });
+      if (selectedCategory !== "All") params.set("category", selectedCategory);
+
+      setLoadingCompanies(true);
+      fetch(`/api/companies?${params}`)
+        .then(r => r.json())
+        .then(d => {
+          if (d.companies) {
+            setApiCompanies(d.companies.map((row: Record<string, unknown>) => ({
+              slug: row.slug as string,
+              name: row.name as string,
+              country: row.country as string,
+              city: (row.city as string) || '',
+              founded: (row.founded as number) || 0,
+              stage: (row.stage as string) || 'Pre-clinical',
+              type: (row.company_type as string) || 'Private',
+              ticker: row.ticker as string || undefined,
+              focus: (row.categories as string[]) || [],
+              employees: (row.employee_range as string) || '',
+              totalRaised: (row.total_raised as number) || 0,
+              valuation: row.valuation as number || undefined,
+              isEstimated: (row.is_estimated as boolean) || false,
+              description: (row.description as string) || '',
+              website: (row.domain as string) || (row.website as string) || '',
+              logoUrl: row.logo_url as string || undefined,
+              trending: row.trending_rank as number || null,
+              profileViews: (row.profile_views as number) || 0,
+            })));
+          }
+          setLoadingCompanies(false);
+        })
+        .catch(() => setLoadingCompanies(false));
+    }, 0);
+
+    return () => { if (fetchTimeout.current) clearTimeout(fetchTimeout.current); };
+  }, [country.name, selectedCategory, sortMode]);
+
+  // Client-side sort for marketcap (valuation-based) since API doesn't support it directly
   const countryCompanies = useMemo(() => {
-    let result = apiCompanies.filter((c) => c.country === country.name);
-
-    // Filter by category
-    if (selectedCategory !== "All") {
-      result = result.filter((c) =>
-        c.focus.some((f) => f.toLowerCase().includes(selectedCategory.toLowerCase()))
-      );
+    const result = [...apiCompanies];
+    if (sortMode === "marketcap") {
+      result.sort((a, b) => (b.valuation || b.totalRaised) - (a.valuation || a.totalRaised));
     }
-
-    // Sort
-    switch (sortMode) {
-      case "marketcap":
-        result.sort((a, b) => (b.valuation || b.totalRaised) - (a.valuation || a.totalRaised));
-        break;
-      case "trending":
-        result.sort((a, b) => {
-          const at = a.trending ?? 999;
-          const bt = b.trending ?? 999;
-          return at - bt;
-        });
-        break;
-      case "funded":
-        result.sort((a, b) => b.totalRaised - a.totalRaised);
-        break;
-      case "newest":
-        result.sort((a, b) => b.founded - a.founded);
-        break;
-    }
-
     return result;
-  }, [apiCompanies, country.name, selectedCategory, sortMode]);
+  }, [apiCompanies, sortMode]);
 
   const hasCompanies = countryCompanies.length > 0;
   const paywallIndex = 5;

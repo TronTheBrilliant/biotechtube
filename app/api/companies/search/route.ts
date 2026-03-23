@@ -11,6 +11,9 @@ export async function GET(request: NextRequest) {
   }
 
   const supabase = createServerClient()
+  if (!supabase) {
+    return NextResponse.json({ error: 'Database not configured' }, { status: 503 })
+  }
 
   // Try full-text search first
   let { data } = await supabase

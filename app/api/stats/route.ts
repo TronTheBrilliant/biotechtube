@@ -5,25 +5,26 @@ export const dynamic = 'force-dynamic'
 
 export async function GET() {
   const supabase = createServerClient()
+  if (!supabase) {
+    return NextResponse.json({ error: 'Database not configured' }, { status: 503 })
+  }
 
-  // Get total company count
-  const { count: totalCompanies } = await supabase
-    .from('companies')
-    .select('*', { count: 'exact', head: true })
-
-  // Get companies with pipeline/stage data
-  const { count: withPipeline } = await supabase
-    .from('companies')
-    .select('*', { count: 'exact', head: true })
-    .not('stage', 'is', null)
-
-  // Get country counts
-  const { data: countryCounts } = await supabase
-    .rpc('get_country_counts')
+  // Run all three queries in parallel instead of sequentially
+  const [totalResult, pipelineResult, countryResult] = await Promise.all([
+    supabase
+      .from('companies')
+      .select('id', { count: 'exact', head: true }),
+    supabase
+      .from('companies')
+      .select('id', { count: 'exact', head: true })
+      .not('stage', 'is', null),
+    supabase
+      .rpc('get_country_counts'),
+  ])
 
   return NextResponse.json({
-    totalCompanies: totalCompanies || 0,
-    companiesWithPipeline: withPipeline || 0,
-    countryCounts: countryCounts || [],
+    totalCompanies: totalResult.count || 0,
+    companiesWithPipeline: pipelineResult.count || 0,
+    countryCounts: countryResult.data || [],
   })
 }
