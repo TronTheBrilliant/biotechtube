@@ -192,7 +192,7 @@ export default async function TopPeoplePage() {
                     </td>
                     <td className="px-3 py-2">
                       <Link
-                        href={`/companies/${person.companySlug}`}
+                        href={`/company/${person.companySlug}`}
                         className="text-12 hover:underline"
                         style={{ color: "var(--color-accent)" }}
                       >

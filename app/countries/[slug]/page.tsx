@@ -129,8 +129,24 @@ export default async function CountryDetailPage({
     }
   }
 
-  const history = allHistory;
-  const latestSnapshot = history.length > 0 ? history[history.length - 1] : null;
+  // Thin history to max 1000 points to reduce payload size
+  // (client will further thin to 500 for chart rendering)
+  const maxServerPoints = 1000;
+  let history: CountryMarketDataRow[];
+  if (allHistory.length > maxServerPoints) {
+    const step = Math.ceil(allHistory.length / maxServerPoints);
+    history = [];
+    for (let i = 0; i < allHistory.length; i += step) {
+      history.push(allHistory[i]);
+    }
+    // Always include the last point
+    if (history[history.length - 1] !== allHistory[allHistory.length - 1]) {
+      history.push(allHistory[allHistory.length - 1]);
+    }
+  } else {
+    history = allHistory;
+  }
+  const latestSnapshot = allHistory.length > 0 ? allHistory[allHistory.length - 1] : null;
 
   // Total company count (public + private)
   const totalCompanyCount = countResult.count ?? 0;

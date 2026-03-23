@@ -121,8 +121,21 @@ export default async function MarketPage() {
   ) as unknown as MarketSnapshot[];
 
   const latestSnapshot = snapshotsRaw.length > 0 ? snapshotsRaw[0] : null;
-  // Reverse to chronological order for chart
-  const history = [...snapshotsRaw].reverse();
+  // Reverse to chronological order for chart, then thin to max 1000 points
+  const fullHistory = [...snapshotsRaw].reverse();
+  let history: MarketSnapshot[];
+  if (fullHistory.length > 1000) {
+    const step = Math.ceil(fullHistory.length / 1000);
+    history = [];
+    for (let i = 0; i < fullHistory.length; i += step) {
+      history.push(fullHistory[i]);
+    }
+    if (history[history.length - 1] !== fullHistory[fullHistory.length - 1]) {
+      history.push(fullHistory[fullHistory.length - 1]);
+    }
+  } else {
+    history = fullHistory;
+  }
 
   // Fetch sector data
   const { data: latestSectorDate } = await supabase

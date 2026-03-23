@@ -124,10 +124,24 @@ export default async function SectorDetailPage({
     from += PAGE_SIZE;
   }
 
-  const history = allHistory;
+  // Thin history to max 1000 points to reduce payload size
+  const maxServerPoints = 1000;
+  let history: SectorMarketDataRow[];
+  if (allHistory.length > maxServerPoints) {
+    const step = Math.ceil(allHistory.length / maxServerPoints);
+    history = [];
+    for (let i = 0; i < allHistory.length; i += step) {
+      history.push(allHistory[i]);
+    }
+    if (history[history.length - 1] !== allHistory[allHistory.length - 1]) {
+      history.push(allHistory[allHistory.length - 1]);
+    }
+  } else {
+    history = allHistory;
+  }
 
   // Get latest snapshot for key stats
-  const latestSnapshot = history.length > 0 ? history[history.length - 1] : null;
+  const latestSnapshot = allHistory.length > 0 ? allHistory[allHistory.length - 1] : null;
 
   // Fetch top 20 companies in this sector by USD market cap
   // We use market_cap_usd from company_price_history (latest date) instead of

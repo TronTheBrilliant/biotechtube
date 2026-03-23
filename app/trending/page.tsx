@@ -257,7 +257,7 @@ export default async function TrendingPage() {
                     </td>
                     <td className="px-3 py-2">
                       <Link
-                        href={`/companies/${c.slug}`}
+                        href={`/company/${c.slug}`}
                         className="flex items-center gap-2 hover:underline"
                       >
                         {c.logo_url ? (
