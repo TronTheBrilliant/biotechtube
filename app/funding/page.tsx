@@ -5,9 +5,10 @@ import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { PaywallCard } from "@/components/PaywallCard";
-import { TvAreaChart } from "@/components/charts/TvAreaChart";
+import { TvHistogramChart } from "@/components/charts/TvHistogramChart";
 import fundingHistorical from "@/data/funding-historical.json";
 import fundingQuarterly from "@/data/funding-quarterly.json";
+import fundingAnnual from "@/data/funding-annual.json";
 
 interface HistoricalRound {
   company: string;
@@ -145,7 +146,38 @@ export default function FundingPage() {
           ))}
         </div>
 
-        {/* Investment chart — quarterly */}
+        {/* Annual funding overview — 37 years */}
+        <div
+          className="rounded-lg px-4 py-4 mb-4"
+          style={{
+            background: "var(--color-bg-secondary)",
+            border: "0.5px solid var(--color-border-subtle)",
+          }}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <h2
+              className="text-10 uppercase tracking-[0.5px] font-medium"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              ANNUAL BIOTECH VC FUNDING (1990–2026)
+            </h2>
+            <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>
+              ${(fundingAnnual.reduce((s: number, d: { amount: number }) => s + d.amount, 0) / 1000).toFixed(0)}B total
+            </span>
+          </div>
+          <TvHistogramChart
+            data={fundingAnnual.map((d: { year: number; amount: number }) => ({
+              time: `${d.year}-06-01`,
+              value: d.amount / 1000,
+            }))}
+            height={280}
+            color="#1a7a5ecc"
+            formatValue={(v: number) => `$${v.toFixed(1)}B`}
+            tooltipTitle="Annual Funding"
+          />
+        </div>
+
+        {/* Quarterly detail — recent */}
         <div
           className="rounded-lg px-4 py-4 mb-6"
           style={{
@@ -157,13 +189,13 @@ export default function FundingPage() {
             className="text-10 uppercase tracking-[0.5px] font-medium mb-3"
             style={{ color: "var(--color-text-secondary)" }}
           >
-            QUARTERLY INVESTMENT VOLUME
+            QUARTERLY BREAKDOWN (2020–2026)
           </h2>
-          <TvAreaChart
+          <TvHistogramChart
             data={quarterlyChartData}
-            height={300}
-            isPositive={true}
-            formatValue={(v: number) => `$${(v / 1000).toFixed(1)}B`}
+            height={220}
+            color="#1a7a5eaa"
+            formatValue={(v: number) => `$${v >= 1000 ? (v / 1000).toFixed(1) + "B" : v.toFixed(0) + "M"}`}
             tooltipTitle="Quarterly Funding"
           />
         </div>
