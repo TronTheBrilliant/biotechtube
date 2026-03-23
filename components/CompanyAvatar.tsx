@@ -14,12 +14,33 @@ export function CompanyAvatar({ name, logoUrl, website, size = 28, className = "
   const initials = name.split(" ").slice(0, 2).map(w => w[0]).join("").toUpperCase();
 
   // Use Logo.dev service with the company website domain
-  let domain = website || (logoUrl ? logoUrl.replace("https://logo.clearbit.com/", "") : null);
-  // Extract bare domain from full URLs (e.g. "https://www.lilly.com/en" -> "lilly.com")
+  let domain: string | null = null;
+
+  // Priority 1: website field (most reliable)
+  if (website) {
+    domain = website;
+  }
+  // Priority 2: extract domain from logoUrl
+  else if (logoUrl) {
+    // Handle logo.dev URLs: "https://img.logo.dev/sanofi.com?token=..." -> "sanofi.com"
+    const logoDevMatch = logoUrl.match(/img\.logo\.dev\/([^?]+)/);
+    if (logoDevMatch) {
+      domain = logoDevMatch[1];
+    }
+    // Handle clearbit URLs
+    else if (logoUrl.includes("logo.clearbit.com/")) {
+      domain = logoUrl.replace("https://logo.clearbit.com/", "");
+    }
+    else {
+      domain = logoUrl;
+    }
+  }
+
+  // Clean up domain: extract bare domain from full URLs
   if (domain) {
     try {
       if (domain.includes("://")) {
-        domain = new URL(domain).hostname.replace(/^www\./, "");
+        domain = new URL(domain).hostname;
       } else if (domain.includes("/")) {
         domain = domain.split("/")[0];
       }

@@ -493,48 +493,20 @@ export default function CountryDetailClient({
                               website={c.website ?? undefined}
                               size={28}
                             />
-                            <div className="flex flex-col">
-                              <div className="flex items-center gap-1.5">
-                                <span
-                                  className="text-12 font-medium"
-                                  style={{ color: "var(--color-text-primary)" }}
-                                >
-                                  {c.name}
-                                </span>
-                                {c.ticker && (
-                                  <span
-                                    className="text-11"
-                                    style={{ color: "var(--color-text-tertiary)" }}
-                                  >
-                                    {c.ticker}
-                                  </span>
-                                )}
-                              </div>
-                              {(c.city || c.stage) && (
-                                <div className="flex items-center gap-1.5 mt-0.5">
-                                  {c.city && (
-                                    <span
-                                      className="text-10"
-                                      style={{ color: "var(--color-text-tertiary)" }}
-                                    >
-                                      {c.city}
-                                    </span>
-                                  )}
-                                  {c.stage && (
-                                    <span
-                                      className="text-9 font-medium px-1.5 py-0.5 rounded-full"
-                                      style={{
-                                        background: "var(--color-bg-primary)",
-                                        color: "var(--color-text-tertiary)",
-                                        border: "0.5px solid var(--color-border-subtle)",
-                                      }}
-                                    >
-                                      {c.stage}
-                                    </span>
-                                  )}
-                                </div>
-                              )}
-                            </div>
+                            <span
+                              className="text-12 font-medium"
+                              style={{ color: "var(--color-text-primary)" }}
+                            >
+                              {c.name}
+                            </span>
+                            {c.ticker && (
+                              <span
+                                className="text-11"
+                                style={{ color: "var(--color-text-tertiary)" }}
+                              >
+                                {c.ticker}
+                              </span>
+                            )}
                           </Link>
                         </td>
                         <td
