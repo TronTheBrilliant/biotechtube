@@ -4,8 +4,9 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Search, Menu, X, ChevronDown, LogIn } from "lucide-react";
+import { Search, Menu, X, ChevronDown, LogIn, User, Settings, List, LogOut } from "lucide-react";
 import { SearchOverlay } from "./SearchOverlay";
+import { useUser } from "@/lib/auth";
 
 /* ─── Menu data ─── */
 
@@ -86,10 +87,13 @@ const MENUS: MenuCategory[] = [
 /* ─── Component ─── */
 
 export function Nav() {
+  const { user, profile, signOut } = useUser();
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileAccordion, setMobileAccordion] = useState<string | null>(null);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   const hoverTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const leaveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navRef = useRef<HTMLElement>(null);
@@ -100,7 +104,21 @@ export function Nav() {
     setOpenMenu(null);
     setMobileOpen(false);
     setMobileAccordion(null);
+    setUserMenuOpen(false);
   }, [pathname]);
+
+  // Close user menu on click outside
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    }
+    if (userMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [userMenuOpen]);
 
   // ⌘K shortcut
   useEffect(() => {
@@ -325,15 +343,94 @@ export function Nav() {
               </span>
             </button>
 
-            <Link
-              href="/login"
-              className="flex items-center gap-1.5 text-[13px] font-medium text-white px-4 py-[7px] rounded-lg transition-opacity duration-150"
-              style={{ background: "var(--color-accent)" }}
-              onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.9"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
-            >
-              Sign in
-            </Link>
+            {user ? (
+              <div className="relative" ref={userMenuRef}>
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center justify-center w-8 h-8 rounded-full text-[13px] font-semibold text-white"
+                  style={{ background: "var(--color-accent)" }}
+                >
+                  {profile?.full_name
+                    ? profile.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+                    : (user.email?.[0] ?? "U").toUpperCase()}
+                </button>
+                {userMenuOpen && (
+                  <div
+                    className="absolute top-full right-0 mt-2 rounded-xl overflow-hidden py-1"
+                    style={{
+                      minWidth: 200,
+                      background: "var(--color-bg-primary)",
+                      border: "1px solid var(--color-border-subtle)",
+                      boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
+                      animation: "fadeIn 0.15s ease",
+                      zIndex: 50,
+                    }}
+                  >
+                    <div className="px-3 py-2" style={{ borderBottom: "1px solid var(--color-border-subtle)" }}>
+                      <p className="text-[13px] font-medium" style={{ color: "var(--color-text-primary)" }}>
+                        {profile?.full_name || "User"}
+                      </p>
+                      <p className="text-[11px]" style={{ color: "var(--color-text-tertiary)" }}>
+                        {user.email}
+                      </p>
+                    </div>
+                    <div className="py-1">
+                      <Link
+                        href="/profile"
+                        className="flex items-center gap-2 px-3 py-2 text-[13px] transition-colors"
+                        style={{ color: "var(--color-text-secondary)" }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = "var(--color-bg-secondary)"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <User size={14} /> Profile
+                      </Link>
+                      <Link
+                        href="/watchlist"
+                        className="flex items-center gap-2 px-3 py-2 text-[13px] transition-colors"
+                        style={{ color: "var(--color-text-secondary)" }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = "var(--color-bg-secondary)"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <List size={14} /> Watchlist
+                      </Link>
+                      <Link
+                        href="/profile"
+                        className="flex items-center gap-2 px-3 py-2 text-[13px] transition-colors"
+                        style={{ color: "var(--color-text-secondary)" }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = "var(--color-bg-secondary)"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <Settings size={14} /> Settings
+                      </Link>
+                    </div>
+                    <div style={{ borderTop: "1px solid var(--color-border-subtle)" }}>
+                      <button
+                        onClick={() => { signOut(); setUserMenuOpen(false); }}
+                        className="flex items-center gap-2 w-full px-3 py-2 text-[13px] transition-colors"
+                        style={{ color: "var(--color-text-secondary)" }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = "var(--color-bg-secondary)"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                      >
+                        <LogOut size={14} /> Sign out
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="flex items-center gap-1.5 text-[13px] font-medium text-white px-4 py-[7px] rounded-lg transition-opacity duration-150"
+                style={{ background: "var(--color-accent)" }}
+                onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.9"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
+              >
+                Sign in
+              </Link>
+            )}
           </div>
         </div>
 
@@ -485,17 +582,63 @@ export function Nav() {
                 </Link>
               </div>
 
-              {/* Sign in CTA */}
+              {/* Sign in / User CTA */}
               <div className="pt-3 mt-2" style={{ borderTop: "1px solid var(--color-border-subtle)" }}>
-                <Link
-                  href="/login"
-                  className="flex items-center justify-center gap-2 w-full py-3 rounded-lg text-[14px] font-medium text-white"
-                  style={{ background: "var(--color-accent)" }}
-                  onClick={() => setMobileOpen(false)}
-                >
-                  <LogIn size={16} />
-                  Sign in
-                </Link>
+                {user ? (
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-3 px-1 py-2">
+                      <div
+                        className="flex items-center justify-center w-8 h-8 rounded-full text-[13px] font-semibold text-white shrink-0"
+                        style={{ background: "var(--color-accent)" }}
+                      >
+                        {profile?.full_name
+                          ? profile.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+                          : (user.email?.[0] ?? "U").toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="text-[14px] font-medium" style={{ color: "var(--color-text-primary)" }}>
+                          {profile?.full_name || "User"}
+                        </p>
+                        <p className="text-[12px]" style={{ color: "var(--color-text-tertiary)" }}>
+                          {user.email}
+                        </p>
+                      </div>
+                    </div>
+                    <Link
+                      href="/profile"
+                      className="flex items-center gap-2 px-1 py-2.5 text-[14px]"
+                      style={{ color: "var(--color-text-secondary)" }}
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      <User size={16} /> Profile
+                    </Link>
+                    <Link
+                      href="/watchlist"
+                      className="flex items-center gap-2 px-1 py-2.5 text-[14px]"
+                      style={{ color: "var(--color-text-secondary)" }}
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      <List size={16} /> Watchlist
+                    </Link>
+                    <button
+                      onClick={() => { signOut(); setMobileOpen(false); }}
+                      className="flex items-center gap-2 px-1 py-2.5 text-[14px] w-full"
+                      style={{ color: "var(--color-text-secondary)" }}
+                    >
+                      <LogOut size={16} /> Sign out
+                    </button>
+                  </div>
+                ) : (
+                  <Link
+                    href="/login"
+                    className="flex items-center justify-center gap-2 w-full py-3 rounded-lg text-[14px] font-medium text-white"
+                    style={{ background: "var(--color-accent)" }}
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    <LogIn size={16} />
+                    Sign in
+                  </Link>
+                )}
               </div>
             </div>
           </div>

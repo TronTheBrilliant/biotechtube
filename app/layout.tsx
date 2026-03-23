@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Space_Grotesk } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { AuthProvider } from "@/lib/auth";
 import "./globals.css";
 
 const geistSans = localFont({
@@ -54,7 +55,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} font-sans antialiased`}
       >
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-          {children}
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
