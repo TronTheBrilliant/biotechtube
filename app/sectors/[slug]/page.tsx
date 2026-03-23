@@ -2,7 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { notFound } from "next/navigation";
 import SectorDetailClient from "./SectorDetailClient";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 interface SectorRow {
   id: string;

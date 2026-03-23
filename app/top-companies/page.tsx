@@ -5,7 +5,7 @@ import { dbRowsToCompanies } from "@/lib/adapters";
 import { createClient } from "@supabase/supabase-js";
 import { TopCompaniesClient } from "./TopCompaniesClient";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 function getSupabase() {
   return createClient(

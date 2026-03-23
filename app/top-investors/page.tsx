@@ -3,7 +3,7 @@ import { Footer } from "@/components/Footer";
 import { getAllInvestors } from "@/lib/seo-utils";
 import Link from "next/link";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export default async function TopInvestorsPage() {
   const allInvestors = await getAllInvestors();

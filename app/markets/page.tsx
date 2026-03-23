@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import MarketsPageClient from "./MarketsPageClient";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 interface MarketSnapshot {
   snapshot_date: string;

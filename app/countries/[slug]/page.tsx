@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import CountryDetailClient from "./CountryDetailClient";
 import countriesJson from "@/data/countries.json";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 interface CountryMeta {
   slug: string;

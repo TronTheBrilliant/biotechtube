@@ -7,7 +7,7 @@ import {
 } from "@/lib/seo-utils";
 import Link from "next/link";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 interface RankedPerson {
   name: string;

@@ -4,7 +4,7 @@ import { formatMarketCap, formatPercent, pctColor } from "@/lib/market-utils";
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 interface TrendingCompany {
   slug: string;

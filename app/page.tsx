@@ -27,7 +27,7 @@ import OpenPositions from "@/components/home/OpenPositions";
 import fundingData from "@/data/funding.json";
 import eventsData from "@/data/events.json";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 function getSupabase() {
   return createClient(
