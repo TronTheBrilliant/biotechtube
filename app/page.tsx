@@ -292,6 +292,48 @@ async function getTopPeopleData() {
   }
 }
 
+// ── Stats Ticker ──
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function StatsTicker({ snapshot }: { snapshot: any }) {
+  const stats = [
+    { icon: "📊", text: `${snapshot ? formatMarketCap(snapshot.total_market_cap) : "$7.0T"} Market Cap` },
+    { icon: "📈", text: `${snapshot ? snapshot.public_companies_count?.toLocaleString() : "771"} Public Companies` },
+    { icon: "🏷️", text: "20 Sectors" },
+    { icon: "🌍", text: "30+ Countries" },
+    { icon: "💊", text: "Updated Daily" },
+    { icon: "🧬", text: "1990–Present Data" },
+  ];
+  return (
+    <>
+      <div className="hidden md:flex items-center gap-5 mt-4">
+        {stats.map((s) => (
+          <div key={s.text} className="flex items-center gap-1.5 whitespace-nowrap flex-shrink-0">
+            <span className="text-[14px]">{s.icon}</span>
+            <span className="text-13 font-medium" style={{ color: "var(--color-text-primary)" }}>{s.text}</span>
+          </div>
+        ))}
+      </div>
+      <div className="md:hidden mt-3 overflow-hidden" style={{ maskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)" }}>
+        <div className="flex items-center gap-6 animate-marquee">
+          {stats.map((s) => (
+            <div key={s.text} className="flex items-center gap-1.5 whitespace-nowrap flex-shrink-0">
+              <span className="text-[14px]">{s.icon}</span>
+              <span className="text-13 font-medium" style={{ color: "var(--color-text-primary)" }}>{s.text}</span>
+            </div>
+          ))}
+          {stats.map((s) => (
+            <div key={`dup-${s.text}`} className="flex items-center gap-1.5 whitespace-nowrap flex-shrink-0">
+              <span className="text-[14px]">{s.icon}</span>
+              <span className="text-13 font-medium" style={{ color: "var(--color-text-primary)" }}>{s.text}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
+
 // ── Page ──
 
 export default async function HomePage() {
@@ -336,13 +378,13 @@ export default async function HomePage() {
   return (
     <div
       className="page-content"
-      style={{ background: "var(--color-bg-tertiary)", minHeight: "100vh" }}
+      style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}
     >
       <Nav />
       <TickerBar />
 
       {/* Hero */}
-      <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-6 md:py-8" style={{ background: "var(--color-bg-primary)" }}>
+      <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-6 md:py-8">
         <h1
           className="text-[44px] md:text-[72px] font-bold tracking-tight"
           style={{
@@ -361,35 +403,7 @@ export default async function HomePage() {
           biotech market cap across 20 sectors and 30+ countries.
         </p>
         {/* Stats ticker */}
-        {(() => {
-          const stats = [
-            { icon: "📊", text: `${snapshot ? formatMarketCap(snapshot.total_market_cap) : "$7.0T"} Market Cap` },
-            { icon: "📈", text: `${snapshot ? snapshot.public_companies_count?.toLocaleString() : "771"} Public Companies` },
-            { icon: "🏷️", text: "20 Sectors" },
-            { icon: "🌍", text: "30+ Countries" },
-            { icon: "💊", text: "Updated Daily" },
-            { icon: "🧬", text: "1990–Present Data" },
-          ];
-          const StatItem = ({ icon, text }: { icon: string; text: string }) => (
-            <div className="flex items-center gap-1.5 whitespace-nowrap flex-shrink-0">
-              <span className="text-[14px]">{icon}</span>
-              <span className="text-13 font-medium" style={{ color: "var(--color-text-primary)" }}>{text}</span>
-            </div>
-          );
-          return (
-            <>
-              <div className="hidden md:flex items-center gap-5 mt-4">
-                {stats.map((s) => <StatItem key={s.text} icon={s.icon} text={s.text} />)}
-              </div>
-              <div className="md:hidden mt-3 overflow-hidden" style={{ maskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)" }}>
-                <div className="flex items-center gap-6 animate-marquee">
-                  {stats.map((s) => <StatItem key={s.text} icon={s.icon} text={s.text} />)}
-                  {stats.map((s) => <StatItem key={`dup-${s.text}`} icon={s.icon} text={s.text} />)}
-                </div>
-              </div>
-            </>
-          );
-        })()}
+        <StatsTicker snapshot={snapshot} />
         <div className="flex items-center gap-2 mt-3 md:mt-4">
           <Link
             href="/claim/oncoinvent"

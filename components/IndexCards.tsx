@@ -59,7 +59,7 @@ export function IndexCards({ snapshot }: IndexCardsProps) {
   ];
 
   return (
-    <div className="flex md:grid md:grid-cols-4 gap-2.5 px-5 py-3 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+    <div className="flex md:grid md:grid-cols-4 gap-2.5 px-4 md:px-6 py-3 overflow-x-auto max-w-[1200px] mx-auto" style={{ scrollbarWidth: "none" }}>
       {cardData.map((card) => (
         <Link
           key={card.label}
