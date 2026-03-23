@@ -35,6 +35,9 @@ interface Props {
     ticker: string | null;
     valuation: number | null;
     logo_url: string | null;
+    city: string | null;
+    stage: string | null;
+    company_type: string | null;
   }[];
   totalCompanyCount: number;
 }
@@ -55,6 +58,14 @@ export default function CountryDetailClient({
   type Timeframe = "1M" | "3M" | "6M" | "1Y" | "3Y" | "5Y" | "Max";
   const timeframes: Timeframe[] = ["1M", "3M", "6M", "1Y", "3Y", "5Y", "Max"];
   const [selectedTimeframe, setSelectedTimeframe] = useState<Timeframe>("1Y");
+
+  // Company pagination
+  const [companyPage, setCompanyPage] = useState(1);
+  const COMPANIES_PER_PAGE = 20;
+  const companyStart = (companyPage - 1) * COMPANIES_PER_PAGE;
+  const companyEnd = companyStart + COMPANIES_PER_PAGE;
+  const visibleCompanies = topCompanies.slice(companyStart, companyEnd);
+  const totalCompanyPages = Math.ceil(topCompanies.length / COMPANIES_PER_PAGE);
 
   // Filter history based on selected timeframe
   const filteredHistory = useMemo(() => {
@@ -407,7 +418,7 @@ export default function CountryDetailClient({
               className="text-10 uppercase tracking-[0.5px] font-medium mb-3"
               style={{ color: "var(--color-text-secondary)" }}
             >
-              TOP COMPANIES
+              COMPANIES
             </h2>
             <div
               className="rounded-lg border overflow-hidden"
@@ -443,12 +454,12 @@ export default function CountryDetailClient({
                         className="text-right text-10 font-medium px-3 py-2"
                         style={{ color: "var(--color-text-tertiary)" }}
                       >
-                        Market Cap
+                        Valuation
                       </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {topCompanies.map((c, i) => (
+                    {visibleCompanies.map((c, i) => (
                       <tr
                         key={c.slug}
                         className="transition-colors duration-100"
@@ -468,7 +479,7 @@ export default function CountryDetailClient({
                           className="px-3 py-2 text-12"
                           style={{ color: "var(--color-text-tertiary)" }}
                         >
-                          {i + 1}
+                          {companyStart + i + 1}
                         </td>
                         <td className="px-3 py-2">
                           <Link
@@ -478,22 +489,50 @@ export default function CountryDetailClient({
                             <CompanyAvatar
                               name={c.name}
                               logoUrl={c.logo_url ?? undefined}
-                              size={24}
+                              size={28}
                             />
-                            <span
-                              className="text-12 font-medium"
-                              style={{ color: "var(--color-text-primary)" }}
-                            >
-                              {c.name}
-                            </span>
-                            {c.ticker && (
-                              <span
-                                className="text-11"
-                                style={{ color: "var(--color-text-tertiary)" }}
-                              >
-                                {c.ticker}
-                              </span>
-                            )}
+                            <div className="flex flex-col">
+                              <div className="flex items-center gap-1.5">
+                                <span
+                                  className="text-12 font-medium"
+                                  style={{ color: "var(--color-text-primary)" }}
+                                >
+                                  {c.name}
+                                </span>
+                                {c.ticker && (
+                                  <span
+                                    className="text-11"
+                                    style={{ color: "var(--color-text-tertiary)" }}
+                                  >
+                                    {c.ticker}
+                                  </span>
+                                )}
+                              </div>
+                              {(c.city || c.stage) && (
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                  {c.city && (
+                                    <span
+                                      className="text-10"
+                                      style={{ color: "var(--color-text-tertiary)" }}
+                                    >
+                                      {c.city}
+                                    </span>
+                                  )}
+                                  {c.stage && (
+                                    <span
+                                      className="text-9 font-medium px-1.5 py-0.5 rounded-full"
+                                      style={{
+                                        background: "var(--color-bg-primary)",
+                                        color: "var(--color-text-tertiary)",
+                                        border: "0.5px solid var(--color-border-subtle)",
+                                      }}
+                                    >
+                                      {c.stage}
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
                           </Link>
                         </td>
                         <td
@@ -509,6 +548,60 @@ export default function CountryDetailClient({
                   </tbody>
                 </table>
               </div>
+
+              {/* Pagination */}
+              {totalCompanyPages > 1 && (
+                <div
+                  className="flex items-center justify-between px-3 py-2.5"
+                  style={{
+                    borderTop: "0.5px solid var(--color-border-subtle)",
+                  }}
+                >
+                  <span
+                    className="text-11"
+                    style={{ color: "var(--color-text-tertiary)" }}
+                  >
+                    Showing {companyStart + 1}–{Math.min(companyEnd, topCompanies.length)} of{" "}
+                    {topCompanies.length.toLocaleString()} companies
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setCompanyPage((p) => Math.max(1, p - 1))}
+                      disabled={companyPage === 1}
+                      className="text-11 font-medium px-2.5 py-1 rounded-md transition-colors duration-100"
+                      style={{
+                        background: companyPage === 1 ? "transparent" : "var(--color-bg-primary)",
+                        color: companyPage === 1 ? "var(--color-text-tertiary)" : "var(--color-text-secondary)",
+                        border: "0.5px solid var(--color-border-subtle)",
+                        cursor: companyPage === 1 ? "default" : "pointer",
+                        opacity: companyPage === 1 ? 0.5 : 1,
+                      }}
+                    >
+                      Previous
+                    </button>
+                    <span
+                      className="text-11"
+                      style={{ color: "var(--color-text-tertiary)" }}
+                    >
+                      Page {companyPage} of {totalCompanyPages}
+                    </span>
+                    <button
+                      onClick={() => setCompanyPage((p) => Math.min(totalCompanyPages, p + 1))}
+                      disabled={companyPage === totalCompanyPages}
+                      className="text-11 font-medium px-2.5 py-1 rounded-md transition-colors duration-100"
+                      style={{
+                        background: companyPage === totalCompanyPages ? "transparent" : "var(--color-bg-primary)",
+                        color: companyPage === totalCompanyPages ? "var(--color-text-tertiary)" : "var(--color-text-secondary)",
+                        border: "0.5px solid var(--color-border-subtle)",
+                        cursor: companyPage === totalCompanyPages ? "default" : "pointer",
+                        opacity: companyPage === totalCompanyPages ? 0.5 : 1,
+                      }}
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </section>
         )}

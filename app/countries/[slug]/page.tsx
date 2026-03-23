@@ -31,6 +31,13 @@ interface CompanyRow {
   name: string;
   ticker: string | null;
   logo_url: string | null;
+  country: string | null;
+  city: string | null;
+  stage: string | null;
+  company_type: string | null;
+  valuation: number | null;
+  total_raised: number | null;
+  categories: string[] | null;
 }
 
 interface PriceHistoryRow {
@@ -87,7 +94,7 @@ export default async function CountryDetailPage({
       .range(0, PAGE_SIZE - 1),
     supabase
       .from("companies")
-      .select("id, slug, name, ticker, logo_url")
+      .select("id, slug, name, ticker, logo_url, country, city, stage, company_type, valuation, total_raised, categories")
       .eq("country", countryName),
     supabase
       .from("companies")
@@ -128,7 +135,7 @@ export default async function CountryDetailPage({
   // Total company count (public + private)
   const totalCompanyCount = countResult.count ?? 0;
 
-  // Build top 20 companies by USD market cap
+  // Build full company list with market cap / valuation fallback
   const allCompanies = (companiesResult.data ?? []) as CompanyRow[];
   const companyIds = allCompanies.map((c) => c.id);
 
@@ -138,6 +145,9 @@ export default async function CountryDetailPage({
     ticker: string | null;
     valuation: number | null;
     logo_url: string | null;
+    city: string | null;
+    stage: string | null;
+    company_type: string | null;
   }
 
   let topCompanies: TopCompanyResult[] = [];
@@ -169,34 +179,27 @@ export default async function CountryDetailPage({
       }
     }
 
-    // Sort by market cap, take top 20
-    const marketCapEntries: Array<[string, number]> = [];
-    marketCapMap.forEach((val, key) => marketCapEntries.push([key, val]));
-    const sortedByMarketCap = marketCapEntries
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 20);
+    // For companies without price data, use their valuation as fallback
+    const companyListWithFallback = allCompanies.map((c) => ({
+      slug: c.slug,
+      name: c.name,
+      ticker: c.ticker,
+      valuation: marketCapMap.get(c.id) ?? c.valuation ?? null,
+      logo_url: c.logo_url,
+      city: c.city,
+      stage: c.stage,
+      company_type: c.company_type,
+    }));
 
-    // Build company lookup
-    const companyMap = new Map<string, CompanyRow>();
-    for (const c of allCompanies) {
-      companyMap.set(c.id, c);
-    }
+    // Sort: by valuation desc (null last), then alphabetically
+    companyListWithFallback.sort((a, b) => {
+      if (a.valuation && b.valuation) return b.valuation - a.valuation;
+      if (a.valuation) return -1;
+      if (b.valuation) return 1;
+      return a.name.localeCompare(b.name);
+    });
 
-    topCompanies = sortedByMarketCap
-      .map((entry) => {
-        const id = entry[0];
-        const usdMarketCap = entry[1];
-        const c = companyMap.get(id);
-        if (!c) return null;
-        return {
-          slug: c.slug,
-          name: c.name,
-          ticker: c.ticker,
-          valuation: usdMarketCap,
-          logo_url: c.logo_url,
-        };
-      })
-      .filter(Boolean) as TopCompanyResult[];
+    topCompanies = companyListWithFallback;
   }
 
   // Build props
