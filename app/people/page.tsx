@@ -5,7 +5,7 @@ import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { getAllPeople, personSlug, normalizePersonName, PersonWithCompany } from "@/lib/seo-utils";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Biotech Leaders & Executives — People Directory | BiotechTube",

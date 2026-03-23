@@ -6,7 +6,7 @@ import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { getAllPeople, getAllDrugs, personSlug, normalizePersonName, drugSlug, PersonWithCompany } from "@/lib/seo-utils";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 interface PersonPageProps {
   params: { "person-slug": string };
