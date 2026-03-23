@@ -6,8 +6,6 @@ import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { createBrowserClient } from "@/lib/supabase";
 
-const supabase = createBrowserClient();
-
 const features = [
   "Full global company rankings",
   "All 14,000+ company profiles",
@@ -25,9 +23,11 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const supabase = createBrowserClient();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    console.log("[Signup] handleSubmit called", { email, fullName, passwordLen: password.length });
     setError(null);
 
     if (password !== confirmPassword) {
@@ -42,20 +42,25 @@ export default function SignupPage() {
 
     setLoading(true);
 
-    const { error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: fullName },
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+    try {
+      console.log("[Signup] calling supabase.auth.signUp...");
+      const { error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: fullName },
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
 
-    if (authError) {
-      setError(authError.message);
-      setLoading(false);
-    } else {
-      setSuccess(true);
+      if (authError) {
+        setError(authError.message);
+      } else {
+        setSuccess(true);
+      }
+    } catch (err) {
+      setError(`Unexpected error: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
       setLoading(false);
     }
   }

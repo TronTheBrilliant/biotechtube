@@ -7,30 +7,35 @@ import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { createBrowserClient } from "@/lib/supabase";
 
-const supabase = createBrowserClient();
-
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const supabase = createBrowserClient();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
-    const { error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (authError) {
-      setError(authError.message);
+      if (authError) {
+        setError(authError.message);
+      } else {
+        router.push("/");
+        return;
+      }
+    } catch (err) {
+      setError(`Unexpected error: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
       setLoading(false);
-    } else {
-      router.push("/");
     }
   }
 

@@ -6,13 +6,12 @@ import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { createBrowserClient } from "@/lib/supabase";
 
-const supabase = createBrowserClient();
-
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const supabase = createBrowserClient();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

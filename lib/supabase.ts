@@ -1,12 +1,13 @@
 import { createClient } from '@supabase/supabase-js'
-import type { Database } from './database.types'
 
 // Browser client (uses anon key, respects RLS)
 export function createBrowserClient() {
-  return createClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!url || !key) {
+    console.error('Missing Supabase env vars:', { url: !!url, key: !!key })
+  }
+  return createClient(url!, key!)
 }
 
 // Server client (uses service role key, bypasses RLS)
