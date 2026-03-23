@@ -54,7 +54,7 @@ export function Footer() {
       style={{ borderTop: "0.5px solid var(--color-border-subtle)" }}
     >
       {/* Main footer */}
-      <div className="px-5 py-8 grid grid-cols-2 md:grid-cols-3 gap-8">
+      <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-8 grid grid-cols-2 md:grid-cols-3 gap-8">
         <FooterColumn title="Platform" links={platformLinks} />
         <FooterColumn title="For Companies" links={forCompaniesLinks} />
         <FooterColumn title="Company" links={companyLinks} />

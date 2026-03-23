@@ -27,7 +27,7 @@ export default async function TopInvestorsPage() {
       <Nav />
 
       {/* Hero */}
-      <div className="px-5 md:px-8 py-6 md:py-8">
+      <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-6 md:py-8">
         <h1
           className="text-[32px] md:text-[48px] font-bold tracking-tight"
           style={{
@@ -74,7 +74,7 @@ export default async function TopInvestorsPage() {
           }}
         >
           <div className="overflow-x-auto" style={{ scrollbarWidth: "none" }}>
-            <table className="w-full min-w-[650px]">
+            <table className="w-full">
               <thead>
                 <tr
                   style={{
@@ -100,7 +100,7 @@ export default async function TopInvestorsPage() {
                     Portfolio Companies
                   </th>
                   <th
-                    className="text-left text-10 font-medium px-3 py-2"
+                    className="hidden md:table-cell text-left text-10 font-medium px-3 py-2"
                     style={{ color: "var(--color-text-tertiary)" }}
                   >
                     Focus Areas
@@ -166,7 +166,7 @@ export default async function TopInvestorsPage() {
                         {inv.companies.length}
                       </td>
                       <td
-                        className="px-3 py-2 text-12"
+                        className="hidden md:table-cell px-3 py-2 text-12"
                         style={{ color: "var(--color-text-secondary)" }}
                       >
                         {topAreas.length > 0 ? topAreas.join(", ") : "\u2014"}

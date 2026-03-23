@@ -110,6 +110,12 @@ export default async function TopSectorsPage() {
     0
   );
 
+  const bestSector = sectors.reduce<SectorRanked | null>((best, s) => {
+    if (s.change1d == null) return best;
+    if (!best || best.change1d == null) return s;
+    return s.change1d > best.change1d ? s : best;
+  }, null);
+
   return (
     <div
       className="page-content"
@@ -118,7 +124,7 @@ export default async function TopSectorsPage() {
       <Nav />
 
       {/* Hero */}
-      <div className="px-5 md:px-8 py-6 md:py-8">
+      <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-6 md:py-8">
         <h1
           className="text-[32px] md:text-[48px] font-bold tracking-tight"
           style={{
@@ -136,36 +142,92 @@ export default async function TopSectorsPage() {
           Performance and market cap breakdown across {sectors.length} biotech
           sectors.
         </p>
+      </div>
 
-        {/* Stats strip */}
-        <div className="flex flex-wrap items-center gap-4 md:gap-6 mt-4">
-          <div className="flex items-center gap-1.5">
+      {/* Summary Cards */}
+      <div className="px-4 md:px-6 pb-6 max-w-[1200px] mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {/* Total Market Cap */}
+          <div
+            className="rounded-lg border px-4 py-3"
+            style={{
+              background: "var(--color-bg-secondary)",
+              borderColor: "var(--color-border-subtle)",
+            }}
+          >
             <span
-              className="text-[13px]"
+              className="text-[11px] font-medium uppercase tracking-wide"
               style={{ color: "var(--color-text-tertiary)" }}
             >
-              Showing
+              Total Biotech Market Cap
             </span>
-            <span
-              className="text-[13px] font-semibold"
-              style={{ color: "var(--color-text-primary)" }}
-            >
-              {sectors.length} sectors
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span
-              className="text-[13px]"
-              style={{ color: "var(--color-text-tertiary)" }}
-            >
-              Total market cap
-            </span>
-            <span
-              className="text-[13px] font-semibold"
+            <div
+              className="text-[20px] font-bold mt-0.5"
               style={{ color: "var(--color-text-primary)" }}
             >
               {formatMarketCap(totalMarketCap)}
+            </div>
+          </div>
+
+          {/* Number of Sectors */}
+          <div
+            className="rounded-lg border px-4 py-3"
+            style={{
+              background: "var(--color-bg-secondary)",
+              borderColor: "var(--color-border-subtle)",
+            }}
+          >
+            <span
+              className="text-[11px] font-medium uppercase tracking-wide"
+              style={{ color: "var(--color-text-tertiary)" }}
+            >
+              Sectors Tracked
             </span>
+            <div
+              className="text-[20px] font-bold mt-0.5"
+              style={{ color: "var(--color-text-primary)" }}
+            >
+              {sectors.length}
+            </div>
+          </div>
+
+          {/* Best Performing Sector */}
+          <div
+            className="rounded-lg border px-4 py-3"
+            style={{
+              background: "var(--color-bg-secondary)",
+              borderColor: "var(--color-border-subtle)",
+            }}
+          >
+            <span
+              className="text-[11px] font-medium uppercase tracking-wide"
+              style={{ color: "var(--color-text-tertiary)" }}
+            >
+              Best Performing (1D)
+            </span>
+            {bestSector ? (
+              <div className="mt-0.5 flex items-baseline gap-2">
+                <span
+                  className="text-[20px] font-bold"
+                  style={{ color: pctColor(bestSector.change1d) }}
+                >
+                  {formatPercent(bestSector.change1d)}
+                </span>
+                <span
+                  className="text-[12px]"
+                  style={{ color: "var(--color-text-secondary)" }}
+                >
+                  {bestSector.name}
+                </span>
+              </div>
+            ) : (
+              <div
+                className="text-[20px] font-bold mt-0.5"
+                style={{ color: "var(--color-text-tertiary)" }}
+              >
+                &mdash;
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -180,7 +242,7 @@ export default async function TopSectorsPage() {
           }}
         >
           <div className="overflow-x-auto" style={{ scrollbarWidth: "none" }}>
-            <table className="w-full min-w-[700px]">
+            <table className="w-full">
               <thead>
                 <tr
                   style={{
@@ -212,19 +274,19 @@ export default async function TopSectorsPage() {
                     1D %
                   </th>
                   <th
-                    className="text-right text-10 font-medium px-3 py-2"
+                    className="hidden md:table-cell text-right text-10 font-medium px-3 py-2"
                     style={{ color: "var(--color-text-tertiary)" }}
                   >
                     7D %
                   </th>
                   <th
-                    className="text-right text-10 font-medium px-3 py-2"
+                    className="hidden md:table-cell text-right text-10 font-medium px-3 py-2"
                     style={{ color: "var(--color-text-tertiary)" }}
                   >
                     30D %
                   </th>
                   <th
-                    className="text-right text-10 font-medium px-3 py-2"
+                    className="hidden md:table-cell text-right text-10 font-medium px-3 py-2"
                     style={{ color: "var(--color-text-tertiary)" }}
                   >
                     Companies
@@ -232,63 +294,79 @@ export default async function TopSectorsPage() {
                 </tr>
               </thead>
               <tbody>
-                {sectors.map((s, i) => (
-                  <tr
-                    key={s.slug}
-                    className="transition-colors duration-100 hover:bg-[var(--color-bg-primary)]"
-                    style={{
-                      borderBottom: "0.5px solid var(--color-border-subtle)",
-                    }}
-                  >
-                    <td
-                      className="px-3 py-2 text-12"
-                      style={{ color: "var(--color-text-tertiary)" }}
+                {sectors.map((s, i) => {
+                  const isPositive = (s.change1d ?? 0) >= 0;
+                  return (
+                    <tr
+                      key={s.slug}
+                      className="transition-colors duration-100 hover:bg-[var(--color-bg-primary)] relative"
+                      style={{
+                        borderBottom: "0.5px solid var(--color-border-subtle)",
+                        borderLeft: `3px solid ${isPositive ? "var(--color-positive, #22c55e)" : "var(--color-negative, #ef4444)"}`,
+                      }}
                     >
-                      {i + 1}
-                    </td>
-                    <td className="px-3 py-2">
-                      <Link
-                        href={`/sectors/${s.slug}`}
-                        className="text-12 font-medium hover:underline"
+                      <td
+                        className="px-3 py-2 text-12"
+                        style={{ color: "var(--color-text-tertiary)" }}
+                      >
+                        {i + 1}
+                      </td>
+                      <td className="px-3 py-2">
+                        <div className="flex flex-col">
+                          <Link
+                            href={`/sectors/${s.slug}`}
+                            className="text-12 font-medium hover:underline"
+                            style={{ color: "var(--color-text-primary)" }}
+                          >
+                            <span className="truncate max-w-[180px] md:max-w-none inline-block">
+                              {s.name}
+                            </span>
+                          </Link>
+                          {s.companyCount != null && (
+                            <span
+                              className="text-[10px] mt-0.5"
+                              style={{ color: "var(--color-text-tertiary)" }}
+                            >
+                              {s.companyCount} {s.companyCount === 1 ? "company" : "companies"}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td
+                        className="text-right text-12 px-3 py-2"
                         style={{ color: "var(--color-text-primary)" }}
                       >
-                        {s.name}
-                      </Link>
-                    </td>
-                    <td
-                      className="text-right text-12 px-3 py-2"
-                      style={{ color: "var(--color-text-primary)" }}
-                    >
-                      {s.combinedMarketCap
-                        ? formatMarketCap(s.combinedMarketCap)
-                        : "\u2014"}
-                    </td>
-                    <td
-                      className="text-right text-12 px-3 py-2 font-semibold"
-                      style={{ color: pctColor(s.change1d) }}
-                    >
-                      {formatPercent(s.change1d)}
-                    </td>
-                    <td
-                      className="text-right text-12 px-3 py-2 font-semibold"
-                      style={{ color: pctColor(s.change7d) }}
-                    >
-                      {formatPercent(s.change7d)}
-                    </td>
-                    <td
-                      className="text-right text-12 px-3 py-2 font-semibold"
-                      style={{ color: pctColor(s.change30d) }}
-                    >
-                      {formatPercent(s.change30d)}
-                    </td>
-                    <td
-                      className="text-right text-12 px-3 py-2"
-                      style={{ color: "var(--color-text-secondary)" }}
-                    >
-                      {s.companyCount ?? "\u2014"}
-                    </td>
-                  </tr>
-                ))}
+                        {s.combinedMarketCap
+                          ? formatMarketCap(s.combinedMarketCap)
+                          : "\u2014"}
+                      </td>
+                      <td
+                        className="text-right text-12 px-3 py-2 font-semibold"
+                        style={{ color: pctColor(s.change1d) }}
+                      >
+                        {formatPercent(s.change1d)}
+                      </td>
+                      <td
+                        className="hidden md:table-cell text-right text-12 px-3 py-2 font-semibold"
+                        style={{ color: pctColor(s.change7d) }}
+                      >
+                        {formatPercent(s.change7d)}
+                      </td>
+                      <td
+                        className="hidden md:table-cell text-right text-12 px-3 py-2 font-semibold"
+                        style={{ color: pctColor(s.change30d) }}
+                      >
+                        {formatPercent(s.change30d)}
+                      </td>
+                      <td
+                        className="hidden md:table-cell text-right text-12 px-3 py-2"
+                        style={{ color: "var(--color-text-secondary)" }}
+                      >
+                        {s.companyCount ?? "\u2014"}
+                      </td>
+                    </tr>
+                  );
+                })}
                 {sectors.length === 0 && (
                   <tr>
                     <td

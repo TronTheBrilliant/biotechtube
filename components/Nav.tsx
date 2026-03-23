@@ -175,7 +175,7 @@ export function Nav() {
         }}
       >
         {/* Desktop Nav */}
-        <div className="hidden md:flex items-center justify-between h-full max-w-[1400px] mx-auto px-6">
+        <div className="hidden md:flex items-center justify-between h-full max-w-[1200px] mx-auto px-4 md:px-6">
           {/* Left: Logo + Triggers */}
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-2 shrink-0">

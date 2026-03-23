@@ -1,9 +1,9 @@
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
-import { formatMarketCap, formatPercent, pctColor } from "@/lib/market-utils";
+import { formatMarketCap } from "@/lib/market-utils";
 import { dbRowsToCompanies } from "@/lib/adapters";
 import { createClient } from "@supabase/supabase-js";
-import Link from "next/link";
+import { TopCompaniesClient } from "./TopCompaniesClient";
 
 export const dynamic = "force-dynamic";
 
@@ -87,7 +87,7 @@ async function getTopCompanies(): Promise<RankedCompany[]> {
   }
 
   ranked.sort((a, b) => b.marketCap - a.marketCap);
-  return ranked.slice(0, 100);
+  return ranked;
 }
 
 export default async function TopCompaniesPage() {
@@ -103,7 +103,7 @@ export default async function TopCompaniesPage() {
       <Nav />
 
       {/* Hero */}
-      <div className="px-5 md:px-8 py-6 md:py-8">
+      <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-6 md:py-8">
         <h1
           className="text-[32px] md:text-[48px] font-bold tracking-tight"
           style={{
@@ -165,148 +165,7 @@ export default async function TopCompaniesPage() {
 
       {/* Table */}
       <div className="px-4 md:px-6 pb-8 max-w-[1200px] mx-auto">
-        <div
-          className="rounded-lg border overflow-hidden"
-          style={{
-            background: "var(--color-bg-secondary)",
-            borderColor: "var(--color-border-subtle)",
-          }}
-        >
-          <div className="overflow-x-auto" style={{ scrollbarWidth: "none" }}>
-            <table className="w-full min-w-[650px]">
-              <thead>
-                <tr
-                  style={{
-                    borderBottom: "0.5px solid var(--color-border-subtle)",
-                  }}
-                >
-                  <th
-                    className="text-left text-10 font-medium px-3 py-2 w-10"
-                    style={{ color: "var(--color-text-tertiary)" }}
-                  >
-                    #
-                  </th>
-                  <th
-                    className="text-left text-10 font-medium px-3 py-2"
-                    style={{ color: "var(--color-text-tertiary)" }}
-                  >
-                    Company
-                  </th>
-                  <th
-                    className="text-left text-10 font-medium px-3 py-2"
-                    style={{ color: "var(--color-text-tertiary)" }}
-                  >
-                    Country
-                  </th>
-                  <th
-                    className="text-right text-10 font-medium px-3 py-2"
-                    style={{ color: "var(--color-text-tertiary)" }}
-                  >
-                    Market Cap
-                  </th>
-                  <th
-                    className="text-right text-10 font-medium px-3 py-2"
-                    style={{ color: "var(--color-text-tertiary)" }}
-                  >
-                    1D Change
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {companies.map((c, i) => (
-                  <tr
-                    key={c.slug}
-                    className="transition-colors duration-100 hover:bg-[var(--color-bg-primary)]"
-                    style={{
-                      borderBottom: "0.5px solid var(--color-border-subtle)",
-                    }}
-                  >
-                    <td
-                      className="px-3 py-2 text-12"
-                      style={{ color: "var(--color-text-tertiary)" }}
-                    >
-                      {i + 1}
-                    </td>
-                    <td className="px-3 py-2">
-                      <Link
-                        href={`/company/${c.slug}`}
-                        className="flex items-center gap-2 hover:underline"
-                      >
-                        {c.logo_url ? (
-                          <img
-                            src={c.logo_url}
-                            alt=""
-                            className="w-6 h-6 rounded-full object-cover flex-shrink-0"
-                            style={{
-                              background: "var(--color-bg-primary)",
-                              border: "1px solid var(--color-border-subtle)",
-                            }}
-                          />
-                        ) : (
-                          <div
-                            className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-bold"
-                            style={{
-                              background: "var(--color-bg-primary)",
-                              border: "1px solid var(--color-border-subtle)",
-                              color: "var(--color-text-tertiary)",
-                            }}
-                          >
-                            {c.name.charAt(0)}
-                          </div>
-                        )}
-                        <div className="flex flex-col">
-                          <span
-                            className="text-12 font-medium"
-                            style={{ color: "var(--color-text-primary)" }}
-                          >
-                            {c.name}
-                          </span>
-                          {c.ticker && (
-                            <span
-                              className="text-10"
-                              style={{ color: "var(--color-text-tertiary)" }}
-                            >
-                              {c.ticker}
-                            </span>
-                          )}
-                        </div>
-                      </Link>
-                    </td>
-                    <td
-                      className="px-3 py-2 text-12"
-                      style={{ color: "var(--color-text-secondary)" }}
-                    >
-                      {c.country || "\u2014"}
-                    </td>
-                    <td
-                      className="text-right text-12 px-3 py-2"
-                      style={{ color: "var(--color-text-primary)" }}
-                    >
-                      {formatMarketCap(c.marketCap)}
-                    </td>
-                    <td
-                      className="text-right text-12 px-3 py-2 font-semibold"
-                      style={{ color: pctColor(c.change1d) }}
-                    >
-                      {c.change1d !== null ? formatPercent(c.change1d) : "\u2014"}
-                    </td>
-                  </tr>
-                ))}
-                {companies.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={5}
-                      className="px-3 py-8 text-center text-13"
-                      style={{ color: "var(--color-text-tertiary)" }}
-                    >
-                      No company data available at this time.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <TopCompaniesClient companies={companies} />
       </div>
 
       <Footer />

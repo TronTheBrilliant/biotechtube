@@ -127,7 +127,7 @@ export default async function CountriesPage() {
       <Nav />
 
       {/* Hero */}
-      <div className="px-5 md:px-8 py-6 md:py-8">
+      <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-6 md:py-8">
         <h1
           className="text-[32px] md:text-[48px] font-bold tracking-tight"
           style={{
@@ -189,7 +189,7 @@ export default async function CountriesPage() {
           }}
         >
           <div className="overflow-x-auto" style={{ scrollbarWidth: "none" }}>
-            <table className="w-full min-w-[700px]">
+            <table className="w-full">
               <thead>
                 <tr
                   style={{
@@ -221,13 +221,13 @@ export default async function CountriesPage() {
                     1D %
                   </th>
                   <th
-                    className="text-right text-10 font-medium px-3 py-2"
+                    className="hidden md:table-cell text-right text-10 font-medium px-3 py-2"
                     style={{ color: "var(--color-text-tertiary)" }}
                   >
                     7D %
                   </th>
                   <th
-                    className="text-right text-10 font-medium px-3 py-2"
+                    className="hidden md:table-cell text-right text-10 font-medium px-3 py-2"
                     style={{ color: "var(--color-text-tertiary)" }}
                   >
                     Public Companies
@@ -278,13 +278,13 @@ export default async function CountriesPage() {
                       {formatPercent(c.change_1d_pct)}
                     </td>
                     <td
-                      className="text-right text-12 px-3 py-2 font-medium"
+                      className="hidden md:table-cell text-right text-12 px-3 py-2 font-medium"
                       style={{ color: pctColor(c.change_7d_pct) }}
                     >
                       {formatPercent(c.change_7d_pct)}
                     </td>
                     <td
-                      className="text-right text-12 px-3 py-2"
+                      className="hidden md:table-cell text-right text-12 px-3 py-2"
                       style={{ color: "var(--color-text-secondary)" }}
                     >
                       {c.public_company_count ?? "\u2014"}

@@ -132,7 +132,7 @@ export default async function TrendingPage() {
       <Nav />
 
       {/* Hero */}
-      <div className="px-5 md:px-8 py-6 md:py-8">
+      <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-6 md:py-8">
         <h1
           className="text-[32px] md:text-[48px] font-bold tracking-tight"
           style={{
@@ -201,7 +201,7 @@ export default async function TrendingPage() {
           }}
         >
           <div className="overflow-x-auto" style={{ scrollbarWidth: "none" }}>
-            <table className="w-full min-w-[650px]">
+            <table className="w-full">
               <thead>
                 <tr
                   style={{
@@ -221,7 +221,7 @@ export default async function TrendingPage() {
                     Company
                   </th>
                   <th
-                    className="text-left text-10 font-medium px-3 py-2"
+                    className="hidden md:table-cell text-left text-10 font-medium px-3 py-2"
                     style={{ color: "var(--color-text-tertiary)" }}
                   >
                     Country
@@ -284,7 +284,7 @@ export default async function TrendingPage() {
                         )}
                         <div className="flex flex-col">
                           <span
-                            className="text-12 font-medium"
+                            className="text-12 font-medium truncate max-w-[150px] md:max-w-none inline-block"
                             style={{ color: "var(--color-text-primary)" }}
                           >
                             {c.name}
@@ -301,7 +301,7 @@ export default async function TrendingPage() {
                       </Link>
                     </td>
                     <td
-                      className="px-3 py-2 text-12"
+                      className="hidden md:table-cell px-3 py-2 text-12"
                       style={{ color: "var(--color-text-secondary)" }}
                     >
                       {c.country || "\u2014"}

@@ -209,7 +209,7 @@ export default function MarketsPageClient({
 
       {/* Hero */}
       <div
-        className="px-5 pt-6 pb-4"
+        className="max-w-[1200px] mx-auto px-4 md:px-6 pt-6 pb-4"
         style={{ borderBottom: "0.5px solid var(--color-border-subtle)" }}
       >
         <div className="flex items-center gap-2 mb-1">
@@ -238,7 +238,7 @@ export default function MarketsPageClient({
 
       {/* Stats Strip */}
       <div
-        className="flex items-center gap-4 px-5 py-3 overflow-x-auto"
+        className="flex items-center gap-4 max-w-[1200px] mx-auto px-4 md:px-6 py-3 overflow-x-auto"
         style={{
           borderBottom: "0.5px solid var(--color-border-subtle)",
           scrollbarWidth: "none",
@@ -269,11 +269,11 @@ export default function MarketsPageClient({
 
       {/* Main Content */}
       <div
-        className="flex flex-col lg:grid"
+        className="flex flex-col lg:grid max-w-[1200px] mx-auto"
         style={{ gridTemplateColumns: "1fr 260px" }}
       >
         <div
-          className="px-5 py-4 min-w-0 lg:border-r"
+          className="px-4 md:px-6 py-4 min-w-0 lg:border-r"
           style={{ borderColor: "var(--color-border-subtle)" }}
         >
           {/* Market Cap Chart */}
