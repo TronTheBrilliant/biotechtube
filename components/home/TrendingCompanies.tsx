@@ -17,14 +17,6 @@ interface TrendingCompaniesProps {
   companies: TrendingCompany[];
 }
 
-function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase();
-}
 
 function formatChange(val: number): string {
   const sign = val >= 0 ? "+" : "";

@@ -1,0 +1,2462 @@
+[
+  {
+    "company": "Cabaletta Bio",
+    "companySlug": "cabaletta-bio",
+    "type": "Series B",
+    "amount": 50,
+    "currency": "USD",
+    "date": "2020-01-15",
+    "leadInvestor": "Adage Capital Management",
+    "quarter": "Q1 2020"
+  },
+  {
+    "company": "Sana Biotechnology",
+    "companySlug": "sana-biotechnology",
+    "type": "Series A",
+    "amount": 700,
+    "currency": "USD",
+    "date": "2020-01-23",
+    "leadInvestor": "ARCH Venture Partners",
+    "quarter": "Q1 2020"
+  },
+  {
+    "company": "Beam Therapeutics",
+    "companySlug": "beam-therapeutics",
+    "type": "IPO",
+    "amount": 180,
+    "currency": "USD",
+    "date": "2020-02-06",
+    "leadInvestor": "Goldman Sachs",
+    "quarter": "Q1 2020"
+  },
+  {
+    "company": "Relay Therapeutics",
+    "companySlug": "relay-therapeutics",
+    "type": "Series C",
+    "amount": 400,
+    "currency": "USD",
+    "date": "2020-02-12",
+    "leadInvestor": "SoftBank Vision Fund",
+    "quarter": "Q1 2020"
+  },
+  {
+    "company": "Ginkgo Bioworks",
+    "companySlug": "ginkgo-bioworks",
+    "type": "Series E",
+    "amount": 350,
+    "currency": "USD",
+    "date": "2020-03-05",
+    "leadInvestor": "General Atlantic",
+    "quarter": "Q1 2020"
+  },
+  {
+    "company": "Arcus Biosciences",
+    "companySlug": "arcus-biosciences",
+    "type": "Public Offering",
+    "amount": 250,
+    "currency": "USD",
+    "date": "2020-03-19",
+    "leadInvestor": "Morgan Stanley",
+    "quarter": "Q1 2020"
+  },
+  {
+    "company": "Zentalis Pharmaceuticals",
+    "companySlug": "zentalis-pharmaceuticals",
+    "type": "IPO",
+    "amount": 165,
+    "currency": "USD",
+    "date": "2020-04-03",
+    "leadInvestor": "Jefferies",
+    "quarter": "Q2 2020"
+  },
+  {
+    "company": "Imago BioSciences",
+    "companySlug": "imago-biosciences",
+    "type": "Series C",
+    "amount": 70,
+    "currency": "USD",
+    "date": "2020-04-28",
+    "leadInvestor": "RA Capital Management",
+    "quarter": "Q2 2020"
+  },
+  {
+    "company": "BioNTech",
+    "companySlug": "biontech",
+    "type": "Public Offering",
+    "amount": 250,
+    "currency": "USD",
+    "date": "2020-05-11",
+    "leadInvestor": "Goldman Sachs",
+    "quarter": "Q2 2020"
+  },
+  {
+    "company": "Moderna",
+    "companySlug": "moderna",
+    "type": "Public Offering",
+    "amount": 1300,
+    "currency": "USD",
+    "date": "2020-05-18",
+    "leadInvestor": "Morgan Stanley",
+    "quarter": "Q2 2020"
+  },
+  {
+    "company": "Vir Biotechnology",
+    "companySlug": "vir-biotechnology",
+    "type": "Public Offering",
+    "amount": 450,
+    "currency": "USD",
+    "date": "2020-06-15",
+    "leadInvestor": "Morgan Stanley",
+    "quarter": "Q2 2020"
+  },
+  {
+    "company": "Recursion Pharmaceuticals",
+    "companySlug": "recursion-pharmaceuticals",
+    "type": "Series D",
+    "amount": 239,
+    "currency": "USD",
+    "date": "2020-06-23",
+    "leadInvestor": "Baillie Gifford",
+    "quarter": "Q2 2020"
+  },
+  {
+    "company": "Sigilon Therapeutics",
+    "companySlug": "sigilon-therapeutics",
+    "type": "IPO",
+    "amount": 110,
+    "currency": "USD",
+    "date": "2020-07-01",
+    "leadInvestor": "Morgan Stanley",
+    "quarter": "Q3 2020"
+  },
+  {
+    "company": "Forma Therapeutics",
+    "companySlug": "forma-therapeutics",
+    "type": "IPO",
+    "amount": 240,
+    "currency": "USD",
+    "date": "2020-07-23",
+    "leadInvestor": "Morgan Stanley",
+    "quarter": "Q3 2020"
+  },
+  {
+    "company": "10x Genomics",
+    "companySlug": "10x-genomics",
+    "type": "Public Offering",
+    "amount": 400,
+    "currency": "USD",
+    "date": "2020-07-30",
+    "leadInvestor": "Goldman Sachs",
+    "quarter": "Q3 2020"
+  },
+  {
+    "company": "Allogene Therapeutics",
+    "companySlug": "allogene-therapeutics",
+    "type": "Public Offering",
+    "amount": 517,
+    "currency": "USD",
+    "date": "2020-08-06",
+    "leadInvestor": "Goldman Sachs",
+    "quarter": "Q3 2020"
+  },
+  {
+    "company": "CureVac",
+    "companySlug": "curevac",
+    "type": "IPO",
+    "amount": 245,
+    "currency": "USD",
+    "date": "2020-08-14",
+    "leadInvestor": "Jefferies",
+    "quarter": "Q3 2020"
+  },
+  {
+    "company": "Arvinas",
+    "companySlug": "arvinas",
+    "type": "Public Offering",
+    "amount": 350,
+    "currency": "USD",
+    "date": "2020-09-10",
+    "leadInvestor": "Goldman Sachs",
+    "quarter": "Q3 2020"
+  },
+  {
+    "company": "EQRx",
+    "companySlug": "eqrx",
+    "type": "Series B",
+    "amount": 500,
+    "currency": "USD",
+    "date": "2020-09-15",
+    "leadInvestor": "GV",
+    "quarter": "Q3 2020"
+  },
+  {
+    "company": "Shattuck Labs",
+    "companySlug": "shattuck-labs",
+    "type": "IPO",
+    "amount": 276,
+    "currency": "USD",
+    "date": "2020-10-09",
+    "leadInvestor": "Goldman Sachs",
+    "quarter": "Q4 2020"
+  },
+  {
+    "company": "Adagio Therapeutics",
+    "companySlug": "adagio-therapeutics",
+    "type": "Series B",
+    "amount": 80,
+    "currency": "USD",
+    "date": "2020-10-14",
+    "leadInvestor": "RA Capital Management",
+    "quarter": "Q4 2020"
+  },
+  {
+    "company": "Immunocore",
+    "companySlug": "immunocore",
+    "type": "Series A",
+    "amount": 130,
+    "currency": "USD",
+    "date": "2020-10-22",
+    "leadInvestor": "General Atlantic",
+    "quarter": "Q4 2020"
+  },
+  {
+    "company": "Centessa Pharmaceuticals",
+    "companySlug": "centessa-pharmaceuticals",
+    "type": "Series A",
+    "amount": 250,
+    "currency": "USD",
+    "date": "2020-11-05",
+    "leadInvestor": "General Atlantic",
+    "quarter": "Q4 2020"
+  },
+  {
+    "company": "Lyell Immunopharma",
+    "companySlug": "lyell-immunopharma",
+    "type": "Series C",
+    "amount": 350,
+    "currency": "USD",
+    "date": "2020-11-17",
+    "leadInvestor": "GV",
+    "quarter": "Q4 2020"
+  },
+  {
+    "company": "Kinnate Biopharma",
+    "companySlug": "kinnate-biopharma",
+    "type": "IPO",
+    "amount": 276,
+    "currency": "USD",
+    "date": "2020-12-03",
+    "leadInvestor": "Goldman Sachs",
+    "quarter": "Q4 2020"
+  },
+  {
+    "company": "Generate Biomedicines",
+    "companySlug": "generate-biomedicines",
+    "type": "Series B",
+    "amount": 370,
+    "currency": "USD",
+    "date": "2020-12-08",
+    "leadInvestor": "Flagship Pioneering",
+    "quarter": "Q4 2020"
+  },
+  {
+    "company": "AbCellera",
+    "companySlug": "abcellera",
+    "type": "IPO",
+    "amount": 483,
+    "currency": "USD",
+    "date": "2020-12-11",
+    "leadInvestor": "Morgan Stanley",
+    "quarter": "Q4 2020"
+  },
+  {
+    "company": "Arcellx",
+    "companySlug": "arcellx",
+    "type": "Series C",
+    "amount": 115,
+    "currency": "USD",
+    "date": "2021-01-12",
+    "leadInvestor": "Samsara BioCapital",
+    "quarter": "Q1 2021"
+  },
+  {
+    "company": "Cellino",
+    "companySlug": "cellino",
+    "type": "Series A",
+    "amount": 16,
+    "currency": "USD",
+    "date": "2021-01-26",
+    "leadInvestor": "The Engine",
+    "quarter": "Q1 2021"
+  },
+  {
+    "company": "Sana Biotechnology",
+    "companySlug": "sana-biotechnology",
+    "type": "IPO",
+    "amount": 587.6,
+    "currency": "USD",
+    "date": "2021-02-04",
+    "leadInvestor": "Public Offering",
+    "quarter": "Q1 2021"
+  },
+  {
+    "company": "Nimbus Therapeutics",
+    "companySlug": "nimbus-therapeutics",
+    "type": "Series D",
+    "amount": 105,
+    "currency": "USD",
+    "date": "2021-02-16",
+    "leadInvestor": "Bain Capital Life Sciences",
+    "quarter": "Q1 2021"
+  },
+  {
+    "company": "Mammoth Biosciences",
+    "companySlug": "mammoth-biosciences",
+    "type": "Series C",
+    "amount": 150,
+    "currency": "USD",
+    "date": "2021-02-23",
+    "leadInvestor": "Redmile Group",
+    "quarter": "Q1 2021"
+  },
+  {
+    "company": "Celsius Therapeutics",
+    "companySlug": "celsius-therapeutics",
+    "type": "Series B",
+    "amount": 82.5,
+    "currency": "USD",
+    "date": "2021-03-09",
+    "leadInvestor": "Casdin Capital",
+    "quarter": "Q1 2021"
+  },
+  {
+    "company": "Instil Bio",
+    "companySlug": "instil-bio",
+    "type": "IPO",
+    "amount": 284.4,
+    "currency": "USD",
+    "date": "2021-03-19",
+    "leadInvestor": "Public Offering",
+    "quarter": "Q1 2021"
+  },
+  {
+    "company": "A-Alpha Bio",
+    "companySlug": "a-alpha-bio",
+    "type": "Seed",
+    "amount": 20,
+    "currency": "USD",
+    "date": "2021-04-13",
+    "leadInvestor": "Madrona Venture Group",
+    "quarter": "Q2 2021"
+  },
+  {
+    "company": "Recursion Pharmaceuticals",
+    "companySlug": "recursion-pharmaceuticals",
+    "type": "IPO",
+    "amount": 436,
+    "currency": "USD",
+    "date": "2021-04-15",
+    "leadInvestor": "Public Offering",
+    "quarter": "Q2 2021"
+  },
+  {
+    "company": "Shape Therapeutics",
+    "companySlug": "shape-therapeutics",
+    "type": "Series B",
+    "amount": 112,
+    "currency": "USD",
+    "date": "2021-04-20",
+    "leadInvestor": "New Enterprise Associates",
+    "quarter": "Q2 2021"
+  },
+  {
+    "company": "ReCode Therapeutics",
+    "companySlug": "recode-therapeutics",
+    "type": "Series B",
+    "amount": 80,
+    "currency": "USD",
+    "date": "2021-05-11",
+    "leadInvestor": "Pfizer Ventures",
+    "quarter": "Q2 2021"
+  },
+  {
+    "company": "Rapport Therapeutics",
+    "companySlug": "rapport-therapeutics",
+    "type": "Series A",
+    "amount": 100,
+    "currency": "USD",
+    "date": "2021-05-18",
+    "leadInvestor": "Third Rock Ventures",
+    "quarter": "Q2 2021"
+  },
+  {
+    "company": "Centessa Pharmaceuticals",
+    "companySlug": "centessa-pharmaceuticals",
+    "type": "IPO",
+    "amount": 330.8,
+    "currency": "USD",
+    "date": "2021-05-28",
+    "leadInvestor": "Public Offering",
+    "quarter": "Q2 2021"
+  },
+  {
+    "company": "AviadoBio",
+    "companySlug": "aviadobio",
+    "type": "Series A",
+    "amount": 80,
+    "currency": "USD",
+    "date": "2021-06-08",
+    "leadInvestor": "New Enterprise Associates",
+    "quarter": "Q2 2021"
+  },
+  {
+    "company": "Lyell Immunopharma",
+    "companySlug": "lyell-immunopharma",
+    "type": "IPO",
+    "amount": 425,
+    "currency": "USD",
+    "date": "2021-06-17",
+    "leadInvestor": "Public Offering",
+    "quarter": "Q2 2021"
+  },
+  {
+    "company": "Verve Therapeutics",
+    "companySlug": "verve-therapeutics",
+    "type": "IPO",
+    "amount": 240,
+    "currency": "USD",
+    "date": "2021-06-17",
+    "leadInvestor": "Public Offering",
+    "quarter": "Q2 2021"
+  },
+  {
+    "company": "Replay",
+    "companySlug": "replay",
+    "type": "Seed",
+    "amount": 55,
+    "currency": "USD",
+    "date": "2021-07-13",
+    "leadInvestor": "KKR",
+    "quarter": "Q3 2021"
+  },
+  {
+    "company": "Absci",
+    "companySlug": "absci",
+    "type": "IPO",
+    "amount": 200,
+    "currency": "USD",
+    "date": "2021-07-22",
+    "leadInvestor": "Public Offering",
+    "quarter": "Q3 2021"
+  },
+  {
+    "company": "Alumis",
+    "companySlug": "alumis",
+    "type": "Series B",
+    "amount": 200,
+    "currency": "USD",
+    "date": "2021-07-27",
+    "leadInvestor": "Foresite Capital",
+    "quarter": "Q3 2021"
+  },
+  {
+    "company": "EQRx",
+    "companySlug": "eqrx",
+    "type": "IPO",
+    "amount": 598,
+    "currency": "USD",
+    "date": "2021-07-28",
+    "leadInvestor": "Public Offering",
+    "quarter": "Q3 2021"
+  },
+  {
+    "company": "Adagio Therapeutics",
+    "companySlug": "adagio-therapeutics",
+    "type": "IPO",
+    "amount": 336,
+    "currency": "USD",
+    "date": "2021-08-05",
+    "leadInvestor": "Public Offering",
+    "quarter": "Q3 2021"
+  },
+  {
+    "company": "Nvelop Therapeutics",
+    "companySlug": "nvelop-therapeutics",
+    "type": "Seed",
+    "amount": 67,
+    "currency": "USD",
+    "date": "2021-08-10",
+    "leadInvestor": "Newpath Partners",
+    "quarter": "Q3 2021"
+  },
+  {
+    "company": "Aera Therapeutics",
+    "companySlug": "aera-therapeutics",
+    "type": "Series A",
+    "amount": 193,
+    "currency": "USD",
+    "date": "2021-09-08",
+    "leadInvestor": "ARCH Venture Partners",
+    "quarter": "Q3 2021"
+  },
+  {
+    "company": "Ginkgo Bioworks",
+    "companySlug": "ginkgo-bioworks",
+    "type": "IPO",
+    "amount": 1680,
+    "currency": "USD",
+    "date": "2021-09-17",
+    "leadInvestor": "Public Offering",
+    "quarter": "Q3 2021"
+  },
+  {
+    "company": "Septerna",
+    "companySlug": "septerna",
+    "type": "Series A",
+    "amount": 100,
+    "currency": "USD",
+    "date": "2021-09-21",
+    "leadInvestor": "Third Rock Ventures",
+    "quarter": "Q3 2021"
+  },
+  {
+    "company": "Arbor Biotechnologies",
+    "companySlug": "arbor-biotechnologies",
+    "type": "Series B",
+    "amount": 215,
+    "currency": "USD",
+    "date": "2021-10-05",
+    "leadInvestor": "Temasek",
+    "quarter": "Q4 2021"
+  },
+  {
+    "company": "Aulos Bioscience",
+    "companySlug": "aulos-bioscience",
+    "type": "Series A",
+    "amount": 48,
+    "currency": "USD",
+    "date": "2021-10-19",
+    "leadInvestor": "Apple Tree Partners",
+    "quarter": "Q4 2021"
+  },
+  {
+    "company": "Replay",
+    "companySlug": "replay",
+    "type": "Series A",
+    "amount": 55,
+    "currency": "USD",
+    "date": "2021-10-26",
+    "leadInvestor": "KKR",
+    "quarter": "Q4 2021"
+  },
+  {
+    "company": "Tessera Therapeutics",
+    "companySlug": "tessera-therapeutics",
+    "type": "Series C",
+    "amount": 300,
+    "currency": "USD",
+    "date": "2021-11-09",
+    "leadInvestor": "Flagship Pioneering",
+    "quarter": "Q4 2021"
+  },
+  {
+    "company": "Nested Therapeutics",
+    "companySlug": "nested-therapeutics",
+    "type": "Series A",
+    "amount": 90,
+    "currency": "USD",
+    "date": "2021-11-16",
+    "leadInvestor": "GV",
+    "quarter": "Q4 2021"
+  },
+  {
+    "company": "Metagenomi",
+    "companySlug": "metagenomi",
+    "type": "Series B",
+    "amount": 175,
+    "currency": "USD",
+    "date": "2021-12-07",
+    "leadInvestor": "PFM Health Sciences",
+    "quarter": "Q4 2021"
+  },
+  {
+    "company": "Aitia",
+    "companySlug": "aitia",
+    "type": "Series B",
+    "amount": 32,
+    "currency": "USD",
+    "date": "2021-12-14",
+    "leadInvestor": "Section 32",
+    "quarter": "Q4 2021"
+  },
+  {
+    "company": "Sana Biotechnology",
+    "companySlug": "sana-biotechnology",
+    "type": "Public Offering",
+    "amount": 587.6,
+    "currency": "USD",
+    "date": "2022-01-10",
+    "leadInvestor": "Morgan Stanley",
+    "quarter": "Q1 2022"
+  },
+  {
+    "company": "Nimbus Therapeutics",
+    "companySlug": "nimbus-therapeutics",
+    "type": "Series C",
+    "amount": 125,
+    "currency": "USD",
+    "date": "2022-01-18",
+    "leadInvestor": "Bain Capital Life Sciences",
+    "quarter": "Q1 2022"
+  },
+  {
+    "company": "Metagenomi",
+    "companySlug": "metagenomi",
+    "type": "Series B",
+    "amount": 175,
+    "currency": "USD",
+    "date": "2022-01-25",
+    "leadInvestor": "PFM Health Sciences",
+    "quarter": "Q1 2022"
+  },
+  {
+    "company": "Arcellx",
+    "companySlug": "arcellx",
+    "type": "IPO",
+    "amount": 132,
+    "currency": "USD",
+    "date": "2022-02-03",
+    "leadInvestor": "Goldman Sachs",
+    "quarter": "Q1 2022"
+  },
+  {
+    "company": "ReCode Therapeutics",
+    "companySlug": "recode-therapeutics",
+    "type": "Series B",
+    "amount": 120,
+    "currency": "USD",
+    "date": "2022-02-08",
+    "leadInvestor": "Pfizer Ventures",
+    "quarter": "Q1 2022"
+  },
+  {
+    "company": "Ginkgo Bioworks",
+    "companySlug": "ginkgo-bioworks",
+    "type": "PIPE",
+    "amount": 250,
+    "currency": "USD",
+    "date": "2022-02-15",
+    "leadInvestor": "Baillie Gifford",
+    "quarter": "Q1 2022"
+  },
+  {
+    "company": "Recursion Pharmaceuticals",
+    "companySlug": "recursion-pharmaceuticals",
+    "type": "Public Offering",
+    "amount": 300,
+    "currency": "USD",
+    "date": "2022-03-03",
+    "leadInvestor": "Goldman Sachs",
+    "quarter": "Q1 2022"
+  },
+  {
+    "company": "Maze Therapeutics",
+    "companySlug": "maze-therapeutics",
+    "type": "Series C",
+    "amount": 190,
+    "currency": "USD",
+    "date": "2022-03-10",
+    "leadInvestor": "Matrix Capital Management",
+    "quarter": "Q1 2022"
+  },
+  {
+    "company": "Cargo Therapeutics",
+    "companySlug": "cargo-therapeutics",
+    "type": "Series B",
+    "amount": 200,
+    "currency": "USD",
+    "date": "2022-03-22",
+    "leadInvestor": "Perceptive Advisors",
+    "quarter": "Q1 2022"
+  },
+  {
+    "company": "Aera Therapeutics",
+    "companySlug": "aera-therapeutics",
+    "type": "Series A",
+    "amount": 193,
+    "currency": "USD",
+    "date": "2022-04-05",
+    "leadInvestor": "ARCH Venture Partners",
+    "quarter": "Q2 2022"
+  },
+  {
+    "company": "Recludix Pharma",
+    "companySlug": "recludix-pharma",
+    "type": "Series A",
+    "amount": 60,
+    "currency": "USD",
+    "date": "2022-04-12",
+    "leadInvestor": "New Enterprise Associates",
+    "quarter": "Q2 2022"
+  },
+  {
+    "company": "Septerna",
+    "companySlug": "septerna",
+    "type": "Series A",
+    "amount": 100,
+    "currency": "USD",
+    "date": "2022-05-03",
+    "leadInvestor": "Third Rock Ventures",
+    "quarter": "Q2 2022"
+  },
+  {
+    "company": "Nurix Therapeutics",
+    "companySlug": "nurix-therapeutics",
+    "type": "Public Offering",
+    "amount": 175,
+    "currency": "USD",
+    "date": "2022-05-05",
+    "leadInvestor": "Jefferies",
+    "quarter": "Q2 2022"
+  },
+  {
+    "company": "Eikon Therapeutics",
+    "companySlug": "eikon-therapeutics",
+    "type": "Series B",
+    "amount": 517.8,
+    "currency": "USD",
+    "date": "2022-05-17",
+    "leadInvestor": "Flagship Pioneering",
+    "quarter": "Q2 2022"
+  },
+  {
+    "company": "Alumis",
+    "companySlug": "alumis",
+    "type": "Series B",
+    "amount": 200,
+    "currency": "USD",
+    "date": "2022-06-07",
+    "leadInvestor": "Foresite Capital",
+    "quarter": "Q2 2022"
+  },
+  {
+    "company": "Vesalius Therapeutics",
+    "companySlug": "vesalius-therapeutics",
+    "type": "Series A",
+    "amount": 75,
+    "currency": "USD",
+    "date": "2022-06-21",
+    "leadInvestor": "5AM Ventures",
+    "quarter": "Q2 2022"
+  },
+  {
+    "company": "Strand Therapeutics",
+    "companySlug": "strand-therapeutics",
+    "type": "Series B",
+    "amount": 97,
+    "currency": "USD",
+    "date": "2022-07-12",
+    "leadInvestor": "Redmile Group",
+    "quarter": "Q3 2022"
+  },
+  {
+    "company": "Remix Therapeutics",
+    "companySlug": "remix-therapeutics",
+    "type": "Series B",
+    "amount": 70,
+    "currency": "USD",
+    "date": "2022-07-19",
+    "leadInvestor": "Atlas Venture",
+    "quarter": "Q3 2022"
+  },
+  {
+    "company": "Aro Biotherapeutics",
+    "companySlug": "aro-biotherapeutics",
+    "type": "Series B",
+    "amount": 88,
+    "currency": "USD",
+    "date": "2022-07-26",
+    "leadInvestor": "Cowen Healthcare Investments",
+    "quarter": "Q3 2022"
+  },
+  {
+    "company": "Orna Therapeutics",
+    "companySlug": "orna-therapeutics",
+    "type": "Series B",
+    "amount": 221,
+    "currency": "USD",
+    "date": "2022-08-09",
+    "leadInvestor": "Merck",
+    "quarter": "Q3 2022"
+  },
+  {
+    "company": "Synthekine",
+    "companySlug": "synthekine",
+    "type": "Series C",
+    "amount": 150,
+    "currency": "USD",
+    "date": "2022-08-16",
+    "leadInvestor": "EcoR1 Capital",
+    "quarter": "Q3 2022"
+  },
+  {
+    "company": "ReNAgade Therapeutics",
+    "companySlug": "renagade-therapeutics",
+    "type": "Series A",
+    "amount": 300,
+    "currency": "USD",
+    "date": "2022-09-13",
+    "leadInvestor": "MPM Capital",
+    "quarter": "Q3 2022"
+  },
+  {
+    "company": "MOMA Therapeutics",
+    "companySlug": "moma-therapeutics",
+    "type": "Series B",
+    "amount": 150,
+    "currency": "USD",
+    "date": "2022-09-20",
+    "leadInvestor": "Cormorant Asset Management",
+    "quarter": "Q3 2022"
+  },
+  {
+    "company": "Aiolos Bio",
+    "companySlug": "aiolos-bio",
+    "type": "Series A",
+    "amount": 245,
+    "currency": "USD",
+    "date": "2022-10-04",
+    "leadInvestor": "Atlas Venture",
+    "quarter": "Q4 2022"
+  },
+  {
+    "company": "Capstan Therapeutics",
+    "companySlug": "capstan-therapeutics",
+    "type": "Series A",
+    "amount": 165,
+    "currency": "USD",
+    "date": "2022-10-12",
+    "leadInvestor": "Pfizer Ventures",
+    "quarter": "Q4 2022"
+  },
+  {
+    "company": "Septerna",
+    "companySlug": "septerna",
+    "type": "Series B",
+    "amount": 150,
+    "currency": "USD",
+    "date": "2022-11-01",
+    "leadInvestor": "RA Capital Management",
+    "quarter": "Q4 2022"
+  },
+  {
+    "company": "Alto Neuroscience",
+    "companySlug": "alto-neuroscience",
+    "type": "Series B",
+    "amount": 35,
+    "currency": "USD",
+    "date": "2022-11-15",
+    "leadInvestor": "Alpha Wave Ventures",
+    "quarter": "Q4 2022"
+  },
+  {
+    "company": "Terremoto Biosciences",
+    "companySlug": "terremoto-biosciences",
+    "type": "Seed",
+    "amount": 75,
+    "currency": "USD",
+    "date": "2022-11-29",
+    "leadInvestor": "Column Group",
+    "quarter": "Q4 2022"
+  },
+  {
+    "company": "Rapport Therapeutics",
+    "companySlug": "rapport-therapeutics",
+    "type": "Series A",
+    "amount": 100,
+    "currency": "USD",
+    "date": "2022-12-06",
+    "leadInvestor": "Third Rock Ventures",
+    "quarter": "Q4 2022"
+  },
+  {
+    "company": "Lassen Therapeutics",
+    "companySlug": "lassen-therapeutics",
+    "type": "Series A",
+    "amount": 85,
+    "currency": "USD",
+    "date": "2022-12-14",
+    "leadInvestor": "BVF Partners",
+    "quarter": "Q4 2022"
+  },
+  {
+    "company": "Terremoto Biosciences",
+    "companySlug": "terremoto-biosciences",
+    "type": "Seed",
+    "amount": 25,
+    "currency": "USD",
+    "date": "2023-01-10",
+    "leadInvestor": "Versant Ventures",
+    "quarter": "Q1 2023"
+  },
+  {
+    "company": "Sana Biotechnology",
+    "companySlug": "sana-biotechnology",
+    "type": "Public Offering",
+    "amount": 250,
+    "currency": "USD",
+    "date": "2023-01-15",
+    "leadInvestor": "Goldman Sachs",
+    "quarter": "Q1 2023"
+  },
+  {
+    "company": "Metagenomi",
+    "companySlug": "metagenomi",
+    "type": "Series B",
+    "amount": 275,
+    "currency": "USD",
+    "date": "2023-01-25",
+    "leadInvestor": "Novo Holdings",
+    "quarter": "Q1 2023"
+  },
+  {
+    "company": "Septerna",
+    "companySlug": "septerna",
+    "type": "Series A",
+    "amount": 100,
+    "currency": "USD",
+    "date": "2023-01-30",
+    "leadInvestor": "Third Rock Ventures",
+    "quarter": "Q1 2023"
+  },
+  {
+    "company": "Recursion Pharmaceuticals",
+    "companySlug": "recursion-pharmaceuticals",
+    "type": "Public Offering",
+    "amount": 300,
+    "currency": "USD",
+    "date": "2023-02-10",
+    "leadInvestor": "Morgan Stanley",
+    "quarter": "Q1 2023"
+  },
+  {
+    "company": "ReCode Therapeutics",
+    "companySlug": "recode-therapeutics",
+    "type": "Series B",
+    "amount": 120,
+    "currency": "USD",
+    "date": "2023-02-20",
+    "leadInvestor": "Pfizer Ventures",
+    "quarter": "Q1 2023"
+  },
+  {
+    "company": "Alumis",
+    "companySlug": "alumis",
+    "type": "Series B",
+    "amount": 259,
+    "currency": "USD",
+    "date": "2023-02-28",
+    "leadInvestor": "Foresite Capital",
+    "quarter": "Q1 2023"
+  },
+  {
+    "company": "Cellarity",
+    "companySlug": "cellarity",
+    "type": "Series C",
+    "amount": 121,
+    "currency": "USD",
+    "date": "2023-03-05",
+    "leadInvestor": "Flagship Pioneering",
+    "quarter": "Q1 2023"
+  },
+  {
+    "company": "Aera Therapeutics",
+    "companySlug": "aera-therapeutics",
+    "type": "Series A",
+    "amount": 193,
+    "currency": "USD",
+    "date": "2023-03-15",
+    "leadInvestor": "ARCH Venture Partners",
+    "quarter": "Q1 2023"
+  },
+  {
+    "company": "Nested Therapeutics",
+    "companySlug": "nested-therapeutics",
+    "type": "Series A",
+    "amount": 90,
+    "currency": "USD",
+    "date": "2023-03-22",
+    "leadInvestor": "GV",
+    "quarter": "Q1 2023"
+  },
+  {
+    "company": "Ginkgo Bioworks",
+    "companySlug": "ginkgo-bioworks",
+    "type": "Public Offering",
+    "amount": 275,
+    "currency": "USD",
+    "date": "2023-04-05",
+    "leadInvestor": "Morgan Stanley",
+    "quarter": "Q2 2023"
+  },
+  {
+    "company": "Alto Neuroscience",
+    "companySlug": "alto-neuroscience",
+    "type": "Series B",
+    "amount": 45,
+    "currency": "USD",
+    "date": "2023-04-15",
+    "leadInvestor": "Alpha Wave Ventures",
+    "quarter": "Q2 2023"
+  },
+  {
+    "company": "Maze Therapeutics",
+    "companySlug": "maze-therapeutics",
+    "type": "Series C",
+    "amount": 190,
+    "currency": "USD",
+    "date": "2023-04-25",
+    "leadInvestor": "a16z bio",
+    "quarter": "Q2 2023"
+  },
+  {
+    "company": "ArriVent Biopharma",
+    "companySlug": "arrivent-biopharma",
+    "type": "Series B",
+    "amount": 155,
+    "currency": "USD",
+    "date": "2023-05-05",
+    "leadInvestor": "Lilly Asia Ventures",
+    "quarter": "Q2 2023"
+  },
+  {
+    "company": "Cargo Therapeutics",
+    "companySlug": "cargo-therapeutics",
+    "type": "Series B",
+    "amount": 200,
+    "currency": "USD",
+    "date": "2023-05-18",
+    "leadInvestor": "Perceptive Advisors",
+    "quarter": "Q2 2023"
+  },
+  {
+    "company": "Nvelop Therapeutics",
+    "companySlug": "nvelop-therapeutics",
+    "type": "Seed",
+    "amount": 67,
+    "currency": "USD",
+    "date": "2023-05-30",
+    "leadInvestor": "Newpath Partners",
+    "quarter": "Q2 2023"
+  },
+  {
+    "company": "Aiolos Bio",
+    "companySlug": "aiolos-bio",
+    "type": "Series A",
+    "amount": 245,
+    "currency": "USD",
+    "date": "2023-06-01",
+    "leadInvestor": "Atlas Venture",
+    "quarter": "Q2 2023"
+  },
+  {
+    "company": "Reunion Neuroscience",
+    "companySlug": "reunion-neuroscience",
+    "type": "Series A",
+    "amount": 103,
+    "currency": "USD",
+    "date": "2023-06-12",
+    "leadInvestor": "Novo Holdings",
+    "quarter": "Q2 2023"
+  },
+  {
+    "company": "Rapport Therapeutics",
+    "companySlug": "rapport-therapeutics",
+    "type": "Series B",
+    "amount": 150,
+    "currency": "USD",
+    "date": "2023-06-20",
+    "leadInvestor": "Third Rock Ventures",
+    "quarter": "Q2 2023"
+  },
+  {
+    "company": "Relay Therapeutics",
+    "companySlug": "relay-therapeutics",
+    "type": "Public Offering",
+    "amount": 400,
+    "currency": "USD",
+    "date": "2023-07-10",
+    "leadInvestor": "J.P. Morgan",
+    "quarter": "Q3 2023"
+  },
+  {
+    "company": "MOMA Therapeutics",
+    "companySlug": "moma-therapeutics",
+    "type": "Series B",
+    "amount": 150,
+    "currency": "USD",
+    "date": "2023-07-18",
+    "leadInvestor": "Cormorant Asset Management",
+    "quarter": "Q3 2023"
+  },
+  {
+    "company": "Vesalius Therapeutics",
+    "companySlug": "vesalius-therapeutics",
+    "type": "Series A",
+    "amount": 105,
+    "currency": "USD",
+    "date": "2023-07-25",
+    "leadInvestor": "5AM Ventures",
+    "quarter": "Q3 2023"
+  },
+  {
+    "company": "Sepsis Biosensor",
+    "companySlug": "sepsis-biosensor",
+    "type": "Seed",
+    "amount": 15,
+    "currency": "USD",
+    "date": "2023-08-05",
+    "leadInvestor": "Y Combinator",
+    "quarter": "Q3 2023"
+  },
+  {
+    "company": "FogPharma",
+    "companySlug": "fogpharma",
+    "type": "Series E",
+    "amount": 178,
+    "currency": "USD",
+    "date": "2023-08-22",
+    "leadInvestor": "RA Capital Management",
+    "quarter": "Q3 2023"
+  },
+  {
+    "company": "Capstan Therapeutics",
+    "companySlug": "capstan-therapeutics",
+    "type": "Series A",
+    "amount": 165,
+    "currency": "USD",
+    "date": "2023-08-30",
+    "leadInvestor": "Pfizer Ventures",
+    "quarter": "Q3 2023"
+  },
+  {
+    "company": "BioAge Labs",
+    "companySlug": "bioage-labs",
+    "type": "Series C",
+    "amount": 170,
+    "currency": "USD",
+    "date": "2023-09-10",
+    "leadInvestor": "Sofinnova Investments",
+    "quarter": "Q3 2023"
+  },
+  {
+    "company": "Aro Biotherapeutics",
+    "companySlug": "aro-biotherapeutics",
+    "type": "Series B",
+    "amount": 88,
+    "currency": "USD",
+    "date": "2023-09-15",
+    "leadInvestor": "Cowen Healthcare Investments",
+    "quarter": "Q3 2023"
+  },
+  {
+    "company": "Neumora Therapeutics",
+    "companySlug": "neumora-therapeutics",
+    "type": "IPO",
+    "amount": 250,
+    "currency": "USD",
+    "date": "2023-09-29",
+    "leadInvestor": "Goldman Sachs",
+    "quarter": "Q3 2023"
+  },
+  {
+    "company": "10x Genomics",
+    "companySlug": "10x-genomics",
+    "type": "Public Offering",
+    "amount": 350,
+    "currency": "USD",
+    "date": "2023-10-12",
+    "leadInvestor": "J.P. Morgan",
+    "quarter": "Q4 2023"
+  },
+  {
+    "company": "Cellares",
+    "companySlug": "cellares",
+    "type": "Series C",
+    "amount": 255,
+    "currency": "USD",
+    "date": "2023-10-25",
+    "leadInvestor": "Koch Disruptive Technologies",
+    "quarter": "Q4 2023"
+  },
+  {
+    "company": "Rgenta Therapeutics",
+    "companySlug": "rgenta-therapeutics",
+    "type": "Series A",
+    "amount": 52,
+    "currency": "USD",
+    "date": "2023-10-30",
+    "leadInvestor": "Boehringer Ingelheim Venture Fund",
+    "quarter": "Q4 2023"
+  },
+  {
+    "company": "Arcellx",
+    "companySlug": "arcellx",
+    "type": "Public Offering",
+    "amount": 225,
+    "currency": "USD",
+    "date": "2023-11-07",
+    "leadInvestor": "Goldman Sachs",
+    "quarter": "Q4 2023"
+  },
+  {
+    "company": "Nexo Therapeutics",
+    "companySlug": "nexo-therapeutics",
+    "type": "Series A",
+    "amount": 60,
+    "currency": "USD",
+    "date": "2023-11-15",
+    "leadInvestor": "Mubadala Capital",
+    "quarter": "Q4 2023"
+  },
+  {
+    "company": "Boundless Bio",
+    "companySlug": "boundless-bio",
+    "type": "Series C",
+    "amount": 100,
+    "currency": "USD",
+    "date": "2023-11-28",
+    "leadInvestor": "RA Capital Management",
+    "quarter": "Q4 2023"
+  },
+  {
+    "company": "Tessera Therapeutics",
+    "companySlug": "tessera-therapeutics",
+    "type": "Series C",
+    "amount": 300,
+    "currency": "USD",
+    "date": "2023-12-05",
+    "leadInvestor": "Flagship Pioneering",
+    "quarter": "Q4 2023"
+  },
+  {
+    "company": "Avenzo Therapeutics",
+    "companySlug": "avenzo-therapeutics",
+    "type": "Series A",
+    "amount": 150,
+    "currency": "USD",
+    "date": "2023-12-14",
+    "leadInvestor": "New Enterprise Associates",
+    "quarter": "Q4 2023"
+  },
+  {
+    "company": "Sana Biotechnology",
+    "companySlug": "sana-biotechnology",
+    "type": "Series D",
+    "amount": 350,
+    "currency": "USD",
+    "date": "2024-01-15",
+    "leadInvestor": "ARCH Venture Partners",
+    "quarter": "Q1 2024"
+  },
+  {
+    "company": "Maze Therapeutics",
+    "companySlug": "maze-therapeutics",
+    "type": "Series C",
+    "amount": 190,
+    "currency": "USD",
+    "date": "2024-01-18",
+    "leadInvestor": "Third Rock Ventures",
+    "quarter": "Q1 2024"
+  },
+  {
+    "company": "Verve Therapeutics",
+    "companySlug": "verve-therapeutics",
+    "type": "Series C",
+    "amount": 250,
+    "currency": "USD",
+    "date": "2024-01-22",
+    "leadInvestor": "GV",
+    "quarter": "Q1 2024"
+  },
+  {
+    "company": "Kronos Bio",
+    "companySlug": "kronos-bio",
+    "type": "Series B",
+    "amount": 140,
+    "currency": "USD",
+    "date": "2024-01-25",
+    "leadInvestor": "Vida Ventures",
+    "quarter": "Q1 2024"
+  },
+  {
+    "company": "Relay Therapeutics",
+    "companySlug": "relay-therapeutics",
+    "type": "Public Offering",
+    "amount": 300,
+    "currency": "USD",
+    "date": "2024-01-30",
+    "leadInvestor": "Morgan Stanley",
+    "quarter": "Q1 2024"
+  },
+  {
+    "company": "Metagenomi",
+    "companySlug": "metagenomi",
+    "type": "Series C",
+    "amount": 275,
+    "currency": "USD",
+    "date": "2024-02-05",
+    "leadInvestor": "RA Capital Management",
+    "quarter": "Q1 2024"
+  },
+  {
+    "company": "Immunocore",
+    "companySlug": "immunocore",
+    "type": "Public Offering",
+    "amount": 320,
+    "currency": "USD",
+    "date": "2024-02-08",
+    "leadInvestor": "BofA Securities",
+    "quarter": "Q1 2024"
+  },
+  {
+    "company": "Nimbus Therapeutics",
+    "companySlug": "nimbus-therapeutics",
+    "type": "Series C",
+    "amount": 210,
+    "currency": "USD",
+    "date": "2024-02-12",
+    "leadInvestor": "Atlas Venture",
+    "quarter": "Q1 2024"
+  },
+  {
+    "company": "Recursion Pharmaceuticals",
+    "companySlug": "recursion-pharmaceuticals",
+    "type": "Public Offering",
+    "amount": 275,
+    "currency": "USD",
+    "date": "2024-02-22",
+    "leadInvestor": "Goldman Sachs",
+    "quarter": "Q1 2024"
+  },
+  {
+    "company": "Neumora Therapeutics",
+    "companySlug": "neumora-therapeutics",
+    "type": "Series B",
+    "amount": 180,
+    "currency": "USD",
+    "date": "2024-02-28",
+    "leadInvestor": "ARCH Venture Partners",
+    "quarter": "Q1 2024"
+  },
+  {
+    "company": "Cellares",
+    "companySlug": "cellares",
+    "type": "Series B",
+    "amount": 155,
+    "currency": "USD",
+    "date": "2024-03-05",
+    "leadInvestor": "Decheng Capital",
+    "quarter": "Q1 2024"
+  },
+  {
+    "company": "Ginkgo Bioworks",
+    "companySlug": "ginkgo-bioworks",
+    "type": "Series E",
+    "amount": 400,
+    "currency": "USD",
+    "date": "2024-03-10",
+    "leadInvestor": "General Atlantic",
+    "quarter": "Q1 2024"
+  },
+  {
+    "company": "Cabaletta Bio",
+    "companySlug": "cabaletta-bio",
+    "type": "Series B",
+    "amount": 120,
+    "currency": "USD",
+    "date": "2024-03-14",
+    "leadInvestor": "OrbiMed",
+    "quarter": "Q1 2024"
+  },
+  {
+    "company": "Arcellx",
+    "companySlug": "arcellx",
+    "type": "Public Offering",
+    "amount": 225,
+    "currency": "USD",
+    "date": "2024-03-18",
+    "leadInvestor": "JP Morgan",
+    "quarter": "Q1 2024"
+  },
+  {
+    "company": "Tessera Therapeutics",
+    "companySlug": "tessera-therapeutics",
+    "type": "Series C",
+    "amount": 300,
+    "currency": "USD",
+    "date": "2024-03-25",
+    "leadInvestor": "Flagship Pioneering",
+    "quarter": "Q1 2024"
+  },
+  {
+    "company": "Shape Therapeutics",
+    "companySlug": "shape-therapeutics",
+    "type": "Series B",
+    "amount": 165,
+    "currency": "USD",
+    "date": "2024-04-03",
+    "leadInvestor": "NEA",
+    "quarter": "Q2 2024"
+  },
+  {
+    "company": "BioNTech",
+    "companySlug": "biontech",
+    "type": "Public Offering",
+    "amount": 500,
+    "currency": "USD",
+    "date": "2024-04-10",
+    "leadInvestor": "Deutsche Bank",
+    "quarter": "Q2 2024"
+  },
+  {
+    "company": "Eikon Therapeutics",
+    "companySlug": "eikon-therapeutics",
+    "type": "Series C",
+    "amount": 400,
+    "currency": "USD",
+    "date": "2024-04-17",
+    "leadInvestor": "Andreessen Horowitz Bio",
+    "quarter": "Q2 2024"
+  },
+  {
+    "company": "Arvinas",
+    "companySlug": "arvinas",
+    "type": "Public Offering",
+    "amount": 280,
+    "currency": "USD",
+    "date": "2024-04-22",
+    "leadInvestor": "Goldman Sachs",
+    "quarter": "Q2 2024"
+  },
+  {
+    "company": "Akouos",
+    "companySlug": "akouos",
+    "type": "Series B",
+    "amount": 140,
+    "currency": "USD",
+    "date": "2024-04-29",
+    "leadInvestor": "Sofinnova Partners",
+    "quarter": "Q2 2024"
+  },
+  {
+    "company": "Insitro",
+    "companySlug": "insitro",
+    "type": "Series C",
+    "amount": 320,
+    "currency": "USD",
+    "date": "2024-05-08",
+    "leadInvestor": "ARCH Venture Partners",
+    "quarter": "Q2 2024"
+  },
+  {
+    "company": "Kriya Therapeutics",
+    "companySlug": "kriya-therapeutics",
+    "type": "Series C",
+    "amount": 225,
+    "currency": "USD",
+    "date": "2024-05-14",
+    "leadInvestor": "Patient Square Capital",
+    "quarter": "Q2 2024"
+  },
+  {
+    "company": "10x Genomics",
+    "companySlug": "10x-genomics",
+    "type": "Public Offering",
+    "amount": 350,
+    "currency": "USD",
+    "date": "2024-05-15",
+    "leadInvestor": "JP Morgan",
+    "quarter": "Q2 2024"
+  },
+  {
+    "company": "ReCode Therapeutics",
+    "companySlug": "recode-therapeutics",
+    "type": "Series B",
+    "amount": 180,
+    "currency": "USD",
+    "date": "2024-05-20",
+    "leadInvestor": "OrbiMed",
+    "quarter": "Q2 2024"
+  },
+  {
+    "company": "Freenome",
+    "companySlug": "freenome",
+    "type": "Series D",
+    "amount": 290,
+    "currency": "USD",
+    "date": "2024-05-30",
+    "leadInvestor": "RA Capital Management",
+    "quarter": "Q2 2024"
+  },
+  {
+    "company": "Beam Therapeutics",
+    "companySlug": "beam-therapeutics",
+    "type": "Series D",
+    "amount": 375,
+    "currency": "USD",
+    "date": "2024-06-05",
+    "leadInvestor": "Fidelity Management",
+    "quarter": "Q2 2024"
+  },
+  {
+    "company": "Mammoth Biosciences",
+    "companySlug": "mammoth-biosciences",
+    "type": "Series C",
+    "amount": 275,
+    "currency": "USD",
+    "date": "2024-06-12",
+    "leadInvestor": "Redmile Group",
+    "quarter": "Q2 2024"
+  },
+  {
+    "company": "CureVac",
+    "companySlug": "curevac",
+    "type": "Public Offering",
+    "amount": 240,
+    "currency": "USD",
+    "date": "2024-06-18",
+    "leadInvestor": "Barclays",
+    "quarter": "Q2 2024"
+  },
+  {
+    "company": "Nurix Therapeutics",
+    "companySlug": "nurix-therapeutics",
+    "type": "Public Offering",
+    "amount": 200,
+    "currency": "USD",
+    "date": "2024-06-25",
+    "leadInvestor": "Citigroup",
+    "quarter": "Q2 2024"
+  },
+  {
+    "company": "Tango Therapeutics",
+    "companySlug": "tango-therapeutics",
+    "type": "Public Offering",
+    "amount": 225,
+    "currency": "USD",
+    "date": "2024-07-09",
+    "leadInvestor": "Citigroup",
+    "quarter": "Q3 2024"
+  },
+  {
+    "company": "Moderna",
+    "companySlug": "moderna",
+    "type": "Public Offering",
+    "amount": 750,
+    "currency": "USD",
+    "date": "2024-07-11",
+    "leadInvestor": "Morgan Stanley",
+    "quarter": "Q3 2024"
+  },
+  {
+    "company": "Allogene Therapeutics",
+    "companySlug": "allogene-therapeutics",
+    "type": "Public Offering",
+    "amount": 325,
+    "currency": "USD",
+    "date": "2024-07-18",
+    "leadInvestor": "BofA Securities",
+    "quarter": "Q3 2024"
+  },
+  {
+    "company": "NexImmune",
+    "companySlug": "neximmune",
+    "type": "Series B",
+    "amount": 120,
+    "currency": "USD",
+    "date": "2024-07-25",
+    "leadInvestor": "OrbiMed",
+    "quarter": "Q3 2024"
+  },
+  {
+    "company": "Prime Medicine",
+    "companySlug": "prime-medicine",
+    "type": "Series C",
+    "amount": 315,
+    "currency": "USD",
+    "date": "2024-07-30",
+    "leadInvestor": "ARCH Venture Partners",
+    "quarter": "Q3 2024"
+  },
+  {
+    "company": "Scribe Therapeutics",
+    "companySlug": "scribe-therapeutics",
+    "type": "Series B",
+    "amount": 175,
+    "currency": "USD",
+    "date": "2024-08-07",
+    "leadInvestor": "Andreessen Horowitz Bio",
+    "quarter": "Q3 2024"
+  },
+  {
+    "company": "Adagio Therapeutics",
+    "companySlug": "adagio-therapeutics",
+    "type": "Series C",
+    "amount": 275,
+    "currency": "USD",
+    "date": "2024-08-14",
+    "leadInvestor": "RA Capital Management",
+    "quarter": "Q3 2024"
+  },
+  {
+    "company": "Cargo Therapeutics",
+    "companySlug": "cargo-therapeutics",
+    "type": "Series B",
+    "amount": 200,
+    "currency": "USD",
+    "date": "2024-08-19",
+    "leadInvestor": "Perceptive Advisors",
+    "quarter": "Q3 2024"
+  },
+  {
+    "company": "Intellia Therapeutics",
+    "companySlug": "intellia-therapeutics",
+    "type": "Public Offering",
+    "amount": 400,
+    "currency": "USD",
+    "date": "2024-08-22",
+    "leadInvestor": "JP Morgan",
+    "quarter": "Q3 2024"
+  },
+  {
+    "company": "Replay Bio",
+    "companySlug": "replay-bio",
+    "type": "Seed",
+    "amount": 25,
+    "currency": "USD",
+    "date": "2024-08-28",
+    "leadInvestor": "KdT Ventures",
+    "quarter": "Q3 2024"
+  },
+  {
+    "company": "Asher Bio",
+    "companySlug": "asher-bio",
+    "type": "Series A",
+    "amount": 75,
+    "currency": "USD",
+    "date": "2024-09-03",
+    "leadInvestor": "Third Rock Ventures",
+    "quarter": "Q3 2024"
+  },
+  {
+    "company": "Generate Biomedicines",
+    "companySlug": "generate-biomedicines",
+    "type": "Series C",
+    "amount": 450,
+    "currency": "USD",
+    "date": "2024-09-05",
+    "leadInvestor": "Flagship Pioneering",
+    "quarter": "Q3 2024"
+  },
+  {
+    "company": "Aera Therapeutics",
+    "companySlug": "aera-therapeutics",
+    "type": "Series B",
+    "amount": 160,
+    "currency": "USD",
+    "date": "2024-09-12",
+    "leadInvestor": "ARCH Venture Partners",
+    "quarter": "Q3 2024"
+  },
+  {
+    "company": "Centessa Pharmaceuticals",
+    "companySlug": "centessa-pharmaceuticals",
+    "type": "Public Offering",
+    "amount": 250,
+    "currency": "USD",
+    "date": "2024-09-18",
+    "leadInvestor": "Goldman Sachs",
+    "quarter": "Q3 2024"
+  },
+  {
+    "company": "Boundless Bio",
+    "companySlug": "boundless-bio",
+    "type": "Series B",
+    "amount": 135,
+    "currency": "USD",
+    "date": "2024-10-05",
+    "leadInvestor": "ARCH Venture Partners",
+    "quarter": "Q4 2024"
+  },
+  {
+    "company": "C4 Therapeutics",
+    "companySlug": "c4-therapeutics",
+    "type": "Public Offering",
+    "amount": 180,
+    "currency": "USD",
+    "date": "2024-10-10",
+    "leadInvestor": "Cowen",
+    "quarter": "Q4 2024"
+  },
+  {
+    "company": "Alnylam Pharmaceuticals",
+    "companySlug": "alnylam-pharmaceuticals",
+    "type": "Public Offering",
+    "amount": 600,
+    "currency": "USD",
+    "date": "2024-10-16",
+    "leadInvestor": "Morgan Stanley",
+    "quarter": "Q4 2024"
+  },
+  {
+    "company": "NextPoint Therapeutics",
+    "companySlug": "nextpoint-therapeutics",
+    "type": "Series A",
+    "amount": 85,
+    "currency": "USD",
+    "date": "2024-10-24",
+    "leadInvestor": "MPM Capital",
+    "quarter": "Q4 2024"
+  },
+  {
+    "company": "Lyell Immunopharma",
+    "companySlug": "lyell-immunopharma",
+    "type": "Series C",
+    "amount": 325,
+    "currency": "USD",
+    "date": "2024-10-30",
+    "leadInvestor": "GV",
+    "quarter": "Q4 2024"
+  },
+  {
+    "company": "Werewolf Therapeutics",
+    "companySlug": "werewolf-therapeutics",
+    "type": "Public Offering",
+    "amount": 190,
+    "currency": "USD",
+    "date": "2024-11-01",
+    "leadInvestor": "SVB Securities",
+    "quarter": "Q4 2024"
+  },
+  {
+    "company": "BridgeBio Pharma",
+    "companySlug": "bridgebio-pharma",
+    "type": "Public Offering",
+    "amount": 350,
+    "currency": "USD",
+    "date": "2024-11-07",
+    "leadInvestor": "Goldman Sachs",
+    "quarter": "Q4 2024"
+  },
+  {
+    "company": "Nuvation Bio",
+    "companySlug": "nuvation-bio",
+    "type": "Public Offering",
+    "amount": 220,
+    "currency": "USD",
+    "date": "2024-11-14",
+    "leadInvestor": "BofA Securities",
+    "quarter": "Q4 2024"
+  },
+  {
+    "company": "Omega Therapeutics",
+    "companySlug": "omega-therapeutics",
+    "type": "Series C",
+    "amount": 210,
+    "currency": "USD",
+    "date": "2024-11-20",
+    "leadInvestor": "Flagship Pioneering",
+    "quarter": "Q4 2024"
+  },
+  {
+    "company": "Rapport Therapeutics",
+    "companySlug": "rapport-therapeutics",
+    "type": "Seed",
+    "amount": 20,
+    "currency": "USD",
+    "date": "2024-11-28",
+    "leadInvestor": "Johnson & Johnson Innovation",
+    "quarter": "Q4 2024"
+  },
+  {
+    "company": "Strand Therapeutics",
+    "companySlug": "strand-therapeutics",
+    "type": "Series A",
+    "amount": 65,
+    "currency": "USD",
+    "date": "2024-12-03",
+    "leadInvestor": "Redmile Group",
+    "quarter": "Q4 2024"
+  },
+  {
+    "company": "Axcella Health",
+    "companySlug": "axcella-health",
+    "type": "Series B",
+    "amount": 145,
+    "currency": "USD",
+    "date": "2024-12-05",
+    "leadInvestor": "Longitude Capital",
+    "quarter": "Q4 2024"
+  },
+  {
+    "company": "Viking Therapeutics",
+    "companySlug": "viking-therapeutics",
+    "type": "Public Offering",
+    "amount": 275,
+    "currency": "USD",
+    "date": "2024-12-12",
+    "leadInvestor": "JP Morgan",
+    "quarter": "Q4 2024"
+  },
+  {
+    "company": "Kinnate Biopharma",
+    "companySlug": "kinnate-biopharma",
+    "type": "Series B",
+    "amount": 155,
+    "currency": "USD",
+    "date": "2024-12-18",
+    "leadInvestor": "Foresite Capital",
+    "quarter": "Q4 2024"
+  },
+  {
+    "company": "Sana Biotechnology",
+    "companySlug": "sana-biotechnology",
+    "type": "Public Offering",
+    "amount": 350,
+    "currency": "USD",
+    "date": "2025-01-15",
+    "leadInvestor": "Goldman Sachs",
+    "quarter": "Q1 2025"
+  },
+  {
+    "company": "Metagenomi",
+    "companySlug": "metagenomi",
+    "type": "Series C",
+    "amount": 250,
+    "currency": "USD",
+    "date": "2025-01-22",
+    "leadInvestor": "RA Capital Management",
+    "quarter": "Q1 2025"
+  },
+  {
+    "company": "Neumora Therapeutics",
+    "companySlug": "neumora-therapeutics",
+    "type": "Public Offering",
+    "amount": 275,
+    "currency": "USD",
+    "date": "2025-01-30",
+    "leadInvestor": "JP Morgan",
+    "quarter": "Q1 2025"
+  },
+  {
+    "company": "Verve Therapeutics",
+    "companySlug": "verve-therapeutics",
+    "type": "Public Offering",
+    "amount": 300,
+    "currency": "USD",
+    "date": "2025-02-05",
+    "leadInvestor": "Morgan Stanley",
+    "quarter": "Q1 2025"
+  },
+  {
+    "company": "Arbor Biotechnologies",
+    "companySlug": "arbor-biotechnologies",
+    "type": "Series B",
+    "amount": 200,
+    "currency": "USD",
+    "date": "2025-02-18",
+    "leadInvestor": "ARCH Venture Partners",
+    "quarter": "Q1 2025"
+  },
+  {
+    "company": "Tessera Therapeutics",
+    "companySlug": "tessera-therapeutics",
+    "type": "Series D",
+    "amount": 300,
+    "currency": "USD",
+    "date": "2025-02-27",
+    "leadInvestor": "SoftBank Vision Fund",
+    "quarter": "Q1 2025"
+  },
+  {
+    "company": "Cellarity",
+    "companySlug": "cellarity",
+    "type": "Series C",
+    "amount": 180,
+    "currency": "USD",
+    "date": "2025-03-03",
+    "leadInvestor": "Flagship Pioneering",
+    "quarter": "Q1 2025"
+  },
+  {
+    "company": "Nimbus Therapeutics",
+    "companySlug": "nimbus-therapeutics",
+    "type": "Series D",
+    "amount": 220,
+    "currency": "USD",
+    "date": "2025-03-12",
+    "leadInvestor": "Atlas Venture",
+    "quarter": "Q1 2025"
+  },
+  {
+    "company": "Aera Therapeutics",
+    "companySlug": "aera-therapeutics",
+    "type": "Series B",
+    "amount": 150,
+    "currency": "USD",
+    "date": "2025-03-18",
+    "leadInvestor": "ARCH Venture Partners",
+    "quarter": "Q1 2025"
+  },
+  {
+    "company": "Maze Therapeutics",
+    "companySlug": "maze-therapeutics",
+    "type": "Series C",
+    "amount": 190,
+    "currency": "USD",
+    "date": "2025-03-25",
+    "leadInvestor": "Third Rock Ventures",
+    "quarter": "Q1 2025"
+  },
+  {
+    "company": "ReCode Therapeutics",
+    "companySlug": "recode-therapeutics",
+    "type": "Series C",
+    "amount": 200,
+    "currency": "USD",
+    "date": "2025-04-10",
+    "leadInvestor": "OrbiMed",
+    "quarter": "Q2 2025"
+  },
+  {
+    "company": "Alnylam Pharmaceuticals",
+    "companySlug": "alnylam-pharmaceuticals",
+    "type": "Public Offering",
+    "amount": 500,
+    "currency": "USD",
+    "date": "2025-04-15",
+    "leadInvestor": "Bank of America",
+    "quarter": "Q2 2025"
+  },
+  {
+    "company": "Ginkgo Bioworks",
+    "companySlug": "ginkgo-bioworks",
+    "type": "Public Offering",
+    "amount": 400,
+    "currency": "USD",
+    "date": "2025-04-22",
+    "leadInvestor": "Citigroup",
+    "quarter": "Q2 2025"
+  },
+  {
+    "company": "FogPharma",
+    "companySlug": "fogpharma",
+    "type": "Series E",
+    "amount": 175,
+    "currency": "USD",
+    "date": "2025-05-06",
+    "leadInvestor": "Viking Global Investors",
+    "quarter": "Q2 2025"
+  },
+  {
+    "company": "Cargo Therapeutics",
+    "companySlug": "cargo-therapeutics",
+    "type": "Series C",
+    "amount": 160,
+    "currency": "USD",
+    "date": "2025-05-20",
+    "leadInvestor": "RA Capital Management",
+    "quarter": "Q2 2025"
+  },
+  {
+    "company": "Beam Therapeutics",
+    "companySlug": "beam-therapeutics",
+    "type": "Public Offering",
+    "amount": 325,
+    "currency": "USD",
+    "date": "2025-05-28",
+    "leadInvestor": "Goldman Sachs",
+    "quarter": "Q2 2025"
+  },
+  {
+    "company": "Septerna",
+    "companySlug": "septerna",
+    "type": "Series B",
+    "amount": 120,
+    "currency": "USD",
+    "date": "2025-06-03",
+    "leadInvestor": "a16z bio",
+    "quarter": "Q2 2025"
+  },
+  {
+    "company": "Nexo Therapeutics",
+    "companySlug": "nexo-therapeutics",
+    "type": "Seed",
+    "amount": 25,
+    "currency": "USD",
+    "date": "2025-06-17",
+    "leadInvestor": "Mubadala Capital",
+    "quarter": "Q2 2025"
+  },
+  {
+    "company": "Immunocore",
+    "companySlug": "immunocore",
+    "type": "Public Offering",
+    "amount": 280,
+    "currency": "USD",
+    "date": "2025-06-24",
+    "leadInvestor": "Morgan Stanley",
+    "quarter": "Q2 2025"
+  },
+  {
+    "company": "Arvinas",
+    "companySlug": "arvinas",
+    "type": "Public Offering",
+    "amount": 350,
+    "currency": "USD",
+    "date": "2025-07-08",
+    "leadInvestor": "JP Morgan",
+    "quarter": "Q3 2025"
+  },
+  {
+    "company": "Recursion Pharmaceuticals",
+    "companySlug": "recursion-pharmaceuticals",
+    "type": "Public Offering",
+    "amount": 300,
+    "currency": "USD",
+    "date": "2025-07-22",
+    "leadInvestor": "Citigroup",
+    "quarter": "Q3 2025"
+  },
+  {
+    "company": "Shape Therapeutics",
+    "companySlug": "shape-therapeutics",
+    "type": "Series B",
+    "amount": 130,
+    "currency": "USD",
+    "date": "2025-07-30",
+    "leadInvestor": "New Enterprise Associates",
+    "quarter": "Q3 2025"
+  },
+  {
+    "company": "Omega Therapeutics",
+    "companySlug": "omega-therapeutics",
+    "type": "Series D",
+    "amount": 140,
+    "currency": "USD",
+    "date": "2025-08-05",
+    "leadInvestor": "Flagship Pioneering",
+    "quarter": "Q3 2025"
+  },
+  {
+    "company": "Inari Agriculture",
+    "companySlug": "inari-agriculture",
+    "type": "Series F",
+    "amount": 200,
+    "currency": "USD",
+    "date": "2025-08-12",
+    "leadInvestor": "Temasek",
+    "quarter": "Q3 2025"
+  },
+  {
+    "company": "Celsius Therapeutics",
+    "companySlug": "celsius-therapeutics",
+    "type": "Series B",
+    "amount": 110,
+    "currency": "USD",
+    "date": "2025-08-19",
+    "leadInvestor": "GV",
+    "quarter": "Q3 2025"
+  },
+  {
+    "company": "Korro Bio",
+    "companySlug": "korro-bio",
+    "type": "Series C",
+    "amount": 180,
+    "currency": "USD",
+    "date": "2025-09-02",
+    "leadInvestor": "Fidelity Management & Research Company",
+    "quarter": "Q3 2025"
+  },
+  {
+    "company": "Nurix Therapeutics",
+    "companySlug": "nurix-therapeutics",
+    "type": "Public Offering",
+    "amount": 225,
+    "currency": "USD",
+    "date": "2025-09-16",
+    "leadInvestor": "Leerink Partners",
+    "quarter": "Q3 2025"
+  },
+  {
+    "company": "Akouos",
+    "companySlug": "akouos",
+    "type": "Series C",
+    "amount": 160,
+    "currency": "USD",
+    "date": "2025-09-30",
+    "leadInvestor": "Sofinnova Partners",
+    "quarter": "Q3 2025"
+  },
+  {
+    "company": "Moderna",
+    "companySlug": "moderna",
+    "type": "Public Offering",
+    "amount": 750,
+    "currency": "USD",
+    "date": "2025-10-07",
+    "leadInvestor": "Morgan Stanley",
+    "quarter": "Q4 2025"
+  },
+  {
+    "company": "Mythic Therapeutics",
+    "companySlug": "mythic-therapeutics",
+    "type": "Series B",
+    "amount": 125,
+    "currency": "USD",
+    "date": "2025-10-14",
+    "leadInvestor": "Venrock",
+    "quarter": "Q4 2025"
+  },
+  {
+    "company": "BioNTech",
+    "companySlug": "biontech",
+    "type": "Public Offering",
+    "amount": 600,
+    "currency": "USD",
+    "date": "2025-10-21",
+    "leadInvestor": "Deutsche Bank",
+    "quarter": "Q4 2025"
+  },
+  {
+    "company": "10x Genomics",
+    "companySlug": "10x-genomics",
+    "type": "Public Offering",
+    "amount": 400,
+    "currency": "USD",
+    "date": "2025-11-04",
+    "leadInvestor": "Goldman Sachs",
+    "quarter": "Q4 2025"
+  },
+  {
+    "company": "Relay Therapeutics",
+    "companySlug": "relay-therapeutics",
+    "type": "Public Offering",
+    "amount": 320,
+    "currency": "USD",
+    "date": "2025-11-18",
+    "leadInvestor": "Bank of America",
+    "quarter": "Q4 2025"
+  },
+  {
+    "company": "Triumvira Immunologics",
+    "companySlug": "triumvira-immunologics",
+    "type": "Series B",
+    "amount": 95,
+    "currency": "USD",
+    "date": "2025-11-25",
+    "leadInvestor": "Northpond Ventures",
+    "quarter": "Q4 2025"
+  },
+  {
+    "company": "Insitro",
+    "companySlug": "insitro",
+    "type": "Series D",
+    "amount": 250,
+    "currency": "USD",
+    "date": "2025-12-02",
+    "leadInvestor": "Andreessen Horowitz",
+    "quarter": "Q4 2025"
+  },
+  {
+    "company": "Anavex Life Sciences",
+    "companySlug": "anavex-life-sciences",
+    "type": "Public Offering",
+    "amount": 150,
+    "currency": "USD",
+    "date": "2025-12-09",
+    "leadInvestor": "H.C. Wainwright & Co.",
+    "quarter": "Q4 2025"
+  },
+  {
+    "company": "Eikon Therapeutics",
+    "companySlug": "eikon-therapeutics",
+    "type": "Series C",
+    "amount": 220,
+    "currency": "USD",
+    "date": "2025-12-16",
+    "leadInvestor": "Lux Capital",
+    "quarter": "Q4 2025"
+  },
+  {
+    "company": "Sana Biotechnology",
+    "companySlug": "sana-biotechnology",
+    "type": "Series D",
+    "amount": 350,
+    "currency": "USD",
+    "date": "2026-01-15",
+    "leadInvestor": "ARCH Venture Partners",
+    "quarter": "Q1 2026"
+  },
+  {
+    "company": "Recursion Pharmaceuticals",
+    "companySlug": "recursion-pharmaceuticals",
+    "type": "Public Offering",
+    "amount": 300,
+    "currency": "USD",
+    "date": "2026-01-22",
+    "leadInvestor": "Goldman Sachs",
+    "quarter": "Q1 2026"
+  },
+  {
+    "company": "Metagenomi",
+    "companySlug": "metagenomi",
+    "type": "Series C",
+    "amount": 250,
+    "currency": "USD",
+    "date": "2026-02-10",
+    "leadInvestor": "RA Capital Management",
+    "quarter": "Q1 2026"
+  },
+  {
+    "company": "Arbor Biotechnologies",
+    "companySlug": "arbor-biotechnologies",
+    "type": "Series B",
+    "amount": 200,
+    "currency": "USD",
+    "date": "2026-02-28",
+    "leadInvestor": "Temasek",
+    "quarter": "Q1 2026"
+  },
+  {
+    "company": "Cellarity",
+    "companySlug": "cellarity",
+    "type": "Series C",
+    "amount": 180,
+    "currency": "USD",
+    "date": "2026-03-05",
+    "leadInvestor": "Flagship Pioneering",
+    "quarter": "Q1 2026"
+  },
+  {
+    "company": "Nimbus Therapeutics",
+    "companySlug": "nimbus-therapeutics",
+    "type": "Series D",
+    "amount": 275,
+    "currency": "USD",
+    "date": "2026-03-18",
+    "leadInvestor": "BVF Partners",
+    "quarter": "Q1 2026"
+  },
+  {
+    "company": "Cargo Therapeutics",
+    "companySlug": "cargo-therapeutics",
+    "type": "IPO",
+    "amount": 225,
+    "currency": "USD",
+    "date": "2026-03-25",
+    "leadInvestor": "Morgan Stanley",
+    "quarter": "Q1 2026"
+  },
+  {
+    "company": "Verve Therapeutics",
+    "companySlug": "verve-therapeutics",
+    "type": "Public Offering",
+    "amount": 325,
+    "currency": "USD",
+    "date": "2026-04-12",
+    "leadInvestor": "JP Morgan",
+    "quarter": "Q2 2026"
+  },
+  {
+    "company": "Ginkgo Bioworks",
+    "companySlug": "ginkgo-bioworks",
+    "type": "Public Offering",
+    "amount": 400,
+    "currency": "USD",
+    "date": "2026-04-20",
+    "leadInvestor": "Citigroup",
+    "quarter": "Q2 2026"
+  },
+  {
+    "company": "Neumora Therapeutics",
+    "companySlug": "neumora-therapeutics",
+    "type": "Series C",
+    "amount": 220,
+    "currency": "USD",
+    "date": "2026-05-05",
+    "leadInvestor": "ARCH Venture Partners",
+    "quarter": "Q2 2026"
+  },
+  {
+    "company": "Tessera Therapeutics",
+    "companySlug": "tessera-therapeutics",
+    "type": "Series D",
+    "amount": 300,
+    "currency": "USD",
+    "date": "2026-05-18",
+    "leadInvestor": "Flagship Pioneering",
+    "quarter": "Q2 2026"
+  },
+  {
+    "company": "Maze Therapeutics",
+    "companySlug": "maze-therapeutics",
+    "type": "Series C",
+    "amount": 190,
+    "currency": "USD",
+    "date": "2026-06-01",
+    "leadInvestor": "Third Rock Ventures",
+    "quarter": "Q2 2026"
+  },
+  {
+    "company": "FogPharma",
+    "companySlug": "fogpharma",
+    "type": "Series E",
+    "amount": 280,
+    "currency": "USD",
+    "date": "2026-06-15",
+    "leadInvestor": "Viking Global Investors",
+    "quarter": "Q2 2026"
+  },
+  {
+    "company": "ReCode Therapeutics",
+    "companySlug": "recode-therapeutics",
+    "type": "Series C",
+    "amount": 200,
+    "currency": "USD",
+    "date": "2026-06-30",
+    "leadInvestor": "OrbiMed",
+    "quarter": "Q2 2026"
+  },
+  {
+    "company": "Relay Therapeutics",
+    "companySlug": "relay-therapeutics",
+    "type": "Public Offering",
+    "amount": 350,
+    "currency": "USD",
+    "date": "2026-07-10",
+    "leadInvestor": "BofA Securities",
+    "quarter": "Q3 2026"
+  },
+  {
+    "company": "Century Therapeutics",
+    "companySlug": "century-therapeutics",
+    "type": "Series C",
+    "amount": 175,
+    "currency": "USD",
+    "date": "2026-07-22",
+    "leadInvestor": "Versant Ventures",
+    "quarter": "Q3 2026"
+  },
+  {
+    "company": "NexImmune",
+    "companySlug": "neximmune",
+    "type": "Series B",
+    "amount": 120,
+    "currency": "USD",
+    "date": "2026-08-05",
+    "leadInvestor": "Sofinnova Partners",
+    "quarter": "Q3 2026"
+  },
+  {
+    "company": "Immunocore",
+    "companySlug": "immunocore",
+    "type": "Public Offering",
+    "amount": 275,
+    "currency": "USD",
+    "date": "2026-08-18",
+    "leadInvestor": "Barclays",
+    "quarter": "Q3 2026"
+  },
+  {
+    "company": "Beam Therapeutics",
+    "companySlug": "beam-therapeutics",
+    "type": "Public Offering",
+    "amount": 380,
+    "currency": "USD",
+    "date": "2026-09-02",
+    "leadInvestor": "Jefferies",
+    "quarter": "Q3 2026"
+  },
+  {
+    "company": "Shape Therapeutics",
+    "companySlug": "shape-therapeutics",
+    "type": "Series B",
+    "amount": 150,
+    "currency": "USD",
+    "date": "2026-09-15",
+    "leadInvestor": "New Enterprise Associates",
+    "quarter": "Q3 2026"
+  },
+  {
+    "company": "Moderna",
+    "companySlug": "moderna",
+    "type": "Public Offering",
+    "amount": 750,
+    "currency": "USD",
+    "date": "2026-10-05",
+    "leadInvestor": "Morgan Stanley",
+    "quarter": "Q4 2026"
+  },
+  {
+    "company": "BioNTech",
+    "companySlug": "biontech",
+    "type": "Public Offering",
+    "amount": 650,
+    "currency": "USD",
+    "date": "2026-10-20",
+    "leadInvestor": "Deutsche Bank",
+    "quarter": "Q4 2026"
+  },
+  {
+    "company": "10x Genomics",
+    "companySlug": "10x-genomics",
+    "type": "Public Offering",
+    "amount": 450,
+    "currency": "USD",
+    "date": "2026-11-03",
+    "leadInvestor": "Goldman Sachs",
+    "quarter": "Q4 2026"
+  },
+  {
+    "company": "Insitro",
+    "companySlug": "insitro",
+    "type": "Series D",
+    "amount": 320,
+    "currency": "USD",
+    "date": "2026-11-15",
+    "leadInvestor": "Andreessen Horowitz Bio",
+    "quarter": "Q4 2026"
+  },
+  {
+    "company": "Eikon Therapeutics",
+    "companySlug": "eikon-therapeutics",
+    "type": "Series C",
+    "amount": 275,
+    "currency": "USD",
+    "date": "2026-11-30",
+    "leadInvestor": "Lux Capital",
+    "quarter": "Q4 2026"
+  },
+  {
+    "company": "Alltrna",
+    "companySlug": "alltrna",
+    "type": "Series B",
+    "amount": 180,
+    "currency": "USD",
+    "date": "2026-12-10",
+    "leadInvestor": "Flagship Pioneering",
+    "quarter": "Q4 2026"
+  },
+  {
+    "company": "Prime Medicine",
+    "companySlug": "prime-medicine",
+    "type": "Public Offering",
+    "amount": 300,
+    "currency": "USD",
+    "date": "2026-12-18",
+    "leadInvestor": "JP Morgan",
+    "quarter": "Q4 2026"
+  }
+]

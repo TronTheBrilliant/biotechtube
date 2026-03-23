@@ -4,24 +4,19 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
-import { RecentlyFunded } from "@/components/RecentlyFunded";
 import { PaywallCard } from "@/components/PaywallCard";
 import { InvestmentChart } from "@/components/InvestmentChart";
-import { Company, FundingRound } from "@/lib/types";
-import fundingData from "@/data/funding.json";
-import companiesData from "@/data/companies.json";
-import { formatCurrency } from "@/lib/formatting";
+import fundingHistorical from "@/data/funding-historical.json";
 
-interface FundingRow {
-  companySlug: string;
+interface HistoricalRound {
   company: string;
+  companySlug: string;
   type: string;
   amount: number;
   currency: string;
   date: string;
   leadInvestor: string;
-  country: string;
-  flag: string;
+  quarter: string;
 }
 
 const roundBadgeColors: Record<string, { bg: string; text: string }> = {
@@ -29,40 +24,24 @@ const roundBadgeColors: Record<string, { bg: string; text: string }> = {
   "Series A": { bg: "#eff6ff", text: "#1d4ed8" },
   "Series B": { bg: "#f5f3ff", text: "#5b21b6" },
   "Series C": { bg: "#fef3e2", text: "#b45309" },
+  "Series D": { bg: "#fef3e2", text: "#92400e" },
   Grant: { bg: "#e8f5f0", text: "#0a3d2e" },
   Public: { bg: "#f7f7f6", text: "#6b6b65" },
   "Public Offering": { bg: "#f7f7f6", text: "#6b6b65" },
   "Follow-on": { bg: "#f7f7f6", text: "#6b6b65" },
+  IPO: { bg: "#fef9c3", text: "#854d0e" },
+  Mega: { bg: "#fce7f3", text: "#9d174d" },
 };
 
-const jsonRounds: FundingRow[] = fundingData.map((r) => {
-  const company = companiesData.find((c) => c.slug === r.companySlug);
-  return {
-    companySlug: r.companySlug,
-    company: company?.name || r.companySlug,
-    type: r.type,
-    amount: r.amount,
-    currency: r.currency,
-    date: r.date,
-    leadInvestor: r.leadInvestor || "Undisclosed",
-    country: company?.country || "Norway",
-    flag: "\u{1F1F3}\u{1F1F4}",
-  };
-});
-
-const extraRounds: FundingRow[] = [
-  { companySlug: "biovica", company: "Biovica International", type: "Series C", amount: 22000000, currency: "USD", date: "2026-01-10", leadInvestor: "HealthCap", country: "Sweden", flag: "\u{1F1F8}\u{1F1EA}" },
-  { companySlug: "immunovia", company: "Immunovia AB", type: "Series B", amount: 15000000, currency: "USD", date: "2025-12-15", leadInvestor: "Novo Seeds", country: "Sweden", flag: "\u{1F1F8}\u{1F1EA}" },
-  { companySlug: "bavarian-nordic", company: "Bavarian Nordic", type: "Public Offering", amount: 45000000, currency: "USD", date: "2025-11-20", leadInvestor: "Public markets", country: "Denmark", flag: "\u{1F1E9}\u{1F1F0}" },
-  { companySlug: "evotec", company: "Evotec SE", type: "Grant", amount: 5000000, currency: "EUR", date: "2025-11-05", leadInvestor: "EU Horizon", country: "Germany", flag: "\u{1F1E9}\u{1F1EA}" },
-];
-
-const allRounds: FundingRow[] = [...jsonRounds, ...extraRounds].sort(
+const allRounds = (fundingHistorical as HistoricalRound[]).sort(
   (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
 );
 
-const roundTypes = ["All", "Seed", "Series A", "Series B", "Series C", "Grant", "Public"];
-const countries = ["All", ...Array.from(new Set(allRounds.map((r) => r.country)))];
+const totalRaisedM = allRounds.reduce((sum, r) => sum + r.amount, 0);
+const largestRound = allRounds.reduce((max, r) => (r.amount > max.amount ? r : max), allRounds[0]);
+const uniqueCompanies = new Set(allRounds.map((r) => r.companySlug)).size;
+
+const roundTypes = ["All", ...Array.from(new Set(allRounds.map((r) => r.type)))];
 const dateRanges = ["All time", "Last 30 days", "Last 90 days", "Last 12 months"];
 
 function formatDate(dateStr: string) {
@@ -72,7 +51,6 @@ function formatDate(dateStr: string) {
 
 export default function FundingPage() {
   const [roundFilter, setRoundFilter] = useState("All");
-  const [countryFilter, setCountryFilter] = useState("All");
   const [dateFilter, setDateFilter] = useState("All time");
 
   const filtered = useMemo(() => {
@@ -82,7 +60,6 @@ export default function FundingPage() {
           if (r.type !== "Public" && r.type !== "Public Offering") return false;
         } else if (r.type !== roundFilter) return false;
       }
-      if (countryFilter !== "All" && r.country !== countryFilter) return false;
       if (dateFilter !== "All time") {
         const now = new Date();
         const d = new Date(r.date);
@@ -93,7 +70,7 @@ export default function FundingPage() {
       }
       return true;
     });
-  }, [roundFilter, countryFilter, dateFilter]);
+  }, [roundFilter, dateFilter]);
 
   const selectStyle: React.CSSProperties = {
     background: "var(--color-bg-secondary)",
@@ -120,17 +97,17 @@ export default function FundingPage() {
             Biotech Funding Tracker
           </h1>
           <p className="text-13" style={{ color: "var(--color-text-secondary)" }}>
-            Live investment data from public sources
+            {allRounds.length} funding rounds tracked across {uniqueCompanies} companies
           </p>
         </div>
 
         {/* Summary stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           {[
-            { label: "TOTAL TRACKED YTD", value: "$340M" },
-            { label: "LARGEST ROUND", value: "$18M (Oncoinvent)" },
-            { label: "MOST ACTIVE CITY", value: "Oslo" },
-            { label: "AVERAGE ROUND SIZE", value: "$12.5M" },
+            { label: "TOTAL TRACKED", value: `$${(totalRaisedM / 1000).toFixed(1)}B` },
+            { label: "LARGEST ROUND", value: `$${largestRound.amount}M (${largestRound.company})` },
+            { label: "TOTAL ROUNDS", value: `${allRounds.length}` },
+            { label: "COMPANIES", value: `${uniqueCompanies}` },
           ].map((stat) => (
             <div
               key={stat.label}
@@ -185,17 +162,6 @@ export default function FundingPage() {
                 ))}
               </select>
               <select
-                value={countryFilter}
-                onChange={(e) => setCountryFilter(e.target.value)}
-                style={selectStyle}
-              >
-                {countries.map((c) => (
-                  <option key={c} value={c}>
-                    {c === "All" ? "All countries" : c}
-                  </option>
-                ))}
-              </select>
-              <select
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
                 style={selectStyle}
@@ -206,6 +172,12 @@ export default function FundingPage() {
                   </option>
                 ))}
               </select>
+              <span
+                className="text-12"
+                style={{ color: "var(--color-text-tertiary)" }}
+              >
+                {filtered.length} results
+              </span>
             </div>
 
             {/* Funding table */}
@@ -232,7 +204,7 @@ export default function FundingPage() {
                 <span className="text-10 uppercase tracking-[0.5px] font-medium" style={{ color: "var(--color-text-tertiary)" }}>Amount</span>
                 <span className="text-10 uppercase tracking-[0.5px] font-medium hidden min-[480px]:block" style={{ color: "var(--color-text-tertiary)" }}>Lead Investor</span>
                 <span className="text-10 uppercase tracking-[0.5px] font-medium hidden min-[480px]:block" style={{ color: "var(--color-text-tertiary)" }}>Date</span>
-                <span className="text-10 uppercase tracking-[0.5px] font-medium" style={{ color: "var(--color-text-tertiary)" }}>Country</span>
+                <span className="text-10 uppercase tracking-[0.5px] font-medium" style={{ color: "var(--color-text-tertiary)" }}>Quarter</span>
               </div>
 
               {/* Table rows */}
@@ -273,7 +245,7 @@ export default function FundingPage() {
                         </span>
                       </span>
                       <span className="text-12 font-medium" style={{ color: "var(--color-text-primary)" }}>
-                        {formatCurrency(row.amount, row.currency)}
+                        ${row.amount}M
                       </span>
                       <span className="text-12 hidden min-[480px]:block" style={{ color: "var(--color-text-secondary)" }}>
                         {row.leadInvestor}
@@ -281,29 +253,18 @@ export default function FundingPage() {
                       <span className="text-12 hidden min-[480px]:block" style={{ color: "var(--color-text-tertiary)" }}>
                         {formatDate(row.date)}
                       </span>
-                      <span className="text-12">
-                        {row.flag}
+                      <span className="text-12" style={{ color: "var(--color-text-tertiary)" }}>
+                        {row.quarter}
                       </span>
                     </div>
                   );
                 })}
-
-                {/* Paywall overlay — disabled */}
               </div>
             </div>
           </div>
 
           {/* Sidebar */}
           <div className="hidden lg:block" style={{ width: 260, flexShrink: 0 }}>
-            <div
-              className="rounded-lg overflow-hidden mb-4"
-              style={{
-                border: "0.5px solid var(--color-border-subtle)",
-                background: "var(--color-bg-secondary)",
-              }}
-            >
-              <RecentlyFunded funding={fundingData as FundingRound[]} companies={companiesData as Company[]} />
-            </div>
             <PaywallCard />
           </div>
         </div>

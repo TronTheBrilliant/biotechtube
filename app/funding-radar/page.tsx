@@ -1,21 +1,21 @@
+"use client";
+
+import { useState, useMemo } from "react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
-import { formatCurrency } from "@/lib/formatting";
-import Link from "next/link";
-import fundingData from "@/data/funding.json";
-import companiesData from "@/data/companies.json";
 
-interface FundingRound {
-  companySlug: string;
+import Link from "next/link";
+import fundingHistorical from "@/data/funding-historical.json";
+
+interface HistoricalRound {
   company: string;
+  companySlug: string;
   type: string;
   amount: number;
   currency: string;
   date: string;
   leadInvestor: string;
-  country: string;
-  flag: string;
-  daysAgo: number;
+  quarter: string;
 }
 
 const roundBadgeColors: Record<string, { bg: string; text: string }> = {
@@ -23,91 +23,24 @@ const roundBadgeColors: Record<string, { bg: string; text: string }> = {
   "Series A": { bg: "#eff6ff", text: "#1d4ed8" },
   "Series B": { bg: "#f5f3ff", text: "#5b21b6" },
   "Series C": { bg: "#fef3e2", text: "#b45309" },
+  "Series D": { bg: "#fef3e2", text: "#92400e" },
   Grant: { bg: "#e8f5f0", text: "#0a3d2e" },
   Public: { bg: "#f7f7f6", text: "#6b6b65" },
   "Public Offering": { bg: "#f7f7f6", text: "#6b6b65" },
   "Follow-on": { bg: "#f7f7f6", text: "#6b6b65" },
+  IPO: { bg: "#fef9c3", text: "#854d0e" },
+  Mega: { bg: "#fce7f3", text: "#9d174d" },
 };
 
-const jsonRounds: FundingRound[] = fundingData.map((r) => {
-  const company = (companiesData as { slug: string; name: string; country?: string }[]).find(
-    (c) => c.slug === r.companySlug
-  );
-  const now = new Date();
-  const d = new Date(r.date);
-  const diffDays = Math.round(
-    (now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24)
-  );
-  return {
-    companySlug: r.companySlug,
-    company: company?.name || r.companySlug,
-    type: r.type,
-    amount: r.amount,
-    currency: r.currency,
-    date: r.date,
-    leadInvestor: (r as Record<string, unknown>).leadInvestor as string || "Undisclosed",
-    country: company?.country || "Norway",
-    flag: "\u{1F1F3}\u{1F1F4}",
-    daysAgo: diffDays,
-  };
-});
-
-const extraRounds: FundingRound[] = [
-  {
-    companySlug: "biovica",
-    company: "Biovica International",
-    type: "Series C",
-    amount: 22000000,
-    currency: "USD",
-    date: "2026-01-10",
-    leadInvestor: "HealthCap",
-    country: "Sweden",
-    flag: "\u{1F1F8}\u{1F1EA}",
-    daysAgo: 72,
-  },
-  {
-    companySlug: "immunovia",
-    company: "Immunovia AB",
-    type: "Series B",
-    amount: 15000000,
-    currency: "USD",
-    date: "2025-12-15",
-    leadInvestor: "Novo Seeds",
-    country: "Sweden",
-    flag: "\u{1F1F8}\u{1F1EA}",
-    daysAgo: 98,
-  },
-  {
-    companySlug: "bavarian-nordic",
-    company: "Bavarian Nordic",
-    type: "Public Offering",
-    amount: 45000000,
-    currency: "USD",
-    date: "2025-11-20",
-    leadInvestor: "Public markets",
-    country: "Denmark",
-    flag: "\u{1F1E9}\u{1F1F0}",
-    daysAgo: 123,
-  },
-  {
-    companySlug: "evotec",
-    company: "Evotec SE",
-    type: "Grant",
-    amount: 5000000,
-    currency: "EUR",
-    date: "2025-11-05",
-    leadInvestor: "EU Horizon",
-    country: "Germany",
-    flag: "\u{1F1E9}\u{1F1EA}",
-    daysAgo: 138,
-  },
-];
-
-const allRounds: FundingRound[] = [...jsonRounds, ...extraRounds].sort(
+const allRounds = (fundingHistorical as HistoricalRound[]).sort(
   (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
 );
 
-const totalRaised = allRounds.reduce((sum, r) => sum + r.amount, 0);
+const totalRaisedM = allRounds.reduce((sum, r) => sum + r.amount, 0);
+const uniqueCompanies = new Set(allRounds.map((r) => r.companySlug)).size;
+const largestRound = allRounds.reduce((max, r) => (r.amount > max.amount ? r : max), allRounds[0]);
+
+const PAGE_SIZE = 20;
 
 function formatDate(dateStr: string) {
   const d = new Date(dateStr);
@@ -119,6 +52,14 @@ function formatDate(dateStr: string) {
 }
 
 export default function FundingRadarPage() {
+  const [page, setPage] = useState(0);
+
+  const totalPages = Math.ceil(allRounds.length / PAGE_SIZE);
+  const pageRounds = useMemo(
+    () => allRounds.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE),
+    [page]
+  );
+
   return (
     <div
       className="page-content"
@@ -173,7 +114,35 @@ export default function FundingRadarPage() {
               className="text-[13px] font-semibold"
               style={{ color: "var(--color-accent)" }}
             >
-              {formatCurrency(totalRaised, "USD")}
+              ${(totalRaisedM / 1000).toFixed(1)}B
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span
+              className="text-[13px]"
+              style={{ color: "var(--color-text-tertiary)" }}
+            >
+              Companies
+            </span>
+            <span
+              className="text-[13px] font-semibold"
+              style={{ color: "var(--color-text-primary)" }}
+            >
+              {uniqueCompanies}
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span
+              className="text-[13px]"
+              style={{ color: "var(--color-text-tertiary)" }}
+            >
+              Largest round
+            </span>
+            <span
+              className="text-[13px] font-semibold"
+              style={{ color: "var(--color-text-primary)" }}
+            >
+              ${largestRound.amount}M ({largestRound.company})
             </span>
           </div>
         </div>
@@ -230,12 +199,12 @@ export default function FundingRadarPage() {
                     className="text-left text-10 font-medium px-3 py-2"
                     style={{ color: "var(--color-text-tertiary)" }}
                   >
-                    Country
+                    Quarter
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {allRounds.map((row, i) => {
+                {pageRounds.map((row, i) => {
                   const badge =
                     roundBadgeColors[row.type] || roundBadgeColors.Seed;
                   return (
@@ -271,7 +240,7 @@ export default function FundingRadarPage() {
                         className="text-right text-12 px-3 py-2 font-medium"
                         style={{ color: "var(--color-text-primary)" }}
                       >
-                        {formatCurrency(row.amount, row.currency)}
+                        ${row.amount}M
                       </td>
                       <td
                         className="px-3 py-2 text-12"
@@ -285,8 +254,11 @@ export default function FundingRadarPage() {
                       >
                         {formatDate(row.date)}
                       </td>
-                      <td className="px-3 py-2 text-12">
-                        <span>{row.flag}</span>
+                      <td
+                        className="px-3 py-2 text-12"
+                        style={{ color: "var(--color-text-tertiary)" }}
+                      >
+                        {row.quarter}
                       </td>
                     </tr>
                   );
@@ -322,6 +294,55 @@ export default function FundingRadarPage() {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div
+              className="flex items-center justify-between px-4 py-3"
+              style={{ borderTop: "0.5px solid var(--color-border-subtle)" }}
+            >
+              <span
+                className="text-12"
+                style={{ color: "var(--color-text-tertiary)" }}
+              >
+                Showing {page * PAGE_SIZE + 1}&ndash;
+                {Math.min((page + 1) * PAGE_SIZE, allRounds.length)} of{" "}
+                {allRounds.length} rounds
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                  disabled={page === 0}
+                  className="text-12 font-medium px-3 py-1.5 rounded-md transition-colors disabled:opacity-40"
+                  style={{
+                    background: "var(--color-bg-tertiary)",
+                    color: "var(--color-text-primary)",
+                    border: "0.5px solid var(--color-border-medium)",
+                  }}
+                >
+                  Previous
+                </button>
+                <span
+                  className="text-12"
+                  style={{ color: "var(--color-text-secondary)" }}
+                >
+                  {page + 1} / {totalPages}
+                </span>
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                  disabled={page >= totalPages - 1}
+                  className="text-12 font-medium px-3 py-1.5 rounded-md transition-colors disabled:opacity-40"
+                  style={{
+                    background: "var(--color-bg-tertiary)",
+                    color: "var(--color-text-primary)",
+                    border: "0.5px solid var(--color-border-medium)",
+                  }}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

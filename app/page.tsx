@@ -25,6 +25,7 @@ import SciencePapers from "@/components/home/SciencePapers";
 import OpenPositions from "@/components/home/OpenPositions";
 
 import fundingData from "@/data/funding.json";
+import fundingQuarterly from "@/data/funding-quarterly.json";
 import eventsData from "@/data/events.json";
 
 export const revalidate = 300;
@@ -433,7 +434,7 @@ export default async function HomePage() {
 
         {/* Funding Season Chart — full width */}
         <HomeSection icon="💰" title="Funding Season" viewAllHref="/funding" viewAllLabel="View all">
-          <FundingChart data={[]} />
+          <FundingChart data={fundingQuarterly} />
         </HomeSection>
 
         {/* Row 3: Funding Radar + Events */}

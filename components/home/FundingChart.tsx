@@ -19,5 +19,15 @@ export default function FundingChart({ data }: { data: FundingPoint[] }) {
     );
   }
 
-  return <FundingBarChart data={data} height={200} />;
+  return (
+    <div>
+      <p
+        className="text-12 mb-2"
+        style={{ color: "var(--color-text-tertiary)" }}
+      >
+        Total: $59.7B tracked since 2020
+      </p>
+      <FundingBarChart data={data} height={200} />
+    </div>
+  );
 }
