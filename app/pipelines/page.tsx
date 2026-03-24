@@ -26,6 +26,7 @@ function getSupabase() {
 
 export interface PipelineRow {
   id: string;
+  slug: string | null;
   company_id: string;
   company_name: string;
   product_name: string;
@@ -79,7 +80,7 @@ async function getPipelineRows(): Promise<PipelineRow[]> {
     const { data, error } = await supabase
       .from("pipelines")
       .select(
-        "id, company_id, company_name, product_name, indication, stage, nct_id, trial_status, conditions, start_date, completion_date"
+        "id, slug, company_id, company_name, product_name, indication, stage, nct_id, trial_status, conditions, start_date, completion_date"
       )
       .order("stage", { ascending: true })
       .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
@@ -126,6 +127,7 @@ async function getPipelineRows(): Promise<PipelineRow[]> {
     const company = companyMap.get(r.company_id as string);
     return {
       id: r.id as string,
+      slug: r.slug as string | null,
       company_id: r.company_id as string,
       company_name: r.company_name as string,
       product_name: r.product_name as string,

@@ -42,6 +42,7 @@ export interface ProductScoreRow {
   stage: string | null;
   trial_status: string | null;
   company_name: string | null;
+  product_slug: string | null;
   // Joined from companies
   company_slug: string | null;
   company_logo_url: string | null;
@@ -92,14 +93,14 @@ async function getProductScores(): Promise<ProductScoreRow[]> {
   const pipelineIds = allData.map((d) => d.pipeline_id as string);
   const pipelineMap = new Map<
     string,
-    { indication: string | null; stage: string | null; trial_status: string | null; company_name: string; company_id: string | null }
+    { indication: string | null; stage: string | null; trial_status: string | null; company_name: string; company_id: string | null; slug: string | null }
   >();
 
   for (let i = 0; i < pipelineIds.length; i += 500) {
     const batch = pipelineIds.slice(i, i + 500);
     const { data: pipelines } = await supabase
       .from("pipelines")
-      .select("id, indication, stage, trial_status, company_name, company_id")
+      .select("id, indication, stage, trial_status, company_name, company_id, slug")
       .in("id", batch);
     if (pipelines) {
       for (const p of pipelines) {
@@ -150,6 +151,7 @@ async function getProductScores(): Promise<ProductScoreRow[]> {
       stage: pipeline?.stage ?? null,
       trial_status: pipeline?.trial_status ?? null,
       company_name: pipeline?.company_name ?? null,
+      product_slug: pipeline?.slug ?? null,
       company_slug: company?.slug ?? null,
       company_logo_url: company?.logo_url ?? null,
       company_website: company?.website ?? null,

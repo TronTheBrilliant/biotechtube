@@ -22,6 +22,7 @@ interface ProductScoreRow {
   stage: string | null;
   trial_status: string | null;
   company_name: string | null;
+  product_slug: string | null;
   company_slug: string | null;
   company_logo_url: string | null;
   company_website: string | null;
@@ -450,7 +451,9 @@ export function ProductsPageClient({ rows }: Props) {
                     <span className="text-[11px]">{hype.emoji}</span>
                     <Link
                       href={
-                        row.company_slug
+                        row.product_slug
+                          ? `/product/${row.product_slug}?ref=products`
+                          : row.company_slug
                           ? `/company/${row.company_slug}`
                           : "#"
                       }
@@ -489,7 +492,7 @@ export function ProductsPageClient({ rows }: Props) {
                     className="text-12 truncate hover:underline"
                     style={{ color: "var(--color-text-secondary)" }}
                   >
-                    {row.company_name || "—"}
+                    {row.company_name || "\u2014"}
                   </Link>
                 </div>
 
@@ -528,7 +531,9 @@ export function ProductsPageClient({ rows }: Props) {
                       <span className="text-[11px]">{hype.emoji}</span>
                       <Link
                         href={
-                          row.company_slug
+                          row.product_slug
+                            ? `/product/${row.product_slug}?ref=products`
+                            : row.company_slug
                             ? `/company/${row.company_slug}`
                             : "#"
                         }

@@ -25,6 +25,7 @@ import { PipelineWatchButton } from "@/components/PipelineWatchButton";
 /* ─── Types for enriched data ─── */
 interface PipelineRow {
   id: string;
+  slug: string | null;
   product_name: string;
   indication: string;
   stage: string;
@@ -704,7 +705,7 @@ export function CompanyPageClient({
                       <tbody>
                         {sortedPipelines.slice(0, 5).map((p) => (
                           <tr key={p.id} style={{ borderBottom: "1px solid var(--color-border-subtle)" }}>
-                            <td className="px-3 py-2 font-medium" style={{ color: "var(--color-text-primary)" }} title={p.product_name}>{p.product_name.length > 80 ? p.product_name.slice(0, 80) + "..." : p.product_name}</td>
+                            <td className="px-3 py-2 font-medium" style={{ color: "var(--color-text-primary)" }} title={p.product_name}>{p.slug ? <Link href={`/product/${p.slug}?ref=company_page`} className="hover:underline" style={{ color: "var(--color-text-primary)" }}>{p.product_name.length > 80 ? p.product_name.slice(0, 80) + "..." : p.product_name}</Link> : (p.product_name.length > 80 ? p.product_name.slice(0, 80) + "..." : p.product_name)}</td>
                             <td className="px-3 py-2" style={{ color: "var(--color-text-secondary)" }}>{p.indication}</td>
                             <td className="px-3 py-2"><StageBadge stage={p.stage} /></td>
                             <td className="px-2 py-2"><PipelineWatchButton pipelineId={p.id} size={13} /></td>
@@ -870,7 +871,7 @@ export function CompanyPageClient({
                   <tbody>
                     {(showAllPipeline ? sortedPipelines : sortedPipelines.slice(0, 15)).map((p) => (
                       <tr key={p.id} style={{ borderBottom: "1px solid var(--color-border-subtle)" }}>
-                        <td className="px-3 py-2.5 font-medium" style={{ color: "var(--color-text-primary)" }} title={p.product_name}>{p.product_name.length > 80 ? p.product_name.slice(0, 80) + "..." : p.product_name}</td>
+                        <td className="px-3 py-2.5 font-medium" style={{ color: "var(--color-text-primary)" }} title={p.product_name}>{p.slug ? <Link href={`/product/${p.slug}?ref=company_page`} className="hover:underline" style={{ color: "var(--color-text-primary)" }}>{p.product_name.length > 80 ? p.product_name.slice(0, 80) + "..." : p.product_name}</Link> : (p.product_name.length > 80 ? p.product_name.slice(0, 80) + "..." : p.product_name)}</td>
                         <td className="px-3 py-2.5" style={{ color: "var(--color-text-secondary)" }}>{p.indication}</td>
                         <td className="px-3 py-2.5"><StageBadge stage={p.stage} /></td>
                         <td className="px-3 py-2.5" style={{ color: "var(--color-text-secondary)" }}>{p.trial_status || "—"}</td>

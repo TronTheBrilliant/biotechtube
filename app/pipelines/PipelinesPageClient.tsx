@@ -7,6 +7,7 @@ import { PipelineWatchButton } from "@/components/PipelineWatchButton";
 
 interface PipelineRow {
   id: string;
+  slug: string | null;
   company_id: string;
   company_name: string;
   product_name: string;
@@ -315,12 +316,22 @@ export function PipelinesPageClient({ stats, rows }: Props) {
                 >
                   {/* Product + Company (mobile) */}
                   <td className="px-4 py-3">
-                    <span
-                      className="text-[14px] font-semibold block"
-                      style={{ color: "var(--color-text-primary)" }}
-                    >
-                      {row.product_name || "Unnamed"}
-                    </span>
+                    {row.slug ? (
+                      <Link
+                        href={`/product/${row.slug}?ref=pipelines`}
+                        className="text-[14px] font-semibold block hover:underline"
+                        style={{ color: "var(--color-text-primary)" }}
+                      >
+                        {row.product_name || "Unnamed"}
+                      </Link>
+                    ) : (
+                      <span
+                        className="text-[14px] font-semibold block"
+                        style={{ color: "var(--color-text-primary)" }}
+                      >
+                        {row.product_name || "Unnamed"}
+                      </span>
+                    )}
                     {/* Show company on mobile under product name */}
                     <span
                       className="text-[12px] sm:hidden block mt-0.5"
