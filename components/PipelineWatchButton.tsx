@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Heart, Plus, Check, Loader2 } from "lucide-react";
+import { Bookmark, Plus, Check, Loader2 } from "lucide-react";
 import { createBrowserClient } from "@/lib/supabase";
 import { useUser } from "@/lib/auth";
 import {
@@ -9,19 +9,19 @@ import {
   type WatchlistCollection,
 } from "@/lib/useWatchlistCollections";
 
-interface WatchlistButtonProps {
-  companyId: string;
+interface PipelineWatchButtonProps {
+  pipelineId: string;
   size?: number;
   showLabel?: boolean;
 }
 
 const supabase = createBrowserClient();
 
-export function WatchlistButton({
-  companyId,
-  size = 18,
+export function PipelineWatchButton({
+  pipelineId,
+  size = 16,
   showLabel = false,
-}: WatchlistButtonProps) {
+}: PipelineWatchButtonProps) {
   const { user } = useUser();
   const { collections, ensureDefault, createCollection } =
     useWatchlistCollections();
@@ -35,16 +35,16 @@ export function WatchlistButton({
 
   const isWatched = memberOf.size > 0;
 
-  // Fetch which collections this company belongs to
+  // Fetch which collections this pipeline belongs to
   useEffect(() => {
-    if (!user || !companyId) return;
+    if (!user || !pipelineId) return;
 
     async function check() {
       const { data } = await supabase
-        .from("user_watchlist")
+        .from("user_pipeline_watchlist")
         .select("collection_id")
         .eq("user_id", user!.id)
-        .eq("company_id", companyId);
+        .eq("pipeline_id", pipelineId);
 
       if (data) {
         setMemberOf(
@@ -58,15 +58,12 @@ export function WatchlistButton({
     }
 
     check();
-  }, [user, companyId, collections]);
+  }, [user, pipelineId, collections]);
 
   // Close picker on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (
-        pickerRef.current &&
-        !pickerRef.current.contains(e.target as Node)
-      ) {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
         setShowPicker(false);
         setNewListName("");
       }
@@ -82,14 +79,13 @@ export function WatchlistButton({
       return;
     }
 
-    // If not watched at all, quick-add to default collection
     if (!isWatched) {
       setLoading(true);
       const def = await ensureDefault();
       if (def) {
-        await supabase.from("user_watchlist").insert({
+        await supabase.from("user_pipeline_watchlist").insert({
           user_id: user.id,
-          company_id: companyId,
+          pipeline_id: pipelineId,
           collection_id: def.id,
         });
         setMemberOf(new Set([def.id]));
@@ -98,9 +94,8 @@ export function WatchlistButton({
       return;
     }
 
-    // If already watched, show picker to manage
     setShowPicker((prev) => !prev);
-  }, [user, isWatched, companyId, ensureDefault]);
+  }, [user, isWatched, pipelineId, ensureDefault]);
 
   const toggleCollection = useCallback(
     async (col: WatchlistCollection) => {
@@ -109,10 +104,10 @@ export function WatchlistButton({
 
       if (inCol) {
         await supabase
-          .from("user_watchlist")
+          .from("user_pipeline_watchlist")
           .delete()
           .eq("user_id", user.id)
-          .eq("company_id", companyId)
+          .eq("pipeline_id", pipelineId)
           .eq("collection_id", col.id);
         setMemberOf((prev) => {
           const next = new Set(prev);
@@ -120,35 +115,32 @@ export function WatchlistButton({
           return next;
         });
       } else {
-        await supabase.from("user_watchlist").insert({
+        await supabase.from("user_pipeline_watchlist").insert({
           user_id: user.id,
-          company_id: companyId,
+          pipeline_id: pipelineId,
           collection_id: col.id,
         });
         setMemberOf((prev) => new Set(prev).add(col.id));
       }
     },
-    [user, companyId, memberOf]
+    [user, pipelineId, memberOf]
   );
 
   const handleCreateNew = useCallback(async () => {
     if (!newListName.trim() || creating) return;
     setCreating(true);
     const col = await createCollection(newListName.trim());
-    if (col) {
-      // Also add this company to the new collection
-      if (user) {
-        await supabase.from("user_watchlist").insert({
-          user_id: user.id,
-          company_id: companyId,
-          collection_id: col.id,
-        });
-        setMemberOf((prev) => new Set(prev).add(col.id));
-      }
+    if (col && user) {
+      await supabase.from("user_pipeline_watchlist").insert({
+        user_id: user.id,
+        pipeline_id: pipelineId,
+        collection_id: col.id,
+      });
+      setMemberOf((prev) => new Set(prev).add(col.id));
     }
     setNewListName("");
     setCreating(false);
-  }, [newListName, creating, createCollection, user, companyId]);
+  }, [newListName, creating, createCollection, user, pipelineId]);
 
   const openPicker = useCallback(
     async (e: React.MouseEvent) => {
@@ -158,7 +150,6 @@ export function WatchlistButton({
         setTimeout(() => setShowTooltip(false), 2500);
         return;
       }
-      // Ensure at least a default exists
       await ensureDefault();
       setShowPicker((prev) => !prev);
     },
@@ -170,21 +161,21 @@ export function WatchlistButton({
       <button
         onClick={handleMainClick}
         disabled={loading}
-        className="inline-flex items-center gap-1.5 rounded-lg transition-all duration-200"
+        className="inline-flex items-center gap-1 rounded-md transition-all duration-200"
         style={{
-          padding: showLabel ? "6px 12px" : "6px",
+          padding: showLabel ? "4px 8px" : "4px",
           background: isWatched
-            ? "rgba(239, 68, 68, 0.08)"
-            : "var(--color-bg-secondary)",
-          border: `1px solid ${isWatched ? "rgba(239, 68, 68, 0.2)" : "var(--color-border-subtle)"}`,
-          color: isWatched ? "#ef4444" : "var(--color-text-tertiary)",
+            ? "rgba(59, 130, 246, 0.08)"
+            : "transparent",
+          border: `1px solid ${isWatched ? "rgba(59, 130, 246, 0.2)" : "var(--color-border-subtle)"}`,
+          color: isWatched ? "#3b82f6" : "var(--color-text-tertiary)",
           opacity: loading ? 0.6 : 1,
           cursor: loading ? "wait" : "pointer",
         }}
         onMouseEnter={(e) => {
           if (!isWatched) {
-            e.currentTarget.style.borderColor = "rgba(239, 68, 68, 0.3)";
-            e.currentTarget.style.color = "#ef4444";
+            e.currentTarget.style.borderColor = "rgba(59, 130, 246, 0.3)";
+            e.currentTarget.style.color = "#3b82f6";
           }
         }}
         onMouseLeave={(e) => {
@@ -193,42 +184,41 @@ export function WatchlistButton({
             e.currentTarget.style.color = "var(--color-text-tertiary)";
           }
         }}
-        title={isWatched ? "Manage watchlists" : "Add to watchlist"}
+        title={isWatched ? "Manage watchlists" : "Watch this product"}
       >
         {loading ? (
           <Loader2 size={size} className="animate-spin" />
         ) : (
-          <Heart
+          <Bookmark
             size={size}
-            fill={isWatched ? "#ef4444" : "none"}
+            fill={isWatched ? "#3b82f6" : "none"}
             strokeWidth={isWatched ? 0 : 1.5}
           />
         )}
         {showLabel && (
-          <span className="text-[12px] font-medium">
-            {isWatched ? "Watching" : "Watch"}
+          <span className="text-[11px] font-medium">
+            {isWatched ? "Saved" : "Save"}
           </span>
         )}
       </button>
 
-      {/* Chevron/dropdown trigger for watched items */}
       {isWatched && (
         <button
           onClick={openPicker}
-          className="ml-[-1px] rounded-r-lg transition-all duration-200 flex items-center justify-center"
+          className="ml-[-1px] rounded-r-md transition-all duration-200 flex items-center justify-center"
           style={{
-            padding: "6px 4px",
-            background: "rgba(239, 68, 68, 0.08)",
-            border: "1px solid rgba(239, 68, 68, 0.2)",
+            padding: "4px 3px",
+            background: "rgba(59, 130, 246, 0.08)",
+            border: "1px solid rgba(59, 130, 246, 0.2)",
             borderLeft: "none",
-            color: "#ef4444",
+            color: "#3b82f6",
             cursor: "pointer",
           }}
           title="Choose watchlists"
         >
           <svg
-            width={10}
-            height={10}
+            width={9}
+            height={9}
             viewBox="0 0 10 10"
             fill="none"
             stroke="currentColor"
@@ -245,9 +235,9 @@ export function WatchlistButton({
           className="absolute z-50 mt-1 rounded-xl shadow-lg overflow-hidden"
           style={{
             top: "100%",
-            left: 0,
-            minWidth: 220,
-            maxWidth: 280,
+            right: 0,
+            minWidth: 210,
+            maxWidth: 260,
             background: "var(--color-bg-secondary)",
             border: "1px solid var(--color-border-subtle)",
             boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
@@ -283,8 +273,8 @@ export function WatchlistButton({
                 <span
                   className="flex items-center justify-center rounded shrink-0"
                   style={{
-                    width: 18,
-                    height: 18,
+                    width: 16,
+                    height: 16,
                     border: memberOf.has(col.id)
                       ? "none"
                       : "1.5px solid var(--color-border-medium)",
@@ -294,31 +284,22 @@ export function WatchlistButton({
                   }}
                 >
                   {memberOf.has(col.id) && (
-                    <Check size={12} color="#fff" strokeWidth={2.5} />
+                    <Check size={10} color="#fff" strokeWidth={2.5} />
                   )}
                 </span>
-                <span className="truncate">{col.name}</span>
-                {col.is_default && (
-                  <span
-                    className="text-[10px] ml-auto shrink-0"
-                    style={{ color: "var(--color-text-tertiary)" }}
-                  >
-                    default
-                  </span>
-                )}
+                <span className="truncate text-[12px]">{col.name}</span>
               </button>
             ))}
           </div>
 
-          {/* Create new list */}
           <div
             style={{ borderTop: "1px solid var(--color-border-subtle)" }}
             className="px-3 py-2"
           >
             <div className="flex items-center gap-1.5">
               <Plus
-                size={14}
-                style={{ color: "var(--color-text-tertiary)", shrink: 0 }}
+                size={13}
+                style={{ color: "var(--color-text-tertiary)" }}
               />
               <input
                 type="text"
@@ -327,8 +308,8 @@ export function WatchlistButton({
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleCreateNew();
                 }}
-                placeholder="New list name..."
-                className="flex-1 text-[12px] bg-transparent outline-none"
+                placeholder="New list..."
+                className="flex-1 text-[11px] bg-transparent outline-none"
                 style={{
                   color: "var(--color-text-primary)",
                   minWidth: 0,
@@ -338,7 +319,7 @@ export function WatchlistButton({
                 <button
                   onClick={handleCreateNew}
                   disabled={creating}
-                  className="text-[11px] font-medium px-2 py-0.5 rounded"
+                  className="text-[10px] font-medium px-2 py-0.5 rounded"
                   style={{
                     background: "var(--color-accent)",
                     color: "#fff",
@@ -373,7 +354,7 @@ export function WatchlistButton({
           >
             Sign in
           </a>{" "}
-          to watch companies
+          to watch products
         </div>
       )}
     </div>

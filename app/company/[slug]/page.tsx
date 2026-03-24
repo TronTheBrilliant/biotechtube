@@ -138,6 +138,38 @@ async function getPatents(companyId: string): Promise<any[]> {
   return data || [];
 }
 
+async function getCompanyClaim(companyId: string) {
+  const supabase = getSupabase();
+  const { data } = await supabase
+    .from('company_claims')
+    .select('id, status, plan, verified_at')
+    .eq('company_id', companyId)
+    .eq('status', 'verified')
+    .single();
+  return data || null;
+}
+
+async function getCompanyTeam(companyId: string) {
+  const supabase = getSupabase();
+  const { data } = await supabase
+    .from('company_team')
+    .select('id, name, title, bio, photo_url, linkedin_url, display_order')
+    .eq('company_id', companyId)
+    .order('display_order');
+  return data || [];
+}
+
+async function getCompanyNews(companyId: string) {
+  const supabase = getSupabase();
+  const { data } = await supabase
+    .from('company_news')
+    .select('id, title, content, published_at')
+    .eq('company_id', companyId)
+    .order('published_at', { ascending: false })
+    .limit(10);
+  return data || [];
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function getPriceHistory(companyId: string): Promise<any[]> {
   const supabase = getSupabase();
@@ -222,6 +254,9 @@ export default async function CompanyPage({
     publications,
     patents,
     priceHistory,
+    companyClaim,
+    companyTeam,
+    companyNews,
   ] = await Promise.all([
     Promise.resolve(funding.filter((f) => f.companySlug === company.slug)),
     getSimilarCompanies(company),
@@ -233,6 +268,9 @@ export default async function CompanyPage({
     companyId ? getPublications(companyId) : Promise.resolve([]),
     companyId ? getPatents(companyId) : Promise.resolve([]),
     companyId ? getPriceHistory(companyId) : Promise.resolve([]),
+    companyId ? getCompanyClaim(companyId) : Promise.resolve(null),
+    companyId ? getCompanyTeam(companyId) : Promise.resolve([]),
+    companyId ? getCompanyNews(companyId) : Promise.resolve([]),
   ]);
 
   // Build JSON-LD structured data
@@ -282,6 +320,10 @@ export default async function CompanyPage({
         publications={publications}
         patents={patents}
         priceHistory={priceHistory}
+        isClaimed={!!companyClaim}
+        claimPlan={companyClaim?.plan || null}
+        teamMembers={companyTeam}
+        companyNews={companyNews}
       />
     </>
   );

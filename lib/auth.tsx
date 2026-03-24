@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .single();
 
     if (error) {
-      console.error("Error fetching profile:", error.message);
+      // Silently handle missing profile (common for new users)
       setProfile(null);
     } else {
       setProfile({

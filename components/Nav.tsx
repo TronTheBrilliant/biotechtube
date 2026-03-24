@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
-import Image from "next/image";
+
 import { usePathname } from "next/navigation";
 import { Search, Menu, X, ChevronDown, LogIn, User, Settings, List, LogOut, LayoutDashboard } from "lucide-react";
 import { SearchOverlay } from "./SearchOverlay";
@@ -84,6 +84,27 @@ const MENUS: MenuCategory[] = [
     ],
   },
 ];
+
+/* ─── Logo SVG (uses currentColor for dark-mode support) ─── */
+function LogoIcon({ size = 22 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 129.82 123.26"
+      fill="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <path d="M40.72,70.04c7.72-8.9,8.03-21.18.44-30.28C30.03,26.39,7.36,24.33,8.06.02l-5.75.05c-1.63,12.16,3.81,23.27,13.62,30.52l-7.19,5.45c-3.64,2.76-5.94,6.87-7.52,11.19-4.77,13.02,5.34,23.33,14.03,31.14l6.69-5.23c-2.83-2.61-4.9-4.45-7.55-7.44l17.27-.31c.58-.01,1.48-1.65,1.13-2.1-.3-.38-1.27-.89-1.79-.89l-18.82.03c-1.48-1.88-2.4-3.84-3.08-6.54l25.29.07c.53,0,1.5-.74,1.68-1.21.18-.47-.8-1.7-1.35-1.7l-25.62-.11c.2-2.48.71-4.09,1.69-6.17h19.69c.67,0,1.69-1.12,1.59-1.73-.08-.5-1.09-1.37-1.62-1.37l-17.26-.09c2.96-3.37,6.41-5.58,10.04-8.11,4.3,2.6,7.98,5.23,11.07,8.85,4.79,6.11,5.37,14.02.74,20.51-2.93,4.12-7.09,7.27-11.17,10.36-4.94,3.74-9.61,7.26-14.03,11.6C-1,97.46-.35,110.5,6.42,123.19c2.56-13.98-.68-20.94,9.76-32.06,8.64-7.97,16.69-12.06,24.54-21.1Z" />
+      <path d="M115.68,56.18c7-10.81,8.22-23.82,3.03-35.32C113.11,8.47,101.03,1.09,87.48.59l-39.45.05,2.25,6.73,35.66-.04c17.49-.02,30.78,14.09,28.96,31.53-.78,7.43-4.21,13.9-10.28,18.94,12.35,5.78,19.65,17.39,18.12,31.21-2.28,14.79-14.52,27.25-29.92,27.35l-44.48.29-3.16,6.6h47.17c17.23-.75,31.56-12.03,36.16-28.6,3.97-14.28-1.33-28.96-12.84-38.48Z" />
+      <path d="M56.44,100.92l33.75-.08c9.45-.02,16.21-7.44,15.73-16.48.09-8.31-6.33-15.52-15.02-15.55l-34.47-.1v32.21ZM63.25,75.49l26.61-.02c5.53,0,9.32,4.54,9.24,9.44-.1,5.46-4.01,9.2-9.86,9.19l-26.01-.07.02-18.54Z" />
+      <path d="M96.39,46.45c2.52-5.28,2.23-11.05-.54-15.97-2.97-4.12-7.63-6.68-12.86-6.67h-26.55s0,30.69,0,30.69l26.55.05c5.58-.5,10.53-3.07,13.41-8.09ZM63.23,47.73v-17.04s20.16.02,20.16.02c4.48,0,7.74,3.49,7.9,7.98.2,5.37-3.62,9.02-8.74,9.03h-19.32Z" />
+      <path d="M31.52,81.57l-6.44,5.04,6.34,5.93-13.81.3c-.71.02-1.81,1.25-1.56,1.84.21.51,1.34,1.13,1.92,1.13h16.34c1.25,2,2.18,3.82,2.95,6.24l-24.01.11c-.54,0-1.37,1.03-1.31,1.53.07.5,1.09,1.4,1.67,1.4h24.6s.87,6.48.87,6.48l-27.26.03c-.64,0-1.54,1.44-1.29,1.86.24.41,1.07,1.15,1.68,1.15l27.43.14,1.25,8.48c8.68-17.54,5.05-30.05-9.38-41.65Z" />
+      <path d="M13.1,11.59l22.98.17c-.84,2.23-1.72,3.78-2.93,5.58l-13.96.02c-.59,0-1.59,1.05-1.57,1.58.02.45.9,1.3,1.44,1.32l10.91.36-4.59,4.18,7.01,4.61c9.54-6.81,14.31-17.85,11.64-29.43l-16.11.25c-.47,0-1.57.96-1.4,1.36.14.33.9,1.1,1.35,1.11l9.97.19c.14,1.99-.11,3.89-.68,5.75H13.52c-.64-.01-1.74.76-1.78,1.29-.03.44.81,1.64,1.35,1.64Z" />
+    </svg>
+  );
+}
 
 /* ─── Component ─── */
 
@@ -197,12 +218,9 @@ export function Nav() {
         <div className="hidden md:flex items-center justify-between h-full max-w-[1200px] mx-auto px-4 md:px-6">
           {/* Left: Logo + Triggers */}
           <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-2 shrink-0">
-              <Image src="/logo.svg" alt="BiotechTube" width={22} height={22} />
-              <span
-                className="text-[15px] font-semibold tracking-[-0.3px]"
-                style={{ color: "var(--color-text-primary)" }}
-              >
+            <Link href="/" className="flex items-center gap-2 shrink-0" style={{ color: "var(--color-text-primary)" }}>
+              <LogoIcon size={22} />
+              <span className="text-[15px] font-semibold tracking-[-0.3px]">
                 BiotechTube
               </span>
             </Link>
@@ -439,12 +457,9 @@ export function Nav() {
 
         {/* Mobile Top Bar */}
         <div className="flex md:hidden items-center justify-between h-full px-4">
-          <Link href="/" className="flex items-center gap-2">
-            <Image src="/logo.svg" alt="BiotechTube" width={20} height={20} />
-            <span
-              className="text-[14px] font-semibold tracking-[-0.3px]"
-              style={{ color: "var(--color-text-primary)" }}
-            >
+          <Link href="/" className="flex items-center gap-2" style={{ color: "var(--color-text-primary)" }}>
+            <LogoIcon size={20} />
+            <span className="text-[14px] font-semibold tracking-[-0.3px]">
               BiotechTube
             </span>
           </Link>
@@ -481,12 +496,9 @@ export function Nav() {
             className="flex items-center justify-between h-[48px] px-4 shrink-0"
             style={{ borderBottom: "1px solid var(--color-border-subtle)" }}
           >
-            <Link href="/" className="flex items-center gap-2" onClick={() => setMobileOpen(false)}>
-              <Image src="/logo.svg" alt="BiotechTube" width={20} height={20} />
-              <span
-                className="text-[14px] font-semibold tracking-[-0.3px]"
-                style={{ color: "var(--color-text-primary)" }}
-              >
+            <Link href="/" className="flex items-center gap-2" onClick={() => setMobileOpen(false)} style={{ color: "var(--color-text-primary)" }}>
+              <LogoIcon size={20} />
+              <span className="text-[14px] font-semibold tracking-[-0.3px]">
                 BiotechTube
               </span>
             </Link>

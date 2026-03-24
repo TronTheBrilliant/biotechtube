@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { CompanyAvatar } from "@/components/CompanyAvatar";
+import { PipelineWatchButton } from "@/components/PipelineWatchButton";
 
 interface PipelineRow {
   id: string;
@@ -176,10 +177,11 @@ export function PipelinesPageClient({ stats, rows }: Props) {
           <select
             value={stageFilter}
             onChange={(e) => handleStageChange(e.target.value)}
-            className="h-[38px] px-3 rounded-lg text-[14px] border-0 outline-none"
+            className="h-[42px] px-4 pr-10 rounded-lg text-[13px] outline-none"
             style={{
               background: "var(--color-bg-secondary)",
               color: "var(--color-text-primary)",
+              border: "1px solid var(--color-border-subtle)",
             }}
           >
             {STAGES.map((s) => (
@@ -192,10 +194,11 @@ export function PipelinesPageClient({ stats, rows }: Props) {
           <select
             value={statusFilter}
             onChange={(e) => handleStatusChange(e.target.value)}
-            className="h-[38px] px-3 rounded-lg text-[14px] border-0 outline-none"
+            className="h-[42px] px-4 pr-10 rounded-lg text-[13px] outline-none"
             style={{
               background: "var(--color-bg-secondary)",
               color: "var(--color-text-primary)",
+              border: "1px solid var(--color-border-subtle)",
             }}
           >
             {STATUSES.map((s) => (
@@ -210,10 +213,11 @@ export function PipelinesPageClient({ stats, rows }: Props) {
             placeholder="Search product, indication, or company..."
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="h-[38px] px-3 rounded-lg text-[14px] border-0 outline-none flex-1 min-w-[200px]"
+            className="h-[42px] px-4 rounded-lg text-[13px] outline-none flex-1 min-w-[200px]"
             style={{
               background: "var(--color-bg-secondary)",
               color: "var(--color-text-primary)",
+              border: "1px solid var(--color-border-subtle)",
             }}
           />
         </div>
@@ -291,6 +295,12 @@ export function PipelinesPageClient({ stats, rows }: Props) {
                   style={{ color: "var(--color-text-tertiary)" }}
                 >
                   NCT ID
+                </th>
+                <th
+                  className="px-3 py-3 text-[12px] font-semibold uppercase tracking-wider w-[50px]"
+                  style={{ color: "var(--color-text-tertiary)" }}
+                >
+                  <span className="sr-only">Watch</span>
                 </th>
               </tr>
             </thead>
@@ -434,12 +444,17 @@ export function PipelinesPageClient({ stats, rows }: Props) {
                       </span>
                     )}
                   </td>
+
+                  {/* Watch */}
+                  <td className="px-3 py-3 text-center">
+                    <PipelineWatchButton pipelineId={row.id} size={14} />
+                  </td>
                 </tr>
               ))}
               {paged.length === 0 && (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className="px-4 py-12 text-center text-[14px]"
                     style={{ color: "var(--color-text-tertiary)" }}
                   >

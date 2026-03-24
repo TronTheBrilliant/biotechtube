@@ -22,6 +22,7 @@ import TopPeople from "@/components/home/TopPeople";
 import FundingChart from "@/components/home/FundingChart";
 import BiotechIndexChart from "@/components/home/BiotechIndexChart";
 import HotPipelines from "@/components/home/HotPipelines";
+import HotProducts from "@/components/home/HotProducts";
 import TrendingNews from "@/components/home/TrendingNews";
 import SciencePapers from "@/components/home/SciencePapers";
 import OpenPositions from "@/components/home/OpenPositions";
@@ -353,10 +354,58 @@ async function getHotPipelines() {
   }));
 }
 
+async function getHotProducts() {
+  const supabase = getSupabase();
+  const { data } = await supabase
+    .from("product_scores")
+    .select("product_name, hype_score, trending_direction, company_id, pipeline_id")
+    .order("hype_score", { ascending: false })
+    .limit(5);
+  if (!data || data.length === 0) return [];
+
+  // Get pipeline details
+  const pipelineIds = data.map((d: { pipeline_id: string }) => d.pipeline_id);
+  const { data: pipelines } = await supabase
+    .from("pipelines")
+    .select("id, indication, stage, company_name, company_id")
+    .in("id", pipelineIds);
+
+  const pipelineMap = new Map<string, { indication: string | null; stage: string | null; company_name: string; company_id: string | null }>();
+  if (pipelines) {
+    for (const p of pipelines) pipelineMap.set(p.id, p);
+  }
+
+  // Get company slugs
+  const companyIds = [...new Set(data.map((d: { company_id: string | null }) => d.company_id).filter(Boolean))] as string[];
+  const companyMap = new Map<string, string>();
+  if (companyIds.length > 0) {
+    const { data: companies } = await supabase
+      .from("companies")
+      .select("id, slug")
+      .in("id", companyIds);
+    if (companies) {
+      for (const c of companies) companyMap.set(c.id, c.slug);
+    }
+  }
+
+  return data.map((d: { pipeline_id: string; product_name: string; hype_score: number; trending_direction: string; company_id: string | null }) => {
+    const pipeline = pipelineMap.get(d.pipeline_id);
+    return {
+      product_name: d.product_name,
+      company_name: pipeline?.company_name ?? null,
+      company_slug: d.company_id ? companyMap.get(d.company_id) ?? null : null,
+      stage: pipeline?.stage ?? null,
+      indication: pipeline?.indication ?? null,
+      hype_score: d.hype_score,
+      trending_direction: d.trending_direction,
+    };
+  });
+}
+
 // ── Page ──
 
 export default async function HomePage() {
-  const [companies, snapshot, trending, sectors, countries, investorsData, peopleData, fundingAnnualData, indexHistory, hotPipelines] =
+  const [companies, snapshot, trending, sectors, countries, investorsData, peopleData, fundingAnnualData, indexHistory, hotPipelines, hotProducts] =
     await Promise.all([
       getTopCompanies(),
       getLatestSnapshot(),
@@ -368,6 +417,7 @@ export default async function HomePage() {
       getFundingAnnualForHomepage(),
       getIndexHistory(),
       getHotPipelines(),
+      getHotProducts(),
     ]);
 
   const funding = fundingData as FundingRound[];
@@ -519,11 +569,20 @@ export default async function HomePage() {
           <FundingChart data={fundingAnnualData} />
         </HomeSection>
 
-        {/* Row 3: Funding Radar + Hot Pipelines */}
+        {/* Row 3: Hot Products + Funding Radar */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {hotProducts.length > 0 && (
+            <HomeSection icon="🔬" title="Hot Products" viewAllHref="/products" viewAllLabel="View all">
+              <HotProducts products={hotProducts} />
+            </HomeSection>
+          )}
           <HomeSection icon="📡" title="Funding Radar" viewAllHref="/funding-radar" viewAllLabel="View all">
             <FundingRadar rounds={fundingRadar} />
           </HomeSection>
+        </div>
+
+        {/* Row 3b: Hot Pipelines */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {hotPipelines.length > 0 && (
             <HomeSection icon="🧪" title="Hot Pipelines" viewAllHref="/pipelines" viewAllLabel="View all">
               <HotPipelines pipelines={hotPipelines} />

@@ -14,11 +14,13 @@ import {
   ArrowDownRight, Globe, Mail, Phone, MapPin, Building2,
   Target, ShieldAlert, Swords, Sparkles, BookOpen, Beaker,
   ChevronRight, Award, Zap, CircleDot, FileText, Shield,
-  ScrollText, TestTubes, Pill
+  ScrollText, TestTubes, Pill, ShieldCheck, Newspaper
 } from "lucide-react";
 import { TvStockChart } from "@/components/charts/TvStockChart";
 import { TvAreaChart } from "@/components/charts/TvAreaChart";
 import { WatchlistButton } from "@/components/WatchlistButton";
+import { createBrowserClient } from "@/lib/supabase";
+import { PipelineWatchButton } from "@/components/PipelineWatchButton";
 
 /* ─── Types for enriched data ─── */
 interface PipelineRow {
@@ -227,6 +229,24 @@ interface CompanySector {
   sectors: { id: string; name: string; slug: string } | null;
 }
 
+/* ─── Claimed company types ─── */
+interface ClaimedTeamMember {
+  id: string;
+  name: string;
+  title: string | null;
+  bio: string | null;
+  photo_url: string | null;
+  linkedin_url: string | null;
+  display_order: number;
+}
+
+interface ClaimedNewsItem {
+  id: string;
+  title: string;
+  content: string | null;
+  published_at: string;
+}
+
 /* ─── Props ─── */
 interface CompanyPageProps {
   company: Company;
@@ -241,6 +261,10 @@ interface CompanyPageProps {
   publications: PublicationRow[];
   patents: PatentRow[];
   priceHistory: PricePoint[];
+  isClaimed?: boolean;
+  claimPlan?: string | null;
+  teamMembers?: ClaimedTeamMember[];
+  companyNews?: ClaimedNewsItem[];
 }
 
 /* ═══════════════════════════════════════════════
@@ -259,6 +283,10 @@ export function CompanyPageClient({
   publications,
   patents,
   priceHistory,
+  isClaimed = false,
+  claimPlan,
+  teamMembers = [],
+  companyNews = [],
 }: CompanyPageProps) {
   const [activeTab, setActiveTab] = useState<Tab>("Overview");
   const [priceTimescale, setPriceTimescale] = useState<PriceTimescale>("Max");
@@ -268,6 +296,18 @@ export function CompanyPageClient({
   const [report, setReport] = useState<CompanyReport | null>(initialReport);
   const [reportLoading, setReportLoading] = useState(false);
   const [reportError, setReportError] = useState<string | null>(null);
+
+  // Track profile view
+  useEffect(() => {
+    if (companyId) {
+      const supabase = createBrowserClient();
+      const source = typeof window !== 'undefined' && document.referrer
+        ? (document.referrer.includes('google') ? 'search' :
+           document.referrer.includes(window.location.host) ? 'internal' : 'referral')
+        : 'direct';
+      supabase.from('profile_views').insert({ company_id: companyId, source }).then(() => {});
+    }
+  }, [companyId]);
 
   const isPublic = company.type === "Public" && !!company.ticker;
 
@@ -428,6 +468,16 @@ export function CompanyPageClient({
               <h1 className="text-[22px] font-semibold tracking-tight" style={{ color: "var(--color-text-primary)", letterSpacing: "-0.3px" }}>
                 {company.name}
               </h1>
+              {isClaimed && (
+                <span
+                  className="text-10 font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 text-white"
+                  style={{ background: "var(--color-accent)" }}
+                  title="Verified company profile"
+                >
+                  <ShieldCheck size={10} />
+                  Verified
+                </span>
+              )}
               {company.ticker && (
                 <span className="text-12 font-medium px-2 py-0.5 rounded-md" style={{ background: "var(--color-bg-tertiary)", color: "var(--color-text-secondary)" }}>
                   {company.ticker}
@@ -648,6 +698,7 @@ export function CompanyPageClient({
                           <th className="text-left px-3 py-2 font-medium text-11 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Drug</th>
                           <th className="text-left px-3 py-2 font-medium text-11 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Indication</th>
                           <th className="text-left px-3 py-2 font-medium text-11 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Stage</th>
+                          <th className="px-2 py-2 w-[36px]"><span className="sr-only">Watch</span></th>
                         </tr>
                       </thead>
                       <tbody>
@@ -656,6 +707,7 @@ export function CompanyPageClient({
                             <td className="px-3 py-2 font-medium" style={{ color: "var(--color-text-primary)" }} title={p.product_name}>{p.product_name.length > 80 ? p.product_name.slice(0, 80) + "..." : p.product_name}</td>
                             <td className="px-3 py-2" style={{ color: "var(--color-text-secondary)" }}>{p.indication}</td>
                             <td className="px-3 py-2"><StageBadge stage={p.stage} /></td>
+                            <td className="px-2 py-2"><PipelineWatchButton pipelineId={p.id} size={13} /></td>
                           </tr>
                         ))}
                       </tbody>
@@ -812,6 +864,7 @@ export function CompanyPageClient({
                       <th className="text-left px-3 py-2.5 font-medium text-11 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Stage</th>
                       <th className="text-left px-3 py-2.5 font-medium text-11 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Status</th>
                       <th className="text-left px-3 py-2.5 font-medium text-11 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>NCT ID</th>
+                      <th className="px-2 py-2.5 w-[36px]"><span className="sr-only">Watch</span></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -835,6 +888,7 @@ export function CompanyPageClient({
                             </a>
                           ) : "—"}
                         </td>
+                        <td className="px-2 py-2.5"><PipelineWatchButton pipelineId={p.id} size={13} /></td>
                       </tr>
                     ))}
                   </tbody>
@@ -1146,6 +1200,67 @@ export function CompanyPageClient({
               )}
             </section>
           )}
+
+          {/* ═══ Team Members (from claimed profile) ═══ */}
+          {teamMembers.length > 0 && (
+            <section className="mb-5">
+              <SectionCard icon={<Users size={14} style={{ color: "var(--color-accent)" }} />} title="Leadership Team" count={teamMembers.length}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {teamMembers.map((member) => (
+                    <div key={member.id} className="flex items-start gap-3 p-3 rounded-lg" style={{ background: "var(--color-bg-secondary)" }}>
+                      <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center text-12 font-semibold shrink-0 overflow-hidden"
+                        style={{ background: "var(--color-accent-subtle)", color: "var(--color-accent)" }}
+                      >
+                        {member.photo_url ? (
+                          <img src={member.photo_url} alt={member.name} className="w-full h-full object-cover" />
+                        ) : (
+                          member.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-13 font-semibold truncate" style={{ color: "var(--color-text-primary)" }}>{member.name}</span>
+                          {member.linkedin_url && (
+                            <a href={member.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-10 shrink-0" style={{ color: "var(--color-accent)" }}>
+                              LinkedIn
+                            </a>
+                          )}
+                        </div>
+                        {member.title && (
+                          <p className="text-11 truncate" style={{ color: "var(--color-text-secondary)" }}>{member.title}</p>
+                        )}
+                        {member.bio && (
+                          <p className="text-10 mt-0.5 line-clamp-2" style={{ color: "var(--color-text-tertiary)", lineHeight: 1.4 }}>{member.bio}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </SectionCard>
+            </section>
+          )}
+
+          {/* ═══ Company News (from claimed profile) ═══ */}
+          {companyNews.length > 0 && (
+            <section className="mb-5">
+              <SectionCard icon={<Newspaper size={14} style={{ color: "var(--color-accent)" }} />} title="Company News" count={companyNews.length}>
+                <div className="flex flex-col gap-3">
+                  {companyNews.slice(0, 5).map((item) => (
+                    <div key={item.id} className="pb-3 border-b last:border-0 last:pb-0" style={{ borderColor: "var(--color-border-subtle)" }}>
+                      <h4 className="text-13 font-semibold mb-0.5" style={{ color: "var(--color-text-primary)" }}>{item.title}</h4>
+                      <span className="text-10 mb-1.5 block" style={{ color: "var(--color-text-tertiary)" }}>
+                        {new Date(item.published_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                      </span>
+                      {item.content && (
+                        <p className="text-12 line-clamp-2" style={{ color: "var(--color-text-secondary)", lineHeight: 1.6 }}>{item.content}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </SectionCard>
+            </section>
+          )}
         </div>
 
         {/* ═══ Sidebar ═══ */}
@@ -1271,18 +1386,30 @@ export function CompanyPageClient({
           {/* Similar Companies */}
           {similar.length > 0 && <SimilarCompanies companies={similar} />}
 
-          {/* Claim CTA */}
+          {/* Claim CTA or Admin link */}
           <div className="px-4 py-4">
-            <div className="rounded-xl border p-4" style={{ borderColor: "var(--color-accent)", background: "rgba(26,122,94,0.04)" }}>
-              <div className="text-13 font-semibold mb-1" style={{ color: "var(--color-text-primary)" }}>Is this your company?</div>
-              <p className="text-11 mb-3" style={{ color: "var(--color-text-secondary)", lineHeight: 1.6 }}>
-                Claim your profile to update information, add pipeline data, and connect with investors.
-              </p>
-              <Link href={`/claim/${company.slug}`} className="inline-flex items-center gap-1 text-12 font-medium px-4 py-2 rounded-lg text-white" style={{ background: "var(--color-accent)" }}>
-                Claim profile
-                <ChevronRight size={13} />
-              </Link>
-            </div>
+            {isClaimed ? (
+              <div className="rounded-xl border p-4" style={{ borderColor: "var(--color-accent)", background: "rgba(26,122,94,0.04)" }}>
+                <div className="flex items-center gap-1.5 text-13 font-semibold mb-1" style={{ color: "var(--color-accent)" }}>
+                  <ShieldCheck size={13} />
+                  Verified Profile
+                </div>
+                <p className="text-11 mb-3" style={{ color: "var(--color-text-secondary)", lineHeight: 1.6 }}>
+                  This company profile is managed by a verified representative.
+                </p>
+              </div>
+            ) : (
+              <div className="rounded-xl border p-4" style={{ borderColor: "var(--color-accent)", background: "rgba(26,122,94,0.04)" }}>
+                <div className="text-13 font-semibold mb-1" style={{ color: "var(--color-text-primary)" }}>Is this your company?</div>
+                <p className="text-11 mb-3" style={{ color: "var(--color-text-secondary)", lineHeight: 1.6 }}>
+                  Claim your profile to update information, add pipeline data, and connect with investors.
+                </p>
+                <Link href={`/claim/${company.slug}`} className="inline-flex items-center gap-1 text-12 font-medium px-4 py-2 rounded-lg text-white" style={{ background: "var(--color-accent)" }}>
+                  Claim profile
+                  <ChevronRight size={13} />
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>
