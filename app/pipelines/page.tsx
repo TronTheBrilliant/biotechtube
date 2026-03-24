@@ -154,10 +154,49 @@ async function getPipelineRows(): Promise<PipelineRow[]> {
   return rows;
 }
 
+interface SponsoredPipeline {
+  id: string;
+  product_name: string;
+  company_name: string | null;
+  company_slug: string | null;
+  plan: string;
+}
+
+async function getSponsoredPipelines(): Promise<SponsoredPipeline[]> {
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from("product_sponsorships")
+    .select("id, product_name, company_id, plan")
+    .eq("status", "active")
+    .not("pipeline_id", "is", null)
+    .order("plan", { ascending: false });
+
+  if (error || !data || data.length === 0) return [];
+
+  const companyIds = [...new Set(data.map((d: Record<string, unknown>) => d.company_id).filter(Boolean))] as string[];
+  const companyMap = new Map<string, { name: string; slug: string }>();
+  if (companyIds.length > 0) {
+    const { data: companies } = await supabase.from("companies").select("id, name, slug").in("id", companyIds);
+    if (companies) companies.forEach((c: { id: string; name: string; slug: string }) => companyMap.set(c.id, { name: c.name, slug: c.slug }));
+  }
+
+  return data.map((d: Record<string, unknown>) => {
+    const company = companyMap.get(d.company_id as string);
+    return {
+      id: d.id as string,
+      product_name: d.product_name as string,
+      company_name: company?.name || null,
+      company_slug: company?.slug || null,
+      plan: d.plan as string,
+    };
+  });
+}
+
 export default async function PipelinesPage() {
-  const [stats, rows] = await Promise.all([
+  const [stats, rows, sponsored] = await Promise.all([
     getPipelineStats(),
     getPipelineRows(),
+    getSponsoredPipelines(),
   ]);
 
   return (
@@ -166,7 +205,7 @@ export default async function PipelinesPage() {
       style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}
     >
       <Nav />
-      <PipelinesPageClient stats={stats} rows={rows} />
+      <PipelinesPageClient stats={stats} rows={rows} sponsored={sponsored} />
       <Footer />
     </div>
   );

@@ -40,6 +40,7 @@ const MENUS: MenuCategory[] = [
       { href: "/funding", emoji: "💰", title: "Funding", subtitle: "Rounds & deals", iconBg: "#fef3c7" },
       { href: "/markets", emoji: "📊", title: "Markets", subtitle: "Stock data", iconBg: "#fce7f3" },
       { href: "/sectors", emoji: "🏷️", title: "Sectors", subtitle: "20 biotech sectors", iconBg: "#f5f3ff" },
+      { href: "/reports", emoji: "📑", title: "Reports", subtitle: "Intelligence reports", iconBg: "#eef2ff" },
     ],
     featured: {
       heading: "Top Countries",
@@ -81,6 +82,8 @@ const MENUS: MenuCategory[] = [
     items: [
       { href: "/about", emoji: "📋", title: "About" },
       { href: "/pricing", emoji: "💎", title: "Pricing" },
+      { href: "/api-docs", emoji: "🔌", title: "API", subtitle: "Developer docs" },
+      { href: "/sponsor-product", emoji: "📢", title: "Sponsor a Product" },
     ],
   },
 ];

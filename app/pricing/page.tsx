@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Check, ArrowRight, Building2, Megaphone } from "lucide-react";
+import { Check, ArrowRight, Building2, Megaphone, Code, FileText } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 
@@ -21,7 +21,8 @@ const tiers = [
       "Pipeline and market data",
       "Basic company search",
       "Therapeutic area overviews",
-      "10 search results per query",
+      "1 watchlist (up to 10 items)",
+      "100 API requests/day",
     ],
     cta: "Get started",
     ctaHref: "/signup",
@@ -29,14 +30,16 @@ const tiers = [
   },
   {
     name: "Pro",
-    price: "$49",
+    price: "$29",
     period: "/mo",
     description: "For investors, analysts, and BD professionals",
     features: [
       "Everything in Explorer",
-      "Unlimited search & data access",
+      "Unlimited watchlists & alerts",
+      "Product email alerts",
+      "Full intelligence reports",
       "Full AI-powered company reports",
-      "Watchlist with email alerts",
+      "10,000 API requests/day",
       "Export data (CSV)",
       "People & investor intelligence",
       "Priority access to new features",
@@ -47,17 +50,19 @@ const tiers = [
   },
   {
     name: "Enterprise",
-    price: "Custom",
-    period: "",
+    price: "$199",
+    period: "/mo",
     description: "For funds, institutions, and pharma teams",
     features: [
       "Everything in Pro",
-      "REST API access",
-      "Custom reports & datasets",
+      "Unlimited API access",
+      "Bulk data export (CSV/JSON)",
+      "Custom intelligence reports",
+      "Webhook notifications",
       "Dedicated account manager",
       "Unlimited team seats",
       "SSO & compliance controls",
-      "Custom integrations",
+      "Priority support",
     ],
     cta: "Contact us",
     ctaHref: "mailto:hello@biotechtube.com",
@@ -216,7 +221,7 @@ export default function PricingPage() {
                     className="text-[12px] font-medium px-2 py-0.5 rounded-full"
                     style={{ background: "var(--color-accent-subtle)", color: "var(--color-accent)" }}
                   >
-                    Free
+                    From $299/mo
                   </span>
                 </div>
               </div>
@@ -236,7 +241,7 @@ export default function PricingPage() {
               </Link>
             </div>
 
-            {/* Promoted listing */}
+            {/* Sponsored listing */}
             <div
               className="rounded-xl p-6"
               style={{
@@ -256,13 +261,13 @@ export default function PricingPage() {
                     className="text-[15px] font-medium"
                     style={{ color: "var(--color-text-primary)" }}
                   >
-                    Promoted listing
+                    Product Sponsorship
                   </h3>
                   <span
                     className="text-[12px] font-medium"
                     style={{ color: "var(--color-text-secondary)" }}
                   >
-                    From $299/mo
+                    From $499/mo
                   </span>
                 </div>
               </div>
@@ -270,16 +275,83 @@ export default function PricingPage() {
                 className="text-[13px] mb-4"
                 style={{ color: "var(--color-text-secondary)", lineHeight: 1.6 }}
               >
-                Get featured placement in search results, therapeutic area pages,
-                and country listings. Your company card appears with a highlighted &ldquo;Sponsored&rdquo;
-                badge, driving visibility to investors and partners.
+                Get featured placement for your products in search results, product pages,
+                and pipeline listings. Drive visibility with a subtle &ldquo;Sponsored&rdquo; badge.
               </p>
               <Link
-                href="mailto:hello@biotechtube.com"
+                href="/sponsor-product"
                 className="inline-flex items-center gap-1.5 text-[13px] font-medium"
                 style={{ color: "var(--color-accent)" }}
               >
-                Contact us <ArrowRight size={13} />
+                Learn more <ArrowRight size={13} />
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Additional Products */}
+        <div className="mb-12">
+          <div className="text-center mb-6">
+            <h2
+              className="text-[24px] font-medium tracking-tight"
+              style={{ color: "var(--color-text-primary)", letterSpacing: "-0.3px" }}
+            >
+              Additional Products
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Intelligence Reports */}
+            <div
+              className="rounded-xl p-6"
+              style={{ background: "var(--color-bg-secondary)", border: "1px solid var(--color-border-subtle)" }}
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: "rgba(99,102,241,0.1)" }}>
+                  <FileText size={20} style={{ color: "#6366f1" }} />
+                </div>
+                <div>
+                  <h3 className="text-[15px] font-medium" style={{ color: "var(--color-text-primary)" }}>
+                    Intelligence Reports
+                  </h3>
+                  <span className="text-[12px] font-medium" style={{ color: "var(--color-text-secondary)" }}>
+                    Included in Pro
+                  </span>
+                </div>
+              </div>
+              <p className="text-[13px] mb-4" style={{ color: "var(--color-text-secondary)", lineHeight: 1.6 }}>
+                AI-generated competitive landscape reports for every major therapeutic area.
+                Phase distribution, funding trends, and company analysis.
+              </p>
+              <Link href="/reports" className="inline-flex items-center gap-1.5 text-[13px] font-medium" style={{ color: "#6366f1" }}>
+                Browse reports <ArrowRight size={13} />
+              </Link>
+            </div>
+
+            {/* API Access */}
+            <div
+              className="rounded-xl p-6"
+              style={{ background: "var(--color-bg-secondary)", border: "1px solid var(--color-border-subtle)" }}
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: "rgba(99,102,241,0.1)" }}>
+                  <Code size={20} style={{ color: "#6366f1" }} />
+                </div>
+                <div>
+                  <h3 className="text-[15px] font-medium" style={{ color: "var(--color-text-primary)" }}>
+                    API Access
+                  </h3>
+                  <span className="text-[12px] font-medium" style={{ color: "var(--color-text-secondary)" }}>
+                    From Free to $499/mo
+                  </span>
+                </div>
+              </div>
+              <p className="text-[13px] mb-4" style={{ color: "var(--color-text-secondary)", lineHeight: 1.6 }}>
+                Programmatic access to biotech market data. Build dashboards and integrate
+                company, pipeline, funding, and market data into your tools.
+              </p>
+              <Link href="/api-docs" className="inline-flex items-center gap-1.5 text-[13px] font-medium" style={{ color: "#6366f1" }}>
+                API documentation <ArrowRight size={13} />
               </Link>
             </div>
           </div>

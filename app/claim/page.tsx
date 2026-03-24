@@ -509,6 +509,21 @@ export default function ClaimPage() {
               Contact Sales
             </Link>
           </div>
+
+          {/* Sponsor link */}
+          <p
+            className="text-[13px] mt-6"
+            style={{ color: "var(--color-text-tertiary)" }}
+          >
+            Want to promote a specific product?{" "}
+            <Link
+              href="/sponsor-product"
+              className="font-medium"
+              style={{ color: "var(--color-accent)" }}
+            >
+              Sponsor a product listing
+            </Link>
+          </p>
         </section>
       </main>
 

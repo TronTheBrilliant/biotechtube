@@ -31,9 +31,18 @@ interface PipelineStats {
   companies: number;
 }
 
+interface SponsoredPipeline {
+  id: string;
+  product_name: string;
+  company_name: string | null;
+  company_slug: string | null;
+  plan: string;
+}
+
 interface Props {
   stats: PipelineStats;
   rows: PipelineRow[];
+  sponsored?: SponsoredPipeline[];
 }
 
 const STAGES = [
@@ -93,7 +102,7 @@ function formatNumber(n: number): string {
   return n.toLocaleString("en-US");
 }
 
-export function PipelinesPageClient({ stats, rows }: Props) {
+export function PipelinesPageClient({ stats, rows, sponsored = [] }: Props) {
   const [stageFilter, setStageFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
   const [search, setSearch] = useState("");
@@ -168,6 +177,42 @@ export function PipelinesPageClient({ stats, rows }: Props) {
         <StatCard label="Approved" value={formatNumber(stats.approved)} />
         <StatCard label="Recruiting" value={formatNumber(stats.recruiting)} />
       </div>
+
+      {/* Sponsored pipeline products */}
+      {sponsored.length > 0 && (
+        <div className="mt-5 mb-2">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {sponsored.map((sp) => (
+              <Link
+                key={sp.id}
+                href={sp.company_slug ? `/company/${sp.company_slug}` : "#"}
+                className="rounded-lg p-4 transition-colors duration-150 hover:opacity-90"
+                style={{
+                  background: sp.plan === "premium"
+                    ? "linear-gradient(135deg, rgba(99,102,241,0.08), rgba(168,85,247,0.08))"
+                    : "var(--color-bg-primary)",
+                  border: sp.plan === "premium"
+                    ? "1px solid rgba(99,102,241,0.2)"
+                    : "1px solid var(--color-border-subtle)",
+                }}
+              >
+                <span
+                  className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded"
+                  style={{ background: "rgba(99,102,241,0.1)", color: "#6366f1" }}
+                >
+                  Sponsored
+                </span>
+                <h4 className="text-[14px] font-semibold mt-1.5" style={{ color: "var(--color-text-primary)" }}>
+                  {sp.product_name}
+                </h4>
+                {sp.company_name && (
+                  <p className="text-[12px]" style={{ color: "var(--color-text-secondary)" }}>{sp.company_name}</p>
+                )}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Filters — sticky on scroll */}
       <div

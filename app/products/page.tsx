@@ -56,9 +56,59 @@ interface ProductTypeCounts {
   ai_ml: number;
 }
 
+export interface SponsoredProduct {
+  id: string;
+  product_name: string;
+  company_id: string | null;
+  company_name: string | null;
+  company_slug: string | null;
+  plan: string;
+  pipeline_id: string | null;
+}
+
+async function getSponsoredProducts(): Promise<SponsoredProduct[]> {
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from("product_sponsorships")
+    .select("id, product_name, company_id, plan, pipeline_id")
+    .eq("status", "active")
+    .order("plan", { ascending: false });
+
+  if (error || !data) return [];
+
+  // Enrich with company data
+  const companyIds = [...new Set(data.map((d: Record<string, unknown>) => d.company_id).filter(Boolean))] as string[];
+  const companyMap = new Map<string, { name: string; slug: string }>();
+  if (companyIds.length > 0) {
+    const { data: companies } = await supabase
+      .from("companies")
+      .select("id, name, slug")
+      .in("id", companyIds);
+    if (companies) {
+      for (const c of companies) {
+        companyMap.set(c.id, { name: c.name, slug: c.slug });
+      }
+    }
+  }
+
+  return data.map((d: Record<string, unknown>) => {
+    const company = companyMap.get(d.company_id as string);
+    return {
+      id: d.id as string,
+      product_name: d.product_name as string,
+      company_id: d.company_id as string | null,
+      company_name: company?.name || null,
+      company_slug: company?.slug || null,
+      plan: d.plan as string,
+      pipeline_id: d.pipeline_id as string | null,
+    };
+  });
+}
+
 async function getUnifiedProducts(): Promise<{
   rows: UnifiedProductRow[];
   counts: ProductTypeCounts;
+  sponsored: SponsoredProduct[];
 }> {
   const supabase = getSupabase();
 
@@ -89,12 +139,13 @@ async function getUnifiedProducts(): Promise<{
     if (data.length < PAGE_SIZE) break;
   }
 
-  // Get type counts from the individual source tables (fast exact counts)
-  const [drugRes, approvedRes, deviceRes, aiRes] = await Promise.all([
+  // Get type counts and sponsored products in parallel
+  const [drugRes, approvedRes, deviceRes, aiRes, sponsored] = await Promise.all([
     supabase.from("product_scores").select("id", { count: "exact", head: true }),
     supabase.from("fda_approvals").select("id", { count: "exact", head: true }),
     supabase.from("medical_devices").select("id", { count: "exact", head: true }),
     supabase.from("ai_ml_devices").select("id", { count: "exact", head: true }),
+    getSponsoredProducts(),
   ]);
 
   const counts: ProductTypeCounts = {
@@ -105,11 +156,11 @@ async function getUnifiedProducts(): Promise<{
     total: (drugRes.count ?? 0) + (approvedRes.count ?? 0) + (deviceRes.count ?? 0) + (aiRes.count ?? 0),
   };
 
-  return { rows: allData, counts };
+  return { rows: allData, counts, sponsored };
 }
 
 export default async function ProductsPage() {
-  const { rows, counts } = await getUnifiedProducts();
+  const { rows, counts, sponsored } = await getUnifiedProducts();
 
   return (
     <div className="page-content" style={{ minHeight: "100vh" }}>
@@ -127,7 +178,7 @@ export default async function ProductsPage() {
         }}
       />
       <Nav />
-      <ProductsPageClient rows={rows} counts={counts} />
+      <ProductsPageClient rows={rows} counts={counts} sponsored={sponsored} />
       <Footer />
     </div>
   );

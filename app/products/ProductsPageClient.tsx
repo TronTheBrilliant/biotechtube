@@ -37,9 +37,20 @@ interface ProductTypeCounts {
   ai_ml: number;
 }
 
+interface SponsoredProduct {
+  id: string;
+  product_name: string;
+  company_id: string | null;
+  company_name: string | null;
+  company_slug: string | null;
+  plan: string;
+  pipeline_id: string | null;
+}
+
 interface Props {
   rows: UnifiedProductRow[];
   counts: ProductTypeCounts;
+  sponsored?: SponsoredProduct[];
 }
 
 const PRODUCT_TYPE_TABS = [
@@ -165,7 +176,7 @@ function getProductLink(row: UnifiedProductRow): string {
   return "#";
 }
 
-export function ProductsPageClient({ rows, counts }: Props) {
+export function ProductsPageClient({ rows, counts, sponsored = [] }: Props) {
   const [typeFilter, setTypeFilter] = useState("all");
   const [stageFilter, setStageFilter] = useState("All");
   const [scoreRange, setScoreRange] = useState(0);
@@ -442,6 +453,49 @@ export function ProductsPageClient({ rows, counts }: Props) {
           </select>
         </div>
       </div>
+
+      {/* Sponsored products */}
+      {sponsored.length > 0 && (
+        <div className="mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {sponsored.map((sp) => (
+              <Link
+                key={sp.id}
+                href={sp.company_slug ? `/company/${sp.company_slug}` : "#"}
+                className="rounded-lg p-4 transition-colors duration-150 hover:opacity-90"
+                style={{
+                  background: sp.plan === "premium"
+                    ? "linear-gradient(135deg, rgba(99,102,241,0.08), rgba(168,85,247,0.08))"
+                    : "var(--color-bg-primary)",
+                  border: sp.plan === "premium"
+                    ? "1px solid rgba(99,102,241,0.2)"
+                    : "1px solid var(--color-border-subtle)",
+                }}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span
+                    className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded"
+                    style={{ background: "rgba(99,102,241,0.1)", color: "#6366f1" }}
+                  >
+                    Sponsored
+                  </span>
+                  {sp.plan === "premium" && (
+                    <span className="text-[10px]" style={{ color: "var(--color-text-tertiary)" }}>Premium</span>
+                  )}
+                </div>
+                <h4 className="text-[14px] font-semibold mt-1" style={{ color: "var(--color-text-primary)" }}>
+                  {sp.product_name}
+                </h4>
+                {sp.company_name && (
+                  <p className="text-[12px]" style={{ color: "var(--color-text-secondary)" }}>
+                    {sp.company_name}
+                  </p>
+                )}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Results count */}
       <div className="flex items-center justify-between mb-3">

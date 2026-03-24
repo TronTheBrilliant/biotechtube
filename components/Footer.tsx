@@ -6,18 +6,20 @@ const platformLinks = [
   { label: "💰 Funding", href: "/funding" },
   { label: "📅 Events", href: "/events" },
   { label: "📰 News", href: "/news" },
+  { label: "📑 Reports", href: "/reports" },
 ];
 
 const forCompaniesLinks = [
-  { label: "🎯 Claim your profile", href: "/signup" },
-  { label: "📢 Submit a pitch", href: "/submit-pitch" },
+  { label: "🎯 Claim your profile", href: "/claim" },
+  { label: "📢 Sponsor a product", href: "/sponsor-product" },
   { label: "🤝 Sponsor BiotechTube", href: "/sponsors" },
   { label: "💻 Website templates", href: "/templates" },
 ];
 
 const companyLinks = [
   { label: "ℹ️ About", href: "/about" },
-  { label: "✉️ Contact", href: "/about" },
+  { label: "💎 Pricing", href: "/pricing" },
+  { label: "🔌 API", href: "/api-docs" },
   { label: "🔒 Privacy policy", href: "/privacy" },
   { label: "📜 Terms", href: "/terms" },
 ];
