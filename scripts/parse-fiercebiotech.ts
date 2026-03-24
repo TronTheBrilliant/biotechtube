@@ -166,6 +166,8 @@ async function main() {
   console.log("\n📰 Parsing FierceBiotech Fundraising Trackers\n");
 
   const files = [
+    { path: ".firecrawl/fiercebiotech-tracker-2022.md", year: 2022 },
+    { path: ".firecrawl/fiercebiotech-tracker-2023.md", year: 2023 },
     { path: ".firecrawl/fiercebiotech-tracker-2024.md", year: 2024 },
     { path: ".firecrawl/fiercebiotech-tracker-2025.md", year: 2025 },
     { path: ".firecrawl/fiercebiotech-tracker-2026.md", year: 2026 },
@@ -190,7 +192,7 @@ async function main() {
   const { data: existing } = await supabase
     .from("funding_rounds")
     .select("company_name, round_type, amount_usd, announced_date")
-    .gte("announced_date", "2024-01-01");
+    .gte("announced_date", "2022-01-01");
 
   // Build dedup index: company_name_lower -> [{amount, date}]
   const existingMap = new Map<string, Array<{ amount: number; date: string; type: string }>>();
