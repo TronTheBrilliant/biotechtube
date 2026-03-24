@@ -141,12 +141,15 @@ async function getPatents(companyId: string): Promise<any[]> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function getPriceHistory(companyId: string): Promise<any[]> {
   const supabase = getSupabase();
+  // Fetch the latest 1000 rows (DESC) to get recent data reliably, then reverse for display
   const { data } = await supabase
     .from('company_price_history')
     .select('date, close, adj_close, volume, market_cap_usd')
     .eq('company_id', companyId)
-    .order('date', { ascending: true });
-  return data || [];
+    .order('date', { ascending: false })
+    .limit(1000);
+  // Reverse to ascending order for chart display
+  return (data || []).reverse();
 }
 
 export async function generateMetadata({

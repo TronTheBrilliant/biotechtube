@@ -116,9 +116,9 @@ const stageColors: Record<string, { bg: string; text: string; border: string }> 
   "Phase 2": { bg: "#eff6ff", text: "#1d4ed8", border: "#93c5fd" },
   "Phase 1/2": { bg: "#f5f3ff", text: "#5b21b6", border: "#c4b5fd" },
   "Phase 1": { bg: "#f5f3ff", text: "#5b21b6", border: "#c4b5fd" },
-  "Pre-clinical": { bg: "#f7f7f6", text: "#6b6b65", border: "rgba(0,0,0,0.14)" },
-  "Preclinical": { bg: "#f7f7f6", text: "#6b6b65", border: "rgba(0,0,0,0.14)" },
-  "Discovery": { bg: "#f7f7f6", text: "#6b6b65", border: "rgba(0,0,0,0.14)" },
+  "Pre-clinical": { bg: "var(--color-bg-secondary)", text: "var(--color-text-secondary)", border: "var(--color-border-medium)" },
+  "Preclinical": { bg: "var(--color-bg-secondary)", text: "var(--color-text-secondary)", border: "var(--color-border-medium)" },
+  "Discovery": { bg: "var(--color-bg-secondary)", text: "var(--color-text-secondary)", border: "var(--color-border-medium)" },
 };
 
 /* ─── Round type badge colors ─── */
@@ -129,7 +129,7 @@ const roundColors: Record<string, { bg: string; text: string }> = {
   "Series C": { bg: "#e8f5f0", text: "#0a3d2e" },
   "Series D": { bg: "#fff0f0", text: "#a32d2d" },
   "IPO": { bg: "#e8f5f0", text: "#0a3d2e" },
-  "Grant": { bg: "#f7f7f6", text: "#6b6b65" },
+  "Grant": { bg: "var(--color-bg-secondary)", text: "var(--color-text-secondary)" },
 };
 
 /* ─── Section Card ─── */
@@ -194,7 +194,7 @@ function StatCard({ label, value, icon, accent = false }: { label: string; value
 
 /* ─── Stage Badge ─── */
 function StageBadge({ stage }: { stage: string }) {
-  const colors = stageColors[stage] || { bg: "#f7f7f6", text: "#6b6b65", border: "rgba(0,0,0,0.14)" };
+  const colors = stageColors[stage] || { bg: "var(--color-bg-secondary)", text: "var(--color-text-secondary)", border: "var(--color-border-medium)" };
   return (
     <span
       className="text-[10px] font-semibold px-2 py-0.5 rounded-full border whitespace-nowrap"
@@ -207,7 +207,7 @@ function StageBadge({ stage }: { stage: string }) {
 
 /* ─── Round Badge ─── */
 function RoundBadge({ type }: { type: string }) {
-  const colors = roundColors[type] || { bg: "#f7f7f6", text: "#6b6b65" };
+  const colors = roundColors[type] || { bg: "var(--color-bg-secondary)", text: "var(--color-text-secondary)" };
   return (
     <span
       className="text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap"
@@ -259,6 +259,7 @@ export function CompanyPageClient({
 }: CompanyPageProps) {
   const [activeTab, setActiveTab] = useState<Tab>("Overview");
   const [priceTimescale, setPriceTimescale] = useState<PriceTimescale>("Max");
+  const [showAllPipeline, setShowAllPipeline] = useState(false);
 
   // On-demand report generation state
   const [report, setReport] = useState<CompanyReport | null>(initialReport);
@@ -394,6 +395,15 @@ export function CompanyPageClient({
 
   const phase3Count = pipelines.filter(p => p.stage === "Phase 3" || p.stage === "Phase 2/3").length;
 
+  // Derive stage dynamically based on actual data
+  const derivedStage = useMemo(() => {
+    if (fdaApprovals.length > 0) return "Approved";
+    if (pipelines.some(p => p.stage === "Phase 3" || p.stage === "Phase 2/3")) return "Phase 3";
+    if (pipelines.some(p => p.stage === "Phase 2" || p.stage === "Phase 1/2")) return "Phase 2";
+    if (pipelines.some(p => p.stage === "Phase 1")) return "Phase 1";
+    return company.stage;
+  }, [fdaApprovals, pipelines, company.stage]);
+
   // --- Total funding raised ---
   const totalFundingRaised = useMemo(() => {
     return dbFundingRounds.reduce((sum, r) => sum + (r.amount_usd || 0), 0);
@@ -420,13 +430,19 @@ export function CompanyPageClient({
                   {company.ticker}
                 </span>
               )}
-              <StageBadge stage={company.stage} />
+              <StageBadge stage={derivedStage} />
             </div>
             <div className="flex items-center gap-3 mt-1 flex-wrap">
               {company.city && company.country && (
                 <span className="text-12 flex items-center gap-1" style={{ color: "var(--color-text-secondary)" }}>
                   <MapPin size={11} />
                   {company.city}, {company.country}
+                </span>
+              )}
+              {company.founded > 0 && (
+                <span className="text-12 flex items-center gap-1" style={{ color: "var(--color-text-secondary)" }}>
+                  <Calendar size={11} />
+                  Founded {company.founded}
                 </span>
               )}
               {company.website && (
@@ -633,7 +649,7 @@ export function CompanyPageClient({
                       <tbody>
                         {sortedPipelines.slice(0, 5).map((p) => (
                           <tr key={p.id} style={{ borderBottom: "1px solid var(--color-border-subtle)" }}>
-                            <td className="px-3 py-2 font-medium" style={{ color: "var(--color-text-primary)" }}>{p.product_name}</td>
+                            <td className="px-3 py-2 font-medium" style={{ color: "var(--color-text-primary)" }} title={p.product_name}>{p.product_name.length > 80 ? p.product_name.slice(0, 80) + "..." : p.product_name}</td>
                             <td className="px-3 py-2" style={{ color: "var(--color-text-secondary)" }}>{p.indication}</td>
                             <td className="px-3 py-2"><StageBadge stage={p.stage} /></td>
                           </tr>
@@ -795,9 +811,9 @@ export function CompanyPageClient({
                     </tr>
                   </thead>
                   <tbody>
-                    {sortedPipelines.map((p) => (
+                    {(showAllPipeline ? sortedPipelines : sortedPipelines.slice(0, 15)).map((p) => (
                       <tr key={p.id} style={{ borderBottom: "1px solid var(--color-border-subtle)" }}>
-                        <td className="px-3 py-2.5 font-medium" style={{ color: "var(--color-text-primary)" }}>{p.product_name}</td>
+                        <td className="px-3 py-2.5 font-medium" style={{ color: "var(--color-text-primary)" }} title={p.product_name}>{p.product_name.length > 80 ? p.product_name.slice(0, 80) + "..." : p.product_name}</td>
                         <td className="px-3 py-2.5" style={{ color: "var(--color-text-secondary)" }}>{p.indication}</td>
                         <td className="px-3 py-2.5"><StageBadge stage={p.stage} /></td>
                         <td className="px-3 py-2.5" style={{ color: "var(--color-text-secondary)" }}>{p.trial_status || "—"}</td>
@@ -820,6 +836,15 @@ export function CompanyPageClient({
                   </tbody>
                 </table>
               </div>
+              {sortedPipelines.length > 15 && (
+                <button
+                  onClick={() => setShowAllPipeline(!showAllPipeline)}
+                  className="text-12 mt-3 flex items-center gap-1 font-medium"
+                  style={{ color: "var(--color-accent)" }}
+                >
+                  {showAllPipeline ? "Show fewer" : `View all ${sortedPipelines.length} programs`} <ChevronRight size={13} style={{ transform: showAllPipeline ? "rotate(90deg)" : undefined }} />
+                </button>
+              )}
 
               {pipelines.length === 0 && (
                 <div className="py-10 text-center rounded-xl border" style={{ borderColor: "var(--color-border-subtle)", background: "var(--color-bg-secondary)" }}>
@@ -1132,7 +1157,7 @@ export function CompanyPageClient({
                 { icon: <Calendar size={12} />, label: "Founded", value: (report?.founded || (company.founded > 0 ? company.founded : null)) ? String(report?.founded || company.founded) : null },
                 { icon: <Users size={12} />, label: "Employees", value: report?.employee_estimate || (company.employees && company.employees !== "0" ? company.employees : null) },
                 { icon: <MapPin size={12} />, label: "Location", value: [report?.headquarters_city || company.city, report?.headquarters_country || company.country].filter(Boolean).join(", ") || null },
-                { icon: <Activity size={12} />, label: "Stage", value: report?.stage || company.stage },
+                { icon: <Activity size={12} />, label: "Stage", value: derivedStage },
                 { icon: <Globe size={12} />, label: "Revenue", value: report?.revenue_status || null },
               ].filter((item) => item.value).map((item) => (
                 <div key={item.label} className="flex items-center gap-2">
