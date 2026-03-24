@@ -22,7 +22,7 @@ import TopPeople from "@/components/home/TopPeople";
 import FundingChart from "@/components/home/FundingChart";
 import BiotechIndexChart from "@/components/home/BiotechIndexChart";
 import HotPipelines from "@/components/home/HotPipelines";
-import HotProducts from "@/components/home/HotProducts";
+// import HotProducts from "@/components/home/HotProducts";
 import TrendingNews from "@/components/home/TrendingNews";
 import SciencePapers from "@/components/home/SciencePapers";
 import OpenPositions from "@/components/home/OpenPositions";
@@ -379,7 +379,7 @@ async function getHotProducts() {
 // ── Page ──
 
 export default async function HomePage() {
-  const [companies, snapshot, trending, sectors, countries, investorsData, peopleData, fundingAnnualData, indexHistory, hotPipelines, hotProducts] =
+  const [companies, snapshot, trending, sectors, countries, investorsData, peopleData, fundingAnnualData, indexHistory, hotPipelines] =
     await Promise.all([
       getTopCompanies(),
       getLatestSnapshot(),
@@ -391,7 +391,6 @@ export default async function HomePage() {
       getFundingAnnualForHomepage(),
       getIndexHistory(),
       getHotPipelines(),
-      getHotProducts(),
     ]);
 
   const funding = fundingData as FundingRound[];
@@ -541,13 +540,8 @@ export default async function HomePage() {
           <FundingChart data={fundingAnnualData} />
         </HomeSection>
 
-        {/* Row 3: Hot Products + Funding Radar */}
+        {/* Row 3: Funding Radar */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {hotProducts.length > 0 && (
-            <HomeSection icon="🔬" title="Hot Products" viewAllHref="/products" viewAllLabel="View all">
-              <HotProducts products={hotProducts} />
-            </HomeSection>
-          )}
           <HomeSection icon="📡" title="Funding Radar" viewAllHref="/funding-radar" viewAllLabel="View all">
             <FundingRadar rounds={fundingRadar} />
           </HomeSection>
@@ -556,7 +550,7 @@ export default async function HomePage() {
         {/* Row 3b: Hot Pipelines */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {hotPipelines.length > 0 && (
-            <HomeSection icon="🧪" title="Hot Pipelines" viewAllHref="/pipelines" viewAllLabel="View all">
+            <HomeSection icon="🧪" title="Hot Pipelines" viewAllHref="/pipeline" viewAllLabel="View all">
               <HotPipelines pipelines={hotPipelines} />
             </HomeSection>
           )}

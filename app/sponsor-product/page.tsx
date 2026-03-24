@@ -5,6 +5,7 @@ import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 
 export const metadata: Metadata = {
+  robots: "noindex, nofollow",
   title: "Sponsor a Product — BiotechTube",
   description:
     "Get premium placement for your biotech product on BiotechTube. Reach investors, analysts, and industry professionals with sponsored listings.",

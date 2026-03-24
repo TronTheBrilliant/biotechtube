@@ -4,14 +4,14 @@ const platformLinks = [
   { label: "🏢 Companies", href: "/companies" },
   { label: "🧬 Pipeline", href: "/pipeline" },
   { label: "💰 Funding", href: "/funding" },
+  { label: "📊 Markets", href: "/markets" },
+  { label: "🏷️ Sectors", href: "/sectors" },
   { label: "📅 Events", href: "/events" },
   { label: "📰 News", href: "/news" },
-  { label: "📑 Reports", href: "/reports" },
 ];
 
 const forCompaniesLinks = [
   { label: "🎯 Claim your profile", href: "/claim" },
-  { label: "📢 Sponsor a product", href: "/sponsor-product" },
   { label: "🤝 Sponsor BiotechTube", href: "/sponsors" },
   { label: "💻 Website templates", href: "/templates" },
 ];
@@ -19,7 +19,6 @@ const forCompaniesLinks = [
 const companyLinks = [
   { label: "ℹ️ About", href: "/about" },
   { label: "💎 Pricing", href: "/pricing" },
-  { label: "🔌 API", href: "/api-docs" },
   { label: "🔒 Privacy policy", href: "/privacy" },
   { label: "📜 Terms", href: "/terms" },
 ];

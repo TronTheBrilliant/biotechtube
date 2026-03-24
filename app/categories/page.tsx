@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
+  robots: "noindex, nofollow",
   title: "Product Categories — Drugs, Devices & AI/ML | BiotechTube",
   description:
     "Explore biotech and medtech products by category. Pipeline drugs by phase, medical devices by class, and AI/ML-enabled devices by specialty.",

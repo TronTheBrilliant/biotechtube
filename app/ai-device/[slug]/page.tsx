@@ -101,6 +101,7 @@ export async function generateMetadata({
   const description = `${device.device_name} by ${device.company_name}. AI/ML-enabled medical device in ${device.ai_ml_category || device.medical_specialty || "healthcare"}. FDA ${device.submission_type || "submission"}.`;
 
   return {
+    robots: "noindex, nofollow",
     title,
     description,
     openGraph: { title, description, type: "article", siteName: "BiotechTube" },

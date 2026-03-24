@@ -9,6 +9,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
+  robots: "noindex, nofollow",
   title: "Browse by Indication — Drug Pipeline by Disease | BiotechTube",
   description:
     "Explore the clinical drug pipeline organized by indication and therapeutic area. Find competing products for every disease area from cancer to rare diseases.",

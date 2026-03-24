@@ -109,6 +109,7 @@ export async function generateMetadata({
   const description = `Track ${result.products.length} drugs and therapies in development for ${result.indication}. Compare clinical stages, company pipelines, and hype scores.`;
 
   return {
+    robots: "noindex, nofollow",
     title,
     description,
     openGraph: {

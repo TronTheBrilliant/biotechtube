@@ -7,6 +7,7 @@ import type { Metadata } from "next";
 export const revalidate = 300;
 
 export const metadata: Metadata = {
+  robots: "noindex, nofollow",
   title: "Biotech Product Rankings — Hype Score | BiotechTube",
   description:
     "Discover the most promising drugs, devices, AI/ML tools and therapies ranked by Hype Score. Track biotech product momentum across clinical stages.",

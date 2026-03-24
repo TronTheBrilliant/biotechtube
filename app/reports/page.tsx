@@ -8,6 +8,7 @@ import { createClient } from "@supabase/supabase-js";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
+  robots: "noindex, nofollow",
   title: "Biotech Intelligence Reports — BiotechTube",
   description:
     "AI-generated competitive landscape reports for major therapeutic areas. Explore oncology, neurology, immunotherapy, gene therapy, and more.",

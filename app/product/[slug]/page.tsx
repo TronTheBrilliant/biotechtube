@@ -175,6 +175,7 @@ export async function generateMetadata({
   const description = `${product.product_name} is a ${product.stage || "clinical"} stage product by ${product.company_name} for ${product.indication || "various indications"}. Track clinical trials, hype score, and competing products.`;
 
   return {
+    robots: "noindex, nofollow",
     title,
     description,
     openGraph: {

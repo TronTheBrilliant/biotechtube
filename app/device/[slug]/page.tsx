@@ -125,6 +125,7 @@ export async function generateMetadata({
   const description = `${device.device_name} by ${device.company_name}. ${device.submission_type || "FDA"} submission, ${device.medical_specialty || "medical device"}. Decision: ${device.decision || "pending"}.`;
 
   return {
+    robots: "noindex, nofollow",
     title,
     description,
     openGraph: { title, description, type: "article", siteName: "BiotechTube" },

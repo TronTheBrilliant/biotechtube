@@ -6,6 +6,7 @@ import { Footer } from "@/components/Footer";
 import { ApiDocsClient } from "./ApiDocsClient";
 
 export const metadata: Metadata = {
+  robots: "noindex, nofollow",
   title: "API Documentation — BiotechTube",
   description:
     "Programmatic access to biotech market data. Companies, pipelines, products, funding, and market snapshots via REST API.",

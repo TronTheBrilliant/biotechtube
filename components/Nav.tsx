@@ -40,7 +40,6 @@ const MENUS: MenuCategory[] = [
       { href: "/funding", emoji: "💰", title: "Funding", subtitle: "Rounds & deals", iconBg: "#fef3c7" },
       { href: "/markets", emoji: "📊", title: "Markets", subtitle: "Stock data", iconBg: "#fce7f3" },
       { href: "/sectors", emoji: "🏷️", title: "Sectors", subtitle: "20 biotech sectors", iconBg: "#f5f3ff" },
-      { href: "/reports", emoji: "📑", title: "Reports", subtitle: "Intelligence reports", iconBg: "#eef2ff" },
     ],
     featured: {
       heading: "Top Countries",
@@ -55,26 +54,15 @@ const MENUS: MenuCategory[] = [
   {
     label: "Discover",
     items: [
-      { href: "/therapeutic-areas", emoji: "🧬", title: "Therapeutic Areas", subtitle: "21 disease areas", iconBg: "#f0fdf4" },
-      { href: "/pipeline", emoji: "💊", title: "Drugs", subtitle: "Clinical pipeline", iconBg: "#eff6ff" },
-      { href: "/people", emoji: "👤", title: "People", subtitle: "Executives & leaders", iconBg: "#fef3c7" },
-      { href: "/investors", emoji: "🏦", title: "Investors", subtitle: "VC & portfolio data", iconBg: "#fce7f3" },
+      { href: "/trending", emoji: "🔥", title: "Trending", subtitle: "Hot companies", iconBg: "#fef3c7" },
+      { href: "/countries", emoji: "🌍", title: "Countries", subtitle: "30+ markets", iconBg: "#f0fdf4" },
+      { href: "/events", emoji: "📅", title: "Events", subtitle: "Industry events", iconBg: "#eff6ff" },
     ],
-    featured: {
-      heading: "Popular",
-      items: [
-        { href: "/therapeutic-areas/oncology", emoji: "🎯", label: "Oncology" },
-        { href: "/therapeutic-areas/immunotherapy", emoji: "🛡️", label: "Immunotherapy" },
-        { href: "/therapeutic-areas/neuroscience", emoji: "🧠", label: "Neuroscience" },
-        { href: "/therapeutic-areas/rare-diseases", emoji: "💎", label: "Rare Diseases" },
-      ],
-    },
   },
   {
     label: "News",
     items: [
       { href: "/news", emoji: "📰", title: "Latest News" },
-      { href: "/events", emoji: "📅", title: "Events" },
     ],
   },
   {
@@ -82,8 +70,6 @@ const MENUS: MenuCategory[] = [
     items: [
       { href: "/about", emoji: "📋", title: "About" },
       { href: "/pricing", emoji: "💎", title: "Pricing" },
-      { href: "/api-docs", emoji: "🔌", title: "API", subtitle: "Developer docs" },
-      { href: "/sponsor-product", emoji: "📢", title: "Sponsor a Product" },
     ],
   },
 ];

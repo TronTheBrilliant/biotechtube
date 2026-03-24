@@ -148,6 +148,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const ta = THERAPEUTIC_AREAS[slug];
   if (!ta) return { title: "Report Not Found — BiotechTube" };
   return {
+    robots: "noindex, nofollow",
     title: `${ta.name} Intelligence Report — BiotechTube`,
     description: `Competitive landscape analysis for ${ta.name}. Top products, companies, phase distribution, and funding data.`,
   };
