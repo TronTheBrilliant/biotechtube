@@ -12,8 +12,8 @@ const roundColors: Record<string, { bg: string; text: string }> = {
   "Series A": { bg: "#f5f3ff", text: "#5b21b6" },
   Seed: { bg: "#e8f5f0", text: "#0a3d2e" },
   Grant: { bg: "#fef3e2", text: "#b45309" },
-  Public: { bg: "#f7f7f6", text: "#6b6b65" },
-  "Follow-on": { bg: "#f7f7f6", text: "#6b6b65" },
+  Public: { bg: "var(--color-bg-secondary)", text: "var(--color-text-secondary)" },
+  "Follow-on": { bg: "var(--color-bg-secondary)", text: "var(--color-text-secondary)" },
 };
 
 const roundEmoji: Record<string, string> = {

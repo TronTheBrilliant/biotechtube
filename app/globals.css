@@ -56,6 +56,19 @@ table[style*="height: 48px"] #tv-attr-logo {
   --color-text-secondary: #9e9e96;
   --color-text-tertiary: #6b6b65;
   --color-text-accent: #5DCAA5;
+
+  --color-accent-subtle: rgba(93, 202, 165, 0.12);
+  --color-accent-dark: #5DCAA5;
+}
+
+/* Dark mode adjustments for decorative badge backgrounds */
+.dark img {
+  /* Slight brightness adjustment for logos on dark bg */
+}
+
+/* Make box-shadows lighter in dark mode */
+.dark .hover\:shadow-md:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2) !important;
 }
 
 body {

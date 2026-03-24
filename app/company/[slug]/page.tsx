@@ -271,6 +271,7 @@ export default async function CompanyPage({
       />
       <CompanyPageClient
         company={company}
+        companyId={companyId}
         companyFunding={companyFunding}
         similar={similar}
         report={report}

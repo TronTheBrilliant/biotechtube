@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { TickerBar } from "@/components/TickerBar";
 import { Footer } from "@/components/Footer";
-import { IndexCards } from "@/components/IndexCards";
+// import { IndexCards } from "@/components/IndexCards";
 import { HomeSection } from "@/components/HomeSection";
 import { FundingRound, BiotechEvent } from "@/lib/types";
 import { dbRowsToCompanies } from "@/lib/adapters";
@@ -20,6 +20,8 @@ import { UpcomingEventsSection } from "@/components/home/UpcomingEventsSection";
 import TopInvestors from "@/components/home/TopInvestors";
 import TopPeople from "@/components/home/TopPeople";
 import FundingChart from "@/components/home/FundingChart";
+import BiotechIndexChart from "@/components/home/BiotechIndexChart";
+import HotPipelines from "@/components/home/HotPipelines";
 import TrendingNews from "@/components/home/TrendingNews";
 import SciencePapers from "@/components/home/SciencePapers";
 import OpenPositions from "@/components/home/OpenPositions";
@@ -294,10 +296,67 @@ async function getTopPeopleData() {
   }
 }
 
+async function getIndexHistory() {
+  const supabase = getSupabase();
+  const PAGE_SIZE = 1000;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let all: any[] = [];
+  let from = 0;
+  let hasMore = true;
+
+  while (hasMore) {
+    const { data } = await supabase
+      .from("market_snapshots")
+      .select("snapshot_date, total_market_cap")
+      .not("total_market_cap", "is", null)
+      .order("snapshot_date", { ascending: true })
+      .range(from, from + PAGE_SIZE - 1);
+
+    const page = data ?? [];
+    all = all.concat(page);
+    hasMore = page.length >= PAGE_SIZE;
+    from += PAGE_SIZE;
+  }
+
+  return all.map((row: { snapshot_date: string; total_market_cap: string | number }) => ({
+    snapshot_date: row.snapshot_date,
+    total_market_cap: Number(row.total_market_cap),
+  }));
+}
+
+async function getHotPipelines() {
+  const supabase = getSupabase();
+  const { data } = await supabase
+    .from("pipelines")
+    .select("product_name, indication, stage, company_name, trial_status, company_id")
+    .eq("stage", "Phase 3")
+    .eq("trial_status", "Recruiting")
+    .order("start_date", { ascending: false })
+    .limit(20);
+  if (!data) return [];
+  // Deduplicate by product_name, keep first occurrence
+  const seen = new Set<string>();
+  const deduped: typeof data = [];
+  for (const row of data) {
+    if (!seen.has(row.product_name)) {
+      seen.add(row.product_name);
+      deduped.push(row);
+    }
+    if (deduped.length >= 5) break;
+  }
+  return deduped.map((row) => ({
+    product_name: row.product_name,
+    indication: row.indication,
+    stage: row.stage,
+    company_name: row.company_name,
+    company_id: row.company_id,
+  }));
+}
+
 // ── Page ──
 
 export default async function HomePage() {
-  const [companies, snapshot, trending, sectors, countries, investorsData, peopleData, fundingAnnualData] =
+  const [companies, snapshot, trending, sectors, countries, investorsData, peopleData, fundingAnnualData, indexHistory, hotPipelines] =
     await Promise.all([
       getTopCompanies(),
       getLatestSnapshot(),
@@ -307,6 +366,8 @@ export default async function HomePage() {
       getTopInvestorsData(),
       getTopPeopleData(),
       getFundingAnnualForHomepage(),
+      getIndexHistory(),
+      getHotPipelines(),
     ]);
 
   const funding = fundingData as FundingRound[];
@@ -340,8 +401,19 @@ export default async function HomePage() {
   return (
     <div
       className="page-content"
-      style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}
+      style={{ minHeight: "100vh" }}
     >
+      {/* Background gradient: white at top fading to warm grey */}
+      <div style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: "linear-gradient(to bottom, var(--color-bg-primary) 0%, var(--color-bg-primary) 200px, var(--color-bg-tertiary) 600px)",
+        zIndex: -1,
+        pointerEvents: "none",
+      }} />
       <Nav />
       <TickerBar />
 
@@ -383,27 +455,29 @@ export default async function HomePage() {
               in biotech market cap.
             </p>
           </div>
-          <div className="flex items-center gap-3 flex-shrink-0">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-3 flex-shrink-0 mt-2 md:mt-0">
             <Link
-              href="/markets"
-              className="text-13 font-semibold px-5 py-2.5 rounded-lg transition-all duration-150 hover:opacity-90"
+              href="/signup"
+              className="group flex flex-col items-center sm:items-start px-5 py-3 rounded-lg transition-all duration-150 hover:opacity-90 hover:shadow-md"
               style={{ background: "var(--color-accent)", color: "white" }}
             >
-              Explore Markets
+              <span className="text-14 font-bold">Get Started Free</span>
+              <span className="text-11 opacity-80 mt-0.5">Track companies & pipelines</span>
             </Link>
             <Link
-              href="/top-companies"
-              className="text-13 font-semibold px-5 py-2.5 rounded-lg transition-all duration-150 hover:opacity-90"
-              style={{ background: "var(--color-bg-tertiary)", color: "var(--color-text-primary)", border: "1px solid var(--color-border-medium)" }}
+              href="/claim"
+              className="group flex flex-col items-center sm:items-start px-5 py-3 rounded-lg transition-all duration-150 hover:opacity-90 hover:shadow-md"
+              style={{ background: "var(--color-bg-primary)", color: "var(--color-text-primary)", border: "1.5px solid var(--color-border-medium)" }}
             >
-              Browse Companies
+              <span className="text-14 font-bold">Claim Your Company</span>
+              <span className="text-11 mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>Manage your company profile</span>
             </Link>
           </div>
         </div>
       </div>
 
-      {/* Index Cards */}
-      {snapshot && <IndexCards snapshot={snapshot} />}
+      {/* Index Cards — hidden for testing */}
+      {/* {snapshot && <IndexCards snapshot={snapshot} />} */}
 
       {/* Sections Grid */}
       <div className="px-4 md:px-6 py-4 space-y-4 max-w-[1200px] mx-auto">
@@ -418,6 +492,13 @@ export default async function HomePage() {
             <TopCompanies companies={top5Companies} />
           </HomeSection>
         </div>
+
+        {/* Biotech Market Index — full width */}
+        {indexHistory.length > 0 && (
+          <HomeSection icon="📈" title="Biotech Market Index" viewAllHref="/markets" viewAllLabel="Full markets">
+            <BiotechIndexChart data={indexHistory} />
+          </HomeSection>
+        )}
 
         {/* Row 2: Sectors + Countries */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -438,35 +519,44 @@ export default async function HomePage() {
           <FundingChart data={fundingAnnualData} />
         </HomeSection>
 
-        {/* Row 3: Funding Radar + Events */}
+        {/* Row 3: Funding Radar + Hot Pipelines */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <HomeSection icon="📡" title="Funding Radar" viewAllHref="/funding-radar" viewAllLabel="View all">
             <FundingRadar rounds={fundingRadar} />
           </HomeSection>
+          {hotPipelines.length > 0 && (
+            <HomeSection icon="🧪" title="Hot Pipelines" viewAllHref="/pipelines" viewAllLabel="View all">
+              <HotPipelines pipelines={hotPipelines} />
+            </HomeSection>
+          )}
+        </div>
+
+        {/* Row 4: Events + Investors */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <HomeSection icon="📅" title="Upcoming Events" viewAllHref="/events" viewAllLabel="View all">
             <UpcomingEventsSection events={events.slice(0, 5)} />
           </HomeSection>
-        </div>
-
-        {/* Row 4: Investors + People */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {investorsData.length > 0 && (
             <HomeSection icon="🏦" title="Top Investors" viewAllHref="/top-investors" viewAllLabel="View all">
               <TopInvestors investors={investorsData} />
             </HomeSection>
           )}
+        </div>
+
+        {/* Row 5: People + News */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {peopleData.length > 0 && (
             <HomeSection icon="👤" title="People in Biotech" viewAllHref="/top-people" viewAllLabel="View all">
               <TopPeople people={peopleData} />
             </HomeSection>
           )}
-        </div>
-
-        {/* Row 5: News + Papers */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <HomeSection icon="📰" title="Trending News" viewAllHref="/news" viewAllLabel="View all">
             <TrendingNews />
           </HomeSection>
+        </div>
+
+        {/* Row 6: Papers */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <HomeSection icon="📄" title="Top Science Papers" viewAllHref="/papers" viewAllLabel="View all">
             <SciencePapers />
           </HomeSection>

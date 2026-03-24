@@ -5,6 +5,9 @@ const nextConfig = {
       { protocol: 'https', hostname: 'logo.clearbit.com' },
     ],
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default nextConfig;

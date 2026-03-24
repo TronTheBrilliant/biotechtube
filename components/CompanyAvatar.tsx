@@ -67,7 +67,7 @@ export function CompanyAvatar({ name, logoUrl, website, size = 28, className = "
         className={`rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden ${className}`}
         style={{
           width: size, height: size,
-          background: "white",
+          background: "var(--color-bg-primary)",
           border: "0.5px solid var(--color-border-subtle)",
           padding: 2,
         }}

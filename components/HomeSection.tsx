@@ -18,20 +18,28 @@ export function HomeSection({
 }: Props) {
   return (
     <div
-      className="rounded-lg border overflow-hidden"
+      className="rounded-lg overflow-hidden"
       style={{
         background: "var(--color-bg-primary)",
-        borderColor: "var(--color-border-subtle)",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 0 0 0.5px var(--color-border-subtle)",
       }}
     >
+      {/* Accent top bar */}
       <div
-        className="flex items-center justify-between px-4 py-2.5"
+        style={{
+          height: 3,
+          background: "linear-gradient(90deg, var(--color-accent) 0%, var(--color-accent-light, #5DCAA5) 100%)",
+          borderRadius: "10px 10px 0 0",
+        }}
+      />
+      <div
+        className="flex items-center justify-between px-4 py-3"
         style={{ borderBottom: "0.5px solid var(--color-border-subtle)" }}
       >
-        <div className="flex items-center gap-2">
-          <span className="text-[15px]">{icon}</span>
+        <div className="flex items-center gap-2.5">
+          <span className="text-[16px]">{icon}</span>
           <h3
-            className="text-13 font-semibold uppercase tracking-[0.3px]"
+            className="text-[13px] font-bold uppercase tracking-[0.5px]"
             style={{ color: "var(--color-text-primary)" }}
           >
             {title}
@@ -39,7 +47,7 @@ export function HomeSection({
         </div>
         <Link
           href={viewAllHref}
-          className="flex items-center gap-1 text-12 font-medium transition-opacity hover:opacity-80"
+          className="flex items-center gap-1 text-12 font-semibold px-2.5 py-1 rounded-md transition-all duration-150 hover:bg-[var(--color-accent-subtle,#e8f5f0)]"
           style={{ color: "var(--color-accent)" }}
         >
           {viewAllLabel}

@@ -15,7 +15,7 @@ const stageColors: Record<string, { bg: string; text: string; border: string }> 
   "Phase 2": { bg: "#eff6ff", text: "#1d4ed8", border: "#93c5fd" },
   "Phase 1/2": { bg: "#f5f3ff", text: "#5b21b6", border: "#c4b5fd" },
   "Phase 1": { bg: "#f5f3ff", text: "#5b21b6", border: "#c4b5fd" },
-  "Pre-clinical": { bg: "#f7f7f6", text: "#6b6b65", border: "rgba(0,0,0,0.14)" },
+  "Pre-clinical": { bg: "var(--color-bg-secondary)", text: "var(--color-text-secondary)", border: "var(--color-border-medium)" },
 };
 
 const roundBadgeColors: Record<string, { bg: string; text: string }> = {
@@ -297,7 +297,7 @@ export function RankingTable({ companies, mode = "top", funding = [], startRank 
                     ) : (
                       <span
                         className="text-[10px] md:text-[11px] px-[5px] py-[2px] rounded-[3px] border whitespace-nowrap"
-                        style={{ background: "#f7f7f6", color: "#6b6b65", borderColor: "rgba(0,0,0,0.14)", borderWidth: "0.5px" }}
+                        style={{ background: "var(--color-bg-secondary)", color: "var(--color-text-secondary)", borderColor: "var(--color-border-medium)", borderWidth: "0.5px" }}
                       >
                         —
                       </span>
@@ -415,7 +415,7 @@ export function RankingTable({ companies, mode = "top", funding = [], startRank 
                         {company.stage}
                       </span>
                     ) : (
-                      <span className="text-[10px] md:text-[11px] px-[5px] py-[2px] rounded-[3px] border whitespace-nowrap" style={{ background: "#f7f7f6", color: "#6b6b65", borderColor: "rgba(0,0,0,0.14)", borderWidth: "0.5px" }}>—</span>
+                      <span className="text-[10px] md:text-[11px] px-[5px] py-[2px] rounded-[3px] border whitespace-nowrap" style={{ background: "var(--color-bg-secondary)", color: "var(--color-text-secondary)", borderColor: "var(--color-border-medium)", borderWidth: "0.5px" }}>—</span>
                     )}
                   </div>
                 </Link>
@@ -625,7 +625,7 @@ export function RankingTable({ companies, mode = "top", funding = [], startRank 
                       {company.stage}
                     </span>
                   ) : (
-                    <span className="text-[10px] md:text-[11px] px-[5px] py-[2px] rounded-[3px] border whitespace-nowrap" style={{ background: "#f7f7f6", color: "#6b6b65", borderColor: "rgba(0,0,0,0.14)", borderWidth: "0.5px" }}>—</span>
+                    <span className="text-[10px] md:text-[11px] px-[5px] py-[2px] rounded-[3px] border whitespace-nowrap" style={{ background: "var(--color-bg-secondary)", color: "var(--color-text-secondary)", borderColor: "var(--color-border-medium)", borderWidth: "0.5px" }}>—</span>
                   )}
                 </div>
 

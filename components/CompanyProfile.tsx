@@ -10,7 +10,7 @@ const stageColors: Record<string, { bg: string; text: string; border: string }> 
   "Phase 2": { bg: "#eff6ff", text: "#1d4ed8", border: "#93c5fd" },
   "Phase 1/2": { bg: "#f5f3ff", text: "#5b21b6", border: "#c4b5fd" },
   "Phase 1": { bg: "#f5f3ff", text: "#5b21b6", border: "#c4b5fd" },
-  "Pre-clinical": { bg: "#f7f7f6", text: "#6b6b65", border: "rgba(0,0,0,0.14)" },
+  "Pre-clinical": { bg: "var(--color-bg-secondary)", text: "var(--color-text-secondary)", border: "var(--color-border-medium)" },
 };
 
 const focusColors: Record<string, { bg: string; text: string; border: string }> = {
@@ -143,9 +143,9 @@ export function CompanyProfileHero({ company, reportSummary }: CompanyProfilePro
           <span
             className="text-12 px-2 py-[3px] rounded-sm border"
             style={{
-              background: company.type === "Public" ? "#e8f5f0" : "#f7f7f6",
-              color: company.type === "Public" ? "#0a3d2e" : "#6b6b65",
-              borderColor: company.type === "Public" ? "#5DCAA5" : "rgba(0,0,0,0.14)",
+              background: company.type === "Public" ? "#e8f5f0" : "var(--color-bg-secondary)",
+              color: company.type === "Public" ? "#0a3d2e" : "var(--color-text-secondary)",
+              borderColor: company.type === "Public" ? "#5DCAA5" : "var(--color-border-medium)",
               borderWidth: "0.5px",
             }}
           >

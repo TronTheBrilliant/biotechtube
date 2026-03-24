@@ -73,7 +73,7 @@ const phaseColors: Record<string, { bg: string; text: string; border: string }> 
   "Phase 2": { bg: "#eff6ff", text: "#1d4ed8", border: "#93c5fd" },
   "Phase 1/2": { bg: "#f5f3ff", text: "#5b21b6", border: "#c4b5fd" },
   "Phase 1": { bg: "#f5f3ff", text: "#5b21b6", border: "#c4b5fd" },
-  "Pre-clinical": { bg: "#f7f7f6", text: "#6b6b65", border: "rgba(0,0,0,0.14)" },
+  "Pre-clinical": { bg: "var(--color-bg-secondary)", text: "var(--color-text-secondary)", border: "var(--color-border-medium)" },
 };
 
 export default async function TherapeuticAreaPage({ params }: AreaPageProps) {

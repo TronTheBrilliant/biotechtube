@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { TvStockChart } from "@/components/charts/TvStockChart";
 import { TvAreaChart } from "@/components/charts/TvAreaChart";
+import { WatchlistButton } from "@/components/WatchlistButton";
 
 /* ─── Types for enriched data ─── */
 interface PipelineRow {
@@ -229,6 +230,7 @@ interface CompanySector {
 /* ─── Props ─── */
 interface CompanyPageProps {
   company: Company;
+  companyId: string | null;
   companyFunding: FundingRound[];
   similar: Company[];
   report: CompanyReport | null;
@@ -246,6 +248,7 @@ interface CompanyPageProps {
    ═══════════════════════════════════════════════ */
 export function CompanyPageClient({
   company,
+  companyId,
   companyFunding,
   similar,
   report: initialReport,
@@ -431,6 +434,7 @@ export function CompanyPageClient({
                 </span>
               )}
               <StageBadge stage={derivedStage} />
+              {companyId && <WatchlistButton companyId={companyId} showLabel />}
             </div>
             <div className="flex items-center gap-3 mt-1 flex-wrap">
               {company.city && company.country && (

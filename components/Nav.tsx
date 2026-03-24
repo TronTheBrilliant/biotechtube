@@ -4,8 +4,9 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Search, Menu, X, ChevronDown, LogIn, User, Settings, List, LogOut } from "lucide-react";
+import { Search, Menu, X, ChevronDown, LogIn, User, Settings, List, LogOut, LayoutDashboard } from "lucide-react";
 import { SearchOverlay } from "./SearchOverlay";
+import { ThemeToggle } from "./ThemeToggle";
 import { useUser } from "@/lib/auth";
 
 /* ─── Menu data ─── */
@@ -343,6 +344,8 @@ export function Nav() {
               </span>
             </button>
 
+            <ThemeToggle />
+
             {user ? (
               <div className="relative" ref={userMenuRef}>
                 <button
@@ -376,17 +379,17 @@ export function Nav() {
                     </div>
                     <div className="py-1">
                       <Link
-                        href="/profile"
+                        href="/dashboard"
                         className="flex items-center gap-2 px-3 py-2 text-[13px] transition-colors"
                         style={{ color: "var(--color-text-secondary)" }}
                         onMouseEnter={(e) => { e.currentTarget.style.background = "var(--color-bg-secondary)"; }}
                         onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
                         onClick={() => setUserMenuOpen(false)}
                       >
-                        <User size={14} /> Profile
+                        <LayoutDashboard size={14} /> Dashboard
                       </Link>
                       <Link
-                        href="/watchlist"
+                        href="/dashboard"
                         className="flex items-center gap-2 px-3 py-2 text-[13px] transition-colors"
                         style={{ color: "var(--color-text-secondary)" }}
                         onMouseEnter={(e) => { e.currentTarget.style.background = "var(--color-bg-secondary)"; }}
@@ -454,6 +457,7 @@ export function Nav() {
             >
               <Search size={18} />
             </button>
+            <ThemeToggle />
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
               className="p-2 rounded-md"
@@ -605,20 +609,28 @@ export function Nav() {
                       </div>
                     </div>
                     <Link
+                      href="/dashboard"
+                      className="flex items-center gap-2 px-1 py-2.5 text-[14px]"
+                      style={{ color: "var(--color-text-secondary)" }}
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      <LayoutDashboard size={16} /> Dashboard
+                    </Link>
+                    <Link
+                      href="/dashboard"
+                      className="flex items-center gap-2 px-1 py-2.5 text-[14px]"
+                      style={{ color: "var(--color-text-secondary)" }}
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      <List size={16} /> Watchlist
+                    </Link>
+                    <Link
                       href="/profile"
                       className="flex items-center gap-2 px-1 py-2.5 text-[14px]"
                       style={{ color: "var(--color-text-secondary)" }}
                       onClick={() => setMobileOpen(false)}
                     >
                       <User size={16} /> Profile
-                    </Link>
-                    <Link
-                      href="/watchlist"
-                      className="flex items-center gap-2 px-1 py-2.5 text-[14px]"
-                      style={{ color: "var(--color-text-secondary)" }}
-                      onClick={() => setMobileOpen(false)}
-                    >
-                      <List size={16} /> Watchlist
                     </Link>
                     <button
                       onClick={() => { signOut(); setMobileOpen(false); }}
