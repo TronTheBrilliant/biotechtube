@@ -3,22 +3,32 @@
 import { useRef, useEffect } from "react";
 import { HistogramSeries, type Time, type ISeriesApi } from "lightweight-charts";
 import { useTvChart } from "@/components/charts/useTvChart";
-import fundingAnnual from "@/data/funding-annual.json";
 import fundingNarrative from "@/data/funding-narrative.json";
 
 const GREEN = "#1a7a5e";
 
-const totalB = fundingAnnual.reduce((s, d) => s + d.amount, 0) / 1000;
+interface AnnualRow {
+  year: number;
+  amount: number; // in $M
+  deals: number;
+}
 
-const chartData = fundingAnnual.map((d) => ({
-  time: `${d.year}-06-01` as string,
-  value: d.amount / 1000, // convert M -> B
-  color: `${GREEN}cc`,
-}));
+interface Props {
+  data?: AnnualRow[];
+}
 
-export default function FundingChart() {
+export default function FundingChart({ data }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const seriesRef = useRef<ISeriesApi<"Histogram"> | null>(null);
+
+  const annualData = data || [];
+  const totalB = annualData.reduce((s, d) => s + d.amount, 0) / 1000;
+
+  const chartData = annualData.map((d) => ({
+    time: `${d.year}-06-01` as string,
+    value: d.amount / 1000, // convert M -> B
+    color: `${GREEN}cc`,
+  }));
 
   const chart = useTvChart(containerRef, {
     rightPriceScale: {
@@ -46,7 +56,18 @@ export default function FundingChart() {
     );
     seriesRef.current = series;
     chart.timeScale().fitContent();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chart]);
+
+  // Update data when props change
+  useEffect(() => {
+    if (!seriesRef.current || !chart || chartData.length === 0) return;
+    seriesRef.current.setData(
+      chartData.map((d) => ({ time: d.time as Time, value: d.value, color: d.color }))
+    );
+    chart.timeScale().fitContent();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
 
   return (
     <div>
@@ -55,7 +76,8 @@ export default function FundingChart() {
         className="text-12 mb-2"
         style={{ color: "var(--color-text-tertiary)" }}
       >
-        Global biotech VC funding 1990–2026 · Total: ${totalB.toFixed(1)}B
+        Global biotech funding by year · Total: ${totalB.toFixed(1)}B ·{" "}
+        {annualData.reduce((s, d) => s + d.deals, 0).toLocaleString()} rounds
       </p>
 
       {/* Histogram chart */}

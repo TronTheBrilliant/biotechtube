@@ -26,6 +26,7 @@ import OpenPositions from "@/components/home/OpenPositions";
 
 import fundingData from "@/data/funding.json";
 import eventsData from "@/data/events.json";
+import { getFundingAnnualForHomepage } from "@/lib/funding-queries";
 
 export const revalidate = 300;
 
@@ -296,7 +297,7 @@ async function getTopPeopleData() {
 // ── Page ──
 
 export default async function HomePage() {
-  const [companies, snapshot, trending, sectors, countries, investorsData, peopleData] =
+  const [companies, snapshot, trending, sectors, countries, investorsData, peopleData, fundingAnnualData] =
     await Promise.all([
       getTopCompanies(),
       getLatestSnapshot(),
@@ -305,6 +306,7 @@ export default async function HomePage() {
       getTopCountries(),
       getTopInvestorsData(),
       getTopPeopleData(),
+      getFundingAnnualForHomepage(),
     ]);
 
   const funding = fundingData as FundingRound[];
@@ -433,7 +435,7 @@ export default async function HomePage() {
 
         {/* Funding Season Chart — full width */}
         <HomeSection icon="💰" title="Funding Season" viewAllHref="/funding" viewAllLabel="View all">
-          <FundingChart />
+          <FundingChart data={fundingAnnualData} />
         </HomeSection>
 
         {/* Row 3: Funding Radar + Events */}

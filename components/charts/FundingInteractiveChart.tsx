@@ -10,39 +10,14 @@ import {
 import { useTvChart } from "./useTvChart";
 import { ChartTooltip } from "./ChartTooltip";
 
-import fundingWeekly from "@/data/funding-weekly.json";
-import fundingMonthly from "@/data/funding-monthly.json";
-import fundingQuarterly from "@/data/funding-quarterly.json";
-import fundingAnnual from "@/data/funding-annual.json";
-
-// ── Data transforms ─────────────────────────────────────────────────
+// ── Types ─────────────────────────────────────────────────────────────
 
 type TimeValue = { time: string; value: number };
-
-const weeklyData: TimeValue[] = fundingWeekly as TimeValue[];
-const monthlyData: TimeValue[] = fundingMonthly as TimeValue[];
-
-const quarterToDate = (label: string) => {
-  const [q, year] = label.split(" ");
-  const month = { Q1: "02", Q2: "05", Q3: "08", Q4: "11" }[q] || "06";
-  return `${year}-${month}-15`;
-};
-const quarterlyData: TimeValue[] = (
-  fundingQuarterly as { label: string; amount: number }[]
-).map((d) => ({ time: quarterToDate(d.label), value: d.amount }));
-
-const annualData: TimeValue[] = (
-  fundingAnnual as { year: number; amount: number }[]
-).map((d) => ({ time: `${d.year}-06-01`, value: d.amount / 1000 })); // M -> B
-
-// ── Types ───────────────────────────────────────────────────────────
-
-type Timeframe = "Weekly" | "Monthly" | "Quarterly" | "Annual";
-const TIMEFRAMES: Timeframe[] = ["Weekly", "Monthly", "Quarterly", "Annual"];
+type Timeframe = "Monthly" | "Quarterly" | "Annual";
+const TIMEFRAMES: Timeframe[] = ["Monthly", "Quarterly", "Annual"];
 
 const GREEN = "#1a7a5e";
 const COLORS: Record<Timeframe, string> = {
-  Weekly: `${GREEN}aa`,
   Monthly: `${GREEN}bb`,
   Quarterly: `${GREEN}cc`,
   Annual: `${GREEN}cc`,
@@ -55,7 +30,7 @@ function formatValue(tf: Timeframe, v: number): string {
 }
 
 function periodLabel(tf: Timeframe): string {
-  return tf === "Annual" ? "years" : tf === "Quarterly" ? "quarters" : tf === "Monthly" ? "months" : "weeks";
+  return tf === "Annual" ? "years" : tf === "Quarterly" ? "quarters" : "months";
 }
 
 function totalLabel(tf: Timeframe, data: TimeValue[]): string {
@@ -65,27 +40,69 @@ function totalLabel(tf: Timeframe, data: TimeValue[]): string {
   return `$${sum.toFixed(0)}M`;
 }
 
-// ── Component ───────────────────────────────────────────────────────
+// ── Props (data from server) ──────────────────────────────────────────
+
+interface AnnualRow {
+  year: number;
+  rounds: number;
+  total: number;
+}
+interface QuarterlyRow {
+  year: number;
+  quarter: number;
+  rounds: number;
+  total: number;
+}
+interface MonthlyRow {
+  year: number;
+  month: number;
+  rounds: number;
+  total: number;
+}
 
 interface Props {
+  annualData: AnnualRow[];
+  quarterlyData: QuarterlyRow[];
+  monthlyData: MonthlyRow[];
   height?: number;
   className?: string;
 }
 
-export function FundingInteractiveChart({ height = 350, className }: Props) {
+// ── Component ─────────────────────────────────────────────────────────
+
+export function FundingInteractiveChart({
+  annualData: annualRaw,
+  quarterlyData: quarterlyRaw,
+  monthlyData: monthlyRaw,
+  height = 350,
+  className,
+}: Props) {
   const [timeframe, setTimeframe] = useState<Timeframe>("Quarterly");
   const containerRef = useRef<HTMLDivElement>(null);
   const seriesRef = useRef<ISeriesApi<"Histogram"> | null>(null);
 
-  const datasets: Record<Timeframe, TimeValue[]> = useMemo(
-    () => ({
-      Weekly: weeklyData,
-      Monthly: monthlyData,
-      Quarterly: quarterlyData,
-      Annual: annualData,
-    }),
-    []
-  );
+  // Transform server data to chart format
+  const datasets: Record<Timeframe, TimeValue[]> = useMemo(() => {
+    const monthly: TimeValue[] = monthlyRaw.map((d) => ({
+      time: `${d.year}-${String(d.month).padStart(2, "0")}-01`,
+      value: Math.round(d.total / 1_000_000), // USD -> $M
+    }));
+
+    const quarterly: TimeValue[] = quarterlyRaw.map((d) => {
+      const month = { 1: "02", 2: "05", 3: "08", 4: "11" }[d.quarter] || "06";
+      return {
+        time: `${d.year}-${month}-15`,
+        value: Math.round(d.total / 1_000_000), // USD -> $M
+      };
+    });
+
+    const annual: TimeValue[] = annualRaw.map((d) => ({
+      time: `${d.year}-06-01`,
+      value: d.total / 1_000_000_000, // USD -> $B
+    }));
+
+    return { Monthly: monthly, Quarterly: quarterly, Annual: annual };
+  }, [annualRaw, quarterlyRaw, monthlyRaw]);
 
   const data = datasets[timeframe];
 
@@ -114,8 +131,7 @@ export function FundingInteractiveChart({ height = 350, className }: Props) {
       fixRightEdge: false,
     },
     localization: {
-      priceFormatter: (price: number) =>
-        formatValue(timeframe, price),
+      priceFormatter: (price: number) => formatValue(timeframe, price),
     },
   });
 
@@ -167,16 +183,12 @@ export function FundingInteractiveChart({ height = 350, className }: Props) {
       } else if (timeframe === "Quarterly") {
         const q = Math.ceil((d.getUTCMonth() + 1) / 3);
         dateStr = `Q${q} ${d.getUTCFullYear()}`;
-      } else if (timeframe === "Monthly") {
+      } else {
         dateStr = d.toLocaleDateString("en-US", {
           month: "short",
           year: "numeric",
           timeZone: "UTC",
         });
-      } else {
-        const endOfWeek = new Date(d);
-        endOfWeek.setUTCDate(endOfWeek.getUTCDate() + 6);
-        dateStr = `Week of ${d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })} – ${endOfWeek.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" })}`;
       }
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
