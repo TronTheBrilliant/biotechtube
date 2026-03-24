@@ -7,7 +7,7 @@ import { createClient } from "@supabase/supabase-js";
 
 import fundingData from "@/data/funding.json";
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 const funding = fundingData as FundingRound[];
 
@@ -29,6 +29,16 @@ async function getCompany(slug: string) {
   return data ? dbRowToCompany(data) : null;
 }
 
+async function getCompanyId(slug: string): Promise<string | null> {
+  const supabase = getSupabase();
+  const { data } = await supabase
+    .from('companies')
+    .select('id')
+    .eq('slug', slug)
+    .single();
+  return data?.id || null;
+}
+
 async function getCompanyReport(slug: string): Promise<CompanyReport | null> {
   const supabase = getSupabase();
   const { data } = await supabase
@@ -40,21 +50,13 @@ async function getCompanyReport(slug: string): Promise<CompanyReport | null> {
   return data as CompanyReport | null;
 }
 
-async function getCompanySectors(slug: string) {
+async function getCompanySectors(companyId: string) {
   const supabase = getSupabase();
-  // First get the company's UUID by slug
-  const { data: companyRow } = await supabase
-    .from('companies')
-    .select('id')
-    .eq('slug', slug)
-    .single();
-  if (!companyRow?.id) return [];
   const { data } = await supabase
     .from('company_sectors')
     .select('sector_id, is_primary, confidence, sectors(id, name, slug)')
-    .eq('company_id', companyRow.id)
+    .eq('company_id', companyId)
     .order('is_primary', { ascending: false });
-  // Supabase returns joined sectors as object, but TS infers array — cast appropriately
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (data || []).map((row: any) => ({
     sector_id: row.sector_id,
@@ -66,14 +68,85 @@ async function getCompanySectors(slug: string) {
 
 async function getSimilarCompanies(company: Company) {
   const supabase = getSupabase();
+  // Try to find companies in the same country first
   const { data } = await supabase
     .from('companies')
     .select('*')
     .eq('country', company.country)
     .neq('slug', company.slug)
-    .limit(4);
+    .limit(5);
 
   return data ? dbRowsToCompanies(data) : [];
+}
+
+// --- New enriched data fetchers ---
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function getPipelines(companyId: string): Promise<any[]> {
+  const supabase = getSupabase();
+  const { data } = await supabase
+    .from('pipelines')
+    .select('*')
+    .eq('company_id', companyId)
+    .order('stage', { ascending: false });
+  return data || [];
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function getFundingRounds(companyId: string): Promise<any[]> {
+  const supabase = getSupabase();
+  const { data } = await supabase
+    .from('funding_rounds')
+    .select('*')
+    .eq('company_id', companyId)
+    .order('announced_date', { ascending: false });
+  return data || [];
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function getFdaApprovals(companyId: string): Promise<any[]> {
+  const supabase = getSupabase();
+  const { data } = await supabase
+    .from('fda_approvals')
+    .select('*')
+    .eq('company_id', companyId)
+    .order('approval_date', { ascending: false });
+  return data || [];
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function getPublications(companyId: string): Promise<any[]> {
+  const supabase = getSupabase();
+  const { data } = await supabase
+    .from('publications')
+    .select('*')
+    .eq('company_id', companyId)
+    .order('publication_date', { ascending: false })
+    .limit(20);
+  return data || [];
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function getPatents(companyId: string): Promise<any[]> {
+  const supabase = getSupabase();
+  const { data } = await supabase
+    .from('patents')
+    .select('*')
+    .eq('company_id', companyId)
+    .order('grant_date', { ascending: false })
+    .limit(20);
+  return data || [];
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function getPriceHistory(companyId: string): Promise<any[]> {
+  const supabase = getSupabase();
+  const { data } = await supabase
+    .from('company_price_history')
+    .select('date, close, adj_close, volume, market_cap_usd')
+    .eq('company_id', companyId)
+    .order('date', { ascending: true });
+  return data || [];
 }
 
 export async function generateMetadata({
@@ -86,7 +159,7 @@ export async function generateMetadata({
 
   const report = await getCompanyReport(params.slug);
 
-  const title = `${company.name} | Pipeline, Team & Analysis | BiotechTube`;
+  const title = `${company.name} | Pipeline, Funding & Analysis | BiotechTube`;
   const description =
     report?.summary ||
     company.description ||
@@ -101,6 +174,8 @@ export async function generateMetadata({
     company.city,
     "pipeline",
     "clinical trials",
+    "FDA approvals",
+    "patents",
   ].filter(Boolean);
 
   return {
@@ -130,11 +205,31 @@ export default async function CompanyPage({
   const company = await getCompany(params.slug);
   if (!company) notFound();
 
-  const [companyFunding, similar, report, sectors] = await Promise.all([
+  const companyId = await getCompanyId(params.slug);
+
+  // Fetch all enriched data in parallel
+  const [
+    companyFunding,
+    similar,
+    report,
+    sectors,
+    pipelines,
+    dbFundingRounds,
+    fdaApprovals,
+    publications,
+    patents,
+    priceHistory,
+  ] = await Promise.all([
     Promise.resolve(funding.filter((f) => f.companySlug === company.slug)),
     getSimilarCompanies(company),
     getCompanyReport(params.slug),
-    getCompanySectors(params.slug),
+    companyId ? getCompanySectors(companyId) : Promise.resolve([]),
+    companyId ? getPipelines(companyId) : Promise.resolve([]),
+    companyId ? getFundingRounds(companyId) : Promise.resolve([]),
+    companyId ? getFdaApprovals(companyId) : Promise.resolve([]),
+    companyId ? getPublications(companyId) : Promise.resolve([]),
+    companyId ? getPatents(companyId) : Promise.resolve([]),
+    companyId ? getPriceHistory(companyId) : Promise.resolve([]),
   ]);
 
   // Build JSON-LD structured data
@@ -177,6 +272,12 @@ export default async function CompanyPage({
         similar={similar}
         report={report}
         sectors={sectors}
+        pipelines={pipelines}
+        dbFundingRounds={dbFundingRounds}
+        fdaApprovals={fdaApprovals}
+        publications={publications}
+        patents={patents}
+        priceHistory={priceHistory}
       />
     </>
   );

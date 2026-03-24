@@ -4,223 +4,138 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
-import { CompanyProfileHero } from "@/components/CompanyProfile";
-import { PipelineBar } from "@/components/PipelineBar";
-import { FundingTimeline } from "@/components/FundingTimeline";
+import { CompanyAvatar } from "@/components/CompanyAvatar";
 import { SimilarCompanies } from "@/components/SimilarCompanies";
 import { Company, CompanyReport, FundingRound } from "@/lib/types";
 import { formatCurrency } from "@/lib/formatting";
 import {
   Calendar, ExternalLink, TrendingUp, Users,
-  FlaskConical, Newspaper, Activity, BarChart3, ArrowUpRight,
+  FlaskConical, Activity, BarChart3, ArrowUpRight,
   ArrowDownRight, Globe, Mail, Phone, MapPin, Building2,
   Target, ShieldAlert, Swords, Sparkles, BookOpen, Beaker,
-  ChevronRight, Award, Zap, CircleDot
+  ChevronRight, Award, Zap, CircleDot, FileText, Shield,
+  ScrollText, TestTubes, Pill
 } from "lucide-react";
 import { TvStockChart } from "@/components/charts/TvStockChart";
-import { FundingBarChart } from "@/components/charts/FundingBarChart";
+import { TvAreaChart } from "@/components/charts/TvAreaChart";
+
+/* ─── Types for enriched data ─── */
+interface PipelineRow {
+  id: string;
+  product_name: string;
+  indication: string;
+  stage: string;
+  nct_id: string | null;
+  trial_status: string | null;
+  conditions: string | null;
+  start_date: string | null;
+  completion_date: string | null;
+}
+
+interface DbFundingRound {
+  id: string;
+  round_type: string;
+  amount_usd: number | null;
+  lead_investor: string | null;
+  announced_date: string | null;
+  source_name: string | null;
+}
+
+interface FdaApproval {
+  id: string;
+  drug_name: string;
+  active_ingredient: string | null;
+  application_number: string | null;
+  application_type: string | null;
+  approval_date: string | null;
+  dosage_form: string | null;
+  route: string | null;
+}
+
+interface PublicationRow {
+  id: string;
+  pmid: string | null;
+  title: string;
+  journal: string | null;
+  publication_date: string | null;
+  authors: string | null;
+}
+
+interface PatentRow {
+  id: string;
+  patent_number: string | null;
+  title: string;
+  filing_date: string | null;
+  grant_date: string | null;
+  abstract: string | null;
+}
+
+interface PricePoint {
+  date: string;
+  close: number;
+  adj_close: number | null;
+  volume: number | null;
+  market_cap_usd: number | null;
+}
 
 /* ─── Tab config ─── */
-const allTabs = ["Overview", "Pipeline", "Report", "Funding", "Team", "News"] as const;
-type Tab = (typeof allTabs)[number];
-
-const tabIcons: Record<Tab, string> = {
-  Overview: "📋",
-  Pipeline: "🧬",
-  Report: "📊",
-  Funding: "💰",
-  Team: "👥",
-  News: "📰",
-};
+type Tab = "Overview" | "Pipeline" | "Funding" | "FDA" | "Publications" | "Patents" | "Report";
 
 /* ─── Stock timescales ─── */
-const stockTimescales = ["1W", "1M", "3M", "6M", "1Y", "ALL"] as const;
-type Timescale = (typeof stockTimescales)[number];
+const priceTimescales = ["1M", "3M", "6M", "1Y", "3Y", "5Y", "Max"] as const;
+type PriceTimescale = (typeof priceTimescales)[number];
 
-/* ─── Volume formatter ─── */
-function formatVol(v: number): string {
-  if (v >= 1e9) return (v / 1e9).toFixed(1) + "B";
-  if (v >= 1e6) return (v / 1e6).toFixed(1) + "M";
-  if (v >= 1e3) return (v / 1e3).toFixed(0) + "K";
-  return v.toString();
-}
-
-/* ─── Stock data point type ─── */
-interface StockPoint {
-  date: string;
-  fullDate: string;
-  isoDate?: string;
-  price: number;
-  open: number;
-  high: number;
-  low: number;
-  volume: number;
-}
-
-interface StockMeta {
-  currency: string;
-  fiftyTwoWeekHigh: number | null;
-  fiftyTwoWeekLow: number | null;
-  marketCap: number | null;
-}
-
-/* ─── Markdown renderer (simple) ─── */
-function MarkdownBlock({ content }: { content: string }) {
-  const lines = content.split("\n");
-  const elements: React.ReactNode[] = [];
-  let inCodeBlock = false;
-  let codeLines: string[] = [];
-  let inTable = false;
-  let tableRows: string[][] = [];
-  let tableHeader: string[] = [];
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-
-    // Code blocks
-    if (line.startsWith("```")) {
-      if (inCodeBlock) {
-        elements.push(
-          <pre
-            key={`code-${i}`}
-            className="rounded-lg overflow-x-auto text-[11px] leading-relaxed my-3 p-4"
-            style={{ background: "var(--color-bg-tertiary)", color: "var(--color-text-secondary)", fontFamily: "monospace" }}
-          >
-            {codeLines.join("\n")}
-          </pre>
-        );
-        codeLines = [];
-        inCodeBlock = false;
-      } else {
-        inCodeBlock = true;
-      }
-      continue;
-    }
-    if (inCodeBlock) {
-      codeLines.push(line);
-      continue;
-    }
-
-    // Tables
-    if (line.includes("|") && line.trim().startsWith("|")) {
-      const cells = line.split("|").filter(Boolean).map((c) => c.trim());
-      if (cells.every((c) => /^[-:]+$/.test(c))) continue; // separator
-      if (!inTable) {
-        inTable = true;
-        tableHeader = cells;
-        tableRows = [];
-      } else {
-        tableRows.push(cells);
-      }
-      // Check if next line is NOT a table
-      if (i + 1 >= lines.length || !lines[i + 1].trim().startsWith("|")) {
-        elements.push(
-          <div key={`table-${i}`} className="overflow-x-auto my-4 rounded-lg border" style={{ borderColor: "var(--color-border-subtle)" }}>
-            <table className="w-full text-12" style={{ borderCollapse: "collapse" }}>
-              <thead>
-                <tr style={{ background: "var(--color-bg-tertiary)" }}>
-                  {tableHeader.map((h, hi) => (
-                    <th key={hi} className="text-left px-3 py-2 font-medium text-11 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)", borderBottom: "1px solid var(--color-border-subtle)" }}>
-                      {h.replace(/\*\*/g, "")}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {tableRows.map((row, ri) => (
-                  <tr key={ri} style={{ borderBottom: "1px solid var(--color-border-subtle)" }}>
-                    {row.map((cell, ci) => (
-                      <td key={ci} className="px-3 py-2 text-12" style={{ color: "var(--color-text-secondary)" }}>
-                        {cell.replace(/\*\*/g, "")}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        );
-        inTable = false;
-        tableHeader = [];
-        tableRows = [];
-      }
-      continue;
-    }
-
-    // Headers
-    if (line.startsWith("# ")) {
-      elements.push(
-        <h2 key={i} className="text-[20px] font-semibold mt-6 mb-3 tracking-tight" style={{ color: "var(--color-text-primary)", letterSpacing: "-0.3px" }}>
-          {line.replace("# ", "")}
-        </h2>
-      );
-      continue;
-    }
-    if (line.startsWith("## ")) {
-      elements.push(
-        <h3 key={i} className="text-[16px] font-semibold mt-5 mb-2 flex items-center gap-2" style={{ color: "var(--color-text-primary)" }}>
-          <div className="w-1 h-4 rounded-full" style={{ background: "var(--color-accent)" }} />
-          {line.replace("## ", "")}
-        </h3>
-      );
-      continue;
-    }
-    if (line.startsWith("### ")) {
-      elements.push(
-        <h4 key={i} className="text-14 font-medium mt-4 mb-2" style={{ color: "var(--color-text-primary)" }}>
-          {line.replace("### ", "")}
-        </h4>
-      );
-      continue;
-    }
-
-    // Bullet points
-    if (line.startsWith("- **")) {
-      const match = line.match(/^- \*\*(.+?)\*\*:?\s*(.*)/);
-      if (match) {
-        elements.push(
-          <div key={i} className="flex items-start gap-2 mb-2 ml-1">
-            <ChevronRight size={12} className="mt-1 flex-shrink-0" style={{ color: "var(--color-accent)" }} />
-            <span className="text-13" style={{ color: "var(--color-text-secondary)", lineHeight: 1.65 }}>
-              <strong style={{ color: "var(--color-text-primary)", fontWeight: 500 }}>{match[1]}</strong>
-              {match[2] ? `: ${match[2]}` : ""}
-            </span>
-          </div>
-        );
-        continue;
-      }
-    }
-    if (line.startsWith("- ")) {
-      elements.push(
-        <div key={i} className="flex items-start gap-2 mb-1.5 ml-1">
-          <CircleDot size={8} className="mt-1.5 flex-shrink-0" style={{ color: "var(--color-accent)" }} />
-          <span className="text-13" style={{ color: "var(--color-text-secondary)", lineHeight: 1.65 }}>
-            {line.replace("- ", "").replace(/\*\*(.+?)\*\*/g, "$1")}
-          </span>
-        </div>
-      );
-      continue;
-    }
-
-    // Empty lines
-    if (!line.trim()) {
-      elements.push(<div key={i} className="h-2" />);
-      continue;
-    }
-
-    // Regular text
-    elements.push(
-      <p key={i} className="text-13 mb-2" style={{ color: "var(--color-text-secondary)", lineHeight: 1.7 }}>
-        {line.replace(/\*\*(.+?)\*\*/g, "$1")}
-      </p>
-    );
+/* ─── Date formatter ─── */
+function fmtDate(d: string | null | undefined): string {
+  if (!d) return "—";
+  try {
+    return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  } catch {
+    return d;
   }
-
-  return <div>{elements}</div>;
 }
+
+/* ─── Stage ordering for pipeline sort ─── */
+const stageOrder: Record<string, number> = {
+  "Approved": 0,
+  "Phase 3": 1,
+  "Phase 2/3": 2,
+  "Phase 2": 3,
+  "Phase 1/2": 4,
+  "Phase 1": 5,
+  "Pre-clinical": 6,
+  "Preclinical": 6,
+  "Discovery": 7,
+};
+
+/* ─── Stage badge colors ─── */
+const stageColors: Record<string, { bg: string; text: string; border: string }> = {
+  "Approved": { bg: "#e8f5f0", text: "#0a3d2e", border: "#5DCAA5" },
+  "Phase 3": { bg: "#eff6ff", text: "#1d4ed8", border: "#93c5fd" },
+  "Phase 2/3": { bg: "#eff6ff", text: "#1d4ed8", border: "#93c5fd" },
+  "Phase 2": { bg: "#eff6ff", text: "#1d4ed8", border: "#93c5fd" },
+  "Phase 1/2": { bg: "#f5f3ff", text: "#5b21b6", border: "#c4b5fd" },
+  "Phase 1": { bg: "#f5f3ff", text: "#5b21b6", border: "#c4b5fd" },
+  "Pre-clinical": { bg: "#f7f7f6", text: "#6b6b65", border: "rgba(0,0,0,0.14)" },
+  "Preclinical": { bg: "#f7f7f6", text: "#6b6b65", border: "rgba(0,0,0,0.14)" },
+  "Discovery": { bg: "#f7f7f6", text: "#6b6b65", border: "rgba(0,0,0,0.14)" },
+};
+
+/* ─── Round type badge colors ─── */
+const roundColors: Record<string, { bg: string; text: string }> = {
+  "Seed": { bg: "#fef3e2", text: "#b45309" },
+  "Series A": { bg: "#eff6ff", text: "#1d4ed8" },
+  "Series B": { bg: "#f5f3ff", text: "#5b21b6" },
+  "Series C": { bg: "#e8f5f0", text: "#0a3d2e" },
+  "Series D": { bg: "#fff0f0", text: "#a32d2d" },
+  "IPO": { bg: "#e8f5f0", text: "#0a3d2e" },
+  "Grant": { bg: "#f7f7f6", text: "#6b6b65" },
+};
 
 /* ─── Section Card ─── */
-function SectionCard({ icon, title, children, accent = false }: { icon: React.ReactNode; title: string; children: React.ReactNode; accent?: boolean }) {
+function SectionCard({ icon, title, children, accent = false, count }: {
+  icon: React.ReactNode; title: string; children: React.ReactNode; accent?: boolean; count?: number;
+}) {
   return (
     <div
       className="rounded-xl border overflow-hidden mb-5"
@@ -238,11 +153,16 @@ function SectionCard({ icon, title, children, accent = false }: { icon: React.Re
       >
         {icon}
         <h3
-          className="text-12 uppercase tracking-[0.5px] font-semibold"
+          className="text-12 uppercase tracking-[0.5px] font-semibold flex-1"
           style={{ color: accent ? "var(--color-accent)" : "var(--color-text-secondary)" }}
         >
           {title}
         </h3>
+        {count !== undefined && count > 0 && (
+          <span className="text-10 font-medium px-1.5 py-0.5 rounded-full" style={{ background: "var(--color-bg-tertiary)", color: "var(--color-text-tertiary)" }}>
+            {count}
+          </span>
+        )}
       </div>
       <div className="px-4 py-3">{children}</div>
     </div>
@@ -272,6 +192,32 @@ function StatCard({ label, value, icon, accent = false }: { label: string; value
   );
 }
 
+/* ─── Stage Badge ─── */
+function StageBadge({ stage }: { stage: string }) {
+  const colors = stageColors[stage] || { bg: "#f7f7f6", text: "#6b6b65", border: "rgba(0,0,0,0.14)" };
+  return (
+    <span
+      className="text-[10px] font-semibold px-2 py-0.5 rounded-full border whitespace-nowrap"
+      style={{ background: colors.bg, color: colors.text, borderColor: colors.border }}
+    >
+      {stage}
+    </span>
+  );
+}
+
+/* ─── Round Badge ─── */
+function RoundBadge({ type }: { type: string }) {
+  const colors = roundColors[type] || { bg: "#f7f7f6", text: "#6b6b65" };
+  return (
+    <span
+      className="text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap"
+      style={{ background: colors.bg, color: colors.text }}
+    >
+      {type}
+    </span>
+  );
+}
+
 /* ─── Sector type ─── */
 interface CompanySector {
   sector_id: string;
@@ -287,29 +233,51 @@ interface CompanyPageProps {
   similar: Company[];
   report: CompanyReport | null;
   sectors: CompanySector[];
+  pipelines: PipelineRow[];
+  dbFundingRounds: DbFundingRound[];
+  fdaApprovals: FdaApproval[];
+  publications: PublicationRow[];
+  patents: PatentRow[];
+  priceHistory: PricePoint[];
 }
 
 /* ═══════════════════════════════════════════════
    MAIN COMPONENT
    ═══════════════════════════════════════════════ */
-export function CompanyPageClient({ company, companyFunding, similar, report: initialReport, sectors }: CompanyPageProps) {
+export function CompanyPageClient({
+  company,
+  companyFunding,
+  similar,
+  report: initialReport,
+  sectors,
+  pipelines,
+  dbFundingRounds,
+  fdaApprovals,
+  publications,
+  patents,
+  priceHistory,
+}: CompanyPageProps) {
   const [activeTab, setActiveTab] = useState<Tab>("Overview");
-  const [stockTimescale, setStockTimescale] = useState<Timescale>("ALL");
-  const [logScale, setLogScale] = useState(false);
+  const [priceTimescale, setPriceTimescale] = useState<PriceTimescale>("Max");
 
   // On-demand report generation state
   const [report, setReport] = useState<CompanyReport | null>(initialReport);
   const [reportLoading, setReportLoading] = useState(false);
   const [reportError, setReportError] = useState<string | null>(null);
 
-
-
   const isPublic = company.type === "Public" && !!company.ticker;
 
-  // Always show Report tab — generate on-demand if needed
+  // Determine visible tabs based on available data
   const tabs = useMemo(() => {
-    return allTabs.filter(() => true);
-  }, []);
+    const visible: Tab[] = ["Overview"];
+    if (pipelines.length > 0) visible.push("Pipeline");
+    if (dbFundingRounds.length > 0 || companyFunding.length > 0) visible.push("Funding");
+    if (fdaApprovals.length > 0) visible.push("FDA");
+    if (publications.length > 0) visible.push("Publications");
+    if (patents.length > 0) visible.push("Patents");
+    visible.push("Report");
+    return visible;
+  }, [pipelines, dbFundingRounds, companyFunding, fdaApprovals, publications, patents]);
 
   // Generate report on-demand
   const generateReport = useCallback(async () => {
@@ -345,7 +313,6 @@ export function CompanyPageClient({ company, companyFunding, similar, report: in
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Trigger on-demand report generation when Report tab is clicked
   const handleTabChange = useCallback(async (tab: Tab) => {
     setActiveTab(tab);
     if (tab === "Report" && !report?.deep_report && !reportLoading) {
@@ -353,24 +320,26 @@ export function CompanyPageClient({ company, companyFunding, similar, report: in
     }
   }, [report, reportLoading, generateReport]);
 
-  // Stock data — fetched from Yahoo Finance via our API
-  const [stockData, setStockData] = useState<StockPoint[]>([]);
-  const [stockMeta, setStockMeta] = useState<StockMeta | null>(null);
+  // --- Stock data from Yahoo (existing API) ---
+  const [stockData, setStockData] = useState<{ date: string; price: number; volume: number }[]>([]);
+  const [stockMeta, setStockMeta] = useState<{ currency: string; marketCap: number | null } | null>(null);
   const [stockLoading, setStockLoading] = useState(false);
 
-  const fetchStockData = useCallback(async (ts: Timescale) => {
+  const fetchStockData = useCallback(async () => {
     if (!isPublic || !company.ticker) return;
     setStockLoading(true);
     try {
       const exchange = report?.exchange || "";
-      const res = await fetch(`/api/stock?ticker=${encodeURIComponent(company.ticker)}&exchange=${encodeURIComponent(exchange)}&name=${encodeURIComponent(company.name)}&timescale=${ts}`);
+      const res = await fetch(`/api/stock?ticker=${encodeURIComponent(company.ticker)}&exchange=${encodeURIComponent(exchange)}&name=${encodeURIComponent(company.name)}&timescale=ALL`);
       if (!res.ok) throw new Error("fetch failed");
       const data = await res.json();
-      setStockData(data.points || []);
+      setStockData((data.points || []).map((d: { isoDate?: string; fullDate: string; price: number; volume: number }) => ({
+        date: d.isoDate || d.fullDate,
+        price: d.price,
+        volume: d.volume,
+      })));
       setStockMeta({
-        currency: data.currency || "NOK",
-        fiftyTwoWeekHigh: data.fiftyTwoWeekHigh ?? null,
-        fiftyTwoWeekLow: data.fiftyTwoWeekLow ?? null,
+        currency: data.currency || "USD",
         marketCap: data.marketCap ?? null,
       });
     } catch {
@@ -378,67 +347,137 @@ export function CompanyPageClient({ company, companyFunding, similar, report: in
     } finally {
       setStockLoading(false);
     }
-  }, [isPublic, company.ticker, report?.exchange]);
+  }, [isPublic, company.ticker, company.name, report?.exchange]);
 
   useEffect(() => {
-    fetchStockData(stockTimescale);
-  }, [stockTimescale, fetchStockData]);
+    fetchStockData();
+  }, [fetchStockData]);
 
-  const currency = stockMeta?.currency || "USD";
-  const currentPrice = stockData.length > 0 ? stockData[stockData.length - 1].price : 0;
-  const firstPrice = stockData.length > 0 ? stockData[0].price : 0;
+  // --- Price history chart data (from DB) with time filtering ---
+  const chartData = useMemo(() => {
+    if (priceHistory.length === 0 && stockData.length === 0) return [];
+
+    // Prefer DB price history, fall back to stock API
+    let source: { time: string; value: number }[];
+    if (priceHistory.length > 0) {
+      source = priceHistory.map(p => ({ time: p.date, value: p.close }));
+    } else {
+      source = stockData.map(d => ({ time: d.date, value: d.price }));
+    }
+
+    // Filter by timescale
+    if (priceTimescale === "Max") return source;
+    const now = new Date();
+    const months: Record<string, number> = { "1M": 1, "3M": 3, "6M": 6, "1Y": 12, "3Y": 36, "5Y": 60 };
+    const m = months[priceTimescale] || 0;
+    const cutoff = new Date(now.getFullYear(), now.getMonth() - m, now.getDate());
+    return source.filter(d => new Date(d.time) >= cutoff);
+  }, [priceHistory, stockData, priceTimescale]);
+
+  const currentPrice = chartData.length > 0 ? chartData[chartData.length - 1].value : 0;
+  const firstPrice = chartData.length > 0 ? chartData[0].value : 0;
   const priceChange = currentPrice - firstPrice;
   const priceChangePct = firstPrice > 0 ? (priceChange / firstPrice) * 100 : 0;
-  const lastPoint = stockData.length > 0 ? stockData[stockData.length - 1] : null;
-  const high52w = stockMeta?.fiftyTwoWeekHigh ?? (stockData.length > 0 ? Math.max(...stockData.map((d) => d.high)) : 0);
-  const low52w = stockMeta?.fiftyTwoWeekLow ?? (stockData.length > 0 ? Math.min(...stockData.map((d) => d.low)) : 0);
-  const avgVolume = stockData.length > 0 ? stockData.reduce((s, d) => s + d.volume, 0) / stockData.length : 0;
+  const currency = stockMeta?.currency || "USD";
+  const latestMarketCap = priceHistory.length > 0
+    ? priceHistory[priceHistory.length - 1].market_cap_usd
+    : stockMeta?.marketCap ?? company.valuation ?? null;
 
-  // Pipeline — use report data if available, otherwise empty
-  const pipeline = useMemo(() => {
-    if (report?.pipeline_programs && report.pipeline_programs.length > 0) {
-      return report.pipeline_programs.map((p, i) => ({
-        name: p.name,
-        indication: p.indication,
-        stage: p.phase,
-        isLead: i === 0,
-        status: p.status,
-        nctId: p.trial_id,
-      }));
-    }
-    return [];
-  }, [report]);
+  // --- Pipeline sorted by stage ---
+  const sortedPipelines = useMemo(() => {
+    return [...pipelines].sort((a, b) => {
+      const aOrder = stageOrder[a.stage] ?? 99;
+      const bOrder = stageOrder[b.stage] ?? 99;
+      return aOrder - bOrder;
+    });
+  }, [pipelines]);
 
-  // Team — use report key_people if available
-  const team = useMemo(() => {
-    if (report?.key_people && report.key_people.length > 0) {
-      return report.key_people.map((p) => ({
-        name: p.name,
-        role: p.role,
-        email: p.email,
-        initials: p.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase(),
-      }));
-    }
-    return [];
-  }, [report]);
+  const phase3Count = pipelines.filter(p => p.stage === "Phase 3" || p.stage === "Phase 2/3").length;
 
-  // Summary text — prefer report summary
+  // --- Total funding raised ---
+  const totalFundingRaised = useMemo(() => {
+    return dbFundingRounds.reduce((sum, r) => sum + (r.amount_usd || 0), 0);
+  }, [dbFundingRounds]);
+
+  // --- Summary text ---
   const summaryText = report?.summary || company.description;
-
-  // Funding chart data
-  const fundingChartData = useMemo(() => {
-    return companyFunding.slice().reverse().map((r) => ({
-      label: r.type,
-      amount: +(r.amount / 1_000_000).toFixed(1),
-      date: r.date,
-    }));
-  }, [companyFunding]);
 
   return (
     <div className="page-content min-h-screen" style={{ background: "var(--color-bg-primary)" }}>
       <Nav />
 
-      <CompanyProfileHero company={company} reportSummary={report?.summary} />
+      {/* ═══ HEADER ═══ */}
+      <header className="px-5 pt-5 pb-4 border-b" style={{ borderColor: "var(--color-border-subtle)" }}>
+        <div className="flex items-start gap-4">
+          <CompanyAvatar name={company.name} logoUrl={company.logoUrl} website={company.website} size={56} />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-[22px] font-semibold tracking-tight" style={{ color: "var(--color-text-primary)", letterSpacing: "-0.3px" }}>
+                {company.name}
+              </h1>
+              {company.ticker && (
+                <span className="text-12 font-medium px-2 py-0.5 rounded-md" style={{ background: "var(--color-bg-tertiary)", color: "var(--color-text-secondary)" }}>
+                  {company.ticker}
+                </span>
+              )}
+              <StageBadge stage={company.stage} />
+            </div>
+            <div className="flex items-center gap-3 mt-1 flex-wrap">
+              {company.city && company.country && (
+                <span className="text-12 flex items-center gap-1" style={{ color: "var(--color-text-secondary)" }}>
+                  <MapPin size={11} />
+                  {company.city}, {company.country}
+                </span>
+              )}
+              {company.website && (
+                <a
+                  href={company.website.startsWith("http") ? company.website : `https://${company.website}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-12 flex items-center gap-1"
+                  style={{ color: "var(--color-accent)" }}
+                >
+                  <Globe size={11} />
+                  {company.website.replace(/^https?:\/\/(www\.)?/, "")}
+                </a>
+              )}
+            </div>
+            {summaryText && (
+              <p className="text-13 mt-2 line-clamp-2" style={{ color: "var(--color-text-secondary)", lineHeight: 1.6 }}>
+                {summaryText}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Key stats row */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+          {latestMarketCap && latestMarketCap > 0 && (
+            <StatCard label="Market Cap" value={formatCurrency(latestMarketCap)} icon={<BarChart3 size={10} style={{ color: "var(--color-text-tertiary)" }} />} accent />
+          )}
+          {company.founded > 0 && (
+            <StatCard label="Founded" value={String(company.founded)} icon={<Calendar size={10} style={{ color: "var(--color-text-tertiary)" }} />} />
+          )}
+          {(report?.employee_estimate || (company.employees && company.employees !== "0")) && (
+            <StatCard label="Employees" value={report?.employee_estimate || company.employees} icon={<Users size={10} style={{ color: "var(--color-text-tertiary)" }} />} />
+          )}
+          {company.focus && company.focus.length > 0 && (
+            <div className="rounded-lg border px-3 py-2.5" style={{ background: "var(--color-bg-secondary)", borderColor: "var(--color-border-subtle)" }}>
+              <div className="flex items-center gap-1.5 mb-1">
+                <Target size={10} style={{ color: "var(--color-text-tertiary)" }} />
+                <span className="text-[10px] uppercase tracking-[0.3px] font-medium" style={{ color: "var(--color-text-tertiary)" }}>Focus</span>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {company.focus.slice(0, 3).map(f => (
+                  <span key={f} className="text-[10px] font-medium px-1.5 py-0.5 rounded" style={{ background: "rgba(26,122,94,0.08)", color: "var(--color-accent)" }}>
+                    {f}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </header>
 
       {/* ─── Tab Bar ─── */}
       <div
@@ -449,7 +488,7 @@ export function CompanyPageClient({ company, companyFunding, similar, report: in
           <button
             key={tab}
             onClick={() => handleTabChange(tab)}
-            className="text-13 py-2.5 px-2 transition-all duration-200 border-b-[2px] whitespace-nowrap flex-shrink-0 rounded-t-md"
+            className="text-13 py-2.5 px-2.5 transition-all duration-200 border-b-[2px] whitespace-nowrap flex-shrink-0 rounded-t-md"
             style={{
               color: activeTab === tab ? "var(--color-accent)" : "var(--color-text-secondary)",
               borderBottomColor: activeTab === tab ? "var(--color-accent)" : "transparent",
@@ -457,7 +496,7 @@ export function CompanyPageClient({ company, companyFunding, similar, report: in
               background: activeTab === tab ? "rgba(26,122,94,0.04)" : "transparent",
             }}
           >
-            {tabIcons[tab]} {tab}
+            {tab}
           </button>
         ))}
       </div>
@@ -472,6 +511,7 @@ export function CompanyPageClient({ company, companyFunding, similar, report: in
           className="px-5 py-5 min-w-0 lg:border-r"
           style={{ borderColor: "var(--color-border-subtle)" }}
         >
+
           {/* ════════════ OVERVIEW TAB ════════════ */}
           {activeTab === "Overview" && (
             <>
@@ -488,14 +528,13 @@ export function CompanyPageClient({ company, companyFunding, similar, report: in
                 </div>
               )}
 
-              {/* Stock Chart */}
-              {isPublic && (stockData.length > 0 || stockLoading) && (
+              {/* Stock Chart (DB price history or Yahoo data) */}
+              {isPublic && (chartData.length > 0 || stockLoading) && (
                 <SectionCard
                   icon={<Activity size={14} style={{ color: "var(--color-accent)" }} />}
                   title={`${company.ticker} · Stock Price`}
                 >
                   <div className="mb-2">
-                    {/* Row 1: Price + change */}
                     <div className="flex items-baseline gap-2 flex-wrap">
                       <span className="text-[28px] font-medium tracking-tight" style={{ color: "var(--color-text-primary)", letterSpacing: "-0.6px" }}>
                         {currency} {currentPrice.toFixed(2)}
@@ -505,61 +544,41 @@ export function CompanyPageClient({ company, companyFunding, similar, report: in
                         {priceChange >= 0 ? "+" : ""}{Math.abs(priceChange).toFixed(2)} ({priceChange >= 0 ? "+" : ""}{priceChangePct.toFixed(2)}%)
                       </span>
                     </div>
-                    {/* Row 2: Timescale buttons + LOG toggle */}
-                    <div className="flex items-center justify-between mt-2">
-                      <div className="flex items-center gap-0.5">
-                        {stockTimescales.map((ts) => (
-                          <button
-                            key={ts}
-                            onClick={() => setStockTimescale(ts)}
-                            className="text-[10px] font-medium px-1.5 py-1 rounded transition-all duration-150"
-                            style={{
-                              background: stockTimescale === ts ? "var(--color-accent)" : "transparent",
-                              color: stockTimescale === ts ? "white" : "var(--color-text-tertiary)",
-                            }}
-                          >
-                            {ts}
-                          </button>
-                        ))}
-                      </div>
-                      <button
-                        onClick={() => setLogScale((p) => !p)}
-                        className="text-[10px] font-medium px-2 py-1 rounded border transition-all duration-150"
-                        style={{
-                          background: logScale ? "var(--color-accent)" : "transparent",
-                          color: logScale ? "white" : "var(--color-text-tertiary)",
-                          borderColor: logScale ? "var(--color-accent)" : "var(--color-border-subtle)",
-                        }}
-                        title={logScale ? "Switch to linear scale" : "Switch to logarithmic scale"}
-                      >
-                        LOG
-                      </button>
+                    <div className="flex items-center gap-0.5 mt-2">
+                      {priceTimescales.map((ts) => (
+                        <button
+                          key={ts}
+                          onClick={() => setPriceTimescale(ts)}
+                          className="text-[10px] font-medium px-1.5 py-1 rounded transition-all duration-150"
+                          style={{
+                            background: priceTimescale === ts ? "var(--color-accent)" : "transparent",
+                            color: priceTimescale === ts ? "white" : "var(--color-text-tertiary)",
+                          }}
+                        >
+                          {ts}
+                        </button>
+                      ))}
                     </div>
                   </div>
-                  {lastPoint && (
-                    <div className="flex items-center gap-3 mb-3 text-10" style={{ color: "var(--color-text-tertiary)" }}>
-                      <span>O: {lastPoint.open.toFixed(2)}</span>
-                      <span>H: {lastPoint.high.toFixed(2)}</span>
-                      <span>L: {lastPoint.low.toFixed(2)}</span>
-                      <span>C: {lastPoint.price.toFixed(2)}</span>
-                      <span>Vol: {formatVol(lastPoint.volume)}</span>
-                    </div>
-                  )}
-                  <TvStockChart
-                    data={stockData.map(d => ({ date: d.isoDate || d.fullDate, price: d.price, volume: d.volume }))}
-                    isPositive={priceChange >= 0}
-                    logScale={logScale}
-                    currency={currency || "USD"}
-                    height={380}
-                  />
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
-                    <StatCard label="52-Week High" value={`${currency} ${high52w.toFixed(2)}`} />
-                    <StatCard label="52-Week Low" value={`${currency} ${low52w.toFixed(2)}`} />
-                    <StatCard label="Avg Volume" value={formatVol(avgVolume)} />
-                    <StatCard label="Market Cap" value={stockMeta?.marketCap ? formatCurrency(stockMeta.marketCap, currency) : (company.valuation ? formatCurrency(company.valuation) : "—")} accent />
-                  </div>
+                  {priceHistory.length > 0 ? (
+                    <TvAreaChart
+                      data={chartData}
+                      height={380}
+                      isPositive={priceChange >= 0}
+                      formatValue={(v) => `${currency} ${v.toFixed(2)}`}
+                      tooltipTitle="Price"
+                    />
+                  ) : stockData.length > 0 ? (
+                    <TvStockChart
+                      data={stockData}
+                      isPositive={priceChange >= 0}
+                      logScale={false}
+                      currency={currency}
+                      height={380}
+                    />
+                  ) : null}
                   <p className="text-[10px] mt-2" style={{ color: "var(--color-text-tertiary)" }}>
-                    Data from Yahoo Finance · 15 min delay
+                    {priceHistory.length > 0 ? "Historical price data" : "Data from Yahoo Finance · 15 min delay"}
                   </p>
                 </SectionCard>
               )}
@@ -580,72 +599,139 @@ export function CompanyPageClient({ company, companyFunding, similar, report: in
                     style={{ color: "var(--color-accent)", background: "rgba(26,122,94,0.06)" }}
                   >
                     <BookOpen size={13} />
-                    {report?.deep_report ? "Read full AI report →" : "Generate AI report →"}
+                    {report?.deep_report ? "Read full AI report" : "Generate AI report"}
                   </button>
                 </SectionCard>
               )}
 
               {/* Technology Platform */}
               {report?.technology_platform && (
-                <SectionCard
-                  icon={<Beaker size={14} style={{ color: "var(--color-accent)" }} />}
-                  title="Technology Platform"
-                >
-                  <p className="text-13" style={{ color: "var(--color-text-secondary)", lineHeight: 1.7 }}>
-                    {report.technology_platform}
-                  </p>
+                <SectionCard icon={<Beaker size={14} style={{ color: "var(--color-accent)" }} />} title="Technology Platform">
+                  <p className="text-13" style={{ color: "var(--color-text-secondary)", lineHeight: 1.7 }}>{report.technology_platform}</p>
                 </SectionCard>
               )}
 
-              {/* Key Metrics */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-                {pipeline.length > 0 && (
-                  <StatCard label="Programs" value={String(pipeline.length)} icon={<FlaskConical size={10} style={{ color: "var(--color-text-tertiary)" }} />} />
-                )}
-                {(report?.employee_estimate || (company.employees && company.employees !== "0")) && (
-                  <StatCard label="Team Size" value={report?.employee_estimate || company.employees} icon={<Users size={10} style={{ color: "var(--color-text-tertiary)" }} />} />
-                )}
-                {(report?.founded || company.founded > 0) && (
-                  <StatCard label="Founded" value={String(report?.founded || company.founded)} icon={<Calendar size={10} style={{ color: "var(--color-text-tertiary)" }} />} />
-                )}
-                {company.totalRaised > 0 && (
-                  <StatCard label="Total Raised" value={formatCurrency(company.totalRaised)} icon={<TrendingUp size={10} style={{ color: "var(--color-text-tertiary)" }} />} accent />
-                )}
-              </div>
+              {/* Pipeline Snapshot */}
+              {sortedPipelines.length > 0 && (
+                <SectionCard
+                  icon={<FlaskConical size={14} style={{ color: "var(--color-accent)" }} />}
+                  title="Pipeline Snapshot"
+                  count={pipelines.length}
+                >
+                  <p className="text-12 mb-3" style={{ color: "var(--color-text-tertiary)" }}>
+                    {pipelines.length} drug{pipelines.length !== 1 ? "s" : ""} in pipeline{phase3Count > 0 ? `, ${phase3Count} in Phase 3` : ""}
+                  </p>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-12" style={{ borderCollapse: "collapse" }}>
+                      <thead>
+                        <tr style={{ background: "var(--color-bg-tertiary)" }}>
+                          <th className="text-left px-3 py-2 font-medium text-11 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Drug</th>
+                          <th className="text-left px-3 py-2 font-medium text-11 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Indication</th>
+                          <th className="text-left px-3 py-2 font-medium text-11 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Stage</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {sortedPipelines.slice(0, 5).map((p) => (
+                          <tr key={p.id} style={{ borderBottom: "1px solid var(--color-border-subtle)" }}>
+                            <td className="px-3 py-2 font-medium" style={{ color: "var(--color-text-primary)" }}>{p.product_name}</td>
+                            <td className="px-3 py-2" style={{ color: "var(--color-text-secondary)" }}>{p.indication}</td>
+                            <td className="px-3 py-2"><StageBadge stage={p.stage} /></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  {pipelines.length > 5 && (
+                    <button onClick={() => handleTabChange("Pipeline")} className="text-12 mt-3 flex items-center gap-1" style={{ color: "var(--color-accent)" }}>
+                      View all {pipelines.length} programs <ChevronRight size={13} />
+                    </button>
+                  )}
+                </SectionCard>
+              )}
+
+              {/* Funding Snapshot */}
+              {(dbFundingRounds.length > 0 || companyFunding.length > 0) && (
+                <SectionCard
+                  icon={<TrendingUp size={14} style={{ color: "var(--color-accent)" }} />}
+                  title="Funding History"
+                  count={dbFundingRounds.length || companyFunding.length}
+                >
+                  {totalFundingRaised > 0 && (
+                    <p className="text-12 mb-3" style={{ color: "var(--color-text-tertiary)" }}>
+                      Total raised: <span style={{ color: "var(--color-accent)", fontWeight: 600 }}>{formatCurrency(totalFundingRaised)}</span>
+                    </p>
+                  )}
+                  <div className="space-y-2">
+                    {(dbFundingRounds.length > 0 ? dbFundingRounds : []).slice(0, 4).map((r) => (
+                      <div key={r.id} className="flex items-center gap-3 px-3 py-2 rounded-lg border" style={{ borderColor: "var(--color-border-subtle)" }}>
+                        <RoundBadge type={r.round_type} />
+                        <span className="text-12 font-medium flex-1" style={{ color: "var(--color-text-primary)" }}>
+                          {r.amount_usd ? formatCurrency(r.amount_usd) : "Undisclosed"}
+                        </span>
+                        {r.lead_investor && (
+                          <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>{r.lead_investor}</span>
+                        )}
+                        <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>{fmtDate(r.announced_date)}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {dbFundingRounds.length > 4 && (
+                    <button onClick={() => handleTabChange("Funding")} className="text-12 mt-3 flex items-center gap-1" style={{ color: "var(--color-accent)" }}>
+                      View all funding rounds <ChevronRight size={13} />
+                    </button>
+                  )}
+                </SectionCard>
+              )}
+
+              {/* FDA Approvals Snapshot */}
+              {fdaApprovals.length > 0 && (
+                <SectionCard
+                  icon={<Shield size={14} style={{ color: "var(--color-accent)" }} />}
+                  title="FDA Approved Drugs"
+                  count={fdaApprovals.length}
+                >
+                  <div className="space-y-2">
+                    {fdaApprovals.slice(0, 3).map((a) => (
+                      <div key={a.id} className="flex items-center gap-3 px-3 py-2 rounded-lg border" style={{ borderColor: "var(--color-border-subtle)" }}>
+                        <Pill size={12} style={{ color: "var(--color-accent)" }} />
+                        <span className="text-12 font-medium flex-1" style={{ color: "var(--color-text-primary)" }}>{a.drug_name}</span>
+                        {a.application_type && (
+                          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded" style={{ background: "#e8f5f0", color: "#0a3d2e" }}>{a.application_type}</span>
+                        )}
+                        <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>{fmtDate(a.approval_date)}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {fdaApprovals.length > 3 && (
+                    <button onClick={() => handleTabChange("FDA")} className="text-12 mt-3 flex items-center gap-1" style={{ color: "var(--color-accent)" }}>
+                      View all {fdaApprovals.length} approvals <ChevronRight size={13} />
+                    </button>
+                  )}
+                </SectionCard>
+              )}
 
               {/* Opportunity & Risks */}
               {(report?.opportunities || report?.risks) && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
                   {report.opportunities && (
-                    <SectionCard
-                      icon={<Target size={14} style={{ color: "var(--color-accent)" }} />}
-                      title="Opportunities"
-                      accent
-                    >
+                    <SectionCard icon={<Target size={14} style={{ color: "var(--color-accent)" }} />} title="Opportunities" accent>
                       <div className="flex flex-col gap-2">
                         {report.opportunities.split(". ").filter(Boolean).map((opp, i) => (
                           <div key={i} className="flex items-start gap-2">
                             <Zap size={11} className="mt-1 flex-shrink-0" style={{ color: "var(--color-accent)" }} />
-                            <span className="text-12" style={{ color: "var(--color-text-secondary)", lineHeight: 1.6 }}>
-                              {opp.endsWith(".") ? opp : `${opp}.`}
-                            </span>
+                            <span className="text-12" style={{ color: "var(--color-text-secondary)", lineHeight: 1.6 }}>{opp.endsWith(".") ? opp : `${opp}.`}</span>
                           </div>
                         ))}
                       </div>
                     </SectionCard>
                   )}
                   {report.risks && (
-                    <SectionCard
-                      icon={<ShieldAlert size={14} style={{ color: "#b45309" }} />}
-                      title="Risk Factors"
-                    >
+                    <SectionCard icon={<ShieldAlert size={14} style={{ color: "#b45309" }} />} title="Risk Factors">
                       <div className="flex flex-col gap-2">
                         {report.risks.split(". ").filter(Boolean).map((risk, i) => (
                           <div key={i} className="flex items-start gap-2">
                             <ShieldAlert size={11} className="mt-1 flex-shrink-0" style={{ color: "#b45309" }} />
-                            <span className="text-12" style={{ color: "var(--color-text-secondary)", lineHeight: 1.6 }}>
-                              {risk.endsWith(".") ? risk : `${risk}.`}
-                            </span>
+                            <span className="text-12" style={{ color: "var(--color-text-secondary)", lineHeight: 1.6 }}>{risk.endsWith(".") ? risk : `${risk}.`}</span>
                           </div>
                         ))}
                       </div>
@@ -654,63 +740,29 @@ export function CompanyPageClient({ company, companyFunding, similar, report: in
                 </div>
               )}
 
-              {/* Pipeline Snapshot */}
-              {pipeline.length > 0 && (
-                <SectionCard
-                  icon={<FlaskConical size={14} style={{ color: "var(--color-accent)" }} />}
-                  title="Pipeline Snapshot"
-                >
-                  {pipeline.slice(0, 3).map((p) => (
-                    <PipelineBar
-                      key={p.name + p.indication}
-                      name={p.name}
-                      indication={p.indication}
-                      stage={p.stage}
-                      isLead={p.isLead}
-                    />
-                  ))}
-                  {pipeline.length > 3 && (
-                    <button
-                      onClick={() => handleTabChange("Pipeline")}
-                      className="text-12 mt-2 flex items-center gap-1"
-                      style={{ color: "var(--color-accent)" }}
-                    >
-                      View all {pipeline.length} programs →
-                    </button>
-                  )}
-                </SectionCard>
-              )}
-
-              {/* Funding Chart */}
-              {fundingChartData.length > 0 && (
-                <SectionCard
-                  icon={<BarChart3 size={14} style={{ color: "var(--color-accent)" }} />}
-                  title="Funding Rounds"
-                >
-                  <FundingBarChart
-                    data={fundingChartData}
-                    height={180}
-                  />
-                  <button
-                    onClick={() => handleTabChange("Funding")}
-                    className="text-12 mt-3 flex items-center gap-1"
-                    style={{ color: "var(--color-accent)" }}
-                  >
-                    View funding details →
-                  </button>
-                </SectionCard>
-              )}
-
               {/* Competitive Landscape */}
               {report?.competitive_landscape && (
-                <SectionCard
-                  icon={<Swords size={14} style={{ color: "var(--color-accent)" }} />}
-                  title="Competitive Landscape"
-                >
-                  <p className="text-13" style={{ color: "var(--color-text-secondary)", lineHeight: 1.7 }}>
-                    {report.competitive_landscape}
-                  </p>
+                <SectionCard icon={<Swords size={14} style={{ color: "var(--color-accent)" }} />} title="Competitive Landscape">
+                  <p className="text-13" style={{ color: "var(--color-text-secondary)", lineHeight: 1.7 }}>{report.competitive_landscape}</p>
                 </SectionCard>
+              )}
+
+              {/* Quick stats row: publications + patents */}
+              {(publications.length > 0 || patents.length > 0) && (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+                  {publications.length > 0 && (
+                    <StatCard label="Publications" value={String(publications.length)} icon={<FileText size={10} style={{ color: "var(--color-text-tertiary)" }} />} />
+                  )}
+                  {patents.length > 0 && (
+                    <StatCard label="Patents" value={String(patents.length)} icon={<ScrollText size={10} style={{ color: "var(--color-text-tertiary)" }} />} />
+                  )}
+                  {pipelines.length > 0 && (
+                    <StatCard label="Pipeline" value={String(pipelines.length)} icon={<TestTubes size={10} style={{ color: "var(--color-text-tertiary)" }} />} />
+                  )}
+                  {fdaApprovals.length > 0 && (
+                    <StatCard label="FDA Approvals" value={String(fdaApprovals.length)} icon={<Shield size={10} style={{ color: "var(--color-text-tertiary)" }} />} />
+                  )}
+                </div>
               )}
             </>
           )}
@@ -725,157 +777,54 @@ export function CompanyPageClient({ company, companyFunding, similar, report: in
                 </h2>
               </div>
 
-              {/* Summary row */}
-              {pipeline.length > 0 && (
-                <div className="flex items-center gap-4 mb-5 pb-4 border-b" style={{ borderColor: "var(--color-border-subtle)" }}>
-                  <StatCard label="Programs" value={String(pipeline.length)} icon={<FlaskConical size={10} style={{ color: "var(--color-text-tertiary)" }} />} />
-                  <StatCard label="In Clinic" value={String(pipeline.filter((p) => p.stage !== "Pre-clinical").length)} icon={<Beaker size={10} style={{ color: "var(--color-text-tertiary)" }} />} />
-                </div>
-              )}
+              <div className="flex items-center gap-4 mb-5 pb-4 border-b" style={{ borderColor: "var(--color-border-subtle)" }}>
+                <StatCard label="Total Programs" value={String(pipelines.length)} icon={<FlaskConical size={10} style={{ color: "var(--color-text-tertiary)" }} />} />
+                <StatCard label="Phase 3" value={String(phase3Count)} icon={<Beaker size={10} style={{ color: "var(--color-text-tertiary)" }} />} />
+                <StatCard label="In Clinic" value={String(pipelines.filter(p => p.stage !== "Pre-clinical" && p.stage !== "Preclinical" && p.stage !== "Discovery").length)} icon={<TestTubes size={10} style={{ color: "var(--color-text-tertiary)" }} />} />
+              </div>
 
-              {pipeline.map((p) => (
-                <div key={p.name + p.indication} className="mb-5 pb-5 border-b" style={{ borderColor: "var(--color-border-subtle)" }}>
-                  <PipelineBar name={p.name} indication={p.indication} stage={p.stage} isLead={p.isLead} />
-                  <div className="mt-3 grid grid-cols-2 gap-3">
-                    {p.status && (
-                      <div className="rounded-md px-3 py-2 border" style={{ borderColor: "var(--color-border-subtle)", background: "var(--color-bg-secondary)" }}>
-                        <div className="text-10 uppercase tracking-[0.3px] mb-0.5" style={{ color: "var(--color-text-tertiary)" }}>Status</div>
-                        <div className="text-12 font-medium" style={{ color: "var(--color-text-primary)" }}>{p.status}</div>
-                      </div>
-                    )}
-                    {p.nctId && (
-                      <div className="rounded-md px-3 py-2 border" style={{ borderColor: "var(--color-border-subtle)", background: "var(--color-bg-secondary)" }}>
-                        <div className="text-10 uppercase tracking-[0.3px] mb-0.5" style={{ color: "var(--color-text-tertiary)" }}>Trial ID</div>
-                        <a
-                          href={`https://clinicaltrials.gov/study/${p.nctId}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-12 font-medium flex items-center gap-1"
-                          style={{ color: "var(--color-accent)" }}
-                        >
-                          {p.nctId}
-                          <ExternalLink size={10} />
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
+              <div className="overflow-x-auto rounded-lg border" style={{ borderColor: "var(--color-border-subtle)" }}>
+                <table className="w-full text-12" style={{ borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr style={{ background: "var(--color-bg-tertiary)" }}>
+                      <th className="text-left px-3 py-2.5 font-medium text-11 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Product</th>
+                      <th className="text-left px-3 py-2.5 font-medium text-11 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Indication</th>
+                      <th className="text-left px-3 py-2.5 font-medium text-11 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Stage</th>
+                      <th className="text-left px-3 py-2.5 font-medium text-11 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Status</th>
+                      <th className="text-left px-3 py-2.5 font-medium text-11 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>NCT ID</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sortedPipelines.map((p) => (
+                      <tr key={p.id} style={{ borderBottom: "1px solid var(--color-border-subtle)" }}>
+                        <td className="px-3 py-2.5 font-medium" style={{ color: "var(--color-text-primary)" }}>{p.product_name}</td>
+                        <td className="px-3 py-2.5" style={{ color: "var(--color-text-secondary)" }}>{p.indication}</td>
+                        <td className="px-3 py-2.5"><StageBadge stage={p.stage} /></td>
+                        <td className="px-3 py-2.5" style={{ color: "var(--color-text-secondary)" }}>{p.trial_status || "—"}</td>
+                        <td className="px-3 py-2.5">
+                          {p.nct_id ? (
+                            <a
+                              href={`https://clinicaltrials.gov/study/${p.nct_id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1"
+                              style={{ color: "var(--color-accent)" }}
+                            >
+                              {p.nct_id}
+                              <ExternalLink size={10} />
+                            </a>
+                          ) : "—"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
-              {pipeline.length === 0 && (
+              {pipelines.length === 0 && (
                 <div className="py-10 text-center rounded-xl border" style={{ borderColor: "var(--color-border-subtle)", background: "var(--color-bg-secondary)" }}>
                   <FlaskConical size={28} className="mx-auto mb-3" style={{ color: "var(--color-text-tertiary)", opacity: 0.4 }} />
                   <p className="text-14 font-medium mb-1" style={{ color: "var(--color-text-secondary)" }}>No pipeline data available</p>
-                  <p className="text-12" style={{ color: "var(--color-text-tertiary)" }}>
-                    <Link href={`/claim/${company.slug}`} style={{ color: "var(--color-accent)" }}>Claim this profile</Link> to add pipeline information.
-                  </p>
-                </div>
-              )}
-            </section>
-          )}
-
-          {/* ════════════ REPORT TAB ════════════ */}
-          {activeTab === "Report" && (
-            <section>
-              <div className="flex items-center gap-2 mb-1">
-                <Sparkles size={16} style={{ color: "var(--color-accent)" }} />
-                <h2 className="text-[16px] font-semibold" style={{ color: "var(--color-text-primary)" }}>
-                  AI Deep Analysis
-                </h2>
-              </div>
-
-              {/* Loading state — generating report */}
-              {reportLoading && (
-                <div className="mt-6 flex flex-col items-center justify-center py-16">
-                  <div className="relative mb-5">
-                    <div
-                      className="w-12 h-12 rounded-full border-[3px] border-t-transparent animate-spin"
-                      style={{ borderColor: "var(--color-border-subtle)", borderTopColor: "var(--color-accent)" }}
-                    />
-                    <Sparkles
-                      size={18}
-                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-                      style={{ color: "var(--color-accent)" }}
-                    />
-                  </div>
-                  <h3 className="text-[15px] font-semibold mb-1" style={{ color: "var(--color-text-primary)" }}>
-                    Generating Intelligence Report
-                  </h3>
-                  <p className="text-12 max-w-[320px] text-center" style={{ color: "var(--color-text-tertiary)" }}>
-                    Analyzing {company.name}&apos;s website, public filings, and clinical data. This typically takes 10-20 seconds.
-                  </p>
-                </div>
-              )}
-
-              {/* Error state */}
-              {reportError && !reportLoading && (
-                <div className="mt-4 p-4 rounded-lg border" style={{ borderColor: "rgba(192,57,43,0.3)", background: "rgba(192,57,43,0.05)" }}>
-                  <p className="text-13 font-medium mb-1" style={{ color: "#c0392b" }}>
-                    Report generation failed
-                  </p>
-                  <p className="text-12" style={{ color: "var(--color-text-secondary)" }}>
-                    {reportError}
-                  </p>
-                  <button
-                    onClick={() => handleTabChange("Report")}
-                    className="mt-3 text-12 font-medium px-3 py-1.5 rounded-md"
-                    style={{ color: "var(--color-accent)", background: "rgba(26,122,94,0.08)" }}
-                  >
-                    Try again
-                  </button>
-                </div>
-              )}
-
-              {/* Report content */}
-              {!reportLoading && !reportError && report?.deep_report && (
-                <>
-                  <p className="text-11 mb-5" style={{ color: "var(--color-text-tertiary)" }}>
-                    Generated from public data sources · Last updated {report.analyzed_at ? new Date(report.analyzed_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) : "recently"}
-                  </p>
-
-                  <div className="rounded-xl border p-5" style={{ borderColor: "var(--color-border-subtle)", background: "var(--color-bg-secondary)" }}>
-                    <MarkdownBlock content={report.deep_report} />
-                  </div>
-
-                  {report.pages_scraped && report.pages_scraped.length > 0 && (
-                    <div className="mt-4 px-4 py-3 rounded-lg" style={{ background: "var(--color-bg-tertiary)" }}>
-                      <div className="text-10 uppercase tracking-[0.3px] font-medium mb-2" style={{ color: "var(--color-text-tertiary)" }}>
-                        Sources ({report.pages_scraped.length} pages analyzed)
-                      </div>
-                      <div className="flex flex-col gap-1">
-                        {report.pages_scraped.map((url, i) => (
-                          <a
-                            key={i}
-                            href={url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-11 flex items-center gap-1 truncate"
-                            style={{ color: "var(--color-accent)" }}
-                          >
-                            <Globe size={10} className="flex-shrink-0" />
-                            {url.replace(/https?:\/\/(www\.)?/, "")}
-                          </a>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {/* No report and not loading — shouldn't normally show since we auto-trigger */}
-              {!reportLoading && !reportError && !report?.deep_report && (
-                <div className="mt-6 flex flex-col items-center justify-center py-12">
-                  <Sparkles size={28} className="mb-3" style={{ color: "var(--color-text-tertiary)" }} />
-                  <p className="text-13 mb-3" style={{ color: "var(--color-text-secondary)" }}>
-                    No AI report available yet for {company.name}
-                  </p>
-                  <button
-                    onClick={() => handleTabChange("Report")}
-                    className="text-13 font-medium px-4 py-2 rounded-lg transition-colors"
-                    style={{ color: "#fff", background: "var(--color-accent)" }}
-                  >
-                    Generate Report
-                  </button>
                 </div>
               )}
             </section>
@@ -892,31 +841,40 @@ export function CompanyPageClient({ company, companyFunding, similar, report: in
               </div>
 
               <div className="grid grid-cols-3 gap-3 mb-5">
-                <StatCard label="Total Raised" value={formatCurrency(report?.total_raised_estimate || company.totalRaised)} accent />
-                <StatCard label="Rounds" value={String(companyFunding.length || (report?.funding_mentions?.length || "—"))} />
-                <StatCard label="Last Round" value={companyFunding.length > 0 ? companyFunding[0].type : "—"} />
+                <StatCard label="Total Raised" value={totalFundingRaised > 0 ? formatCurrency(totalFundingRaised) : formatCurrency(company.totalRaised)} accent />
+                <StatCard label="Rounds" value={String(dbFundingRounds.length || companyFunding.length || "—")} />
+                <StatCard label="Last Round" value={dbFundingRounds.length > 0 ? dbFundingRounds[0].round_type : (companyFunding.length > 0 ? companyFunding[0].type : "—")} />
               </div>
 
-              {companyFunding.length > 0 ? (
-                <FundingTimeline rounds={companyFunding} totalRaised={company.totalRaised} />
-              ) : report?.funding_mentions && report.funding_mentions.length > 0 ? (
-                <div className="space-y-3">
-                  {report.funding_mentions.map((mention, i) => (
-                    <div key={i} className="flex items-start gap-3 p-3 rounded-lg border" style={{ borderColor: "var(--color-border-subtle)", background: "var(--color-bg-secondary)" }}>
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(26,122,94,0.1)" }}>
-                        <TrendingUp size={14} style={{ color: "var(--color-accent)" }} />
-                      </div>
-                      <p className="text-13" style={{ color: "var(--color-text-secondary)", lineHeight: 1.6 }}>{mention}</p>
-                    </div>
-                  ))}
-                  <p className="text-11 mt-2" style={{ color: "var(--color-text-tertiary)" }}>
-                    Funding data sourced from AI analysis of public records.
-                  </p>
+              {dbFundingRounds.length > 0 ? (
+                <div className="overflow-x-auto rounded-lg border" style={{ borderColor: "var(--color-border-subtle)" }}>
+                  <table className="w-full text-12" style={{ borderCollapse: "collapse" }}>
+                    <thead>
+                      <tr style={{ background: "var(--color-bg-tertiary)" }}>
+                        <th className="text-left px-3 py-2.5 font-medium text-11 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Date</th>
+                        <th className="text-left px-3 py-2.5 font-medium text-11 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Round</th>
+                        <th className="text-left px-3 py-2.5 font-medium text-11 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Amount</th>
+                        <th className="text-left px-3 py-2.5 font-medium text-11 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Lead Investor</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {dbFundingRounds.map((r) => (
+                        <tr key={r.id} style={{ borderBottom: "1px solid var(--color-border-subtle)" }}>
+                          <td className="px-3 py-2.5" style={{ color: "var(--color-text-secondary)" }}>{fmtDate(r.announced_date)}</td>
+                          <td className="px-3 py-2.5"><RoundBadge type={r.round_type} /></td>
+                          <td className="px-3 py-2.5 font-medium" style={{ color: "var(--color-text-primary)" }}>
+                            {r.amount_usd ? formatCurrency(r.amount_usd) : "Undisclosed"}
+                          </td>
+                          <td className="px-3 py-2.5" style={{ color: "var(--color-text-secondary)" }}>{r.lead_investor || "—"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               ) : (
                 <div className="py-10 text-center rounded-xl border" style={{ borderColor: "var(--color-border-subtle)", background: "var(--color-bg-secondary)" }}>
                   <TrendingUp size={28} className="mx-auto mb-3" style={{ color: "var(--color-text-tertiary)", opacity: 0.4 }} />
-                  <p className="text-14 font-medium mb-1" style={{ color: "var(--color-text-secondary)" }}>No public funding records</p>
+                  <p className="text-14 font-medium mb-1" style={{ color: "var(--color-text-secondary)" }}>No detailed funding records</p>
                   <p className="text-12" style={{ color: "var(--color-text-tertiary)" }}>
                     Total raised: {formatCurrency(company.totalRaised)} {company.isEstimated && "(estimated)"}
                   </p>
@@ -926,17 +884,10 @@ export function CompanyPageClient({ company, companyFunding, similar, report: in
               {/* Investors */}
               {report?.investors && report.investors.length > 0 && (
                 <div className="mt-5">
-                  <SectionCard
-                    icon={<Award size={14} style={{ color: "var(--color-accent)" }} />}
-                    title="Known Investors"
-                  >
+                  <SectionCard icon={<Award size={14} style={{ color: "var(--color-accent)" }} />} title="Known Investors">
                     <div className="flex flex-wrap gap-2">
                       {report.investors.map((inv) => (
-                        <span
-                          key={inv}
-                          className="text-12 px-2.5 py-1 rounded-md border"
-                          style={{ borderColor: "var(--color-border-subtle)", color: "var(--color-text-secondary)", background: "var(--color-bg-secondary)" }}
-                        >
+                        <span key={inv} className="text-12 px-2.5 py-1 rounded-md border" style={{ borderColor: "var(--color-border-subtle)", color: "var(--color-text-secondary)", background: "var(--color-bg-secondary)" }}>
                           {inv}
                         </span>
                       ))}
@@ -944,111 +895,226 @@ export function CompanyPageClient({ company, companyFunding, similar, report: in
                   </SectionCard>
                 </div>
               )}
+            </section>
+          )}
 
-              <div
-                className="mt-5 rounded-xl border p-4"
-                style={{ borderColor: "var(--color-border-subtle)", background: "var(--color-bg-secondary)" }}
-              >
-                <div className="text-13 font-medium mb-1" style={{ color: "var(--color-text-primary)" }}>Interested in investing?</div>
-                <p className="text-12 mb-3" style={{ color: "var(--color-text-secondary)" }}>
-                  Express your interest and we&apos;ll connect you when they&apos;re raising.
-                </p>
-                <Link
-                  href="/signup"
-                  className="inline-flex items-center gap-1 text-12 font-medium px-4 py-2 rounded-lg text-white"
-                  style={{ background: "var(--color-accent)" }}
-                >
-                  Express interest
-                  <ArrowUpRight size={13} />
-                </Link>
+          {/* ════════════ FDA TAB ════════════ */}
+          {activeTab === "FDA" && (
+            <section>
+              <div className="flex items-center gap-2 mb-4">
+                <Shield size={16} style={{ color: "var(--color-accent)" }} />
+                <h2 className="text-[16px] font-semibold" style={{ color: "var(--color-text-primary)" }}>
+                  FDA Approved Drugs — {company.name}
+                </h2>
+              </div>
+
+              <div className="flex items-center gap-4 mb-5 pb-4 border-b" style={{ borderColor: "var(--color-border-subtle)" }}>
+                <StatCard label="Total Approvals" value={String(fdaApprovals.length)} icon={<Shield size={10} style={{ color: "var(--color-text-tertiary)" }} />} accent />
+              </div>
+
+              <div className="overflow-x-auto rounded-lg border" style={{ borderColor: "var(--color-border-subtle)" }}>
+                <table className="w-full text-12" style={{ borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr style={{ background: "var(--color-bg-tertiary)" }}>
+                      <th className="text-left px-3 py-2.5 font-medium text-11 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Drug Name</th>
+                      <th className="text-left px-3 py-2.5 font-medium text-11 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Active Ingredient</th>
+                      <th className="text-left px-3 py-2.5 font-medium text-11 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Approval Date</th>
+                      <th className="text-left px-3 py-2.5 font-medium text-11 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Type</th>
+                      <th className="text-left px-3 py-2.5 font-medium text-11 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Dosage Form</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {fdaApprovals.map((a) => (
+                      <tr key={a.id} style={{ borderBottom: "1px solid var(--color-border-subtle)" }}>
+                        <td className="px-3 py-2.5 font-medium" style={{ color: "var(--color-text-primary)" }}>{a.drug_name}</td>
+                        <td className="px-3 py-2.5" style={{ color: "var(--color-text-secondary)" }}>{a.active_ingredient || "—"}</td>
+                        <td className="px-3 py-2.5" style={{ color: "var(--color-text-secondary)" }}>{fmtDate(a.approval_date)}</td>
+                        <td className="px-3 py-2.5">
+                          {a.application_type ? (
+                            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded" style={{ background: "#e8f5f0", color: "#0a3d2e" }}>{a.application_type}</span>
+                          ) : "—"}
+                        </td>
+                        <td className="px-3 py-2.5" style={{ color: "var(--color-text-secondary)" }}>{a.dosage_form || "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </section>
           )}
 
-          {/* ════════════ TEAM TAB ════════════ */}
-          {activeTab === "Team" && (
+          {/* ════════════ PUBLICATIONS TAB ════════════ */}
+          {activeTab === "Publications" && (
             <section>
               <div className="flex items-center gap-2 mb-4">
-                <Users size={16} style={{ color: "var(--color-accent)" }} />
+                <FileText size={16} style={{ color: "var(--color-accent)" }} />
                 <h2 className="text-[16px] font-semibold" style={{ color: "var(--color-text-primary)" }}>
-                  Leadership Team — {company.name}
+                  Publications — {company.name}
                 </h2>
               </div>
 
-              {team.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {team.map((member) => (
-                    <div
-                      key={member.name}
-                      className="flex items-start gap-3 p-4 rounded-xl border transition-colors"
-                      style={{ borderColor: "var(--color-border-subtle)" }}
-                    >
-                      <div
-                        className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-                        style={{ background: "linear-gradient(135deg, #1a7a5e 0%, #0a3d2e 100%)" }}
-                      >
-                        <span className="text-12 font-semibold text-white">{member.initials}</span>
-                      </div>
-                      <div className="min-w-0">
-                        <div className="text-14 font-medium" style={{ color: "var(--color-text-primary)" }}>
-                          {member.name}
-                        </div>
-                        <div className="text-12 mb-1" style={{ color: "var(--color-accent)" }}>
-                          {member.role}
-                        </div>
-                        {member.email && (
+              <div className="flex items-center gap-4 mb-5 pb-4 border-b" style={{ borderColor: "var(--color-border-subtle)" }}>
+                <StatCard label="Total Publications" value={String(publications.length)} icon={<FileText size={10} style={{ color: "var(--color-text-tertiary)" }} />} />
+              </div>
+
+              <div className="space-y-3">
+                {publications.map((pub) => (
+                  <div key={pub.id} className="p-3 rounded-lg border" style={{ borderColor: "var(--color-border-subtle)" }}>
+                    <div className="flex items-start gap-3">
+                      <FileText size={14} className="mt-1 flex-shrink-0" style={{ color: "var(--color-accent)" }} />
+                      <div className="min-w-0 flex-1">
+                        {pub.pmid ? (
                           <a
-                            href={`mailto:${member.email}`}
-                            className="text-11 flex items-center gap-1"
-                            style={{ color: "var(--color-text-tertiary)" }}
+                            href={`https://pubmed.ncbi.nlm.nih.gov/${pub.pmid}/`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-13 font-medium hover:underline block"
+                            style={{ color: "var(--color-text-primary)", lineHeight: 1.5 }}
                           >
-                            <Mail size={10} />
-                            {member.email}
+                            {pub.title}
+                            <ExternalLink size={10} className="inline ml-1" style={{ verticalAlign: "middle" }} />
                           </a>
+                        ) : (
+                          <p className="text-13 font-medium" style={{ color: "var(--color-text-primary)", lineHeight: 1.5 }}>{pub.title}</p>
+                        )}
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          {pub.journal && (
+                            <span className="text-11" style={{ color: "var(--color-accent)" }}>{pub.journal}</span>
+                          )}
+                          {pub.publication_date && (
+                            <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>{fmtDate(pub.publication_date)}</span>
+                          )}
+                        </div>
+                        {pub.authors && (
+                          <p className="text-11 mt-1 line-clamp-1" style={{ color: "var(--color-text-tertiary)" }}>{pub.authors}</p>
                         )}
                       </div>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="py-10 text-center rounded-xl border" style={{ borderColor: "var(--color-border-subtle)", background: "var(--color-bg-secondary)" }}>
-                  <Users size={28} className="mx-auto mb-3" style={{ color: "var(--color-text-tertiary)", opacity: 0.4 }} />
-                  <p className="text-14 font-medium mb-1" style={{ color: "var(--color-text-secondary)" }}>No team data available</p>
-                  <p className="text-12" style={{ color: "var(--color-text-tertiary)" }}>
-                    <Link href={`/claim/${company.slug}`} style={{ color: "var(--color-accent)" }}>Claim this profile</Link> to add team information.
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* ════════════ PATENTS TAB ════════════ */}
+          {activeTab === "Patents" && (
+            <section>
+              <div className="flex items-center gap-2 mb-4">
+                <ScrollText size={16} style={{ color: "var(--color-accent)" }} />
+                <h2 className="text-[16px] font-semibold" style={{ color: "var(--color-text-primary)" }}>
+                  Patents — {company.name}
+                </h2>
+              </div>
+
+              <div className="flex items-center gap-4 mb-5 pb-4 border-b" style={{ borderColor: "var(--color-border-subtle)" }}>
+                <StatCard label="Total Patents" value={String(patents.length)} icon={<ScrollText size={10} style={{ color: "var(--color-text-tertiary)" }} />} />
+              </div>
+
+              <div className="space-y-3">
+                {patents.map((pat) => (
+                  <div key={pat.id} className="p-3 rounded-lg border" style={{ borderColor: "var(--color-border-subtle)" }}>
+                    <div className="flex items-start gap-3">
+                      <ScrollText size={14} className="mt-1 flex-shrink-0" style={{ color: "var(--color-accent)" }} />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-13 font-medium" style={{ color: "var(--color-text-primary)", lineHeight: 1.5 }}>{pat.title}</p>
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          {pat.patent_number && (
+                            <a
+                              href={`https://patents.google.com/patent/${pat.patent_number}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-11 flex items-center gap-1"
+                              style={{ color: "var(--color-accent)" }}
+                            >
+                              {pat.patent_number}
+                              <ExternalLink size={9} />
+                            </a>
+                          )}
+                          {pat.grant_date && (
+                            <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>Granted: {fmtDate(pat.grant_date)}</span>
+                          )}
+                          {pat.filing_date && (
+                            <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>Filed: {fmtDate(pat.filing_date)}</span>
+                          )}
+                        </div>
+                        {pat.abstract && (
+                          <p className="text-11 mt-1.5 line-clamp-2" style={{ color: "var(--color-text-secondary)", lineHeight: 1.6 }}>{pat.abstract}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* ════════════ REPORT TAB ════════════ */}
+          {activeTab === "Report" && (
+            <section>
+              <div className="flex items-center gap-2 mb-1">
+                <Sparkles size={16} style={{ color: "var(--color-accent)" }} />
+                <h2 className="text-[16px] font-semibold" style={{ color: "var(--color-text-primary)" }}>
+                  AI Deep Analysis
+                </h2>
+              </div>
+
+              {reportLoading && (
+                <div className="mt-6 flex flex-col items-center justify-center py-16">
+                  <div className="relative mb-5">
+                    <div className="w-12 h-12 rounded-full border-[3px] border-t-transparent animate-spin" style={{ borderColor: "var(--color-border-subtle)", borderTopColor: "var(--color-accent)" }} />
+                    <Sparkles size={18} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ color: "var(--color-accent)" }} />
+                  </div>
+                  <h3 className="text-[15px] font-semibold mb-1" style={{ color: "var(--color-text-primary)" }}>Generating Intelligence Report</h3>
+                  <p className="text-12 max-w-[320px] text-center" style={{ color: "var(--color-text-tertiary)" }}>
+                    Analyzing {company.name}&apos;s website, public filings, and clinical data.
                   </p>
                 </div>
               )}
 
-              <div className="mt-4 p-3 rounded-lg" style={{ background: "var(--color-bg-secondary)" }}>
-                <p className="text-11" style={{ color: "var(--color-text-tertiary)" }}>
-                  Team data sourced from public records and company websites.{" "}
-                  <Link href={`/claim/${company.slug}`} style={{ color: "var(--color-accent)" }}>
-                    Claim this profile
-                  </Link>{" "}
-                  to update team information.
-                </p>
-              </div>
-            </section>
-          )}
+              {reportError && !reportLoading && (
+                <div className="mt-4 p-4 rounded-lg border" style={{ borderColor: "rgba(192,57,43,0.3)", background: "rgba(192,57,43,0.05)" }}>
+                  <p className="text-13 font-medium mb-1" style={{ color: "#c0392b" }}>Report generation failed</p>
+                  <p className="text-12" style={{ color: "var(--color-text-secondary)" }}>{reportError}</p>
+                  <button onClick={() => handleTabChange("Report")} className="mt-3 text-12 font-medium px-3 py-1.5 rounded-md" style={{ color: "var(--color-accent)", background: "rgba(26,122,94,0.08)" }}>
+                    Try again
+                  </button>
+                </div>
+              )}
 
-          {/* ════════════ NEWS TAB ════════════ */}
-          {activeTab === "News" && (
-            <section>
-              <div className="flex items-center gap-2 mb-4">
-                <Newspaper size={16} style={{ color: "var(--color-accent)" }} />
-                <h2 className="text-[16px] font-semibold" style={{ color: "var(--color-text-primary)" }}>
-                  News — {company.name}
-                </h2>
-              </div>
+              {!reportLoading && !reportError && report?.deep_report && (
+                <>
+                  <p className="text-11 mb-5" style={{ color: "var(--color-text-tertiary)" }}>
+                    Generated from public data sources · Last updated {report.analyzed_at ? new Date(report.analyzed_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) : "recently"}
+                  </p>
+                  <div className="rounded-xl border p-5" style={{ borderColor: "var(--color-border-subtle)", background: "var(--color-bg-secondary)" }}>
+                    <div className="prose prose-sm max-w-none" style={{ color: "var(--color-text-secondary)" }}>
+                      {report.deep_report.split("\n").map((line, i) => {
+                        if (line.startsWith("# ")) return <h2 key={i} className="text-[18px] font-semibold mt-5 mb-2" style={{ color: "var(--color-text-primary)" }}>{line.replace("# ", "")}</h2>;
+                        if (line.startsWith("## ")) return <h3 key={i} className="text-[15px] font-semibold mt-4 mb-2" style={{ color: "var(--color-text-primary)" }}>{line.replace("## ", "")}</h3>;
+                        if (line.startsWith("### ")) return <h4 key={i} className="text-14 font-medium mt-3 mb-1" style={{ color: "var(--color-text-primary)" }}>{line.replace("### ", "")}</h4>;
+                        if (line.startsWith("- ")) return (
+                          <div key={i} className="flex items-start gap-2 mb-1.5 ml-1">
+                            <CircleDot size={8} className="mt-1.5 flex-shrink-0" style={{ color: "var(--color-accent)" }} />
+                            <span className="text-13" style={{ lineHeight: 1.65 }}>{line.replace("- ", "").replace(/\*\*(.+?)\*\*/g, "$1")}</span>
+                          </div>
+                        );
+                        if (!line.trim()) return <div key={i} className="h-2" />;
+                        return <p key={i} className="text-13 mb-2" style={{ lineHeight: 1.7 }}>{line.replace(/\*\*(.+?)\*\*/g, "$1")}</p>;
+                      })}
+                    </div>
+                  </div>
+                </>
+              )}
 
-              <div className="py-10 text-center rounded-xl border" style={{ borderColor: "var(--color-border-subtle)", background: "var(--color-bg-secondary)" }}>
-                <Newspaper size={28} className="mx-auto mb-3" style={{ color: "var(--color-text-tertiary)", opacity: 0.4 }} />
-                <p className="text-14 font-medium mb-1" style={{ color: "var(--color-text-secondary)" }}>News monitoring coming soon</p>
-                <p className="text-12" style={{ color: "var(--color-text-tertiary)" }}>
-                  Our AI news engine is being built. <Link href="/news" style={{ color: "var(--color-accent)" }}>Learn more</Link>
-                </p>
-              </div>
+              {!reportLoading && !reportError && !report?.deep_report && (
+                <div className="mt-6 flex flex-col items-center justify-center py-12">
+                  <Sparkles size={28} className="mb-3" style={{ color: "var(--color-text-tertiary)" }} />
+                  <p className="text-13 mb-3" style={{ color: "var(--color-text-secondary)" }}>No AI report available yet for {company.name}</p>
+                  <button onClick={() => handleTabChange("Report")} className="text-13 font-medium px-4 py-2 rounded-lg" style={{ color: "#fff", background: "var(--color-accent)" }}>
+                    Generate Report
+                  </button>
+                </div>
+              )}
             </section>
           )}
         </div>
@@ -1081,9 +1147,7 @@ export function CompanyPageClient({ company, companyFunding, similar, report: in
           {/* Stock Info */}
           {isPublic && report?.exchange && (
             <div className="px-4 py-3 border-b" style={{ borderColor: "var(--color-border-subtle)" }}>
-              <h3 className="text-11 uppercase tracking-[0.5px] font-semibold mb-2" style={{ color: "var(--color-text-secondary)" }}>
-                Trading
-              </h3>
+              <h3 className="text-11 uppercase tracking-[0.5px] font-semibold mb-2" style={{ color: "var(--color-text-secondary)" }}>Trading</h3>
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
                   <span className="text-12" style={{ color: "var(--color-text-tertiary)" }}>Ticker</span>
@@ -1100,28 +1164,16 @@ export function CompanyPageClient({ company, companyFunding, similar, report: in
           {/* Contact */}
           {(report?.contact_email || report?.contact_phone || company.website) && (
             <div className="px-4 py-3 border-b" style={{ borderColor: "var(--color-border-subtle)" }}>
-              <h3 className="text-11 uppercase tracking-[0.5px] font-semibold mb-2" style={{ color: "var(--color-text-secondary)" }}>
-                Contact
-              </h3>
+              <h3 className="text-11 uppercase tracking-[0.5px] font-semibold mb-2" style={{ color: "var(--color-text-secondary)" }}>Contact</h3>
               <div className="flex flex-col gap-2">
                 {company.website && (
-                  <a
-                    href={`https://${company.website}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-12 flex items-center gap-1.5 transition-colors"
-                    style={{ color: "var(--color-accent)" }}
-                  >
+                  <a href={company.website.startsWith("http") ? company.website : `https://${company.website}`} target="_blank" rel="noopener noreferrer" className="text-12 flex items-center gap-1.5" style={{ color: "var(--color-accent)" }}>
                     <Globe size={12} />
-                    {company.website}
+                    {company.website.replace(/^https?:\/\/(www\.)?/, "")}
                   </a>
                 )}
                 {report?.contact_email && (
-                  <a
-                    href={`mailto:${report.contact_email}`}
-                    className="text-12 flex items-center gap-1.5"
-                    style={{ color: "var(--color-text-secondary)" }}
-                  >
+                  <a href={`mailto:${report.contact_email}`} className="text-12 flex items-center gap-1.5" style={{ color: "var(--color-text-secondary)" }}>
                     <Mail size={12} />
                     {report.contact_email}
                   </a>
@@ -1139,20 +1191,10 @@ export function CompanyPageClient({ company, companyFunding, similar, report: in
           {/* Therapeutic Areas */}
           {report?.therapeutic_areas && report.therapeutic_areas.length > 0 && (
             <div className="px-4 py-3 border-b" style={{ borderColor: "var(--color-border-subtle)" }}>
-              <h3 className="text-11 uppercase tracking-[0.5px] font-semibold mb-2" style={{ color: "var(--color-text-secondary)" }}>
-                Therapeutic Areas
-              </h3>
+              <h3 className="text-11 uppercase tracking-[0.5px] font-semibold mb-2" style={{ color: "var(--color-text-secondary)" }}>Therapeutic Areas</h3>
               <div className="flex flex-wrap gap-1.5">
                 {report.therapeutic_areas.map((area) => (
-                  <span
-                    key={area}
-                    className="text-11 px-2 py-1 rounded-md border"
-                    style={{
-                      borderColor: "var(--color-border-subtle)",
-                      color: "var(--color-accent)",
-                      background: "rgba(26,122,94,0.05)",
-                    }}
-                  >
+                  <span key={area} className="text-11 px-2 py-1 rounded-md border" style={{ borderColor: "var(--color-border-subtle)", color: "var(--color-accent)", background: "rgba(26,122,94,0.05)" }}>
                     {area}
                   </span>
                 ))}
@@ -1163,9 +1205,7 @@ export function CompanyPageClient({ company, companyFunding, similar, report: in
           {/* Sectors */}
           {sectors.length > 0 && (
             <div className="px-4 py-3 border-b" style={{ borderColor: "var(--color-border-subtle)" }}>
-              <h3 className="text-11 uppercase tracking-[0.5px] font-semibold mb-2" style={{ color: "var(--color-text-secondary)" }}>
-                Sectors
-              </h3>
+              <h3 className="text-11 uppercase tracking-[0.5px] font-semibold mb-2" style={{ color: "var(--color-text-secondary)" }}>Sectors</h3>
               <div className="flex flex-wrap gap-1.5">
                 {sectors.map((s) => {
                   if (!s.sectors) return null;
@@ -1175,13 +1215,7 @@ export function CompanyPageClient({ company, companyFunding, similar, report: in
                       key={s.sector_id}
                       href={`/sectors/${slug}`}
                       className="text-10 px-2 py-0.5 rounded-full font-medium transition-opacity duration-150"
-                      style={
-                        s.is_primary
-                          ? { background: "var(--color-accent)", color: "#fff" }
-                          : { background: "var(--color-bg-tertiary)", color: "var(--color-text-secondary)" }
-                      }
-                      onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.8"; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
+                      style={s.is_primary ? { background: "var(--color-accent)", color: "#fff" } : { background: "var(--color-bg-tertiary)", color: "var(--color-text-secondary)" }}
                     >
                       {name}
                     </Link>
@@ -1194,9 +1228,7 @@ export function CompanyPageClient({ company, companyFunding, similar, report: in
           {/* Partners */}
           {report?.partners && report.partners.length > 0 && (
             <div className="px-4 py-3 border-b" style={{ borderColor: "var(--color-border-subtle)" }}>
-              <h3 className="text-11 uppercase tracking-[0.5px] font-semibold mb-2" style={{ color: "var(--color-text-secondary)" }}>
-                Partners
-              </h3>
+              <h3 className="text-11 uppercase tracking-[0.5px] font-semibold mb-2" style={{ color: "var(--color-text-secondary)" }}>Partners</h3>
               <div className="flex flex-wrap gap-1.5">
                 {report.partners.map((p) => (
                   <span key={p} className="text-11 px-2 py-1 rounded-md border" style={{ borderColor: "var(--color-border-subtle)", color: "var(--color-text-secondary)" }}>
@@ -1212,25 +1244,12 @@ export function CompanyPageClient({ company, companyFunding, similar, report: in
 
           {/* Claim CTA */}
           <div className="px-4 py-4">
-            <div
-              className="rounded-xl border p-4"
-              style={{
-                borderColor: "var(--color-accent)",
-                background: "rgba(26,122,94,0.04)",
-                borderWidth: "1px",
-              }}
-            >
-              <div className="text-13 font-semibold mb-1" style={{ color: "var(--color-text-primary)" }}>
-                Is this your company?
-              </div>
+            <div className="rounded-xl border p-4" style={{ borderColor: "var(--color-accent)", background: "rgba(26,122,94,0.04)" }}>
+              <div className="text-13 font-semibold mb-1" style={{ color: "var(--color-text-primary)" }}>Is this your company?</div>
               <p className="text-11 mb-3" style={{ color: "var(--color-text-secondary)", lineHeight: 1.6 }}>
                 Claim your profile to update information, add pipeline data, and connect with investors.
               </p>
-              <Link
-                href={`/claim/${company.slug}`}
-                className="inline-flex items-center gap-1 text-12 font-medium px-4 py-2 rounded-lg text-white"
-                style={{ background: "var(--color-accent)" }}
-              >
+              <Link href={`/claim/${company.slug}`} className="inline-flex items-center gap-1 text-12 font-medium px-4 py-2 rounded-lg text-white" style={{ background: "var(--color-accent)" }}>
                 Claim profile
                 <ChevronRight size={13} />
               </Link>
