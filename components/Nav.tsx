@@ -220,7 +220,7 @@ export function Nav() {
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-2 shrink-0" style={{ color: "var(--color-text-primary)" }}>
               <LogoIcon size={22} />
-              <span className="text-[15px] font-semibold tracking-[-0.3px]">
+              <span className="text-[18px] font-bold tracking-[-0.3px]">
                 BiotechTube
               </span>
             </Link>
@@ -236,7 +236,7 @@ export function Nav() {
                     onMouseLeave={handleTriggerLeave}
                   >
                     <button
-                      className="flex items-center gap-1 px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors duration-150"
+                      className="flex items-center px-3 py-1.5 rounded-md text-[14px] font-semibold transition-colors duration-150"
                       style={{
                         color: isOpen ? "var(--color-text-primary)" : "var(--color-text-secondary)",
                         background: isOpen ? "var(--color-bg-secondary)" : "transparent",
@@ -246,14 +246,6 @@ export function Nav() {
                       aria-haspopup="true"
                     >
                       {menu.label}
-                      <ChevronDown
-                        size={12}
-                        style={{
-                          transform: isOpen ? "rotate(180deg)" : "rotate(0)",
-                          transition: "transform 0.2s ease",
-                          opacity: 0.5,
-                        }}
-                      />
                     </button>
 
                     {/* Dropdown */}
@@ -459,7 +451,7 @@ export function Nav() {
         <div className="flex md:hidden items-center justify-between h-full px-4">
           <Link href="/" className="flex items-center gap-2" style={{ color: "var(--color-text-primary)" }}>
             <LogoIcon size={20} />
-            <span className="text-[14px] font-semibold tracking-[-0.3px]">
+            <span className="text-[17px] font-bold tracking-[-0.3px]">
               BiotechTube
             </span>
           </Link>
@@ -498,7 +490,7 @@ export function Nav() {
           >
             <Link href="/" className="flex items-center gap-2" onClick={() => setMobileOpen(false)} style={{ color: "var(--color-text-primary)" }}>
               <LogoIcon size={20} />
-              <span className="text-[14px] font-semibold tracking-[-0.3px]">
+              <span className="text-[17px] font-bold tracking-[-0.3px]">
                 BiotechTube
               </span>
             </Link>

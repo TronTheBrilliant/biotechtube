@@ -3,9 +3,11 @@
 import Link from "next/link";
 
 interface HotProduct {
-  product_name: string;
+  name: string;
+  product_type: string;
   company_name: string | null;
   company_slug: string | null;
+  slug: string | null;
   stage: string | null;
   indication: string | null;
   hype_score: number;
@@ -31,17 +33,42 @@ const STAGE_COLORS: Record<string, string> = {
   "Phase 1": "#e8f5f0",
   "Pre-clinical": "#f3f4f6",
   Approved: "#d1fae5",
+  "AI/ML": "#fef3c7",
 };
+
+function getProductTypeTag(type: string): { label: string; bg: string; color: string } | null {
+  switch (type) {
+    case "device":
+      return { label: "Device", bg: "#faf5ff", color: "#7c3aed" };
+    case "ai_ml":
+      return { label: "AI/ML", bg: "#fef3c7", color: "#92400e" };
+    case "approved_drug":
+      return { label: "Approved", bg: "#d1fae5", color: "#065f46" };
+    default:
+      return null; // Don't show badge for regular drugs (most common)
+  }
+}
+
+function getProductLink(p: HotProduct): string {
+  if (p.product_type === "drug" && p.slug) {
+    return `/product/${p.slug}`;
+  }
+  if (p.company_slug) {
+    return `/company/${p.company_slug}`;
+  }
+  return "/products";
+}
 
 export default function HotProducts({ products }: Props) {
   return (
     <div>
       {products.map((p, i) => {
         const hype = getHypeStyle(p.hype_score);
+        const typeTag = getProductTypeTag(p.product_type);
         return (
           <Link
-            key={`${p.product_name}-${i}`}
-            href={p.company_slug ? `/company/${p.company_slug}` : "/products"}
+            key={`${p.name}-${i}`}
+            href={getProductLink(p)}
             className="px-4 py-2.5 flex items-center gap-3 transition-colors duration-100 hover:bg-[var(--color-bg-secondary)]"
             style={
               i < products.length - 1
@@ -64,8 +91,16 @@ export default function HotProducts({ products }: Props) {
                   className="text-13 font-medium truncate"
                   style={{ color: "var(--color-text-primary)" }}
                 >
-                  {p.product_name}
+                  {p.name}
                 </span>
+                {typeTag && (
+                  <span
+                    className="text-9 px-1.5 py-0.5 rounded-full font-semibold flex-shrink-0"
+                    style={{ background: typeTag.bg, color: typeTag.color }}
+                  >
+                    {typeTag.label}
+                  </span>
+                )}
                 {p.stage && (
                   <span
                     className="text-10 px-1.5 py-0.5 rounded-full font-medium flex-shrink-0"

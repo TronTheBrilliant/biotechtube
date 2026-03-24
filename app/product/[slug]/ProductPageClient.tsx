@@ -664,20 +664,30 @@ export function ProductPageClient({
                 border: "1px solid var(--color-border-subtle)",
               }}
             >
-              <div className="px-5 pt-5 pb-3">
-                <h2
-                  className="text-[14px] font-bold"
-                  style={{ color: "var(--color-text-primary)" }}
-                >
-                  Competing Products
-                </h2>
-                <p className="text-[12px] mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>
-                  {competingProducts.length} other product{competingProducts.length !== 1 ? "s" : ""}{" "}
-                  targeting{" "}
-                  {product.indication
-                    ? product.indication.split(/[\s,;]+/).filter((w) => w.length > 3)[0] || product.indication
-                    : "similar indications"}
-                </p>
+              <div className="px-5 pt-5 pb-3 flex items-start justify-between">
+                <div>
+                  <h2
+                    className="text-[14px] font-bold"
+                    style={{ color: "var(--color-text-primary)" }}
+                  >
+                    Competing Products
+                  </h2>
+                  <p className="text-[12px] mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>
+                    {competingProducts.length} competing product{competingProducts.length !== 1 ? "s" : ""}{" "}
+                    in{" "}
+                    {product.indication || "similar indications"}
+                  </p>
+                </div>
+                {product.indication && (
+                  <Link
+                    href={`/indications/${product.indication.toLowerCase().trim().replace(/['']/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}`}
+                    className="text-[12px] font-medium hover:underline shrink-0 flex items-center gap-1"
+                    style={{ color: "var(--color-accent)" }}
+                  >
+                    See all competitors
+                    <ChevronRight size={13} />
+                  </Link>
+                )}
               </div>
               <div className="overflow-x-auto" style={{ scrollbarWidth: "thin" }}>
                 <table className="w-full text-left">

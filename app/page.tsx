@@ -357,49 +357,23 @@ async function getHotPipelines() {
 async function getHotProducts() {
   const supabase = getSupabase();
   const { data } = await supabase
-    .from("product_scores")
-    .select("product_name, hype_score, trending_direction, company_id, pipeline_id")
+    .from("unified_products")
+    .select("name, product_type, company_name, company_slug, slug, stage, indication, hype_score, trending_direction")
     .order("hype_score", { ascending: false })
-    .limit(5);
+    .limit(8);
   if (!data || data.length === 0) return [];
 
-  // Get pipeline details
-  const pipelineIds = data.map((d: { pipeline_id: string }) => d.pipeline_id);
-  const { data: pipelines } = await supabase
-    .from("pipelines")
-    .select("id, indication, stage, company_name, company_id")
-    .in("id", pipelineIds);
-
-  const pipelineMap = new Map<string, { indication: string | null; stage: string | null; company_name: string; company_id: string | null }>();
-  if (pipelines) {
-    for (const p of pipelines) pipelineMap.set(p.id, p);
-  }
-
-  // Get company slugs
-  const companyIds = [...new Set(data.map((d: { company_id: string | null }) => d.company_id).filter(Boolean))] as string[];
-  const companyMap = new Map<string, string>();
-  if (companyIds.length > 0) {
-    const { data: companies } = await supabase
-      .from("companies")
-      .select("id, slug")
-      .in("id", companyIds);
-    if (companies) {
-      for (const c of companies) companyMap.set(c.id, c.slug);
-    }
-  }
-
-  return data.map((d: { pipeline_id: string; product_name: string; hype_score: number; trending_direction: string; company_id: string | null }) => {
-    const pipeline = pipelineMap.get(d.pipeline_id);
-    return {
-      product_name: d.product_name,
-      company_name: pipeline?.company_name ?? null,
-      company_slug: d.company_id ? companyMap.get(d.company_id) ?? null : null,
-      stage: pipeline?.stage ?? null,
-      indication: pipeline?.indication ?? null,
-      hype_score: d.hype_score,
-      trending_direction: d.trending_direction,
-    };
-  });
+  return data.map((d: { name: string; product_type: string; company_name: string | null; company_slug: string | null; slug: string | null; stage: string | null; indication: string | null; hype_score: number; trending_direction: string }) => ({
+    name: d.name,
+    product_type: d.product_type,
+    company_name: d.company_name,
+    company_slug: d.company_slug,
+    slug: d.slug,
+    stage: d.stage,
+    indication: d.indication,
+    hype_score: d.hype_score,
+    trending_direction: d.trending_direction,
+  }));
 }
 
 // ── Page ──
@@ -492,7 +466,7 @@ export default async function HomePage() {
             >
               Global Biotech
               <br />
-              Intelligence.
+              Market Insights.
             </h1>
             <p
               className="text-[15px] md:text-[17px] mt-3 max-w-[480px]"
@@ -505,22 +479,20 @@ export default async function HomePage() {
               in biotech market cap.
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-3 flex-shrink-0 mt-2 md:mt-0">
+          <div className="flex items-center gap-2.5 mt-4 md:mt-0 flex-shrink-0">
             <Link
               href="/signup"
-              className="group flex flex-col items-center sm:items-start px-5 py-3 rounded-lg transition-all duration-150 hover:opacity-90 hover:shadow-md"
+              className="text-13 font-semibold px-4 py-2 rounded-lg transition-all duration-150 hover:opacity-90"
               style={{ background: "var(--color-accent)", color: "white" }}
             >
-              <span className="text-14 font-bold">Get Started Free</span>
-              <span className="text-11 opacity-80 mt-0.5">Track companies & pipelines</span>
+              Get Started Free
             </Link>
             <Link
               href="/claim"
-              className="group flex flex-col items-center sm:items-start px-5 py-3 rounded-lg transition-all duration-150 hover:opacity-90 hover:shadow-md"
-              style={{ background: "var(--color-bg-primary)", color: "var(--color-text-primary)", border: "1.5px solid var(--color-border-medium)" }}
+              className="text-13 font-semibold px-4 py-2 rounded-lg transition-all duration-150 hover:opacity-90"
+              style={{ background: "var(--color-bg-tertiary)", color: "var(--color-text-primary)", border: "1px solid var(--color-border-medium)" }}
             >
-              <span className="text-14 font-bold">Claim Your Company</span>
-              <span className="text-11 mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>Manage your company profile</span>
+              Claim Company
             </Link>
           </div>
         </div>

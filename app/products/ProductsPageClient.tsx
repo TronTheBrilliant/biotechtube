@@ -3,13 +3,20 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { CompanyAvatar } from "@/components/CompanyAvatar";
-import { ArrowUp, ArrowDown, Minus, Search } from "lucide-react";
+import { ArrowUp, ArrowDown, Minus, Search, Pill, Cpu, Stethoscope, CheckCircle2 } from "lucide-react";
 
-interface ProductScoreRow {
+interface UnifiedProductRow {
   id: string;
-  pipeline_id: string;
-  product_name: string;
+  slug: string | null;
+  name: string;
+  product_type: string;
   company_id: string | null;
+  company_name: string | null;
+  company_slug: string | null;
+  stage: string | null;
+  status: string | null;
+  indication: string | null;
+  conditions: string | null;
   hype_score: number;
   clinical_score: number;
   activity_score: number;
@@ -17,20 +24,31 @@ interface ProductScoreRow {
   novelty_score: number;
   community_score: number;
   trending_direction: string;
-  last_calculated: string;
-  indication: string | null;
-  stage: string | null;
-  trial_status: string | null;
-  company_name: string | null;
-  product_slug: string | null;
-  company_slug: string | null;
-  company_logo_url: string | null;
-  company_website: string | null;
+  view_count_7d: number;
+  watchlist_count: number;
+  external_id: string | null;
+}
+
+interface ProductTypeCounts {
+  total: number;
+  drug: number;
+  approved_drug: number;
+  device: number;
+  ai_ml: number;
 }
 
 interface Props {
-  rows: ProductScoreRow[];
+  rows: UnifiedProductRow[];
+  counts: ProductTypeCounts;
 }
+
+const PRODUCT_TYPE_TABS = [
+  { key: "all", label: "All", icon: null },
+  { key: "drug", label: "Drugs", icon: Pill },
+  { key: "device", label: "Devices", icon: Stethoscope },
+  { key: "ai_ml", label: "AI/ML", icon: Cpu },
+  { key: "approved_drug", label: "Approved", icon: CheckCircle2 },
+];
 
 const STAGES = [
   "All",
@@ -41,6 +59,7 @@ const STAGES = [
   "Phase 2/3",
   "Phase 3",
   "Approved",
+  "AI/ML",
 ];
 
 const SCORE_RANGES = [
@@ -76,8 +95,25 @@ function getStageBadgeStyle(stage: string | null): React.CSSProperties {
       return { background: "#f0fdf4", color: "#15803d" };
     case "Approved":
       return { background: "#d1fae5", color: "#065f46" };
+    case "AI/ML":
+      return { background: "#fef3c7", color: "#92400e" };
     default:
       return { background: "#f3f4f6", color: "#6b7280" };
+  }
+}
+
+function getProductTypeBadge(type: string): { label: string; bg: string; color: string } {
+  switch (type) {
+    case "drug":
+      return { label: "Drug", bg: "#eff6ff", color: "#1d4ed8" };
+    case "approved_drug":
+      return { label: "Approved Drug", bg: "#d1fae5", color: "#065f46" };
+    case "device":
+      return { label: "Device", bg: "#faf5ff", color: "#7c3aed" };
+    case "ai_ml":
+      return { label: "AI/ML", bg: "#fef3c7", color: "#92400e" };
+    default:
+      return { label: type, bg: "#f3f4f6", color: "#6b7280" };
   }
 }
 
@@ -119,14 +155,28 @@ function HypeBar({ score }: { score: number }) {
   );
 }
 
-export function ProductsPageClient({ rows }: Props) {
+function getProductLink(row: UnifiedProductRow): string {
+  if (row.product_type === "drug" && row.slug) {
+    return `/product/${row.slug}?ref=products`;
+  }
+  if (row.company_slug) {
+    return `/company/${row.company_slug}`;
+  }
+  return "#";
+}
+
+export function ProductsPageClient({ rows, counts }: Props) {
+  const [typeFilter, setTypeFilter] = useState("all");
   const [stageFilter, setStageFilter] = useState("All");
-  const [scoreRange, setScoreRange] = useState(0); // index into SCORE_RANGES
+  const [scoreRange, setScoreRange] = useState(0);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
   const filtered = useMemo(() => {
     let result = rows;
+    if (typeFilter !== "all") {
+      result = result.filter((r) => r.product_type === typeFilter);
+    }
     if (stageFilter !== "All") {
       result = result.filter((r) => r.stage === stageFilter);
     }
@@ -140,13 +190,13 @@ export function ProductsPageClient({ rows }: Props) {
       const q = search.toLowerCase();
       result = result.filter(
         (r) =>
-          r.product_name.toLowerCase().includes(q) ||
+          r.name.toLowerCase().includes(q) ||
           (r.company_name && r.company_name.toLowerCase().includes(q)) ||
           (r.indication && r.indication.toLowerCase().includes(q))
       );
     }
     return result;
-  }, [rows, stageFilter, scoreRange, search]);
+  }, [rows, typeFilter, stageFilter, scoreRange, search]);
 
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
   const paged = filtered.slice(
@@ -177,12 +227,12 @@ export function ProductsPageClient({ rows }: Props) {
           className="text-[14px] md:text-[16px] mt-1"
           style={{ color: "var(--color-text-secondary)" }}
         >
-          Discover the most promising drugs, therapies, and health technologies
+          Discover the most promising drugs, devices, AI/ML tools, and therapies
         </p>
       </div>
 
       {/* Stats cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
         <div
           className="rounded-lg p-3"
           style={{
@@ -194,66 +244,126 @@ export function ProductsPageClient({ rows }: Props) {
             className="text-11 font-semibold uppercase tracking-wider mb-1"
             style={{ color: "var(--color-text-tertiary)" }}
           >
-            Total Ranked
+            Total Products
           </div>
           <div
             className="text-[22px] font-bold"
             style={{ color: "var(--color-text-primary)" }}
           >
-            {rows.length.toLocaleString()}
+            {counts.total.toLocaleString()}
           </div>
         </div>
         <div
           className="rounded-lg p-3"
           style={{
-            background: "rgba(220,38,38,0.05)",
-            border: "1px solid rgba(220,38,38,0.15)",
+            background: "rgba(29,78,216,0.05)",
+            border: "1px solid rgba(29,78,216,0.15)",
           }}
         >
           <div
             className="text-11 font-semibold uppercase tracking-wider mb-1"
-            style={{ color: "#dc2626" }}
+            style={{ color: "#1d4ed8" }}
           >
-            {"\uD83D\uDD25"} Hot Products
+            Pipeline Drugs
           </div>
-          <div className="text-[22px] font-bold" style={{ color: "#dc2626" }}>
-            {hotCount.toLocaleString()}
+          <div className="text-[22px] font-bold" style={{ color: "#1d4ed8" }}>
+            {counts.drug.toLocaleString()}
           </div>
         </div>
         <div
           className="rounded-lg p-3"
           style={{
-            background: "rgba(22,163,74,0.05)",
-            border: "1px solid rgba(22,163,74,0.15)",
+            background: "rgba(124,58,237,0.05)",
+            border: "1px solid rgba(124,58,237,0.15)",
           }}
         >
           <div
             className="text-11 font-semibold uppercase tracking-wider mb-1"
-            style={{ color: "#16a34a" }}
+            style={{ color: "#7c3aed" }}
           >
-            {"\uD83D\uDCC8"} Rising
+            Devices
           </div>
-          <div className="text-[22px] font-bold" style={{ color: "#16a34a" }}>
-            {risingCount.toLocaleString()}
+          <div className="text-[22px] font-bold" style={{ color: "#7c3aed" }}>
+            {counts.device.toLocaleString()}
           </div>
         </div>
         <div
           className="rounded-lg p-3"
           style={{
-            background: "rgba(37,99,235,0.05)",
-            border: "1px solid rgba(37,99,235,0.15)",
+            background: "rgba(146,64,14,0.05)",
+            border: "1px solid rgba(146,64,14,0.15)",
           }}
         >
           <div
             className="text-11 font-semibold uppercase tracking-wider mb-1"
-            style={{ color: "#2563eb" }}
+            style={{ color: "#92400e" }}
           >
-            {"\u26A1"} Active
+            AI/ML Tools
           </div>
-          <div className="text-[22px] font-bold" style={{ color: "#2563eb" }}>
-            {activeCount.toLocaleString()}
+          <div className="text-[22px] font-bold" style={{ color: "#92400e" }}>
+            {counts.ai_ml.toLocaleString()}
           </div>
         </div>
+        <div
+          className="rounded-lg p-3"
+          style={{
+            background: "rgba(6,95,70,0.05)",
+            border: "1px solid rgba(6,95,70,0.15)",
+          }}
+        >
+          <div
+            className="text-11 font-semibold uppercase tracking-wider mb-1"
+            style={{ color: "#065f46" }}
+          >
+            FDA Approved
+          </div>
+          <div className="text-[22px] font-bold" style={{ color: "#065f46" }}>
+            {counts.approved_drug.toLocaleString()}
+          </div>
+        </div>
+      </div>
+
+      {/* Product type filter tabs */}
+      <div className="flex gap-1 mb-4 overflow-x-auto pb-1">
+        {PRODUCT_TYPE_TABS.map((tab) => {
+          const isActive = typeFilter === tab.key;
+          const Icon = tab.icon;
+          return (
+            <button
+              key={tab.key}
+              onClick={() => {
+                setTypeFilter(tab.key);
+                setPage(1);
+              }}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-12 font-semibold whitespace-nowrap transition-colors"
+              style={{
+                background: isActive
+                  ? "var(--color-accent)"
+                  : "var(--color-bg-primary)",
+                color: isActive ? "white" : "var(--color-text-secondary)",
+                border: isActive
+                  ? "1px solid var(--color-accent)"
+                  : "1px solid var(--color-border-subtle)",
+              }}
+            >
+              {Icon && <Icon size={14} />}
+              {tab.label}
+              <span
+                className="text-10 ml-0.5 opacity-70"
+              >
+                {tab.key === "all"
+                  ? counts.total.toLocaleString()
+                  : tab.key === "drug"
+                  ? counts.drug.toLocaleString()
+                  : tab.key === "device"
+                  ? counts.device.toLocaleString()
+                  : tab.key === "ai_ml"
+                  ? counts.ai_ml.toLocaleString()
+                  : counts.approved_drug.toLocaleString()}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Filters row */}
@@ -362,7 +472,7 @@ export function ProductsPageClient({ rows }: Props) {
         <div
           className="hidden md:grid items-center px-4 py-2.5"
           style={{
-            gridTemplateColumns: "48px 1fr 180px 100px 160px 40px",
+            gridTemplateColumns: "48px 1fr 60px 180px 100px 160px 40px",
             borderBottom: "1px solid var(--color-border-subtle)",
             background: "var(--color-bg-secondary)",
           }}
@@ -378,6 +488,12 @@ export function ProductsPageClient({ rows }: Props) {
             style={{ color: "var(--color-text-tertiary)" }}
           >
             Product
+          </span>
+          <span
+            className="text-11 font-semibold uppercase tracking-wider"
+            style={{ color: "var(--color-text-tertiary)" }}
+          >
+            Type
           </span>
           <span
             className="text-11 font-semibold uppercase tracking-wider"
@@ -418,6 +534,8 @@ export function ProductsPageClient({ rows }: Props) {
         {paged.map((row, i) => {
           const rank = (page - 1) * ITEMS_PER_PAGE + i + 1;
           const hype = getHypeLabel(row.hype_score);
+          const typeBadge = getProductTypeBadge(row.product_type);
+          const link = getProductLink(row);
 
           return (
             <div
@@ -434,7 +552,7 @@ export function ProductsPageClient({ rows }: Props) {
               <div
                 className="hidden md:grid items-center px-4 py-3"
                 style={{
-                  gridTemplateColumns: "48px 1fr 180px 100px 160px 40px",
+                  gridTemplateColumns: "48px 1fr 60px 180px 100px 160px 40px",
                 }}
               >
                 {/* Rank */}
@@ -450,17 +568,11 @@ export function ProductsPageClient({ rows }: Props) {
                   <div className="flex items-center gap-1.5">
                     <span className="text-[11px]">{hype.emoji}</span>
                     <Link
-                      href={
-                        row.product_slug
-                          ? `/product/${row.product_slug}?ref=products`
-                          : row.company_slug
-                          ? `/company/${row.company_slug}`
-                          : "#"
-                      }
+                      href={link}
                       className="text-13 font-semibold truncate hover:underline"
                       style={{ color: "var(--color-text-primary)" }}
                     >
-                      {row.product_name}
+                      {row.name}
                     </Link>
                   </div>
                   {row.indication && (
@@ -473,16 +585,18 @@ export function ProductsPageClient({ rows }: Props) {
                   )}
                 </div>
 
+                {/* Product type badge */}
+                <div>
+                  <span
+                    className="text-9 px-1.5 py-0.5 rounded-full font-semibold"
+                    style={{ background: typeBadge.bg, color: typeBadge.color }}
+                  >
+                    {typeBadge.label}
+                  </span>
+                </div>
+
                 {/* Company */}
                 <div className="flex items-center gap-2 min-w-0">
-                  {row.company_slug && (
-                    <CompanyAvatar
-                      name={row.company_name || ""}
-                      logoUrl={row.company_logo_url}
-                      website={row.company_website}
-                      size={22}
-                    />
-                  )}
                   <Link
                     href={
                       row.company_slug
@@ -530,20 +644,20 @@ export function ProductsPageClient({ rows }: Props) {
                       </span>
                       <span className="text-[11px]">{hype.emoji}</span>
                       <Link
-                        href={
-                          row.product_slug
-                            ? `/product/${row.product_slug}?ref=products`
-                            : row.company_slug
-                            ? `/company/${row.company_slug}`
-                            : "#"
-                        }
+                        href={link}
                         className="text-13 font-semibold truncate hover:underline"
                         style={{ color: "var(--color-text-primary)" }}
                       >
-                        {row.product_name}
+                        {row.name}
                       </Link>
                     </div>
                     <div className="flex items-center gap-1.5 flex-wrap">
+                      <span
+                        className="text-9 px-1.5 py-0.5 rounded-full font-semibold"
+                        style={{ background: typeBadge.bg, color: typeBadge.color }}
+                      >
+                        {typeBadge.label}
+                      </span>
                       {row.company_name && (
                         <span
                           className="text-11"
@@ -723,8 +837,8 @@ export function ProductsPageClient({ rows }: Props) {
           className="text-11 mt-3"
           style={{ color: "var(--color-text-tertiary)" }}
         >
-          Scores are calculated from clinical stage, trial activity, company
-          strength, and product novelty. Updated periodically.
+          Scores combine community signals (watchlists, views), clinical stage,
+          view velocity, company strength, and news mentions. Updated daily.
         </p>
       </div>
     </div>
