@@ -10,6 +10,25 @@ import {
 import { useTvChart } from "./useTvChart";
 import { ChartTooltip } from "./ChartTooltip";
 
+// ── CPI data (US Bureau of Labor Statistics, annual average CPI-U) ──
+// Base year 2024 = 100 (normalized). All amounts adjusted to 2024 dollars.
+const CPI: Record<number, number> = {
+  1990: 130.7, 1991: 136.2, 1992: 140.3, 1993: 144.5, 1994: 148.2,
+  1995: 152.4, 1996: 156.9, 1997: 160.5, 1998: 163.0, 1999: 166.6,
+  2000: 172.2, 2001: 177.1, 2002: 179.9, 2003: 184.0, 2004: 188.9,
+  2005: 195.3, 2006: 201.6, 2007: 207.3, 2008: 215.3, 2009: 214.5,
+  2010: 218.1, 2011: 224.9, 2012: 229.6, 2013: 233.0, 2014: 236.7,
+  2015: 237.0, 2016: 240.0, 2017: 245.1, 2018: 251.1, 2019: 255.7,
+  2020: 258.8, 2021: 270.9, 2022: 292.7, 2023: 304.7, 2024: 313.0,
+  2025: 318.0, 2026: 323.0, // estimated
+};
+const CPI_BASE = CPI[2024]; // normalize to 2024 dollars
+
+function inflationMultiplier(year: number): number {
+  const cpi = CPI[year] || CPI[Math.min(Math.max(year, 1990), 2026)];
+  return CPI_BASE / cpi;
+}
+
 // ── Types ─────────────────────────────────────────────────────────────
 
 type TimeValue = { time: string; value: number };
@@ -78,31 +97,41 @@ export function FundingInteractiveChart({
   className,
 }: Props) {
   const [timeframe, setTimeframe] = useState<Timeframe>("Quarterly");
+  const [inflationAdj, setInflationAdj] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const seriesRef = useRef<ISeriesApi<"Histogram"> | null>(null);
 
   // Transform server data to chart format
   const datasets: Record<Timeframe, TimeValue[]> = useMemo(() => {
-    const monthly: TimeValue[] = monthlyRaw.map((d) => ({
-      time: `${d.year}-${String(d.month).padStart(2, "0")}-01`,
-      value: Math.round(d.total / 1_000_000), // USD -> $M
-    }));
+    const adj = inflationAdj;
 
-    const quarterly: TimeValue[] = quarterlyRaw.map((d) => {
-      const month = { 1: "02", 2: "05", 3: "08", 4: "11" }[d.quarter] || "06";
+    const monthly: TimeValue[] = monthlyRaw.map((d) => {
+      const mult = adj ? inflationMultiplier(d.year) : 1;
       return {
-        time: `${d.year}-${month}-15`,
-        value: Math.round(d.total / 1_000_000), // USD -> $M
+        time: `${d.year}-${String(d.month).padStart(2, "0")}-01`,
+        value: Math.round((d.total / 1_000_000) * mult),
       };
     });
 
-    const annual: TimeValue[] = annualRaw.map((d) => ({
-      time: `${d.year}-06-01`,
-      value: d.total / 1_000_000_000, // USD -> $B
-    }));
+    const quarterly: TimeValue[] = quarterlyRaw.map((d) => {
+      const mult = adj ? inflationMultiplier(d.year) : 1;
+      const month = { 1: "02", 2: "05", 3: "08", 4: "11" }[d.quarter] || "06";
+      return {
+        time: `${d.year}-${month}-15`,
+        value: Math.round((d.total / 1_000_000) * mult),
+      };
+    });
+
+    const annual: TimeValue[] = annualRaw.map((d) => {
+      const mult = adj ? inflationMultiplier(d.year) : 1;
+      return {
+        time: `${d.year}-06-01`,
+        value: (d.total / 1_000_000_000) * mult,
+      };
+    });
 
     return { Monthly: monthly, Quarterly: quarterly, Annual: annual };
-  }, [annualRaw, quarterlyRaw, monthlyRaw]);
+  }, [annualRaw, quarterlyRaw, monthlyRaw, inflationAdj]);
 
   const data = datasets[timeframe];
 
@@ -151,7 +180,7 @@ export function FundingInteractiveChart({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chart]);
 
-  // Update data when timeframe changes
+  // Update data when timeframe or inflation toggle changes
   useEffect(() => {
     if (!seriesRef.current || !chart) return;
     const color = COLORS[timeframe];
@@ -201,20 +230,18 @@ export function FundingInteractiveChart({
           "value" in (val as Record<string, unknown>)
         ) {
           const v = (val as { value: number }).value;
+          const label = inflationAdj
+            ? `${timeframe} Funding (2024 $)`
+            : `${timeframe} Funding`;
           result = {
             date: dateStr,
-            values: [
-              {
-                label: `${timeframe} Funding`,
-                value: formatValue(timeframe, v),
-              },
-            ],
+            values: [{ label, value: formatValue(timeframe, v) }],
           };
         }
       });
       return result;
     },
-    [timeframe]
+    [timeframe, inflationAdj]
   );
 
   const btnBase: React.CSSProperties = {
@@ -231,7 +258,7 @@ export function FundingInteractiveChart({
     <div className={className}>
       {/* Header row */}
       <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
-        <div className="flex gap-1">
+        <div className="flex gap-1 items-center">
           {TIMEFRAMES.map((tf) => (
             <button
               key={tf}
@@ -253,9 +280,35 @@ export function FundingInteractiveChart({
               {tf}
             </button>
           ))}
+          <span
+            style={{
+              width: 1,
+              height: 16,
+              background: "var(--color-border-subtle)",
+              margin: "0 4px",
+            }}
+          />
+          <button
+            onClick={() => setInflationAdj(!inflationAdj)}
+            style={{
+              ...btnBase,
+              background: inflationAdj
+                ? "var(--color-accent)"
+                : "var(--color-bg-secondary)",
+              color: inflationAdj ? "#fff" : "var(--color-text-secondary)",
+              borderColor: inflationAdj
+                ? "var(--color-accent)"
+                : "var(--color-border-medium)",
+              fontSize: 10,
+            }}
+            title="Adjust all amounts to 2024 dollars using CPI inflation data"
+          >
+            {inflationAdj ? "2024 $" : "Inflation adj."}
+          </button>
         </div>
         <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>
           {data.length} {periodLabel(timeframe)} · {totalLabel(timeframe, data)} total
+          {inflationAdj && " (2024 $)"}
           {timeframe !== "Annual" && " · Scroll to zoom"}
         </span>
       </div>
