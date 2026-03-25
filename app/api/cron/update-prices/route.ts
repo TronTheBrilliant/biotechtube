@@ -197,6 +197,38 @@ export async function GET(req: NextRequest) {
               };
             });
 
+            // ── Validation: detect & fix shares_outstanding jumps ──
+            // If market_cap jumps >50% but price moves <15%, it's a shares change, not real
+            // Fix by using previous row's implied shares (mcap/price ratio)
+            for (let i = 1; i < rows.length; i++) {
+              const curr = rows[i];
+              const prev = rows[i - 1];
+              if (
+                curr.market_cap_usd &&
+                prev.market_cap_usd &&
+                curr.adj_close &&
+                prev.adj_close &&
+                prev.adj_close > 0 &&
+                prev.market_cap_usd > 0
+              ) {
+                const mcapChange = Math.abs(
+                  (curr.market_cap_usd - prev.market_cap_usd) /
+                    prev.market_cap_usd
+                );
+                const priceChange = Math.abs(
+                  (curr.adj_close - prev.adj_close) / prev.adj_close
+                );
+                if (mcapChange > 0.5 && priceChange < 0.15) {
+                  // Shares changed, not price — recalculate using prev ratio
+                  const impliedRatio =
+                    prev.market_cap_usd / prev.adj_close;
+                  curr.market_cap_usd = Math.round(
+                    curr.adj_close * impliedRatio
+                  );
+                }
+              }
+            }
+
             // Upsert in sub-batches of 200 rows to respect statement_timeout
             const SUB_BATCH = 200;
             let rowsUpserted = 0;

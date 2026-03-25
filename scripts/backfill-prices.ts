@@ -231,6 +231,25 @@ async function backfillTicker(
   }
   const uniqueRows = Array.from(deduped.values());
 
+  // Validate: fix shares_outstanding jumps (market_cap jumps >50% but price moves <15%)
+  uniqueRows.sort((a, b) => a.date.localeCompare(b.date));
+  for (let i = 1; i < uniqueRows.length; i++) {
+    const curr = uniqueRows[i];
+    const prev = uniqueRows[i - 1];
+    if (
+      curr.market_cap_usd && prev.market_cap_usd &&
+      curr.adj_close && prev.adj_close &&
+      prev.adj_close > 0 && prev.market_cap_usd > 0
+    ) {
+      const mcapChange = Math.abs((curr.market_cap_usd - prev.market_cap_usd) / prev.market_cap_usd);
+      const priceChange = Math.abs((curr.adj_close - prev.adj_close) / prev.adj_close);
+      if (mcapChange > 0.5 && priceChange < 0.15) {
+        const impliedRatio = prev.market_cap_usd / prev.adj_close;
+        curr.market_cap_usd = Math.round(curr.adj_close * impliedRatio);
+      }
+    }
+  }
+
   // Batch upsert (Supabase limit is 1000 rows per call)
   const BATCH_SIZE = 500;
   let insertedRows = 0;
