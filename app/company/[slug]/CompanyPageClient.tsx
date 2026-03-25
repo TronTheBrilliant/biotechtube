@@ -191,29 +191,24 @@ function SectionCard({ icon, title, children, accent = false, count, className =
 }
 
 /* ─── Quick Stat Card (dashboard style) ─── */
-function QuickStatCard({ label, value, subValue, icon, accent = false }: {
-  label: string; value: string; subValue?: string; icon?: React.ReactNode; accent?: boolean;
+function QuickStatCard({ label, value, subValue, isLast = false }: {
+  label: string; value: string; subValue?: string; isLast?: boolean;
 }) {
   return (
     <div
-      className="rounded-xl border px-4 py-3.5 transition-all duration-200 hover:shadow-sm"
+      className="px-2 md:px-3 py-3 text-center"
       style={{
-        background: "var(--color-bg-primary)",
-        borderColor: accent ? "var(--color-accent)" : "var(--color-border-subtle)",
-        borderWidth: accent ? "1.5px" : "1px",
+        borderRight: isLast ? "none" : "0.5px solid var(--color-border-subtle)",
       }}
     >
-      <div className="flex items-center gap-2 mb-2">
-        {icon && <span style={{ color: "var(--color-text-tertiary)" }}>{icon}</span>}
-        <span className="text-[10px] uppercase tracking-[0.6px] font-semibold" style={{ color: "var(--color-text-tertiary)" }}>
-          {label}
-        </span>
-      </div>
-      <div className="text-[20px] font-semibold tracking-tight" style={{ color: accent ? "var(--color-accent)" : "var(--color-text-primary)", letterSpacing: "-0.3px" }}>
+      <div className="text-[16px] md:text-[18px] font-semibold tracking-tight" style={{ color: "var(--color-text-primary)", letterSpacing: "-0.3px" }}>
         {value}
       </div>
+      <div className="text-[9px] md:text-[10px] uppercase tracking-[0.5px] font-medium mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>
+        {label}
+      </div>
       {subValue && (
-        <div className="text-[11px] mt-0.5 font-medium" style={{ color: "var(--color-text-tertiary)" }}>
+        <div className="text-[10px] md:text-[11px] mt-0.5 font-medium" style={{ color: "var(--color-text-tertiary)" }}>
           {subValue}
         </div>
       )}
@@ -340,6 +335,7 @@ export function CompanyPageClient({
   const [showAllPipeline, setShowAllPipeline] = useState(false);
   const [showAllPubs, setShowAllPubs] = useState(false);
   const [showAllPatents, setShowAllPatents] = useState(false);
+  const [descExpanded, setDescExpanded] = useState(false);
 
   // On-demand report generation state
   const [report, setReport] = useState<CompanyReport | null>(initialReport);
@@ -522,128 +518,144 @@ export function CompanyPageClient({
         className="border-b"
         style={{ borderColor: "var(--color-border-subtle)" }}
       >
-        {/* Top section with gradient accent line */}
-        <div
-          className="h-1"
-          style={{ background: "linear-gradient(90deg, var(--color-accent), var(--color-accent-light))" }}
-        />
+        <div className="max-w-[1400px] mx-auto px-4 md:px-6 pt-5 pb-0">
 
-        <div className="max-w-[1400px] mx-auto px-4 md:px-6 pt-5 pb-4">
-          {/* Mobile: stacked layout. Desktop: side by side */}
-          <div className="flex flex-col md:flex-row md:items-start gap-4">
-            {/* Left: Avatar + Info */}
-            <div className="flex items-start gap-3 md:gap-4 flex-1 min-w-0">
-              <div className="flex-shrink-0">
-                <CompanyAvatar name={company.name} logoUrl={company.logoUrl} website={company.website} size={48} />
+          {/* ─── Row 1: Logo + Name + Ticker + Stage + Follow (desktop) ─── */}
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0 mt-0.5">
+              <CompanyAvatar name={company.name} logoUrl={company.logoUrl} website={company.website} size={40} />
+            </div>
+            <div className="flex-1 min-w-0">
+              {/* Name line with ticker + stage */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1
+                  className="text-[18px] md:text-[24px] font-bold tracking-tight leading-tight"
+                  style={{ color: "var(--color-text-primary)", letterSpacing: "-0.3px" }}
+                >
+                  {company.name}
+                </h1>
+                {company.ticker && (
+                  <span
+                    className="text-[10px] md:text-[11px] font-bold px-1.5 py-0.5 rounded font-mono flex-shrink-0"
+                    style={{ background: "var(--color-bg-tertiary)", color: "var(--color-text-secondary)" }}
+                  >
+                    {company.ticker}
+                  </span>
+                )}
+                <span className="hidden md:inline" style={{ color: "var(--color-text-tertiary)" }}>·</span>
+                <StageBadge stage={derivedStage} />
+                {isClaimed && (
+                  <span
+                    className="text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 text-white flex-shrink-0"
+                    style={{ background: "var(--color-accent)" }}
+                  >
+                    <ShieldCheck size={9} />
+                    Verified
+                  </span>
+                )}
+                {/* Follow button — desktop inline */}
+                {companyId && (
+                  <span className="hidden md:inline-flex items-center gap-1 ml-auto flex-shrink-0">
+                    <WatchlistButton companyId={companyId} size={15} />
+                    <span className="text-[11px] font-medium" style={{ color: "var(--color-text-secondary)" }}>Follow</span>
+                  </span>
+                )}
               </div>
-              <div className="flex-1 min-w-0">
-                {/* Name + badges */}
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h1
-                    className="text-[22px] md:text-[26px] font-bold tracking-tight leading-tight"
-                    style={{ color: "var(--color-text-primary)", letterSpacing: "-0.3px" }}
-                  >
-                    {company.name}
-                  </h1>
-                  {company.ticker && (
-                    <span
-                      className="text-[11px] font-bold px-2 py-0.5 rounded font-mono"
-                      style={{ background: "var(--color-bg-tertiary)", color: "var(--color-text-secondary)" }}
-                    >
-                      {company.ticker}
-                    </span>
-                  )}
-                  <StageBadge stage={derivedStage} />
-                  {isClaimed && (
-                    <span
-                      className="text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 text-white"
-                      style={{ background: "var(--color-accent)" }}
-                      title="Verified company profile"
-                    >
-                      <ShieldCheck size={9} />
-                      Verified
-                    </span>
-                  )}
-                </div>
 
-                {/* Location + founded on one line */}
-                <div className="flex items-center gap-3 mt-1 flex-wrap text-[12px]" style={{ color: "var(--color-text-secondary)" }}>
-                  {company.city && company.country && (
-                    <span className="flex items-center gap-1">
-                      <MapPin size={11} style={{ color: "var(--color-text-tertiary)" }} />
-                      {company.city}, {company.country}
+              {/* Location + meta line */}
+              <div className="flex items-center gap-2 mt-0.5 text-[11px] md:text-[12px] flex-wrap" style={{ color: "var(--color-text-tertiary)" }}>
+                {(company.city || company.country) && (
+                  <span className="flex items-center gap-1">
+                    <MapPin size={10} />
+                    {company.city ? `${company.city}, ${company.country}` : company.country}
+                  </span>
+                )}
+                {company.founded > 0 && (
+                  <>
+                    <span className="hidden md:inline">·</span>
+                    <span className="hidden md:inline">Est. {company.founded}</span>
+                  </>
+                )}
+                {(report?.employee_estimate || (company.employees && company.employees !== "0")) && (
+                  <>
+                    <span className="hidden md:inline">·</span>
+                    <span className="hidden md:inline-flex items-center gap-1">
+                      <Users size={10} />
+                      {report?.employee_estimate || company.employees} emp
                     </span>
-                  )}
-                  {!company.city && company.country && (
-                    <span className="flex items-center gap-1">
-                      <MapPin size={11} style={{ color: "var(--color-text-tertiary)" }} />
-                      {company.country}
-                    </span>
-                  )}
-                  {company.founded > 0 && (
-                    <span className="flex items-center gap-1">
-                      <Calendar size={11} style={{ color: "var(--color-text-tertiary)" }} />
-                      Est. {company.founded}
-                    </span>
-                  )}
-                  {company.website && (
-                    <a
-                      href={company.website.startsWith("http") ? company.website : `https://${company.website}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1 transition-opacity hover:opacity-80"
-                      style={{ color: "var(--color-accent)" }}
-                    >
-                      <Globe size={11} />
-                      {company.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "").split("/")[0]}
-                    </a>
-                  )}
-                </div>
-
-                {/* Description — hidden on mobile, shown on desktop */}
-                {summaryText && (
-                  <p
-                    className="hidden md:block text-[13px] mt-2 line-clamp-2 max-w-2xl"
-                    style={{ color: "var(--color-text-tertiary)", lineHeight: 1.6 }}
-                  >
-                    {summaryText}
-                  </p>
+                  </>
                 )}
               </div>
             </div>
-
-            {/* Right: Watchlist button */}
-            <div className="flex-shrink-0 hidden md:block">
-              {companyId && <WatchlistButton companyId={companyId} showLabel />}
-            </div>
           </div>
 
-          {/* ─── Quick Stats Cards ─── */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5">
+          {/* ─── Description block ─── */}
+          {summaryText && (
+            <div className="mt-3">
+              <p
+                className={`text-[12px] md:text-[13px] max-w-2xl ${descExpanded ? "" : "line-clamp-2"}`}
+                style={{ color: "var(--color-text-secondary)", lineHeight: 1.6 }}
+              >
+                {summaryText}
+              </p>
+              {summaryText.length > 150 && (
+                <button
+                  onClick={() => setDescExpanded(!descExpanded)}
+                  className="text-[11px] font-medium mt-0.5"
+                  style={{ color: "var(--color-accent)", background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                >
+                  {descExpanded ? "Show less" : "Read more"}
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* ─── Website + Follow (mobile) ─── */}
+          <div className="flex items-center gap-3 mt-3 text-[11px]">
+            {company.website && (
+              <a
+                href={company.website.startsWith("http") ? company.website : `https://${company.website}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 transition-opacity hover:opacity-80"
+                style={{ color: "var(--color-accent)" }}
+              >
+                <Globe size={11} />
+                {company.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "").split("/")[0]}
+              </a>
+            )}
+            {/* Follow button — mobile only */}
+            {companyId && (
+              <span className="md:hidden inline-flex items-center gap-1 ml-auto">
+                <WatchlistButton companyId={companyId} size={14} />
+                <span className="text-[11px] font-medium" style={{ color: "var(--color-text-secondary)" }}>Follow</span>
+              </span>
+            )}
+          </div>
+
+          {/* ─── Quick Stats Row ─── */}
+          <div
+            className="grid grid-cols-4 mt-4 border-t"
+            style={{ borderColor: "var(--color-border-subtle)" }}
+          >
             <QuickStatCard
-              label="Market Cap"
+              label="Mkt Cap"
               value={latestMarketCap && latestMarketCap > 0 ? formatCurrency(latestMarketCap) : (isPublic ? "N/A" : "Private")}
-              subValue={isPublic && chartData.length > 0 ? `${priceChangePct >= 0 ? "+" : ""}${priceChangePct.toFixed(1)}% period` : undefined}
-              icon={<DollarSign size={12} />}
-              accent
+              subValue={isPublic && chartData.length > 0 ? `${priceChangePct >= 0 ? "+" : ""}${priceChangePct.toFixed(1)}%` : undefined}
             />
             <QuickStatCard
               label="Pipeline"
               value={pipelines.length > 0 ? String(pipelines.length) : "\u2014"}
-              subValue={phase3Count > 0 ? `${phase3Count} in Phase 3` : (pipelines.length > 0 ? "drug candidates" : undefined)}
-              icon={<FlaskConical size={12} />}
+              subValue={phase3Count > 0 ? `${phase3Count} Ph3` : undefined}
             />
             <QuickStatCard
               label="Patents"
               value={patents.length > 0 ? String(patents.length) : "\u2014"}
-              subValue={patents.length > 0 ? "granted" : undefined}
-              icon={<ScrollText size={12} />}
             />
             <QuickStatCard
-              label="Publications"
+              label="Pubs"
               value={publications.length > 0 ? String(publications.length) : "\u2014"}
-              subValue={publications.length > 0 ? "indexed" : undefined}
-              icon={<FileText size={12} />}
+              isLast
             />
           </div>
         </div>
@@ -1046,9 +1058,9 @@ export function CompanyPageClient({
               </div>
 
               <div className="grid grid-cols-3 gap-3 mb-6">
-                <QuickStatCard label="Total Programs" value={String(pipelines.length)} icon={<FlaskConical size={12} />} />
-                <QuickStatCard label="Phase 3" value={String(phase3Count)} icon={<Beaker size={12} />} accent={phase3Count > 0} />
-                <QuickStatCard label="In Clinic" value={String(pipelines.filter(p => p.stage !== "Pre-clinical" && p.stage !== "Preclinical" && p.stage !== "Discovery").length)} icon={<TestTubes size={12} />} />
+                <QuickStatCard label="Total Programs" value={String(pipelines.length)} />
+                <QuickStatCard label="Phase 3" value={String(phase3Count)} />
+                <QuickStatCard label="In Clinic" value={String(pipelines.filter(p => p.stage !== "Pre-clinical" && p.stage !== "Preclinical" && p.stage !== "Discovery").length)} isLast />
               </div>
 
               <div className="overflow-x-auto rounded-xl border" style={{ borderColor: "var(--color-border-subtle)" }}>
@@ -1136,9 +1148,9 @@ export function CompanyPageClient({
               </div>
 
               <div className="grid grid-cols-3 gap-3 mb-6">
-                <QuickStatCard label="Total Raised" value={totalFundingRaised > 0 ? formatCurrency(totalFundingRaised) : formatCurrency(company.totalRaised)} accent icon={<DollarSign size={12} />} />
-                <QuickStatCard label="Rounds" value={String(dbFundingRounds.length || companyFunding.length || "\u2014")} icon={<Hash size={12} />} />
-                <QuickStatCard label="Last Round" value={dbFundingRounds.length > 0 ? dbFundingRounds[0].round_type : (companyFunding.length > 0 ? companyFunding[0].type : "\u2014")} icon={<ArrowUpRight size={12} />} />
+                <QuickStatCard label="Total Raised" value={totalFundingRaised > 0 ? formatCurrency(totalFundingRaised) : formatCurrency(company.totalRaised)} />
+                <QuickStatCard label="Rounds" value={String(dbFundingRounds.length || companyFunding.length || "\u2014")} />
+                <QuickStatCard label="Last Round" value={dbFundingRounds.length > 0 ? dbFundingRounds[0].round_type : (companyFunding.length > 0 ? companyFunding[0].type : "\u2014")} isLast />
               </div>
 
               {dbFundingRounds.length > 0 ? (
@@ -1210,7 +1222,7 @@ export function CompanyPageClient({
               </div>
 
               <div className="mb-6">
-                <QuickStatCard label="Total Approvals" value={String(fdaApprovals.length)} icon={<Shield size={12} />} accent />
+                <QuickStatCard label="Total Approvals" value={String(fdaApprovals.length)} />
               </div>
 
               <div className="overflow-x-auto rounded-xl border" style={{ borderColor: "var(--color-border-subtle)" }}>
