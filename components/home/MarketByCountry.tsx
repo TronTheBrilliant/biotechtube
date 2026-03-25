@@ -49,7 +49,7 @@ export default function MarketByCountry({
 }) {
   return (
     <div>
-      {countries.slice(0, 5).map((c, i) => {
+      {countries.slice(0, 8).map((c, i) => {
         const countrySlug = c.country.toLowerCase().replace(/\s+/g, "-");
         const flag = FLAGS[c.country] ?? "\u{1F3F3}\u{FE0F}";
 
@@ -59,7 +59,7 @@ export default function MarketByCountry({
             href={`/countries/${countrySlug}`}
             className="px-4 py-2.5 flex items-center gap-3 hover:bg-[var(--color-bg-secondary)] no-underline"
             style={
-              i < 4 && i < countries.length - 1
+              i < 7 && i < countries.length - 1
                 ? { borderBottom: "0.5px solid var(--color-border-subtle)" }
                 : undefined
             }

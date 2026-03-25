@@ -263,7 +263,7 @@ async function getTopSectors() {
     })
     .filter((x): x is NonNullable<typeof x> => x != null)
     .sort((a, b) => (b.combinedMarketCap ?? 0) - (a.combinedMarketCap ?? 0))
-    .slice(0, 5);
+    .slice(0, 8);
 }
 
 async function getTopCountries() {
@@ -284,7 +284,7 @@ async function getTopCountries() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return ((countryRows ?? []) as any[])
     .sort((a, b) => (b.combined_market_cap ?? 0) - (a.combined_market_cap ?? 0))
-    .slice(0, 5)
+    .slice(0, 8)
     .map((c) => ({
       country: c.country,
       combinedMarketCap: c.combined_market_cap,

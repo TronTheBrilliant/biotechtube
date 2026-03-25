@@ -15,13 +15,13 @@ interface Sector {
 export default function TopSectors({ sectors }: { sectors: Sector[] }) {
   return (
     <div>
-      {sectors.slice(0, 5).map((s, i) => (
+      {sectors.slice(0, 8).map((s, i) => (
         <Link
           key={s.slug}
           href={`/sectors/${s.slug}`}
           className="px-4 py-2.5 flex items-center gap-3 hover:bg-[var(--color-bg-secondary)] no-underline"
           style={
-            i < 4 && i < sectors.length - 1
+            i < 7 && i < sectors.length - 1
               ? { borderBottom: "0.5px solid var(--color-border-subtle)" }
               : undefined
           }
