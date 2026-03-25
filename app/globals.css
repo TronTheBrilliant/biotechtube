@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Balance all headings for clean visual weight */
+h1, h2, h3, h4, h5, h6 {
+  text-wrap: balance;
+}
+/* Also balance subtitle/description paragraphs near headings */
+h1 + p, h2 + p, h3 + p {
+  text-wrap: balance;
+}
+
 /* TradingView Lightweight Charts watermark — subtle on all charts */
 #tv-attr-logo {
   transform: scale(0.5);
