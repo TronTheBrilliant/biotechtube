@@ -70,8 +70,6 @@ function formatAmount(usd: number): string {
   return `$${usd}`;
 }
 
-type InvestorSortKey = "total_invested" | "deal_count" | "avg_deal_size" | "investor_name";
-
 interface Props {
   annualData: FundingAnnualRow[];
   quarterlyData: FundingQuarterlyRow[];
@@ -125,10 +123,11 @@ export default function FundingPageClient({
   const investorInputRef = useRef<HTMLInputElement>(null);
   const investorDropdownRef = useRef<HTMLDivElement>(null);
 
-  /* Investor table sort */
-  const [investorSort, setInvestorSort] = useState<InvestorSortKey>("total_invested");
-  const [investorSortDir, setInvestorSortDir] = useState<"asc" | "desc">("desc");
+  /* Investor section */
   const [investorCountryFilter, setInvestorCountryFilter] = useState("All");
+  const [showAllInvestors, setShowAllInvestors] = useState(false);
+  const [investorPage, setInvestorPage] = useState(1);
+  const INVESTORS_PER_PAGE = 20;
 
   // Recalculate top investors by country (client-side from rounds data)
   const filteredTopInvestors = useMemo(() => {
@@ -230,20 +229,6 @@ export default function FundingPageClient({
     });
   }, [rounds, roundFilter, dateFilter, countryFilter, selectedInvestor, amountRange, companySearch]);
 
-  /* ─── Investor table ─── */
-  const sortedInvestors = useMemo(() => {
-    const source = filteredTopInvestors as { name: string; total_invested: number; deal_count: number; avg_deal_size: number; top_portfolio: string }[];
-    const sorted = [...source].sort((a, b) => {
-      const aVal = a[investorSort as keyof typeof a];
-      const bVal = b[investorSort as keyof typeof b];
-      if (typeof aVal === "string" && typeof bVal === "string") {
-        return investorSortDir === "asc" ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-      }
-      return investorSortDir === "asc" ? (aVal as number) - (bVal as number) : (bVal as number) - (aVal as number);
-    });
-    return sorted.slice(0, 30);
-  }, [filteredTopInvestors, investorSort, investorSortDir]);
-
   const investorCountries = useMemo(() => {
     const c = new Set(rounds.map((r) => r.country).filter(Boolean) as string[]);
     return ["All", ...Array.from(c).sort()];
@@ -261,20 +246,6 @@ export default function FundingPageClient({
     });
     return `conic-gradient(${stops.join(", ")})`;
   }, [donutTop10, donutTotal]);
-
-  const handleInvestorSort = useCallback((key: InvestorSortKey) => {
-    if (investorSort === key) {
-      setInvestorSortDir((d) => (d === "asc" ? "desc" : "asc"));
-    } else {
-      setInvestorSort(key);
-      setInvestorSortDir("desc");
-    }
-  }, [investorSort]);
-
-  const sortArrow = (key: InvestorSortKey) => {
-    if (investorSort !== key) return "";
-    return investorSortDir === "asc" ? " \u25B2" : " \u25BC";
-  };
 
   /* ─── Active filters ─── */
   const hasActiveFilters =
@@ -418,7 +389,7 @@ export default function FundingPageClient({
           ))}
         </div>
 
-        {/* ── Unified Top Biotech Investors Section ── */}
+        {/* ── Top Biotech Investors Section ── */}
         <div
           className="rounded-lg overflow-hidden mb-6"
           style={{
@@ -439,7 +410,11 @@ export default function FundingPageClient({
             </h2>
             <select
               value={investorCountryFilter}
-              onChange={(e) => setInvestorCountryFilter(e.target.value)}
+              onChange={(e) => {
+                setInvestorCountryFilter(e.target.value);
+                setShowAllInvestors(false);
+                setInvestorPage(1);
+              }}
               style={{
                 ...filterControlStyle,
                 height: 30,
@@ -458,193 +433,221 @@ export default function FundingPageClient({
             </select>
           </div>
 
-          {/* Body: donut left + table right */}
-          <div className="flex flex-col lg:flex-row">
-            {/* Donut + legend */}
+          {/* Body: centered donut + ranked list */}
+          <div className="px-4 py-5" style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            {/* Donut chart */}
             <div
-              className="investor-donut-col flex-shrink-0 px-4 py-4 flex flex-col items-center"
-              style={{ width: "100%", maxWidth: 260 }}
+              style={{
+                width: 200,
+                height: 200,
+                borderRadius: "50%",
+                background: donutGradient,
+                position: "relative",
+                marginBottom: 20,
+              }}
             >
-              <style>{`
-                .investor-donut-col { border-bottom: 0.5px solid var(--color-border-subtle); }
-                @media (min-width: 1024px) {
-                  .investor-donut-col { border-bottom: none !important; border-right: 0.5px solid var(--color-border-subtle); }
-                }
-              `}</style>
               <div
-                style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}
+                style={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  width: 110,
+                  height: 110,
+                  borderRadius: "50%",
+                  background: "var(--color-bg-secondary)",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
               >
-                {/* Donut */}
-                <div
-                  style={{
-                    width: 180,
-                    height: 180,
-                    borderRadius: "50%",
-                    background: donutGradient,
-                    position: "relative",
-                    marginBottom: 14,
-                  }}
-                >
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "50%",
-                      left: "50%",
-                      transform: "translate(-50%, -50%)",
-                      width: 100,
-                      height: 100,
-                      borderRadius: "50%",
-                      background: "var(--color-bg-secondary)",
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <div className="text-[16px] font-medium" style={{ color: "var(--color-accent)" }}>
-                      {formatAmount(donutTotal)}
-                    </div>
-                    <div className="text-[10px]" style={{ color: "var(--color-text-tertiary)" }}>
-                      Top 10 Total
-                    </div>
-                  </div>
+                <div className="text-[18px] font-medium" style={{ color: "var(--color-accent)" }}>
+                  {formatAmount(donutTotal)}
                 </div>
-                {/* Legend */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 3, width: "100%" }}>
-                  {donutTop10.map((inv, idx) => (
-                    <div
-                      key={inv.investor_name}
-                      style={{ display: "flex", alignItems: "center", gap: 6 }}
-                      data-investor={inv.investor_name}
-                      onMouseEnter={() => {
-                        const row = document.querySelector(`[data-investor-row="${inv.investor_name}"]`) as HTMLElement | null;
-                        if (row) row.style.background = "var(--color-bg-tertiary)";
-                      }}
-                      onMouseLeave={() => {
-                        const row = document.querySelector(`[data-investor-row="${inv.investor_name}"]`) as HTMLElement | null;
-                        if (row) row.style.background = "";
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: 8,
-                          height: 8,
-                          borderRadius: 2,
-                          background: DONUT_COLORS[idx],
-                          flexShrink: 0,
-                        }}
-                      />
-                      <span className="text-[10px] flex-1 truncate" style={{ color: "var(--color-text-primary)" }}>
-                        {inv.investor_name}
-                      </span>
-                      <span className="text-[10px] font-medium" style={{ color: "var(--color-text-secondary)" }}>
-                        {formatAmount(inv.total_invested)}
-                      </span>
-                    </div>
-                  ))}
+                <div className="text-[10px]" style={{ color: "var(--color-text-tertiary)" }}>
+                  Top 10 Total
                 </div>
               </div>
             </div>
 
-            {/* Table */}
-            <div className="flex-1 min-w-0">
-              <style>{`
-                .investor-row { grid-template-columns: 28px 2fr 1fr 0.6fr 0.8fr; }
-                @media (min-width: 640px) { .investor-row { grid-template-columns: 28px 2fr 1fr 0.6fr 0.8fr 2.5fr; } }
-              `}</style>
-              {/* Table header */}
-              <div
-                className="investor-row grid px-4 py-2"
-                style={{ borderBottom: "0.5px solid var(--color-border-subtle)" }}
-              >
-                <span className="text-10 uppercase tracking-[0.5px] font-medium" style={{ color: "var(--color-text-tertiary)" }}>#</span>
-                <span
-                  className="text-10 uppercase tracking-[0.5px] font-medium cursor-pointer select-none"
-                  style={{ color: "var(--color-text-tertiary)" }}
-                  onClick={() => handleInvestorSort("investor_name")}
+            {/* Top 10 ranked list */}
+            <div style={{ width: "100%", maxWidth: 520 }}>
+              {donutTop10.map((inv, idx) => (
+                <div
+                  key={inv.investor_name}
+                  className="py-2.5"
+                  style={{
+                    borderBottom: idx < donutTop10.length - 1 ? "0.5px solid var(--color-border-subtle)" : "none",
+                  }}
                 >
-                  Investor{sortArrow("investor_name")}
-                </span>
-                <span
-                  className="text-10 uppercase tracking-[0.5px] font-medium cursor-pointer select-none"
-                  style={{ color: "var(--color-text-tertiary)" }}
-                  onClick={() => handleInvestorSort("total_invested")}
-                >
-                  Total{sortArrow("total_invested")}
-                </span>
-                <span
-                  className="text-10 uppercase tracking-[0.5px] font-medium cursor-pointer select-none"
-                  style={{ color: "var(--color-text-tertiary)" }}
-                  onClick={() => handleInvestorSort("deal_count")}
-                >
-                  Deals{sortArrow("deal_count")}
-                </span>
-                <span
-                  className="text-10 uppercase tracking-[0.5px] font-medium cursor-pointer select-none"
-                  style={{ color: "var(--color-text-tertiary)" }}
-                  onClick={() => handleInvestorSort("avg_deal_size")}
-                >
-                  Avg Size{sortArrow("avg_deal_size")}
-                </span>
-                <span className="text-10 uppercase tracking-[0.5px] font-medium hidden sm:block" style={{ color: "var(--color-text-tertiary)" }}>
-                  Top Portfolio
-                </span>
-              </div>
-              {/* Table rows */}
-              <div style={{ maxHeight: 480, overflowY: "auto" }}>
-                {sortedInvestors.map((inv, i) => {
-                  const donutIdx = donutTop10.findIndex((d) => d.investor_name === inv.investor_name);
-                  return (
-                    <div
-                      key={inv.investor_name}
-                      className="investor-row grid px-4 py-2.5 transition-colors duration-100"
-                      data-investor-row={inv.investor_name}
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span className="text-12" style={{ color: "var(--color-text-tertiary)", minWidth: 20 }}>
+                      {idx + 1}.
+                    </span>
+                    <span
                       style={{
-                        borderBottom: "0.5px solid var(--color-border-subtle)",
-                        alignItems: "center",
+                        display: "inline-block",
+                        width: 8,
+                        height: 8,
+                        borderRadius: 2,
+                        background: DONUT_COLORS[idx],
+                        flexShrink: 0,
                       }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = "var(--color-bg-tertiary)";
+                    />
+                    <span className="text-13 font-medium flex-1 truncate" style={{ color: "var(--color-text-primary)" }}>
+                      {inv.investor_name}
+                    </span>
+                    <span className="text-13 font-medium" style={{ color: "var(--color-accent)" }}>
+                      {formatAmount(inv.total_invested)}
+                    </span>
+                  </div>
+                  <div style={{ marginLeft: 36, marginTop: 2 }}>
+                    <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>
+                      {inv.deal_count} deals &middot; Avg {formatAmount(inv.avg_deal_size)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Show all / expanded paginated list */}
+            {filteredTopInvestors.length > 10 && (
+              <div style={{ width: "100%", maxWidth: 520, marginTop: 12 }}>
+                {!showAllInvestors ? (
+                  <button
+                    onClick={() => {
+                      setShowAllInvestors(true);
+                      setInvestorPage(1);
+                    }}
+                    className="text-13 font-medium"
+                    style={{
+                      color: "var(--color-accent)",
+                      background: "none",
+                      border: "1px solid var(--color-border-subtle)",
+                      borderRadius: 8,
+                      padding: "8px 0",
+                      width: "100%",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Show all {filteredTopInvestors.length.toLocaleString()} investors
+                  </button>
+                ) : (
+                  <>
+                    {/* Paginated investor rows */}
+                    <div style={{ borderTop: "0.5px solid var(--color-border-subtle)" }}>
+                      {filteredTopInvestors
+                        .slice(10 + (investorPage - 1) * INVESTORS_PER_PAGE, 10 + investorPage * INVESTORS_PER_PAGE)
+                        .map((inv, i) => {
+                          const rank = 10 + (investorPage - 1) * INVESTORS_PER_PAGE + i + 1;
+                          return (
+                            <div
+                              key={inv.investor_name}
+                              className="py-2.5"
+                              style={{
+                                borderBottom: "0.5px solid var(--color-border-subtle)",
+                              }}
+                            >
+                              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                <span className="text-12" style={{ color: "var(--color-text-tertiary)", minWidth: 20 }}>
+                                  {rank}.
+                                </span>
+                                <span
+                                  style={{
+                                    display: "inline-block",
+                                    width: 8,
+                                    height: 8,
+                                    borderRadius: 2,
+                                    background: "var(--color-text-tertiary)",
+                                    opacity: 0.3,
+                                    flexShrink: 0,
+                                  }}
+                                />
+                                <span className="text-13 font-medium flex-1 truncate" style={{ color: "var(--color-text-primary)" }}>
+                                  {inv.investor_name}
+                                </span>
+                                <span className="text-13 font-medium" style={{ color: "var(--color-accent)" }}>
+                                  {formatAmount(inv.total_invested)}
+                                </span>
+                              </div>
+                              <div style={{ marginLeft: 36, marginTop: 2 }}>
+                                <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>
+                                  {inv.deal_count} deals &middot; Avg {formatAmount(inv.avg_deal_size)}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+
+                    {/* Pagination controls */}
+                    {(() => {
+                      const remaining = filteredTopInvestors.length - 10;
+                      const totalPages = Math.ceil(remaining / INVESTORS_PER_PAGE);
+                      return (
+                        <div
+                          className="flex items-center justify-center gap-4 py-3"
+                          style={{ color: "var(--color-text-secondary)" }}
+                        >
+                          <button
+                            onClick={() => setInvestorPage((p) => Math.max(1, p - 1))}
+                            disabled={investorPage === 1}
+                            className="text-12 font-medium"
+                            style={{
+                              color: investorPage === 1 ? "var(--color-text-tertiary)" : "var(--color-accent)",
+                              background: "none",
+                              border: "none",
+                              cursor: investorPage === 1 ? "default" : "pointer",
+                              opacity: investorPage === 1 ? 0.5 : 1,
+                            }}
+                          >
+                            Previous
+                          </button>
+                          <span className="text-12">
+                            Page {investorPage} of {totalPages}
+                          </span>
+                          <button
+                            onClick={() => setInvestorPage((p) => Math.min(totalPages, p + 1))}
+                            disabled={investorPage === totalPages}
+                            className="text-12 font-medium"
+                            style={{
+                              color: investorPage === totalPages ? "var(--color-text-tertiary)" : "var(--color-accent)",
+                              background: "none",
+                              border: "none",
+                              cursor: investorPage === totalPages ? "default" : "pointer",
+                              opacity: investorPage === totalPages ? 0.5 : 1,
+                            }}
+                          >
+                            Next
+                          </button>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Collapse button */}
+                    <button
+                      onClick={() => {
+                        setShowAllInvestors(false);
+                        setInvestorPage(1);
                       }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = "";
+                      className="text-12"
+                      style={{
+                        color: "var(--color-text-tertiary)",
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        width: "100%",
+                        textAlign: "center",
+                        paddingBottom: 4,
                       }}
                     >
-                      <span className="text-11 flex items-center gap-1" style={{ color: "var(--color-text-tertiary)" }}>
-                        {donutIdx >= 0 && (
-                          <span
-                            style={{
-                              display: "inline-block",
-                              width: 6,
-                              height: 6,
-                              borderRadius: 1,
-                              background: DONUT_COLORS[donutIdx],
-                              flexShrink: 0,
-                            }}
-                          />
-                        )}
-                        {i + 1}
-                      </span>
-                      <span className="text-12 font-medium truncate" style={{ color: "var(--color-text-primary)" }}>
-                        {inv.investor_name}
-                      </span>
-                      <span className="text-12 font-medium" style={{ color: "var(--color-accent)" }}>
-                        {formatAmount(inv.total_invested)}
-                      </span>
-                      <span className="text-12" style={{ color: "var(--color-text-secondary)" }}>
-                        {inv.deal_count}
-                      </span>
-                      <span className="text-12" style={{ color: "var(--color-text-secondary)" }}>
-                        {formatAmount(inv.avg_deal_size)}
-                      </span>
-                      <span className="text-11 hidden sm:block truncate" style={{ color: "var(--color-text-tertiary)" }}>
-                        {inv.top_portfolio}
-                      </span>
-                    </div>
-                  );
-                })}
+                      Collapse list
+                    </button>
+                  </>
+                )}
               </div>
-            </div>
+            )}
           </div>
         </div>
 
