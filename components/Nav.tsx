@@ -205,15 +205,16 @@ export function Nav() {
       >
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center justify-between h-full max-w-[1200px] mx-auto px-4 md:px-6">
-          {/* Left: Logo + Triggers */}
-          <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-2 shrink-0" style={{ color: "var(--color-text-primary)" }}>
-              <LogoIcon size={22} />
-              <span className="text-[18px] font-bold tracking-[-0.3px]">
-                BiotechTube
-              </span>
-            </Link>
+          {/* Left: Logo */}
+          <Link href="/" className="flex items-center gap-2 shrink-0" style={{ color: "var(--color-text-primary)" }}>
+            <LogoIcon size={22} />
+            <span className="text-[18px] font-bold tracking-[-0.3px]">
+              BiotechTube
+            </span>
+          </Link>
 
+          {/* Centre: Nav menu */}
+          <div className="flex-1 flex justify-center">
             <nav className="flex items-center gap-1">
               {MENUS.map((menu) => {
                 const isOpen = openMenu === menu.label;
@@ -322,7 +323,7 @@ export function Nav() {
             </nav>
           </div>
 
-          {/* Right: Search + Pricing + Sign in */}
+          {/* Right: Search + Sign in */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSearchOpen(true)}

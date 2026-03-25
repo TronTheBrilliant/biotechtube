@@ -478,78 +478,43 @@ export default async function HomePage() {
       <Nav />
       <TickerBar />
 
-      {/* Hero */}
-      <div
-        className="max-w-[1200px] mx-auto px-4 md:px-6 pt-6 md:pt-10 pb-4 md:pb-6"
-      >
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <div className="flex items-center -space-x-1.5">
-                {["#4A90D9", "#E87C5D", "#5CB85C", "#9B59B6"].map((c, i) => (
-                  <div key={i} className="w-5 h-5 rounded-full border-2" style={{ background: c, borderColor: "var(--color-bg-primary)", zIndex: 4 - i }} />
-                ))}
-              </div>
-              <span className="text-12 font-medium" style={{ color: "var(--color-text-secondary)" }}>
-                Trusted by <span style={{ color: "var(--color-text-primary)", fontWeight: 700 }}>2,400+</span> biotech professionals
-              </span>
-            </div>
-            <h1
-              className="text-[36px] md:text-[56px] font-bold tracking-tight"
-              style={{
-                color: "var(--color-text-primary)",
-                letterSpacing: "-1.5px",
-                lineHeight: 1.05,
-              }}
-            >
-              Global Biotech
-              <br />
-              Market Insights.
-            </h1>
-            <p
-              className="text-[15px] md:text-[17px] mt-3 max-w-[520px]"
-              style={{ color: "var(--color-text-secondary)", lineHeight: 1.6 }}
-            >
-              Track{" "}
-              <span style={{ color: "var(--color-text-primary)", fontWeight: 600 }}>
-                {snapshot ? formatMarketCap(snapshot.total_market_cap) : "$7.0T"}+
-              </span>{" "}
-              in biotech market cap. Real-time stock data, pipeline intelligence, and funding analytics for the global biotech industry.
-            </p>
+      {/* Hero — centred */}
+      <div className="max-w-[1200px] mx-auto px-4 md:px-6 pt-8 md:pt-14 pb-6 md:pb-8 text-center">
+        <h1
+          className="text-[36px] md:text-[56px] font-bold tracking-tight mx-auto"
+          style={{
+            color: "var(--color-text-primary)",
+            letterSpacing: "-1.5px",
+            lineHeight: 1.05,
+          }}
+        >
+          The Pulse of Global Biotech.
+        </h1>
+        <p
+          className="text-[15px] md:text-[17px] mt-3 max-w-[560px] mx-auto"
+          style={{ color: "var(--color-text-secondary)", lineHeight: 1.6 }}
+        >
+          Track{" "}
+          <span style={{ color: "var(--color-text-primary)", fontWeight: 600 }}>
+            {snapshot ? formatMarketCap(snapshot.total_market_cap) : "$7.0T"}+
+          </span>{" "}
+          in biotech market cap across {" "}
+          <span style={{ fontWeight: 600, color: "var(--color-text-primary)" }}>1,039</span> public companies,{" "}
+          <span style={{ fontWeight: 600, color: "var(--color-text-primary)" }}>20</span> sectors, and{" "}
+          <span style={{ fontWeight: 600, color: "var(--color-text-primary)" }}>30+</span> countries.
+        </p>
 
-            {/* Key stats */}
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-4">
-              {[
-                { value: "1,039", label: "Public Companies" },
-                { value: "11,000+", label: "Total Companies" },
-                { value: "20", label: "Sectors" },
-                { value: "30+", label: "Countries" },
-              ].map((stat) => (
-                <div key={stat.label} className="flex items-center gap-1.5">
-                  <span className="text-[14px] font-bold" style={{ color: "var(--color-text-primary)" }}>{stat.value}</span>
-                  <span className="text-[12px]" style={{ color: "var(--color-text-tertiary)" }}>{stat.label}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* Social proof */}
-            <div className="mt-5 pt-4" style={{ borderTop: "0.5px solid var(--color-border-subtle)" }}>
-              <p className="text-[11px] uppercase tracking-wider mb-2.5" style={{ color: "var(--color-text-tertiary)" }}>
-                Tracking companies like
-              </p>
-              <div className="flex items-center gap-4 opacity-40">
-                {["lilly.com", "pfizer.com", "novartis.com", "roche.com", "amgen.com", "gilead.com"].map((domain) => (
-                  <img
-                    key={domain}
-                    src={`https://img.logo.dev/${domain}?token=pk_FNHUWoZORpiR_7j_vzFnmQ`}
-                    alt={domain.split(".")[0]}
-                    className="h-5 md:h-6 object-contain grayscale"
-                    style={{ maxWidth: 80 }}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
+        {/* Company logos as social proof */}
+        <div className="flex items-center justify-center gap-5 mt-6 opacity-30">
+          {["lilly.com", "pfizer.com", "novartis.com", "roche.com", "amgen.com", "gilead.com"].map((domain) => (
+            <img
+              key={domain}
+              src={`https://img.logo.dev/${domain}?token=pk_FNHUWoZORpiR_7j_vzFnmQ`}
+              alt={domain.split(".")[0]}
+              className="h-5 md:h-6 object-contain grayscale"
+              style={{ maxWidth: 80 }}
+            />
+          ))}
         </div>
       </div>
 

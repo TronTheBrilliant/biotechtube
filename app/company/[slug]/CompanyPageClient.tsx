@@ -528,89 +528,92 @@ export function CompanyPageClient({
           style={{ background: "linear-gradient(90deg, var(--color-accent), var(--color-accent-light))" }}
         />
 
-        <div className="max-w-[1400px] mx-auto px-6 pt-6 pb-5">
-          {/* Company identity row */}
-          <div className="flex items-start gap-5">
-            <div className="flex-shrink-0">
-              <CompanyAvatar name={company.name} logoUrl={company.logoUrl} website={company.website} size={56} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-3 flex-wrap mb-1">
-                <h1
-                  className="text-[26px] font-bold tracking-tight leading-tight"
-                  style={{ color: "var(--color-text-primary)", letterSpacing: "-0.5px" }}
-                >
-                  {company.name}
-                </h1>
-                {isClaimed && (
-                  <span
-                    className="text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 text-white"
-                    style={{ background: "var(--color-accent)" }}
-                    title="Verified company profile"
-                  >
-                    <ShieldCheck size={10} />
-                    Verified
-                  </span>
-                )}
-                {company.ticker && (
-                  <span
-                    className="text-[12px] font-bold px-2.5 py-1 rounded-md font-mono"
-                    style={{ background: "var(--color-bg-tertiary)", color: "var(--color-text-secondary)" }}
-                  >
-                    {company.ticker}
-                  </span>
-                )}
-                <StageBadge stage={derivedStage} />
+        <div className="max-w-[1400px] mx-auto px-4 md:px-6 pt-5 pb-4">
+          {/* Mobile: stacked layout. Desktop: side by side */}
+          <div className="flex flex-col md:flex-row md:items-start gap-4">
+            {/* Left: Avatar + Info */}
+            <div className="flex items-start gap-3 md:gap-4 flex-1 min-w-0">
+              <div className="flex-shrink-0">
+                <CompanyAvatar name={company.name} logoUrl={company.logoUrl} website={company.website} size={48} />
               </div>
-
-              {/* Meta row */}
-              <div className="flex items-center gap-4 mt-1.5 flex-wrap">
-                {company.city && company.country && (
-                  <span className="text-[13px] flex items-center gap-1.5" style={{ color: "var(--color-text-secondary)" }}>
-                    <MapPin size={13} style={{ color: "var(--color-text-tertiary)" }} />
-                    {company.city}, {company.country}
-                  </span>
-                )}
-                {company.founded > 0 && (
-                  <span className="text-[13px] flex items-center gap-1.5" style={{ color: "var(--color-text-secondary)" }}>
-                    <Calendar size={13} style={{ color: "var(--color-text-tertiary)" }} />
-                    Founded {company.founded}
-                  </span>
-                )}
-                {(report?.employee_estimate || (company.employees && company.employees !== "0")) && (
-                  <span className="text-[13px] flex items-center gap-1.5" style={{ color: "var(--color-text-secondary)" }}>
-                    <Users size={13} style={{ color: "var(--color-text-tertiary)" }} />
-                    {report?.employee_estimate || company.employees} employees
-                  </span>
-                )}
-                {company.website && (
-                  <a
-                    href={company.website.startsWith("http") ? company.website : `https://${company.website}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[13px] flex items-center gap-1.5 transition-opacity hover:opacity-80"
-                    style={{ color: "var(--color-accent)" }}
+              <div className="flex-1 min-w-0">
+                {/* Name + badges */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1
+                    className="text-[22px] md:text-[26px] font-bold tracking-tight leading-tight"
+                    style={{ color: "var(--color-text-primary)", letterSpacing: "-0.3px" }}
                   >
-                    <Globe size={13} />
-                    {company.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
-                    <ExternalLink size={10} />
-                  </a>
+                    {company.name}
+                  </h1>
+                  {company.ticker && (
+                    <span
+                      className="text-[11px] font-bold px-2 py-0.5 rounded font-mono"
+                      style={{ background: "var(--color-bg-tertiary)", color: "var(--color-text-secondary)" }}
+                    >
+                      {company.ticker}
+                    </span>
+                  )}
+                  <StageBadge stage={derivedStage} />
+                  {isClaimed && (
+                    <span
+                      className="text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 text-white"
+                      style={{ background: "var(--color-accent)" }}
+                      title="Verified company profile"
+                    >
+                      <ShieldCheck size={9} />
+                      Verified
+                    </span>
+                  )}
+                </div>
+
+                {/* Location + founded on one line */}
+                <div className="flex items-center gap-3 mt-1 flex-wrap text-[12px]" style={{ color: "var(--color-text-secondary)" }}>
+                  {company.city && company.country && (
+                    <span className="flex items-center gap-1">
+                      <MapPin size={11} style={{ color: "var(--color-text-tertiary)" }} />
+                      {company.city}, {company.country}
+                    </span>
+                  )}
+                  {!company.city && company.country && (
+                    <span className="flex items-center gap-1">
+                      <MapPin size={11} style={{ color: "var(--color-text-tertiary)" }} />
+                      {company.country}
+                    </span>
+                  )}
+                  {company.founded > 0 && (
+                    <span className="flex items-center gap-1">
+                      <Calendar size={11} style={{ color: "var(--color-text-tertiary)" }} />
+                      Est. {company.founded}
+                    </span>
+                  )}
+                  {company.website && (
+                    <a
+                      href={company.website.startsWith("http") ? company.website : `https://${company.website}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 transition-opacity hover:opacity-80"
+                      style={{ color: "var(--color-accent)" }}
+                    >
+                      <Globe size={11} />
+                      {company.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "").split("/")[0]}
+                    </a>
+                  )}
+                </div>
+
+                {/* Description — hidden on mobile, shown on desktop */}
+                {summaryText && (
+                  <p
+                    className="hidden md:block text-[13px] mt-2 line-clamp-2 max-w-2xl"
+                    style={{ color: "var(--color-text-tertiary)", lineHeight: 1.6 }}
+                  >
+                    {summaryText}
+                  </p>
                 )}
               </div>
-
-              {/* Description */}
-              {summaryText && (
-                <p
-                  className="text-[13px] mt-3 line-clamp-2 max-w-3xl"
-                  style={{ color: "var(--color-text-secondary)", lineHeight: 1.7 }}
-                >
-                  {summaryText}
-                </p>
-              )}
             </div>
 
-            {/* Watchlist button - right aligned */}
-            <div className="flex-shrink-0 pt-1">
+            {/* Right: Watchlist button */}
+            <div className="flex-shrink-0 hidden md:block">
               {companyId && <WatchlistButton companyId={companyId} showLabel />}
             </div>
           </div>
