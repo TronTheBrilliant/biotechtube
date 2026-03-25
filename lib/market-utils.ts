@@ -54,6 +54,22 @@ export function formatCompactNumber(value: number): string {
   return `${digits}${suffix}`;
 }
 
+/**
+ * Cap unreasonable percentage changes to prevent data pipeline artifacts
+ * from showing to users. Returns null if the value exceeds thresholds.
+ * 1D: cap at +/-15%, 7D: cap at +/-30%, 30D: cap at +/-50%
+ */
+export function capPercent(
+  value: number | null,
+  period: "1d" | "7d" | "30d" = "1d"
+): number | null {
+  if (value === null) return null;
+  const caps: Record<string, number> = { "1d": 15, "7d": 30, "30d": 50 };
+  const cap = caps[period] ?? 15;
+  if (Math.abs(value) > cap) return null;
+  return value;
+}
+
 /** Returns CSS color for positive/negative percentage values */
 export function pctColor(val: number | null): string {
   if (val === null) return "var(--color-text-secondary)";

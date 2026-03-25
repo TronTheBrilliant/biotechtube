@@ -1,6 +1,6 @@
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
-import { formatMarketCap, formatPercent, pctColor } from "@/lib/market-utils";
+import { formatMarketCap, formatPercent, pctColor, capPercent } from "@/lib/market-utils";
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 
@@ -273,15 +273,15 @@ export default async function CountriesPage() {
                     </td>
                     <td
                       className="text-right text-12 px-3 py-2 font-medium"
-                      style={{ color: pctColor(c.change_1d_pct) }}
+                      style={{ color: pctColor(capPercent(c.change_1d_pct, "1d")) }}
                     >
-                      {formatPercent(c.change_1d_pct)}
+                      {formatPercent(capPercent(c.change_1d_pct, "1d"))}
                     </td>
                     <td
                       className="hidden md:table-cell text-right text-12 px-3 py-2 font-medium"
-                      style={{ color: pctColor(c.change_7d_pct) }}
+                      style={{ color: pctColor(capPercent(c.change_7d_pct, "7d")) }}
                     >
-                      {formatPercent(c.change_7d_pct)}
+                      {formatPercent(capPercent(c.change_7d_pct, "7d"))}
                     </td>
                     <td
                       className="hidden md:table-cell text-right text-12 px-3 py-2"

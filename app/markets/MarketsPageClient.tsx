@@ -20,6 +20,7 @@ import {
   formatVolume,
   formatPercent,
   pctColor,
+  capPercent,
 } from "@/lib/market-utils";
 
 // ── Types ──
@@ -167,7 +168,10 @@ export default function MarketsPageClient({
     startMarketCap > 0 ? (periodChange / startMarketCap) * 100 : 0;
   const isPositive = periodChange >= 0;
 
-  // Stats strip items
+  // Stats strip items — cap unreasonable percentage changes from data pipeline artifacts
+  const capped1d = capPercent(latestSnapshot?.change_1d_pct ?? null, "1d");
+  const capped7d = capPercent(latestSnapshot?.change_7d_pct ?? null, "7d");
+  const capped30d = capPercent(latestSnapshot?.change_30d_pct ?? null, "30d");
   const stats = latestSnapshot
     ? [
         {
@@ -176,18 +180,18 @@ export default function MarketsPageClient({
         },
         {
           label: "1D",
-          value: formatPercent(latestSnapshot.change_1d_pct ?? null),
-          color: pctColor(latestSnapshot.change_1d_pct ?? null),
+          value: formatPercent(capped1d),
+          color: pctColor(capped1d),
         },
         {
           label: "7D",
-          value: formatPercent(latestSnapshot.change_7d_pct ?? null),
-          color: pctColor(latestSnapshot.change_7d_pct ?? null),
+          value: formatPercent(capped7d),
+          color: pctColor(capped7d),
         },
         {
           label: "30D",
-          value: formatPercent(latestSnapshot.change_30d_pct ?? null),
-          color: pctColor(latestSnapshot.change_30d_pct ?? null),
+          value: formatPercent(capped30d),
+          color: pctColor(capped30d),
         },
         {
           label: "Public Companies",
@@ -514,21 +518,21 @@ export default function MarketsPageClient({
                           </td>
                           <td
                             className="text-right text-12 px-3 py-2 font-medium"
-                            style={{ color: pctColor(s.change_1d_pct) }}
+                            style={{ color: pctColor(capPercent(s.change_1d_pct, "1d")) }}
                           >
-                            {formatPercent(s.change_1d_pct)}
+                            {formatPercent(capPercent(s.change_1d_pct, "1d"))}
                           </td>
                           <td
                             className="text-right text-12 px-3 py-2 font-medium"
-                            style={{ color: pctColor(s.change_7d_pct) }}
+                            style={{ color: pctColor(capPercent(s.change_7d_pct, "7d")) }}
                           >
-                            {formatPercent(s.change_7d_pct)}
+                            {formatPercent(capPercent(s.change_7d_pct, "7d"))}
                           </td>
                           <td
                             className="text-right text-12 px-3 py-2 font-medium"
-                            style={{ color: pctColor(s.change_30d_pct) }}
+                            style={{ color: pctColor(capPercent(s.change_30d_pct, "30d")) }}
                           >
-                            {formatPercent(s.change_30d_pct)}
+                            {formatPercent(capPercent(s.change_30d_pct, "30d"))}
                           </td>
                           <td
                             className="text-right text-12 px-3 py-2"
@@ -638,15 +642,15 @@ export default function MarketsPageClient({
                           </td>
                           <td
                             className="text-right text-12 px-3 py-2 font-medium"
-                            style={{ color: pctColor(c.change_1d_pct) }}
+                            style={{ color: pctColor(capPercent(c.change_1d_pct, "1d")) }}
                           >
-                            {formatPercent(c.change_1d_pct)}
+                            {formatPercent(capPercent(c.change_1d_pct, "1d"))}
                           </td>
                           <td
                             className="text-right text-12 px-3 py-2 font-medium"
-                            style={{ color: pctColor(c.change_7d_pct) }}
+                            style={{ color: pctColor(capPercent(c.change_7d_pct, "7d")) }}
                           >
-                            {formatPercent(c.change_7d_pct)}
+                            {formatPercent(capPercent(c.change_7d_pct, "7d"))}
                           </td>
                           <td
                             className="text-right text-12 px-3 py-2"

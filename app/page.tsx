@@ -111,17 +111,34 @@ async function getLatestSnapshot() {
 async function getTrendingCompanies() {
   const supabase = getSupabase();
 
-  // Get latest date
-  const { data: latestRow } = await supabase
-    .from("company_price_history")
-    .select("date")
-    .not("market_cap_usd", "is", null)
-    .order("date", { ascending: false })
-    .limit(1)
-    .single();
-  if (!latestRow) return [];
-
-  const latestDate = latestRow.date;
+  // Find the most recent date that has at least 100 companies with market_cap_usd data
+  const { data: dateCounts } = await supabase.rpc("get_recent_price_date_counts" as never);
+  // Fallback: query recent dates manually
+  let latestDate: string | null = null;
+  if (dateCounts && Array.isArray(dateCounts)) {
+    for (const row of dateCounts as { date: string; cnt: number }[]) {
+      if (row.cnt >= 100) { latestDate = row.date; break; }
+    }
+  }
+  if (!latestDate) {
+    // Manual fallback: check last 10 dates
+    const { data: recentDates } = await supabase
+      .from("company_price_history")
+      .select("date")
+      .not("market_cap_usd", "is", null)
+      .order("date", { ascending: false })
+      .limit(5000);
+    if (!recentDates) return [];
+    const countByDate = new Map<string, number>();
+    for (const r of recentDates) {
+      countByDate.set(r.date, (countByDate.get(r.date) || 0) + 1);
+    }
+    const sortedDates = [...countByDate.entries()].sort((a, b) => b[0].localeCompare(a[0]));
+    for (const [d, cnt] of sortedDates) {
+      if (cnt >= 100) { latestDate = d; break; }
+    }
+    if (!latestDate) return [];
+  }
   const thirtyDaysAgo = new Date(latestDate);
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 35);
   const oldCutoff = thirtyDaysAgo.toISOString().split("T")[0];
@@ -161,14 +178,16 @@ async function getTrendingCompanies() {
     if (!oldMap.has(r.company_id)) oldMap.set(r.company_id, r.market_cap_usd);
   }
 
-  // Compute 30d change
+  // Compute 30d change — filter out extreme changes (>200%) which are likely backfill artifacts
   const changes: { companyId: string; change30d: number; marketCap: number }[] = [];
   currentMap.forEach((currentMcap, companyId) => {
     const oldMcap = oldMap.get(companyId);
     if (oldMcap && oldMcap > 0 && currentMcap > 500_000_000) {
       // Only include companies with >$500M market cap
       const pct = ((currentMcap - oldMcap) / oldMcap) * 100;
-      changes.push({ companyId, change30d: Math.round(pct * 100) / 100, marketCap: currentMcap });
+      if (Math.abs(pct) <= 200) {
+        changes.push({ companyId, change30d: Math.round(pct * 100) / 100, marketCap: currentMcap });
+      }
     }
   });
 

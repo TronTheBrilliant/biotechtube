@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { formatMarketCap, formatPercent, pctColor } from "@/lib/market-utils";
+import { formatMarketCap, formatPercent, pctColor, capPercent } from "@/lib/market-utils";
 
 const FLAGS: Record<string, string> = {
   "United States": "\u{1F1FA}\u{1F1F8}",
@@ -78,9 +78,9 @@ export default function MarketByCountry({
             {/* 1D Change */}
             <span
               className="font-medium"
-              style={{ fontSize: 12, color: pctColor(c.change1d) }}
+              style={{ fontSize: 12, color: pctColor(capPercent(c.change1d, "1d")) }}
             >
-              {formatPercent(c.change1d)}
+              {formatPercent(capPercent(c.change1d, "1d"))}
             </span>
 
             {/* Company Count */}

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { TvSparkline } from "@/components/charts/TvSparkline";
-import { formatMarketCap, formatPercent } from "@/lib/market-utils";
+import { formatMarketCap, formatPercent, capPercent } from "@/lib/market-utils";
 import { TrendingUp, Globe, Building2, BarChart3 } from "lucide-react";
 
 interface IndexCardsProps {
@@ -17,8 +17,8 @@ interface IndexCardsProps {
 }
 
 export function IndexCards({ snapshot }: IndexCardsProps) {
-  const change1d = snapshot.change_1d_pct;
-  const change7d = snapshot.change_7d_pct;
+  const change1d = capPercent(snapshot.change_1d_pct, "1d");
+  const change7d = capPercent(snapshot.change_7d_pct, "7d");
   const up1d = change1d === null ? true : change1d >= 0;
   const topGainer = snapshot.top_gainer_pct;
 

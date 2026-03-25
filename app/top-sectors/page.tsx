@@ -1,6 +1,6 @@
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
-import { formatMarketCap, formatPercent, pctColor } from "@/lib/market-utils";
+import { formatMarketCap, formatPercent, pctColor, capPercent } from "@/lib/market-utils";
 import { getSectorEmoji } from "@/lib/sector-emojis";
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
@@ -112,9 +112,10 @@ export default async function TopSectorsPage() {
   );
 
   const bestSector = sectors.reduce<SectorRanked | null>((best, s) => {
-    if (s.change1d == null) return best;
-    if (!best || best.change1d == null) return s;
-    return s.change1d > best.change1d ? s : best;
+    const capped = capPercent(s.change1d, "1d");
+    if (capped == null) return best;
+    if (!best || capPercent(best.change1d, "1d") == null) return s;
+    return capped > (capPercent(best.change1d, "1d") ?? 0) ? s : best;
   }, null);
 
   return (
@@ -216,9 +217,9 @@ export default async function TopSectorsPage() {
               <div className="mt-0.5 flex items-baseline gap-2">
                 <span
                   className="text-[20px] font-bold"
-                  style={{ color: pctColor(bestSector.change1d) }}
+                  style={{ color: pctColor(capPercent(bestSector.change1d, "1d")) }}
                 >
-                  {formatPercent(bestSector.change1d)}
+                  {formatPercent(capPercent(bestSector.change1d, "1d"))}
                 </span>
                 <span
                   className="text-[12px]"
@@ -302,7 +303,8 @@ export default async function TopSectorsPage() {
               </thead>
               <tbody>
                 {sectors.map((s, i) => {
-                  const isPositive = (s.change1d ?? 0) >= 0;
+                  const capped1d = capPercent(s.change1d, "1d");
+                  const isPositive = (capped1d ?? 0) >= 0;
                   return (
                     <tr
                       key={s.slug}
@@ -349,21 +351,21 @@ export default async function TopSectorsPage() {
                       </td>
                       <td
                         className="text-right text-12 px-3 py-2 font-semibold"
-                        style={{ color: pctColor(s.change1d) }}
+                        style={{ color: pctColor(capped1d) }}
                       >
-                        {formatPercent(s.change1d)}
+                        {formatPercent(capped1d)}
                       </td>
                       <td
                         className="hidden md:table-cell text-right text-12 px-3 py-2 font-semibold"
-                        style={{ color: pctColor(s.change7d) }}
+                        style={{ color: pctColor(capPercent(s.change7d, "7d")) }}
                       >
-                        {formatPercent(s.change7d)}
+                        {formatPercent(capPercent(s.change7d, "7d"))}
                       </td>
                       <td
                         className="hidden md:table-cell text-right text-12 px-3 py-2 font-semibold"
-                        style={{ color: pctColor(s.change30d) }}
+                        style={{ color: pctColor(capPercent(s.change30d, "30d")) }}
                       >
-                        {formatPercent(s.change30d)}
+                        {formatPercent(capPercent(s.change30d, "30d"))}
                       </td>
                       <td
                         className="hidden md:table-cell text-right text-12 px-3 py-2"

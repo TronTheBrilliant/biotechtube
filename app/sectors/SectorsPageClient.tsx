@@ -7,6 +7,7 @@ import { BarChart3 } from "lucide-react";
 import {
   formatMarketCap,
   formatPercent,
+  capPercent,
 } from "@/lib/market-utils";
 import { getSectorEmoji } from "@/lib/sector-emojis";
 
@@ -121,9 +122,9 @@ export default function SectorsPageClient({ sectors }: Props) {
                   </span>
                   <span
                     className="text-11 font-medium"
-                    style={{ color: pctColor(s.change_1d_pct) }}
+                    style={{ color: pctColor(capPercent(s.change_1d_pct, "1d")) }}
                   >
-                    {formatPercent(s.change_1d_pct)}
+                    {formatPercent(capPercent(s.change_1d_pct, "1d"))}
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
@@ -135,9 +136,9 @@ export default function SectorsPageClient({ sectors }: Props) {
                   </span>
                   <span
                     className="text-11 font-medium"
-                    style={{ color: pctColor(s.change_7d_pct) }}
+                    style={{ color: pctColor(capPercent(s.change_7d_pct, "7d")) }}
                   >
-                    {formatPercent(s.change_7d_pct)}
+                    {formatPercent(capPercent(s.change_7d_pct, "7d"))}
                   </span>
                 </div>
               </div>

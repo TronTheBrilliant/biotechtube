@@ -8,7 +8,7 @@ import { PaywallCard } from "@/components/PaywallCard";
 import { CompanyAvatar } from "@/components/CompanyAvatar";
 import { BarChart3, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { TvAreaChart } from "@/components/charts/TvAreaChart";
-import { formatMarketCap, formatPercent, pctColor } from "@/lib/market-utils";
+import { formatMarketCap, formatPercent, pctColor, capPercent } from "@/lib/market-utils";
 import { getSectorEmoji, SECTOR_DESCRIPTIONS } from "@/lib/sector-emojis";
 
 // ── Types ──
@@ -144,8 +144,8 @@ export default function SectorDetailClient({
     },
     {
       label: "1D",
-      value: formatPercent(latestSnapshot?.change_1d_pct ?? null),
-      color: pctColor(latestSnapshot?.change_1d_pct ?? null),
+      value: formatPercent(capPercent(latestSnapshot?.change_1d_pct ?? null, "1d")),
+      color: pctColor(capPercent(latestSnapshot?.change_1d_pct ?? null, "1d")),
     },
     {
       label: "Companies",

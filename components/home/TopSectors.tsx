@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { formatMarketCap, formatPercent, pctColor } from "@/lib/market-utils";
+import { formatMarketCap, formatPercent, pctColor, capPercent } from "@/lib/market-utils";
 import { getSectorEmoji } from "@/lib/sector-emojis";
 
 interface Sector {
@@ -52,9 +52,9 @@ export default function TopSectors({ sectors }: { sectors: Sector[] }) {
           {/* 1D Change */}
           <span
             className="font-medium"
-            style={{ fontSize: 12, color: pctColor(s.change1d) }}
+            style={{ fontSize: 12, color: pctColor(capPercent(s.change1d, "1d")) }}
           >
-            {formatPercent(s.change1d)}
+            {formatPercent(capPercent(s.change1d, "1d"))}
           </span>
 
           {/* Market Cap */}

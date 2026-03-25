@@ -24,17 +24,24 @@ async function getTrendingCompanies(): Promise<TrendingCompany[]> {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
-  // Get latest date
-  const { data: latestRow } = await supabase
+  // Find the most recent date that has at least 100 companies with market_cap_usd data
+  let latestDate: string | null = null;
+  const { data: recentDates } = await supabase
     .from("company_price_history")
     .select("date")
     .not("market_cap_usd", "is", null)
     .order("date", { ascending: false })
-    .limit(1)
-    .single();
-  if (!latestRow) return [];
-
-  const latestDate = latestRow.date;
+    .limit(5000);
+  if (!recentDates) return [];
+  const countByDate = new Map<string, number>();
+  for (const r of recentDates) {
+    countByDate.set(r.date, (countByDate.get(r.date) || 0) + 1);
+  }
+  const sortedDates = [...countByDate.entries()].sort((a, b) => b[0].localeCompare(a[0]));
+  for (const [d, cnt] of sortedDates) {
+    if (cnt >= 100) { latestDate = d; break; }
+  }
+  if (!latestDate) return [];
   const thirtyDaysAgo = new Date(latestDate);
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 35);
   const oldCutoff = thirtyDaysAgo.toISOString().split("T")[0];
@@ -42,12 +49,16 @@ async function getTrendingCompanies(): Promise<TrendingCompany[]> {
   oldEnd.setDate(oldEnd.getDate() - 25);
   const oldEndStr = oldEnd.toISOString().split("T")[0];
 
-  // Get current prices (latest date)
+  // Get current prices (last 5 trading days to catch all markets)
+  const fiveDaysAgo = new Date(latestDate);
+  fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
+  const fiveDaysAgoStr = fiveDaysAgo.toISOString().split("T")[0];
   const { data: currentPrices } = await supabase
     .from("company_price_history")
-    .select("company_id, market_cap_usd")
-    .eq("date", latestDate)
-    .not("market_cap_usd", "is", null);
+    .select("company_id, market_cap_usd, date")
+    .gte("date", fiveDaysAgoStr)
+    .not("market_cap_usd", "is", null)
+    .order("date", { ascending: false });
 
   // Get old prices (~30 days ago range)
   const { data: oldPrices } = await supabase
@@ -73,17 +84,20 @@ async function getTrendingCompanies(): Promise<TrendingCompany[]> {
   }
 
   // Compute 30d change — only include companies with market cap > $500M
+  // Filter out extreme changes (>200%) which are likely backfill artifacts
   const changes: { companyId: string; change30d: number; marketCap: number }[] =
     [];
   currentMap.forEach((currentMcap, companyId) => {
     const oldMcap = oldMap.get(companyId);
     if (oldMcap && oldMcap > 0 && currentMcap > 500_000_000) {
       const pct = ((currentMcap - oldMcap) / oldMcap) * 100;
-      changes.push({
-        companyId,
-        change30d: Math.round(pct * 100) / 100,
-        marketCap: currentMcap,
-      });
+      if (Math.abs(pct) <= 200) {
+        changes.push({
+          companyId,
+          change30d: Math.round(pct * 100) / 100,
+          marketCap: currentMcap,
+        });
+      }
     }
   });
 

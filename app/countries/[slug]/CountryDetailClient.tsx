@@ -7,7 +7,7 @@ import { Footer } from "@/components/Footer";
 import { CompanyAvatar } from "@/components/CompanyAvatar";
 import { ArrowUpRight, ArrowDownRight, Globe } from "lucide-react";
 import { TvAreaChart } from "@/components/charts/TvAreaChart";
-import { formatMarketCap, formatPercent, pctColor } from "@/lib/market-utils";
+import { formatMarketCap, formatPercent, pctColor, capPercent } from "@/lib/market-utils";
 
 // ── Types ──
 
@@ -281,11 +281,11 @@ export default function CountryDetailClient({
             <div
               className="text-[20px] font-medium tracking-tight"
               style={{
-                color: pctColor(latestSnapshot.change_30d_pct ?? null),
+                color: pctColor(capPercent(latestSnapshot.change_30d_pct ?? null, "30d")),
                 letterSpacing: "-0.3px",
               }}
             >
-              {formatPercent(latestSnapshot.change_30d_pct ?? null)}
+              {formatPercent(capPercent(latestSnapshot.change_30d_pct ?? null, "30d"))}
             </div>
           </div>
         </div>
