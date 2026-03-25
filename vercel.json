@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/update-prices",
+      "schedule": "0 14 * * 1-5"
+    },
+    {
+      "path": "/api/cron/update-aggregations",
+      "schedule": "30 14 * * 1-5"
+    }
+  ]
+}

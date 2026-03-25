@@ -9,6 +9,7 @@
  *   npx tsx scripts/backfill-prices.ts
  *   npx tsx scripts/backfill-prices.ts --limit 50
  *   npx tsx scripts/backfill-prices.ts --workers 3
+ *   npx tsx scripts/backfill-prices.ts --missing-only --workers 2  (retry only tickers with no data)
  */
 
 import { config } from "dotenv";
@@ -35,10 +36,11 @@ function getSupabase() {
   return createClient(url, key);
 }
 
-function parseArgs(): { limit: number; workers: number } {
+function parseArgs(): { limit: number; workers: number; missingOnly: boolean } {
   const args = process.argv.slice(2);
   let limit = DEFAULT_LIMIT;
   let workers = DEFAULT_WORKERS;
+  const missingOnly = args.includes("--missing-only");
 
   const limitIdx = args.indexOf("--limit");
   if (limitIdx !== -1 && args[limitIdx + 1]) {
@@ -52,7 +54,7 @@ function parseArgs(): { limit: number; workers: number } {
     if (!isNaN(p) && p > 0 && p <= 10) workers = p;
   }
 
-  return { limit, workers };
+  return { limit, workers, missingOnly };
 }
 
 function sleep(ms: number): Promise<void> {
@@ -267,13 +269,14 @@ async function worker(
 }
 
 async function main() {
-  const { limit, workers: numWorkers } = parseArgs();
+  const { limit, workers: numWorkers, missingOnly } = parseArgs();
   const supabase = getSupabase();
 
   console.log("\n📈 Stock Price Backfill");
   console.log("======================");
   console.log(`Workers: ${numWorkers}`);
-  console.log(`Limit: ${limit}\n`);
+  console.log(`Limit: ${limit}`);
+  console.log(`Missing only: ${missingOnly}\n`);
 
   // Fetch companies with tickers
   console.log("Fetching companies with tickers...");
@@ -298,8 +301,37 @@ async function main() {
     if (allCompanies.length >= limit) break;
   }
 
+  let filtered = allCompanies;
+
+  // If --missing-only, filter to companies with NO price data
+  if (missingOnly) {
+    console.log("Filtering to companies missing price data...");
+    const companiesWithData = new Set<string>();
+    // Check each company for existing price data (batch of concurrent checks)
+    const checkBatchSize = 20;
+    for (let i = 0; i < allCompanies.length; i += checkBatchSize) {
+      const batch = allCompanies.slice(i, i + checkBatchSize);
+      const results = await Promise.all(
+        batch.map(async (c) => {
+          const { data } = await supabase
+            .from("company_price_history")
+            .select("company_id")
+            .eq("company_id", c.id)
+            .limit(1);
+          return { id: c.id, hasData: (data && data.length > 0) };
+        })
+      );
+      for (const r of results) {
+        if (r.hasData) companiesWithData.add(r.id);
+      }
+    }
+    console.log(`  Companies with existing price data: ${companiesWithData.size}`);
+    filtered = allCompanies.filter((c) => !companiesWithData.has(c.id));
+    console.log(`  Companies missing price data: ${filtered.length}`);
+  }
+
   // Apply limit
-  const companies = allCompanies.slice(0, limit);
+  const companies = filtered.slice(0, limit);
   console.log(`  Found ${allCompanies.length} companies with tickers, using ${companies.length}`);
 
   if (companies.length === 0) {
