@@ -128,6 +128,35 @@ export default function FundingPageClient({
   /* Investor table sort */
   const [investorSort, setInvestorSort] = useState<InvestorSortKey>("total_invested");
   const [investorSortDir, setInvestorSortDir] = useState<"asc" | "desc">("desc");
+  const [investorCountryFilter, setInvestorCountryFilter] = useState("All");
+
+  // Recalculate top investors by country (client-side from rounds data)
+  const filteredTopInvestors = useMemo(() => {
+    const relevantRounds = investorCountryFilter === "All"
+      ? rounds
+      : rounds.filter(r => r.country === investorCountryFilter);
+
+    const investorMap = new Map<string, { total: number; deals: number; companies: Set<string> }>();
+    for (const r of relevantRounds) {
+      if (!r.lead_investor || r.lead_investor === "Undisclosed") continue;
+      const existing = investorMap.get(r.lead_investor) || { total: 0, deals: 0, companies: new Set<string>() };
+      existing.total += r.amount_usd || 0;
+      existing.deals += 1;
+      if (r.company_name) existing.companies.add(r.company_name);
+      investorMap.set(r.lead_investor, existing);
+    }
+
+    return Array.from(investorMap.entries())
+      .map(([name, data]) => ({
+        name,
+        total_invested: data.total,
+        deal_count: data.deals,
+        avg_deal_size: data.deals > 0 ? data.total / data.deals : 0,
+        top_portfolio: Array.from(data.companies).slice(0, 3).join(", "),
+      }))
+      .sort((a, b) => b.total_invested - a.total_invested)
+      .slice(0, 50);
+  }, [rounds, investorCountryFilter]);
 
   /* ─── Derived data ─── */
   const roundTypes = useMemo(() => {
@@ -202,18 +231,24 @@ export default function FundingPageClient({
 
   /* ─── Investor table ─── */
   const sortedInvestors = useMemo(() => {
-    const sorted = [...topInvestors].sort((a, b) => {
-      const aVal = a[investorSort];
-      const bVal = b[investorSort];
+    const source = filteredTopInvestors as { name: string; total_invested: number; deal_count: number; avg_deal_size: number; top_portfolio: string }[];
+    const sorted = [...source].sort((a, b) => {
+      const aVal = a[investorSort as keyof typeof a];
+      const bVal = b[investorSort as keyof typeof b];
       if (typeof aVal === "string" && typeof bVal === "string") {
         return investorSortDir === "asc" ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
       }
       return investorSortDir === "asc" ? (aVal as number) - (bVal as number) : (bVal as number) - (aVal as number);
     });
     return sorted.slice(0, 30);
-  }, [topInvestors, investorSort, investorSortDir]);
+  }, [filteredTopInvestors, investorSort, investorSortDir]);
 
-  const donutTop10 = useMemo(() => topInvestors.slice(0, 10), [topInvestors]);
+  const investorCountries = useMemo(() => {
+    const c = new Set(rounds.map((r) => r.country).filter(Boolean) as string[]);
+    return ["All", ...Array.from(c).sort()];
+  }, [rounds]);
+
+  const donutTop10 = useMemo(() => filteredTopInvestors.slice(0, 10), [filteredTopInvestors]);
   const donutTotal = useMemo(() => donutTop10.reduce((s, i) => s + i.total_invested, 0), [donutTop10]);
   const donutGradient = useMemo(() => {
     let cumulative = 0;
@@ -394,12 +429,33 @@ export default function FundingPageClient({
               maxWidth: 380,
             }}
           >
-            <h2
-              className="text-10 uppercase tracking-[0.5px] font-medium mb-4"
-              style={{ color: "var(--color-text-secondary)" }}
-            >
-              TOP 10 INVESTORS BY CAPITAL DEPLOYED
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2
+                className="text-10 uppercase tracking-[0.5px] font-medium"
+                style={{ color: "var(--color-text-secondary)" }}
+              >
+                TOP 10 INVESTORS
+              </h2>
+              <select
+                value={investorCountryFilter}
+                onChange={(e) => setInvestorCountryFilter(e.target.value)}
+                style={{
+                  ...filterControlStyle,
+                  height: 30,
+                  padding: "2px 8px",
+                  fontSize: 11,
+                }}
+              >
+                {investorCountries.map((c) => {
+                  const flag = c === "All" ? "🌍" : (COUNTRY_FLAGS[c] || "🏳️");
+                  return (
+                    <option key={c} value={c}>
+                      {flag} {c === "All" ? "Global" : c}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
             <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
               <div
                 style={{
