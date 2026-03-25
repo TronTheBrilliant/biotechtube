@@ -91,7 +91,7 @@ async function getTrendingCompanies(): Promise<TrendingCompany[]> {
     const oldMcap = oldMap.get(companyId);
     if (oldMcap && oldMcap > 0 && currentMcap > 500_000_000) {
       const pct = ((currentMcap - oldMcap) / oldMcap) * 100;
-      if (Math.abs(pct) <= 200) {
+      if (Math.abs(pct) <= 80) {
         changes.push({
           companyId,
           change30d: Math.round(pct * 100) / 100,

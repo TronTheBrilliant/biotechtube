@@ -185,7 +185,7 @@ async function getTrendingCompanies() {
     if (oldMcap && oldMcap > 0 && currentMcap > 500_000_000) {
       // Only include companies with >$500M market cap
       const pct = ((currentMcap - oldMcap) / oldMcap) * 100;
-      if (Math.abs(pct) <= 200) {
+      if (Math.abs(pct) <= 80) {
         changes.push({ companyId, change30d: Math.round(pct * 100) / 100, marketCap: currentMcap });
       }
     }
