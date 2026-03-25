@@ -129,12 +129,16 @@ async function getTrendingCompanies() {
   oldEnd.setDate(oldEnd.getDate() - 25);
   const oldEndStr = oldEnd.toISOString().split("T")[0];
 
-  // Get current prices (latest date)
+  // Get current prices (last 5 trading days to catch all markets)
+  const fiveDaysAgo = new Date(latestDate);
+  fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
+  const fiveDaysAgoStr = fiveDaysAgo.toISOString().split("T")[0];
   const { data: currentPrices } = await supabase
     .from("company_price_history")
-    .select("company_id, market_cap_usd")
-    .eq("date", latestDate)
-    .not("market_cap_usd", "is", null);
+    .select("company_id, market_cap_usd, date")
+    .gte("date", fiveDaysAgoStr)
+    .not("market_cap_usd", "is", null)
+    .order("date", { ascending: false });
 
   // Get old prices (~30 days ago range)
   const { data: oldPrices } = await supabase
@@ -161,8 +165,8 @@ async function getTrendingCompanies() {
   const changes: { companyId: string; change30d: number; marketCap: number }[] = [];
   currentMap.forEach((currentMcap, companyId) => {
     const oldMcap = oldMap.get(companyId);
-    if (oldMcap && oldMcap > 0 && currentMcap > 1_000_000_000) {
-      // Only include companies with >$1B market cap
+    if (oldMcap && oldMcap > 0 && currentMcap > 500_000_000) {
+      // Only include companies with >$500M market cap
       const pct = ((currentMcap - oldMcap) / oldMcap) * 100;
       changes.push({ companyId, change30d: Math.round(pct * 100) / 100, marketCap: currentMcap });
     }

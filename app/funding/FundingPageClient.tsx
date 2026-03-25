@@ -118,6 +118,9 @@ export default function FundingPageClient({
   const [amountRange, setAmountRange] = useState("Any amount");
   const [companySearch, setCompanySearch] = useState("");
 
+  /* Filter modal */
+  const [showFilterModal, setShowFilterModal] = useState(false);
+
   /* Investor autocomplete */
   const [investorInputFocused, setInvestorInputFocused] = useState(false);
   const investorInputRef = useRef<HTMLInputElement>(null);
@@ -265,6 +268,14 @@ export default function FundingPageClient({
     setAmountRange("Any amount");
     setCompanySearch("");
   }, []);
+
+  const activeFilterCount = [
+    roundFilter !== "All",
+    dateFilter !== "All time",
+    countryFilter !== "All",
+    selectedInvestor !== null,
+    amountRange !== "Any amount",
+  ].filter(Boolean).length;
 
   return (
     <div className="page-content" style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
@@ -655,164 +666,101 @@ export default function FundingPageClient({
         <div className="flex gap-6" style={{ alignItems: "flex-start" }}>
           {/* Main column */}
           <div className="flex-1 min-w-0">
-            {/* Funding Rounds section */}
-            <div className="mb-4 mt-2">
-              <h2 className="text-[22px] font-bold tracking-tight" style={{ color: "var(--color-text-primary)" }}>
-                Funding Rounds
-              </h2>
-              <p className="text-13 mt-1" style={{ color: "var(--color-text-secondary)" }}>
-                Browse all tracked biotech funding rounds — from seed to IPO.
-              </p>
-            </div>
-
-            {/* ─── Sticky filter bar ─── */}
-            <div
-              className="sticky top-0 z-20 rounded-lg px-4 py-3 mb-3"
-              style={{
-                background: "var(--color-bg-secondary)",
-                border: "1px solid var(--color-border-subtle)",
-                backdropFilter: "blur(8px)",
-              }}
-            >
-              <div className="flex flex-wrap items-center gap-2">
-                {/* Round type */}
-                <select
-                  value={roundFilter}
-                  onChange={(e) => setRoundFilter(e.target.value)}
-                  style={filterControlStyle}
-                >
-                  {roundTypes.map((t) => (
-                    <option key={t} value={t}>
-                      {t === "All" ? "All rounds" : t}
-                    </option>
-                  ))}
-                </select>
-
-                {/* Time period */}
-                <select
-                  value={dateFilter}
-                  onChange={(e) => setDateFilter(e.target.value)}
-                  style={filterControlStyle}
-                >
-                  {dateRanges.map((d) => (
-                    <option key={d} value={d}>
-                      {d}
-                    </option>
-                  ))}
-                </select>
-
-                {/* Country */}
-                <select
-                  value={countryFilter}
-                  onChange={(e) => setCountryFilter(e.target.value)}
-                  style={filterControlStyle}
-                >
-                  {countries.map((c) => {
-                    const flag = c === "All" ? "\u{1f30d}" : (COUNTRY_FLAGS[c] || "\u{1f3f3}\u{fe0f}");
-                    return (
-                      <option key={c} value={c}>
-                        {flag} {c === "All" ? "All countries" : c}
-                      </option>
-                    );
-                  })}
-                </select>
-
-                {/* Investor search with autocomplete */}
-                <div style={{ position: "relative" }}>
-                  <input
-                    ref={investorInputRef}
-                    type="text"
-                    placeholder="Search investor..."
-                    value={selectedInvestor || investorSearch}
-                    onChange={(e) => {
-                      setSelectedInvestor(null);
-                      setInvestorSearch(e.target.value);
-                    }}
-                    onFocus={() => setInvestorInputFocused(true)}
-                    style={filterInputStyle}
-                  />
-                  {investorInputFocused && investorSuggestions.length > 0 && (
-                    <div
-                      ref={investorDropdownRef}
-                      style={{
-                        position: "absolute",
-                        top: "100%",
-                        left: 0,
-                        right: 0,
-                        marginTop: 4,
-                        background: "var(--color-bg-secondary)",
-                        border: "1px solid var(--color-border-subtle)",
-                        borderRadius: 8,
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
-                        zIndex: 30,
-                        maxHeight: 240,
-                        overflowY: "auto",
-                      }}
-                    >
-                      {investorSuggestions.map((name) => (
-                        <div
-                          key={name}
-                          style={{
-                            padding: "8px 12px",
-                            fontSize: 13,
-                            color: "var(--color-text-primary)",
-                            cursor: "pointer",
-                            borderBottom: "0.5px solid var(--color-border-subtle)",
-                          }}
-                          onMouseDown={(e) => {
-                            e.preventDefault();
-                            setSelectedInvestor(name);
-                            setInvestorSearch(name);
-                            setInvestorInputFocused(false);
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = "var(--color-bg-tertiary)";
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = "";
-                          }}
-                        >
-                          {name}
-                        </div>
-                      ))}
-                    </div>
-                  )}
+            {/* Funding Rounds header + inline search + filter button */}
+            <div className="mb-3 mt-2">
+              <div className="flex items-center gap-3 flex-wrap">
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-[22px] font-bold tracking-tight" style={{ color: "var(--color-text-primary)" }}>
+                    Funding Rounds
+                  </h2>
+                  <p className="text-13 mt-0.5" style={{ color: "var(--color-text-secondary)" }}>
+                    Browse all tracked biotech funding rounds.
+                  </p>
                 </div>
-
-                {/* Amount range */}
-                <select
-                  value={amountRange}
-                  onChange={(e) => setAmountRange(e.target.value)}
-                  style={filterControlStyle}
-                >
-                  {AMOUNT_RANGES.map((r) => (
-                    <option key={r.label} value={r.label}>
-                      {r.label}
-                    </option>
-                  ))}
-                </select>
-
-                {/* Company search */}
-                <input
-                  type="text"
-                  placeholder="Search company..."
-                  value={companySearch}
-                  onChange={(e) => setCompanySearch(e.target.value)}
-                  style={filterInputStyle}
-                />
-
-                {/* Results count */}
-                <span
-                  className="text-12 ml-auto"
-                  style={{ color: "var(--color-text-tertiary)", whiteSpace: "nowrap" }}
-                >
-                  {filtered.length.toLocaleString()} results
-                </span>
+                <div className="flex items-center gap-2">
+                  {/* Inline company search */}
+                  <div style={{ position: "relative" }}>
+                    <svg
+                      width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-tertiary)"
+                      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                      style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
+                    >
+                      <circle cx="11" cy="11" r="8" />
+                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                    <input
+                      type="text"
+                      placeholder="Search company..."
+                      value={companySearch}
+                      onChange={(e) => setCompanySearch(e.target.value)}
+                      style={{
+                        ...filterControlStyle,
+                        cursor: "text",
+                        width: 190,
+                        paddingLeft: 32,
+                      }}
+                    />
+                  </div>
+                  {/* Filter button */}
+                  <button
+                    onClick={() => setShowFilterModal(true)}
+                    style={{
+                      ...filterControlStyle,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 6,
+                      padding: "0 14px",
+                      position: "relative",
+                    }}
+                  >
+                    <svg
+                      width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                    >
+                      <line x1="4" y1="21" x2="4" y2="14" />
+                      <line x1="4" y1="10" x2="4" y2="3" />
+                      <line x1="12" y1="21" x2="12" y2="12" />
+                      <line x1="12" y1="8" x2="12" y2="3" />
+                      <line x1="20" y1="21" x2="20" y2="16" />
+                      <line x1="20" y1="12" x2="20" y2="3" />
+                      <line x1="1" y1="14" x2="7" y2="14" />
+                      <line x1="9" y1="8" x2="15" y2="8" />
+                      <line x1="17" y1="16" x2="23" y2="16" />
+                    </svg>
+                    Filters
+                    {activeFilterCount > 0 && (
+                      <span
+                        style={{
+                          background: "var(--color-accent, #3b82f6)",
+                          color: "#fff",
+                          fontSize: 10,
+                          fontWeight: 700,
+                          borderRadius: "50%",
+                          width: 18,
+                          height: 18,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          lineHeight: 1,
+                        }}
+                      >
+                        {activeFilterCount}
+                      </span>
+                    )}
+                  </button>
+                  {/* Results count */}
+                  <span
+                    className="text-12"
+                    style={{ color: "var(--color-text-tertiary)", whiteSpace: "nowrap" }}
+                  >
+                    {filtered.length.toLocaleString()} results
+                  </span>
+                </div>
               </div>
 
-              {/* ─── Active filter pills ─── */}
+              {/* Active filter pills */}
               {hasActiveFilters && (
-                <div className="flex flex-wrap items-center gap-2 mt-3 pt-3" style={{ borderTop: "0.5px solid var(--color-border-subtle)" }}>
+                <div className="flex flex-wrap items-center gap-2 mt-3">
                   {roundFilter !== "All" && (
                     <FilterPill label={roundFilter} onRemove={() => setRoundFilter("All")} />
                   )}
@@ -857,6 +805,273 @@ export default function FundingPageClient({
                 </div>
               )}
             </div>
+
+            {/* ─── Filter Modal ─── */}
+            {showFilterModal && (
+              <div
+                style={{
+                  position: "fixed",
+                  inset: 0,
+                  zIndex: 50,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  animation: "fadeIn 0.15s ease-out",
+                }}
+                onClick={() => setShowFilterModal(false)}
+              >
+                {/* Backdrop */}
+                <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.4)" }} />
+
+                {/* Modal card */}
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    position: "relative",
+                    width: "100%",
+                    maxWidth: 420,
+                    margin: "0 16px",
+                    background: "var(--color-bg-secondary)",
+                    border: "1px solid var(--color-border-subtle)",
+                    borderRadius: 16,
+                    boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+                    animation: "slideUp 0.2s ease-out",
+                    maxHeight: "85vh",
+                    overflowY: "auto",
+                  }}
+                >
+                  {/* Modal header */}
+                  <div
+                    className="flex items-center justify-between px-5 py-4"
+                    style={{ borderBottom: "1px solid var(--color-border-subtle)" }}
+                  >
+                    <h3 className="text-[16px] font-semibold" style={{ color: "var(--color-text-primary)" }}>
+                      Filters
+                    </h3>
+                    <button
+                      onClick={() => setShowFilterModal(false)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "var(--color-text-tertiary)",
+                        cursor: "pointer",
+                        fontSize: 20,
+                        lineHeight: 1,
+                        padding: 4,
+                      }}
+                      aria-label="Close filters"
+                    >
+                      {"\u00d7"}
+                    </button>
+                  </div>
+
+                  {/* Modal body */}
+                  <div className="px-5 py-4" style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                    {/* Round type */}
+                    <div>
+                      <label
+                        className="text-10 uppercase tracking-[0.5px] font-medium block mb-2"
+                        style={{ color: "var(--color-text-tertiary)" }}
+                      >
+                        Round type
+                      </label>
+                      <select
+                        value={roundFilter}
+                        onChange={(e) => setRoundFilter(e.target.value)}
+                        style={{ ...filterControlStyle, width: "100%" }}
+                      >
+                        {roundTypes.map((t) => (
+                          <option key={t} value={t}>
+                            {t === "All" ? "All rounds" : t}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Time period */}
+                    <div>
+                      <label
+                        className="text-10 uppercase tracking-[0.5px] font-medium block mb-2"
+                        style={{ color: "var(--color-text-tertiary)" }}
+                      >
+                        Time period
+                      </label>
+                      <select
+                        value={dateFilter}
+                        onChange={(e) => setDateFilter(e.target.value)}
+                        style={{ ...filterControlStyle, width: "100%" }}
+                      >
+                        {dateRanges.map((d) => (
+                          <option key={d} value={d}>
+                            {d}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Country */}
+                    <div>
+                      <label
+                        className="text-10 uppercase tracking-[0.5px] font-medium block mb-2"
+                        style={{ color: "var(--color-text-tertiary)" }}
+                      >
+                        Country
+                      </label>
+                      <select
+                        value={countryFilter}
+                        onChange={(e) => setCountryFilter(e.target.value)}
+                        style={{ ...filterControlStyle, width: "100%" }}
+                      >
+                        {countries.map((c) => {
+                          const flag = c === "All" ? "\u{1f30d}" : (COUNTRY_FLAGS[c] || "\u{1f3f3}\u{fe0f}");
+                          return (
+                            <option key={c} value={c}>
+                              {flag} {c === "All" ? "All countries" : c}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </div>
+
+                    {/* Lead investor search */}
+                    <div>
+                      <label
+                        className="text-10 uppercase tracking-[0.5px] font-medium block mb-2"
+                        style={{ color: "var(--color-text-tertiary)" }}
+                      >
+                        Lead investor
+                      </label>
+                      <div style={{ position: "relative" }}>
+                        <input
+                          ref={investorInputRef}
+                          type="text"
+                          placeholder="Search investor..."
+                          value={selectedInvestor || investorSearch}
+                          onChange={(e) => {
+                            setSelectedInvestor(null);
+                            setInvestorSearch(e.target.value);
+                          }}
+                          onFocus={() => setInvestorInputFocused(true)}
+                          style={{ ...filterInputStyle, width: "100%" }}
+                        />
+                        {investorInputFocused && investorSuggestions.length > 0 && (
+                          <div
+                            ref={investorDropdownRef}
+                            style={{
+                              position: "absolute",
+                              top: "100%",
+                              left: 0,
+                              right: 0,
+                              marginTop: 4,
+                              background: "var(--color-bg-primary)",
+                              border: "1px solid var(--color-border-subtle)",
+                              borderRadius: 8,
+                              boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
+                              zIndex: 60,
+                              maxHeight: 200,
+                              overflowY: "auto",
+                            }}
+                          >
+                            {investorSuggestions.map((name) => (
+                              <div
+                                key={name}
+                                style={{
+                                  padding: "8px 12px",
+                                  fontSize: 13,
+                                  color: "var(--color-text-primary)",
+                                  cursor: "pointer",
+                                  borderBottom: "0.5px solid var(--color-border-subtle)",
+                                }}
+                                onMouseDown={(e) => {
+                                  e.preventDefault();
+                                  setSelectedInvestor(name);
+                                  setInvestorSearch(name);
+                                  setInvestorInputFocused(false);
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.background = "var(--color-bg-tertiary)";
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.background = "";
+                                }}
+                              >
+                                {name}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Amount range */}
+                    <div>
+                      <label
+                        className="text-10 uppercase tracking-[0.5px] font-medium block mb-2"
+                        style={{ color: "var(--color-text-tertiary)" }}
+                      >
+                        Amount range
+                      </label>
+                      <select
+                        value={amountRange}
+                        onChange={(e) => setAmountRange(e.target.value)}
+                        style={{ ...filterControlStyle, width: "100%" }}
+                      >
+                        {AMOUNT_RANGES.map((r) => (
+                          <option key={r.label} value={r.label}>
+                            {r.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Modal footer */}
+                  <div
+                    className="flex items-center justify-between px-5 py-4"
+                    style={{ borderTop: "1px solid var(--color-border-subtle)" }}
+                  >
+                    <button
+                      onClick={() => {
+                        clearAllFilters();
+                      }}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "var(--color-text-secondary)",
+                        fontSize: 13,
+                        fontWeight: 500,
+                        cursor: "pointer",
+                        padding: "8px 4px",
+                      }}
+                    >
+                      Clear all
+                    </button>
+                    <button
+                      onClick={() => setShowFilterModal(false)}
+                      style={{
+                        background: "var(--color-accent, #3b82f6)",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: 8,
+                        padding: "10px 24px",
+                        fontSize: 13,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Apply filters
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+            <style>{`
+              @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+              @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+              @media (max-width: 639px) {
+                .filter-modal-card { border-radius: 16px 16px 0 0 !important; position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; max-width: 100% !important; margin: 0 !important; }
+              }
+            `}</style>
 
             {/* Funding table */}
             <div
