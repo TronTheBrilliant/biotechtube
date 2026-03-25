@@ -418,200 +418,232 @@ export default function FundingPageClient({
           ))}
         </div>
 
-        {/* Donut chart + Most Active Investors Table */}
-        <div className="flex flex-col lg:flex-row gap-6 mb-6">
-          {/* Donut chart */}
+        {/* ── Unified Top Biotech Investors Section ── */}
+        <div
+          className="rounded-lg overflow-hidden mb-6"
+          style={{
+            background: "var(--color-bg-secondary)",
+            border: "0.5px solid var(--color-border-subtle)",
+          }}
+        >
+          {/* Header row */}
           <div
-            className="rounded-lg px-4 py-4 flex-shrink-0"
-            style={{
-              background: "var(--color-bg-secondary)",
-              border: "0.5px solid var(--color-border-subtle)",
-              width: "100%",
-              maxWidth: 380,
-            }}
+            className="flex items-center justify-between px-4 py-3"
+            style={{ borderBottom: "0.5px solid var(--color-border-subtle)" }}
           >
-            <div className="flex items-center justify-between mb-4">
-              <h2
-                className="text-10 uppercase tracking-[0.5px] font-medium"
-                style={{ color: "var(--color-text-secondary)" }}
-              >
-                TOP 10 INVESTORS
-              </h2>
-              <select
-                value={investorCountryFilter}
-                onChange={(e) => setInvestorCountryFilter(e.target.value)}
-                style={{
-                  ...filterControlStyle,
-                  height: 30,
-                  padding: "2px 8px",
-                  fontSize: 11,
-                }}
-              >
-                {investorCountries.map((c) => {
-                  const flag = c === "All" ? "🌍" : (COUNTRY_FLAGS[c] || "🏳️");
-                  return (
-                    <option key={c} value={c}>
-                      {flag} {c === "All" ? "Global" : c}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
-            <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
+            <h2
+              className="text-10 uppercase tracking-[0.5px] font-medium"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              TOP BIOTECH INVESTORS
+            </h2>
+            <select
+              value={investorCountryFilter}
+              onChange={(e) => setInvestorCountryFilter(e.target.value)}
+              style={{
+                ...filterControlStyle,
+                height: 30,
+                padding: "2px 8px",
+                fontSize: 11,
+              }}
+            >
+              {investorCountries.map((c) => {
+                const flag = c === "All" ? "\u{1f30d}" : (COUNTRY_FLAGS[c] || "\u{1f3f3}\u{fe0f}");
+                return (
+                  <option key={c} value={c}>
+                    {flag} {c === "All" ? "Global" : c}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+
+          {/* Body: donut left + table right */}
+          <div className="flex flex-col lg:flex-row">
+            {/* Donut + legend */}
+            <div
+              className="investor-donut-col flex-shrink-0 px-4 py-4 flex flex-col items-center"
+              style={{ width: "100%", maxWidth: 260 }}
+            >
+              <style>{`
+                .investor-donut-col { border-bottom: 0.5px solid var(--color-border-subtle); }
+                @media (min-width: 1024px) {
+                  .investor-donut-col { border-bottom: none !important; border-right: 0.5px solid var(--color-border-subtle); }
+                }
+              `}</style>
               <div
-                style={{
-                  width: 200,
-                  height: 200,
-                  borderRadius: "50%",
-                  background: donutGradient,
-                  position: "relative",
-                }}
+                style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}
               >
+                {/* Donut */}
                 <div
                   style={{
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                    width: 110,
-                    height: 110,
+                    width: 180,
+                    height: 180,
                     borderRadius: "50%",
-                    background: "var(--color-bg-secondary)",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    background: donutGradient,
+                    position: "relative",
+                    marginBottom: 14,
                   }}
-                >
-                  <div className="text-[18px] font-medium" style={{ color: "var(--color-accent)" }}>
-                    {formatAmount(donutTotal)}
-                  </div>
-                  <div className="text-[10px]" style={{ color: "var(--color-text-tertiary)" }}>
-                    Top 10 Total
-                  </div>
-                </div>
-              </div>
-            </div>
-            {/* Legend -- informational only, no click */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              {donutTop10.map((inv, idx) => (
-                <div
-                  key={inv.investor_name}
-                  style={{ display: "flex", alignItems: "center", gap: 8 }}
                 >
                   <div
                     style={{
-                      width: 10,
-                      height: 10,
-                      borderRadius: 2,
-                      background: DONUT_COLORS[idx],
-                      flexShrink: 0,
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                      width: 100,
+                      height: 100,
+                      borderRadius: "50%",
+                      background: "var(--color-bg-secondary)",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
-                  />
-                  <span className="text-11 flex-1 truncate" style={{ color: "var(--color-text-primary)" }}>
-                    {inv.investor_name}
-                  </span>
-                  <span className="text-11 font-medium" style={{ color: "var(--color-text-secondary)" }}>
-                    {formatAmount(inv.total_invested)}
-                  </span>
+                  >
+                    <div className="text-[16px] font-medium" style={{ color: "var(--color-accent)" }}>
+                      {formatAmount(donutTotal)}
+                    </div>
+                    <div className="text-[10px]" style={{ color: "var(--color-text-tertiary)" }}>
+                      Top 10 Total
+                    </div>
+                  </div>
                 </div>
-              ))}
+                {/* Legend */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 3, width: "100%" }}>
+                  {donutTop10.map((inv, idx) => (
+                    <div
+                      key={inv.investor_name}
+                      style={{ display: "flex", alignItems: "center", gap: 6 }}
+                      data-investor={inv.investor_name}
+                      onMouseEnter={() => {
+                        const row = document.querySelector(`[data-investor-row="${inv.investor_name}"]`) as HTMLElement | null;
+                        if (row) row.style.background = "var(--color-bg-tertiary)";
+                      }}
+                      onMouseLeave={() => {
+                        const row = document.querySelector(`[data-investor-row="${inv.investor_name}"]`) as HTMLElement | null;
+                        if (row) row.style.background = "";
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: 2,
+                          background: DONUT_COLORS[idx],
+                          flexShrink: 0,
+                        }}
+                      />
+                      <span className="text-[10px] flex-1 truncate" style={{ color: "var(--color-text-primary)" }}>
+                        {inv.investor_name}
+                      </span>
+                      <span className="text-[10px] font-medium" style={{ color: "var(--color-text-secondary)" }}>
+                        {formatAmount(inv.total_invested)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
 
-          {/* Most Active Investors Table -- informational only, no click-to-filter */}
-          <div
-            className="rounded-lg overflow-hidden flex-1 min-w-0"
-            style={{
-              background: "var(--color-bg-secondary)",
-              border: "0.5px solid var(--color-border-subtle)",
-            }}
-          >
-            <div className="px-4 py-3" style={{ borderBottom: "0.5px solid var(--color-border-subtle)" }}>
-              <h2
-                className="text-10 uppercase tracking-[0.5px] font-medium"
-                style={{ color: "var(--color-text-secondary)" }}
+            {/* Table */}
+            <div className="flex-1 min-w-0">
+              <style>{`
+                .investor-row { grid-template-columns: 28px 2fr 1fr 0.6fr 0.8fr; }
+                @media (min-width: 640px) { .investor-row { grid-template-columns: 28px 2fr 1fr 0.6fr 0.8fr 2.5fr; } }
+              `}</style>
+              {/* Table header */}
+              <div
+                className="investor-row grid px-4 py-2"
+                style={{ borderBottom: "0.5px solid var(--color-border-subtle)" }}
               >
-                MOST ACTIVE BIOTECH INVESTORS
-              </h2>
-            </div>
-            <style>{`
-              .investor-row { grid-template-columns: 32px 2fr 1fr 0.7fr 0.8fr; }
-              @media (min-width: 640px) { .investor-row { grid-template-columns: 32px 2fr 1fr 0.7fr 0.8fr 2.5fr; } }
-            `}</style>
-            {/* Table header */}
-            <div
-              className="investor-row grid px-4 py-2"
-              style={{ borderBottom: "0.5px solid var(--color-border-subtle)" }}
-            >
-              <span className="text-10 uppercase tracking-[0.5px] font-medium" style={{ color: "var(--color-text-tertiary)" }}>#</span>
-              <span
-                className="text-10 uppercase tracking-[0.5px] font-medium cursor-pointer select-none"
-                style={{ color: "var(--color-text-tertiary)" }}
-                onClick={() => handleInvestorSort("investor_name")}
-              >
-                Investor{sortArrow("investor_name")}
-              </span>
-              <span
-                className="text-10 uppercase tracking-[0.5px] font-medium cursor-pointer select-none"
-                style={{ color: "var(--color-text-tertiary)" }}
-                onClick={() => handleInvestorSort("total_invested")}
-              >
-                Total{sortArrow("total_invested")}
-              </span>
-              <span
-                className="text-10 uppercase tracking-[0.5px] font-medium cursor-pointer select-none"
-                style={{ color: "var(--color-text-tertiary)" }}
-                onClick={() => handleInvestorSort("deal_count")}
-              >
-                Deals{sortArrow("deal_count")}
-              </span>
-              <span
-                className="text-10 uppercase tracking-[0.5px] font-medium cursor-pointer select-none"
-                style={{ color: "var(--color-text-tertiary)" }}
-                onClick={() => handleInvestorSort("avg_deal_size")}
-              >
-                Avg Size{sortArrow("avg_deal_size")}
-              </span>
-              <span className="text-10 uppercase tracking-[0.5px] font-medium hidden sm:block" style={{ color: "var(--color-text-tertiary)" }}>
-                Top Portfolio
-              </span>
-            </div>
-            {/* Table rows */}
-            <div style={{ maxHeight: 500, overflowY: "auto" }}>
-              {sortedInvestors.map((inv, i) => (
-                <div
-                  key={inv.investor_name}
-                  className="investor-row grid px-4 py-2.5 transition-colors duration-100"
-                  style={{
-                    borderBottom: "0.5px solid var(--color-border-subtle)",
-                    alignItems: "center",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "var(--color-bg-tertiary)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = "";
-                  }}
+                <span className="text-10 uppercase tracking-[0.5px] font-medium" style={{ color: "var(--color-text-tertiary)" }}>#</span>
+                <span
+                  className="text-10 uppercase tracking-[0.5px] font-medium cursor-pointer select-none"
+                  style={{ color: "var(--color-text-tertiary)" }}
+                  onClick={() => handleInvestorSort("investor_name")}
                 >
-                  <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>{i + 1}</span>
-                  <span className="text-12 font-medium truncate" style={{ color: "var(--color-text-primary)" }}>
-                    {inv.investor_name}
-                  </span>
-                  <span className="text-12 font-medium" style={{ color: "var(--color-accent)" }}>
-                    {formatAmount(inv.total_invested)}
-                  </span>
-                  <span className="text-12" style={{ color: "var(--color-text-secondary)" }}>
-                    {inv.deal_count}
-                  </span>
-                  <span className="text-12" style={{ color: "var(--color-text-secondary)" }}>
-                    {formatAmount(inv.avg_deal_size)}
-                  </span>
-                  <span className="text-11 hidden sm:block truncate" style={{ color: "var(--color-text-tertiary)" }}>
-                    {inv.top_companies}
-                  </span>
-                </div>
-              ))}
+                  Investor{sortArrow("investor_name")}
+                </span>
+                <span
+                  className="text-10 uppercase tracking-[0.5px] font-medium cursor-pointer select-none"
+                  style={{ color: "var(--color-text-tertiary)" }}
+                  onClick={() => handleInvestorSort("total_invested")}
+                >
+                  Total{sortArrow("total_invested")}
+                </span>
+                <span
+                  className="text-10 uppercase tracking-[0.5px] font-medium cursor-pointer select-none"
+                  style={{ color: "var(--color-text-tertiary)" }}
+                  onClick={() => handleInvestorSort("deal_count")}
+                >
+                  Deals{sortArrow("deal_count")}
+                </span>
+                <span
+                  className="text-10 uppercase tracking-[0.5px] font-medium cursor-pointer select-none"
+                  style={{ color: "var(--color-text-tertiary)" }}
+                  onClick={() => handleInvestorSort("avg_deal_size")}
+                >
+                  Avg Size{sortArrow("avg_deal_size")}
+                </span>
+                <span className="text-10 uppercase tracking-[0.5px] font-medium hidden sm:block" style={{ color: "var(--color-text-tertiary)" }}>
+                  Top Portfolio
+                </span>
+              </div>
+              {/* Table rows */}
+              <div style={{ maxHeight: 480, overflowY: "auto" }}>
+                {sortedInvestors.map((inv, i) => {
+                  const donutIdx = donutTop10.findIndex((d) => d.investor_name === inv.investor_name);
+                  return (
+                    <div
+                      key={inv.investor_name}
+                      className="investor-row grid px-4 py-2.5 transition-colors duration-100"
+                      data-investor-row={inv.investor_name}
+                      style={{
+                        borderBottom: "0.5px solid var(--color-border-subtle)",
+                        alignItems: "center",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = "var(--color-bg-tertiary)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "";
+                      }}
+                    >
+                      <span className="text-11 flex items-center gap-1" style={{ color: "var(--color-text-tertiary)" }}>
+                        {donutIdx >= 0 && (
+                          <span
+                            style={{
+                              display: "inline-block",
+                              width: 6,
+                              height: 6,
+                              borderRadius: 1,
+                              background: DONUT_COLORS[donutIdx],
+                              flexShrink: 0,
+                            }}
+                          />
+                        )}
+                        {i + 1}
+                      </span>
+                      <span className="text-12 font-medium truncate" style={{ color: "var(--color-text-primary)" }}>
+                        {inv.investor_name}
+                      </span>
+                      <span className="text-12 font-medium" style={{ color: "var(--color-accent)" }}>
+                        {formatAmount(inv.total_invested)}
+                      </span>
+                      <span className="text-12" style={{ color: "var(--color-text-secondary)" }}>
+                        {inv.deal_count}
+                      </span>
+                      <span className="text-12" style={{ color: "var(--color-text-secondary)" }}>
+                        {formatAmount(inv.avg_deal_size)}
+                      </span>
+                      <span className="text-11 hidden sm:block truncate" style={{ color: "var(--color-text-tertiary)" }}>
+                        {inv.top_portfolio}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
