@@ -111,26 +111,23 @@ export default function FundingChart({ data }: Props) {
       </p>
 
       {/* Era cards — mobile: timeline, desktop: 2x2 grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pb-3">
         {fundingNarrative.map((era) => {
-          const pillColor = ERA_COLORS[era.era] || "#6b7280";
           return (
             <div
               key={era.era}
-              className="relative rounded-lg p-3 text-left border-l-2 md:border-l-0"
+              className="rounded-lg p-3 text-left"
               style={{
                 background: "var(--color-bg-secondary)",
                 border: "0.5px solid var(--color-border-subtle)",
-                borderLeftWidth: "2px",
-                borderLeftColor: pillColor,
               }}
             >
               {/* Date pill */}
               <span
                 className="inline-block text-10 font-semibold px-2 py-0.5 rounded-full mb-1.5"
                 style={{
-                  background: `${pillColor}18`,
-                  color: pillColor,
+                  background: "var(--color-bg-tertiary)",
+                  color: "var(--color-text-secondary)",
                 }}
               >
                 {era.era}
