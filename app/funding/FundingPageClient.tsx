@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { PaywallCard } from "@/components/PaywallCard";
@@ -33,9 +32,30 @@ const roundBadgeColors: Record<string, { bg: string; text: string }> = {
 
 const dateRanges = ["All time", "Last 30 days", "Last 90 days", "Last 12 months"];
 
+const COUNTRY_FLAGS: Record<string, string> = {
+  "United States": "\u{1f1fa}\u{1f1f8}", "United Kingdom": "\u{1f1ec}\u{1f1e7}", Switzerland: "\u{1f1e8}\u{1f1ed}", Japan: "\u{1f1ef}\u{1f1f5}",
+  China: "\u{1f1e8}\u{1f1f3}", Denmark: "\u{1f1e9}\u{1f1f0}", India: "\u{1f1ee}\u{1f1f3}", France: "\u{1f1eb}\u{1f1f7}", "South Korea": "\u{1f1f0}\u{1f1f7}",
+  Germany: "\u{1f1e9}\u{1f1ea}", Belgium: "\u{1f1e7}\u{1f1ea}", "South Africa": "\u{1f1ff}\u{1f1e6}", Netherlands: "\u{1f1f3}\u{1f1f1}",
+  Australia: "\u{1f1e6}\u{1f1fa}", Ireland: "\u{1f1ee}\u{1f1ea}", Israel: "\u{1f1ee}\u{1f1f1}", Canada: "\u{1f1e8}\u{1f1e6}", Norway: "\u{1f1f3}\u{1f1f4}",
+  Sweden: "\u{1f1f8}\u{1f1ea}", "Hong Kong": "\u{1f1ed}\u{1f1f0}", Singapore: "\u{1f1f8}\u{1f1ec}", Spain: "\u{1f1ea}\u{1f1f8}", Italy: "\u{1f1ee}\u{1f1f9}",
+  Brazil: "\u{1f1e7}\u{1f1f7}", Austria: "\u{1f1e6}\u{1f1f9}", Finland: "\u{1f1eb}\u{1f1ee}", Taiwan: "\u{1f1f9}\u{1f1fc}", Hungary: "\u{1f1ed}\u{1f1fa}",
+  "New Zealand": "\u{1f1f3}\u{1f1ff}", Poland: "\u{1f1f5}\u{1f1f1}", "Saudi Arabia": "\u{1f1f8}\u{1f1e6}", Mexico: "\u{1f1f2}\u{1f1fd}",
+  Argentina: "\u{1f1e6}\u{1f1f7}", Thailand: "\u{1f1f9}\u{1f1ed}", Turkey: "\u{1f1f9}\u{1f1f7}", Greece: "\u{1f1ec}\u{1f1f7}", Portugal: "\u{1f1f5}\u{1f1f9}",
+  Malaysia: "\u{1f1f2}\u{1f1fe}", Indonesia: "\u{1f1ee}\u{1f1e9}", Philippines: "\u{1f1f5}\u{1f1ed}", Chile: "\u{1f1e8}\u{1f1f1}", Colombia: "\u{1f1e8}\u{1f1f4}",
+};
+
 const DONUT_COLORS = [
   "#3b82f6", "#8b5cf6", "#06b6d4", "#f59e0b", "#ef4444",
   "#10b981", "#ec4899", "#f97316", "#6366f1", "#14b8a6",
+];
+
+const AMOUNT_RANGES = [
+  { label: "Any amount", min: 0, max: Infinity },
+  { label: "$0 \u2013 $1M", min: 0, max: 1_000_000 },
+  { label: "$1M \u2013 $10M", min: 1_000_000, max: 10_000_000 },
+  { label: "$10M \u2013 $100M", min: 10_000_000, max: 100_000_000 },
+  { label: "$100M \u2013 $500M", min: 100_000_000, max: 500_000_000 },
+  { label: "$500M+", min: 500_000_000, max: Infinity },
 ];
 
 function formatDate(dateStr: string) {
@@ -62,6 +82,26 @@ interface Props {
   investorStats: InvestorStats;
 }
 
+/* ─── shared filter control style ─── */
+const filterControlStyle: React.CSSProperties = {
+  background: "var(--color-bg-secondary)",
+  border: "1px solid var(--color-border-subtle)",
+  color: "var(--color-text-primary)",
+  borderRadius: 8,
+  padding: "0 12px",
+  height: 42,
+  fontSize: 13,
+  fontWeight: 500,
+  outline: "none",
+  cursor: "pointer",
+};
+
+const filterInputStyle: React.CSSProperties = {
+  ...filterControlStyle,
+  cursor: "text",
+  width: 180,
+};
+
 export default function FundingPageClient({
   annualData,
   quarterlyData,
@@ -71,25 +111,74 @@ export default function FundingPageClient({
   topInvestors,
   investorStats,
 }: Props) {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const investorFilter = searchParams.get("investor");
-
+  /* ─── Filter state ─── */
   const [roundFilter, setRoundFilter] = useState("All");
   const [dateFilter, setDateFilter] = useState("All time");
+  const [countryFilter, setCountryFilter] = useState("All");
+  const [investorSearch, setInvestorSearch] = useState("");
+  const [selectedInvestor, setSelectedInvestor] = useState<string | null>(null);
+  const [amountRange, setAmountRange] = useState("Any amount");
+  const [companySearch, setCompanySearch] = useState("");
+
+  /* Investor autocomplete */
+  const [investorInputFocused, setInvestorInputFocused] = useState(false);
+  const investorInputRef = useRef<HTMLInputElement>(null);
+  const investorDropdownRef = useRef<HTMLDivElement>(null);
+
+  /* Investor table sort */
   const [investorSort, setInvestorSort] = useState<InvestorSortKey>("total_invested");
   const [investorSortDir, setInvestorSortDir] = useState<"asc" | "desc">("desc");
 
+  /* ─── Derived data ─── */
   const roundTypes = useMemo(() => {
     const types = new Set(rounds.map((r) => r.round_type).filter(Boolean) as string[]);
     return ["All", ...Array.from(types).sort()];
   }, [rounds]);
 
-  const filtered = useMemo(() => {
-    return rounds.filter((r) => {
-      // Investor URL filter
-      if (investorFilter && r.lead_investor !== investorFilter) return false;
+  const countries = useMemo(() => {
+    const c = new Set(rounds.map((r) => r.country).filter(Boolean) as string[]);
+    return ["All", ...Array.from(c).sort()];
+  }, [rounds]);
 
+  /* All unique investor names for autocomplete */
+  const allInvestorNames = useMemo(() => {
+    const names = new Set<string>();
+    rounds.forEach((r) => {
+      if (r.lead_investor && r.lead_investor !== "Undisclosed") names.add(r.lead_investor);
+    });
+    return Array.from(names).sort();
+  }, [rounds]);
+
+  const investorSuggestions = useMemo(() => {
+    if (!investorSearch.trim() || selectedInvestor) return [];
+    const q = investorSearch.toLowerCase();
+    return allInvestorNames.filter((n) => n.toLowerCase().includes(q)).slice(0, 8);
+  }, [investorSearch, allInvestorNames, selectedInvestor]);
+
+  /* Close investor dropdown on outside click */
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (
+        investorInputRef.current &&
+        !investorInputRef.current.contains(e.target as Node) &&
+        investorDropdownRef.current &&
+        !investorDropdownRef.current.contains(e.target as Node)
+      ) {
+        setInvestorInputFocused(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  /* ─── Filtered rounds ─── */
+  const filtered = useMemo(() => {
+    const selectedRange = AMOUNT_RANGES.find((r) => r.label === amountRange) || AMOUNT_RANGES[0];
+    const companyQ = companySearch.trim().toLowerCase();
+
+    return rounds.filter((r) => {
+      if (selectedInvestor && r.lead_investor !== selectedInvestor) return false;
+      if (countryFilter !== "All" && r.country !== countryFilter) return false;
       if (roundFilter !== "All") {
         if (roundFilter === "Public") {
           if (r.round_type !== "Public" && r.round_type !== "Public Offering") return false;
@@ -103,10 +192,15 @@ export default function FundingPageClient({
         if (dateFilter === "Last 90 days" && diffDays > 90) return false;
         if (dateFilter === "Last 12 months" && diffDays > 365) return false;
       }
+      if (amountRange !== "Any amount") {
+        if (r.amount_usd < selectedRange.min || r.amount_usd >= selectedRange.max) return false;
+      }
+      if (companyQ && !r.company_name.toLowerCase().includes(companyQ)) return false;
       return true;
     });
-  }, [rounds, roundFilter, dateFilter, investorFilter]);
+  }, [rounds, roundFilter, dateFilter, countryFilter, selectedInvestor, amountRange, companySearch]);
 
+  /* ─── Investor table ─── */
   const sortedInvestors = useMemo(() => {
     const sorted = [...topInvestors].sort((a, b) => {
       const aVal = a[investorSort];
@@ -141,29 +235,29 @@ export default function FundingPageClient({
     }
   }, [investorSort]);
 
-  const handleInvestorClick = useCallback((name: string) => {
-    router.push(`/funding?investor=${encodeURIComponent(name)}`);
-  }, [router]);
-
-  const clearInvestorFilter = useCallback(() => {
-    router.push("/funding");
-  }, [router]);
-
-  const selectStyle: React.CSSProperties = {
-    background: "var(--color-bg-secondary)",
-    border: "0.5px solid var(--color-border-medium)",
-    color: "var(--color-text-primary)",
-    borderRadius: 6,
-    padding: "6px 10px",
-    fontSize: 12,
-    outline: "none",
-    cursor: "pointer",
-  };
-
   const sortArrow = (key: InvestorSortKey) => {
     if (investorSort !== key) return "";
     return investorSortDir === "asc" ? " \u25B2" : " \u25BC";
   };
+
+  /* ─── Active filters ─── */
+  const hasActiveFilters =
+    roundFilter !== "All" ||
+    dateFilter !== "All time" ||
+    countryFilter !== "All" ||
+    selectedInvestor !== null ||
+    amountRange !== "Any amount" ||
+    companySearch.trim() !== "";
+
+  const clearAllFilters = useCallback(() => {
+    setRoundFilter("All");
+    setDateFilter("All time");
+    setCountryFilter("All");
+    setInvestorSearch("");
+    setSelectedInvestor(null);
+    setAmountRange("Any amount");
+    setCompanySearch("");
+  }, []);
 
   return (
     <div className="page-content" style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
@@ -341,13 +435,12 @@ export default function FundingPageClient({
                 </div>
               </div>
             </div>
-            {/* Legend */}
+            {/* Legend -- informational only, no click */}
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
               {donutTop10.map((inv, idx) => (
                 <div
                   key={inv.investor_name}
-                  style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}
-                  onClick={() => handleInvestorClick(inv.investor_name)}
+                  style={{ display: "flex", alignItems: "center", gap: 8 }}
                 >
                   <div
                     style={{
@@ -369,7 +462,7 @@ export default function FundingPageClient({
             </div>
           </div>
 
-          {/* Most Active Investors Table */}
+          {/* Most Active Investors Table -- informational only, no click-to-filter */}
           <div
             className="rounded-lg overflow-hidden flex-1 min-w-0"
             style={{
@@ -436,9 +529,7 @@ export default function FundingPageClient({
                   style={{
                     borderBottom: "0.5px solid var(--color-border-subtle)",
                     alignItems: "center",
-                    cursor: "pointer",
                   }}
-                  onClick={() => handleInvestorClick(inv.investor_name)}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.background = "var(--color-bg-tertiary)";
                   }}
@@ -472,63 +563,207 @@ export default function FundingPageClient({
         <div className="flex gap-6" style={{ alignItems: "flex-start" }}>
           {/* Main column */}
           <div className="flex-1 min-w-0">
-            {/* Investor filter banner */}
-            {investorFilter && (
-              <div
-                className="rounded-lg px-4 py-3 mb-4 flex items-center justify-between"
-                style={{
-                  background: "var(--color-bg-secondary)",
-                  border: "0.5px solid var(--color-border-medium)",
-                }}
-              >
-                <span className="text-13" style={{ color: "var(--color-text-primary)" }}>
-                  Showing deals by <strong>{investorFilter}</strong> ({filtered.length} rounds)
-                </span>
-                <button
-                  onClick={clearInvestorFilter}
-                  className="text-12 px-3 py-1 rounded"
-                  style={{
-                    background: "var(--color-bg-tertiary)",
-                    color: "var(--color-text-secondary)",
-                    border: "0.5px solid var(--color-border-medium)",
-                    cursor: "pointer",
-                  }}
-                >
-                  Clear filter
-                </button>
-              </div>
-            )}
+            {/* Funding Rounds section */}
+            <div className="mb-4 mt-2">
+              <h2 className="text-[22px] font-bold tracking-tight" style={{ color: "var(--color-text-primary)" }}>
+                Funding Rounds
+              </h2>
+              <p className="text-13 mt-1" style={{ color: "var(--color-text-secondary)" }}>
+                Browse all tracked biotech funding rounds — from seed to IPO.
+              </p>
+            </div>
 
-            {/* Filter bar */}
-            <div className="flex flex-wrap items-center gap-3 mb-4">
-              <select
-                value={roundFilter}
-                onChange={(e) => setRoundFilter(e.target.value)}
-                style={selectStyle}
-              >
-                {roundTypes.map((t) => (
-                  <option key={t} value={t}>
-                    {t === "All" ? "All rounds" : t}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={dateFilter}
-                onChange={(e) => setDateFilter(e.target.value)}
-                style={selectStyle}
-              >
-                {dateRanges.map((d) => (
-                  <option key={d} value={d}>
-                    {d}
-                  </option>
-                ))}
-              </select>
-              <span
-                className="text-12"
-                style={{ color: "var(--color-text-tertiary)" }}
-              >
-                {filtered.length.toLocaleString()} results
-              </span>
+            {/* ─── Sticky filter bar ─── */}
+            <div
+              className="sticky top-0 z-20 rounded-lg px-4 py-3 mb-3"
+              style={{
+                background: "var(--color-bg-secondary)",
+                border: "1px solid var(--color-border-subtle)",
+                backdropFilter: "blur(8px)",
+              }}
+            >
+              <div className="flex flex-wrap items-center gap-2">
+                {/* Round type */}
+                <select
+                  value={roundFilter}
+                  onChange={(e) => setRoundFilter(e.target.value)}
+                  style={filterControlStyle}
+                >
+                  {roundTypes.map((t) => (
+                    <option key={t} value={t}>
+                      {t === "All" ? "All rounds" : t}
+                    </option>
+                  ))}
+                </select>
+
+                {/* Time period */}
+                <select
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value)}
+                  style={filterControlStyle}
+                >
+                  {dateRanges.map((d) => (
+                    <option key={d} value={d}>
+                      {d}
+                    </option>
+                  ))}
+                </select>
+
+                {/* Country */}
+                <select
+                  value={countryFilter}
+                  onChange={(e) => setCountryFilter(e.target.value)}
+                  style={filterControlStyle}
+                >
+                  {countries.map((c) => {
+                    const flag = c === "All" ? "\u{1f30d}" : (COUNTRY_FLAGS[c] || "\u{1f3f3}\u{fe0f}");
+                    return (
+                      <option key={c} value={c}>
+                        {flag} {c === "All" ? "All countries" : c}
+                      </option>
+                    );
+                  })}
+                </select>
+
+                {/* Investor search with autocomplete */}
+                <div style={{ position: "relative" }}>
+                  <input
+                    ref={investorInputRef}
+                    type="text"
+                    placeholder="Search investor..."
+                    value={selectedInvestor || investorSearch}
+                    onChange={(e) => {
+                      setSelectedInvestor(null);
+                      setInvestorSearch(e.target.value);
+                    }}
+                    onFocus={() => setInvestorInputFocused(true)}
+                    style={filterInputStyle}
+                  />
+                  {investorInputFocused && investorSuggestions.length > 0 && (
+                    <div
+                      ref={investorDropdownRef}
+                      style={{
+                        position: "absolute",
+                        top: "100%",
+                        left: 0,
+                        right: 0,
+                        marginTop: 4,
+                        background: "var(--color-bg-secondary)",
+                        border: "1px solid var(--color-border-subtle)",
+                        borderRadius: 8,
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
+                        zIndex: 30,
+                        maxHeight: 240,
+                        overflowY: "auto",
+                      }}
+                    >
+                      {investorSuggestions.map((name) => (
+                        <div
+                          key={name}
+                          style={{
+                            padding: "8px 12px",
+                            fontSize: 13,
+                            color: "var(--color-text-primary)",
+                            cursor: "pointer",
+                            borderBottom: "0.5px solid var(--color-border-subtle)",
+                          }}
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            setSelectedInvestor(name);
+                            setInvestorSearch(name);
+                            setInvestorInputFocused(false);
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = "var(--color-bg-tertiary)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = "";
+                          }}
+                        >
+                          {name}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Amount range */}
+                <select
+                  value={amountRange}
+                  onChange={(e) => setAmountRange(e.target.value)}
+                  style={filterControlStyle}
+                >
+                  {AMOUNT_RANGES.map((r) => (
+                    <option key={r.label} value={r.label}>
+                      {r.label}
+                    </option>
+                  ))}
+                </select>
+
+                {/* Company search */}
+                <input
+                  type="text"
+                  placeholder="Search company..."
+                  value={companySearch}
+                  onChange={(e) => setCompanySearch(e.target.value)}
+                  style={filterInputStyle}
+                />
+
+                {/* Results count */}
+                <span
+                  className="text-12 ml-auto"
+                  style={{ color: "var(--color-text-tertiary)", whiteSpace: "nowrap" }}
+                >
+                  {filtered.length.toLocaleString()} results
+                </span>
+              </div>
+
+              {/* ─── Active filter pills ─── */}
+              {hasActiveFilters && (
+                <div className="flex flex-wrap items-center gap-2 mt-3 pt-3" style={{ borderTop: "0.5px solid var(--color-border-subtle)" }}>
+                  {roundFilter !== "All" && (
+                    <FilterPill label={roundFilter} onRemove={() => setRoundFilter("All")} />
+                  )}
+                  {dateFilter !== "All time" && (
+                    <FilterPill label={dateFilter} onRemove={() => setDateFilter("All time")} />
+                  )}
+                  {countryFilter !== "All" && (
+                    <FilterPill
+                      label={`${COUNTRY_FLAGS[countryFilter] || ""} ${countryFilter}`}
+                      onRemove={() => setCountryFilter("All")}
+                    />
+                  )}
+                  {selectedInvestor && (
+                    <FilterPill
+                      label={selectedInvestor}
+                      onRemove={() => {
+                        setSelectedInvestor(null);
+                        setInvestorSearch("");
+                      }}
+                    />
+                  )}
+                  {amountRange !== "Any amount" && (
+                    <FilterPill label={amountRange} onRemove={() => setAmountRange("Any amount")} />
+                  )}
+                  {companySearch.trim() !== "" && (
+                    <FilterPill label={`"${companySearch}"`} onRemove={() => setCompanySearch("")} />
+                  )}
+                  <button
+                    onClick={clearAllFilters}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "var(--color-accent)",
+                      fontSize: 12,
+                      fontWeight: 500,
+                      cursor: "pointer",
+                      padding: "4px 8px",
+                    }}
+                  >
+                    Clear all
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Funding table */}
@@ -570,7 +805,6 @@ export default function FundingPageClient({
                       style={{
                         borderBottom: "0.5px solid var(--color-border-subtle)",
                         alignItems: "center",
-                        cursor: "pointer",
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.background = "var(--color-bg-tertiary)";
@@ -595,13 +829,7 @@ export default function FundingPageClient({
                       </span>
                       <span
                         className="text-12 hidden min-[480px]:block truncate"
-                        style={{ color: "var(--color-text-secondary)", cursor: row.lead_investor ? "pointer" : "default" }}
-                        onClick={(e) => {
-                          if (row.lead_investor && row.lead_investor !== "Undisclosed") {
-                            e.stopPropagation();
-                            handleInvestorClick(row.lead_investor);
-                          }
-                        }}
+                        style={{ color: "var(--color-text-secondary)" }}
                       >
                         {row.lead_investor || "Undisclosed"}
                       </span>
@@ -624,6 +852,14 @@ export default function FundingPageClient({
                   Showing 100 of {filtered.length.toLocaleString()} rounds
                 </div>
               )}
+              {filtered.length === 0 && (
+                <div
+                  className="px-4 py-8 text-center text-13"
+                  style={{ color: "var(--color-text-tertiary)" }}
+                >
+                  No funding rounds match your filters.
+                </div>
+              )}
             </div>
           </div>
 
@@ -636,5 +872,44 @@ export default function FundingPageClient({
 
       <Footer />
     </div>
+  );
+}
+
+/* ─── FilterPill component ─── */
+function FilterPill({ label, onRemove }: { label: string; onRemove: () => void }) {
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 4,
+        background: "var(--color-accent-muted, rgba(59,130,246,0.12))",
+        color: "var(--color-accent, #3b82f6)",
+        fontSize: 12,
+        fontWeight: 500,
+        borderRadius: 6,
+        padding: "4px 10px",
+        lineHeight: 1,
+      }}
+    >
+      {label}
+      <button
+        onClick={onRemove}
+        style={{
+          background: "none",
+          border: "none",
+          color: "inherit",
+          cursor: "pointer",
+          padding: 0,
+          fontSize: 14,
+          lineHeight: 1,
+          marginLeft: 2,
+          opacity: 0.7,
+        }}
+        aria-label={`Remove ${label} filter`}
+      >
+        \u00d7
+      </button>
+    </span>
   );
 }
