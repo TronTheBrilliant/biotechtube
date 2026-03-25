@@ -493,18 +493,18 @@ export function CompanyPageClient({
         className="border-b"
         style={{ borderColor: "var(--color-border-subtle)" }}
       >
-        <div className="max-w-[1200px] mx-auto px-4 md:px-6 pt-5 pb-0">
+        <div className="max-w-[1200px] mx-auto px-4 md:px-6 pt-5 pb-4">
 
-          {/* ─── Row 1: Logo + Name + Ticker + Stage + Follow (desktop) ─── */}
-          <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 mt-0.5">
+          {/* ─── Row 1: Logo + Name + Ticker ─── */}
+          <div className="flex items-start gap-3 md:gap-4">
+            <div className="flex-shrink-0">
               <CompanyAvatar name={company.name} logoUrl={company.logoUrl} website={company.website} size={56} />
             </div>
             <div className="flex-1 min-w-0">
-              {/* Name line with ticker + stage */}
+              {/* Name + ticker */}
               <div className="flex items-center gap-2 flex-wrap">
                 <h1
-                  className="text-[18px] md:text-[24px] font-bold tracking-tight leading-tight"
+                  className="text-[20px] md:text-[24px] font-bold tracking-tight leading-tight"
                   style={{ color: "var(--color-text-primary)", letterSpacing: "-0.3px" }}
                 >
                   {company.name}
@@ -517,8 +517,6 @@ export function CompanyPageClient({
                     {company.ticker}
                   </span>
                 )}
-                <span className="hidden md:inline" style={{ color: "var(--color-text-tertiary)" }}>·</span>
-                <StageBadge stage={derivedStage} />
                 {isClaimed && (
                   <span
                     className="text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 text-white flex-shrink-0"
@@ -528,15 +526,9 @@ export function CompanyPageClient({
                     Verified
                   </span>
                 )}
-                {/* Follow button — desktop inline */}
-                {companyId && (
-                  <span className="hidden md:inline-flex items-center ml-auto flex-shrink-0 opacity-60 hover:opacity-100 transition-opacity">
-                    <WatchlistButton companyId={companyId} size={14} />
-                  </span>
-                )}
               </div>
 
-              {/* Location + meta line */}
+              {/* Location line */}
               <div className="flex items-center gap-2 mt-0.5 text-[11px] md:text-[12px] flex-wrap" style={{ color: "var(--color-text-tertiary)" }}>
                 {(company.city || company.country) && (
                   <span className="flex items-center gap-1">
@@ -545,25 +537,13 @@ export function CompanyPageClient({
                   </span>
                 )}
                 {company.founded > 0 && (
-                  <>
-                    <span className="hidden md:inline">·</span>
-                    <span className="hidden md:inline">Est. {company.founded}</span>
-                  </>
-                )}
-                {(report?.employee_estimate || (company.employees && company.employees !== "0")) && (
-                  <>
-                    <span className="hidden md:inline">·</span>
-                    <span className="hidden md:inline-flex items-center gap-1">
-                      <Users size={10} />
-                      {report?.employee_estimate || company.employees} emp
-                    </span>
-                  </>
+                  <span>· Est. {company.founded}</span>
                 )}
               </div>
             </div>
           </div>
 
-          {/* ─── Description block ─── */}
+          {/* ─── Description ─── */}
           {summaryText && (
             <div className="mt-3">
               <p
@@ -584,25 +564,21 @@ export function CompanyPageClient({
             </div>
           )}
 
-          {/* ─── Website + Follow (mobile) ─── */}
-          <div className="flex items-center gap-3 mt-3 text-[11px]">
+          {/* ─── Follow + Website row ─── */}
+          <div className="flex items-center gap-3 mt-3">
+            {/* Follow/Watchlist button — prominent */}
+            {companyId && <WatchlistButton companyId={companyId} showLabel />}
             {company.website && (
               <a
                 href={company.website.startsWith("http") ? company.website : `https://${company.website}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1 transition-opacity hover:opacity-80"
+                className="flex items-center gap-1 text-[11px] transition-opacity hover:opacity-80"
                 style={{ color: "var(--color-accent)" }}
               >
                 <Globe size={11} />
                 {company.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "").split("/")[0]}
               </a>
-            )}
-            {/* Follow button — mobile only */}
-            {companyId && (
-              <span className="md:hidden inline-flex items-center ml-auto opacity-60 hover:opacity-100 transition-opacity">
-                <WatchlistButton companyId={companyId} size={14} />
-              </span>
             )}
           </div>
 

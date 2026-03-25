@@ -172,25 +172,27 @@ export function WatchlistButton({
         disabled={loading}
         className="inline-flex items-center gap-1.5 rounded-lg transition-all duration-200"
         style={{
-          padding: showLabel ? "6px 12px" : "6px",
+          padding: showLabel ? "7px 14px" : "6px",
           background: isWatched
-            ? "rgba(239, 68, 68, 0.08)"
-            : "var(--color-bg-secondary)",
-          border: `1px solid ${isWatched ? "rgba(239, 68, 68, 0.2)" : "var(--color-border-subtle)"}`,
-          color: isWatched ? "#ef4444" : "var(--color-text-tertiary)",
+            ? "var(--color-accent)"
+            : "var(--color-accent-subtle, #e8f5f0)",
+          border: `1px solid ${isWatched ? "var(--color-accent)" : "var(--color-accent)"}`,
+          color: isWatched ? "white" : "var(--color-accent)",
           opacity: loading ? 0.6 : 1,
           cursor: loading ? "wait" : "pointer",
+          fontWeight: 600,
+          borderRadius: 8,
         }}
         onMouseEnter={(e) => {
           if (!isWatched) {
-            e.currentTarget.style.borderColor = "rgba(239, 68, 68, 0.3)";
-            e.currentTarget.style.color = "#ef4444";
+            e.currentTarget.style.background = "var(--color-accent)";
+            e.currentTarget.style.color = "white";
           }
         }}
         onMouseLeave={(e) => {
           if (!isWatched) {
-            e.currentTarget.style.borderColor = "var(--color-border-subtle)";
-            e.currentTarget.style.color = "var(--color-text-tertiary)";
+            e.currentTarget.style.background = "var(--color-accent-subtle, #e8f5f0)";
+            e.currentTarget.style.color = "var(--color-accent)";
           }
         }}
         title={isWatched ? "Manage watchlists" : "Add to watchlist"}
