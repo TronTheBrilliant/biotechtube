@@ -1,10 +1,10 @@
-import Link from "next/link";
+
 import { Nav } from "@/components/Nav";
 import { TickerBar } from "@/components/TickerBar";
 import { Footer } from "@/components/Footer";
 // import { IndexCards } from "@/components/IndexCards";
 import { HomeSection } from "@/components/HomeSection";
-import { FundingRound, BiotechEvent } from "@/lib/types";
+import { BiotechEvent } from "@/lib/types";
 import { dbRowsToCompanies } from "@/lib/adapters";
 import { createClient } from "@supabase/supabase-js";
 import { formatMarketCap } from "@/lib/market-utils";
@@ -27,7 +27,7 @@ import TrendingNews from "@/components/home/TrendingNews";
 import SciencePapers from "@/components/home/SciencePapers";
 import OpenPositions from "@/components/home/OpenPositions";
 
-import fundingData from "@/data/funding.json";
+
 import eventsData from "@/data/events.json";
 import { getFundingAnnualForHomepage } from "@/lib/funding-queries";
 
@@ -272,15 +272,44 @@ async function getTopCountries() {
 
 async function getTopInvestorsData() {
   try {
+    const supabase = getSupabase();
+    const { data } = await supabase.rpc('get_top_investors', { p_limit: 5 });
+    if (data && data.length > 0) {
+      return data.map((inv: { investor_name: string; total_invested: number; deal_count: number }) => ({
+        name: inv.investor_name,
+        dealCount: Number(inv.deal_count),
+        totalInvested: Number(inv.total_invested),
+      }));
+    }
+    // Fallback to SEO utils if RPC returns nothing
     const investors = await getAllInvestors();
     return investors.slice(0, 5).map((inv) => ({
       name: inv.name,
       dealCount: inv.companies.length,
-      totalInvested: inv.companies.length > 3 ? "Active" : `${inv.companies.length} deals`,
+      totalInvested: null,
     }));
   } catch {
     return [];
   }
+}
+
+async function getRecentFunding() {
+  const supabase = getSupabase();
+  const { data } = await supabase
+    .from('funding_rounds')
+    .select('company_name, round_type, amount_usd, announced_date, lead_investor, country')
+    .not('amount_usd', 'is', null)
+    .gt('amount_usd', 0)
+    .order('announced_date', { ascending: false })
+    .limit(5);
+  return (data || []).map((r: { company_name: string; round_type: string; amount_usd: number; announced_date: string; lead_investor: string | null; country: string | null }) => ({
+    companyName: r.company_name,
+    roundType: r.round_type,
+    amountUsd: Number(r.amount_usd),
+    announcedDate: r.announced_date,
+    leadInvestor: r.lead_investor,
+    country: r.country,
+  }));
 }
 
 async function getTopPeopleData() {
@@ -379,7 +408,7 @@ async function getHotProducts() {
 // ── Page ──
 
 export default async function HomePage() {
-  const [companies, snapshot, trending, sectors, countries, investorsData, peopleData, fundingAnnualData, indexHistory, hotPipelines] =
+  const [companies, snapshot, trending, sectors, countries, investorsData, peopleData, fundingAnnualData, indexHistory, hotPipelines, recentFunding] =
     await Promise.all([
       getTopCompanies(),
       getLatestSnapshot(),
@@ -391,24 +420,10 @@ export default async function HomePage() {
       getFundingAnnualForHomepage(),
       getIndexHistory(),
       getHotPipelines(),
+      getRecentFunding(),
     ]);
 
-  const funding = fundingData as FundingRound[];
   const events = eventsData as BiotechEvent[];
-
-  // Prepare funding radar data
-  const fundingRadar = funding.slice(0, 5).map((f) => {
-    const comp = companies.find((c) => c.slug === f.companySlug);
-    return {
-      companyName: comp?.name || f.companySlug,
-      companySlug: f.companySlug,
-      type: f.type as string,
-      amount: f.amount,
-      currency: f.currency as string,
-      leadInvestor: f.leadInvestor || "",
-      daysAgo: f.daysAgo || 0,
-    };
-  });
 
   // Prepare top 5 companies for display
   const top5Companies = companies.slice(0, 5).map((c) => ({
@@ -560,8 +575,8 @@ export default async function HomePage() {
 
         {/* Row 3: Funding Radar */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <HomeSection icon="📡" title="Funding Radar" viewAllHref="/funding-radar" viewAllLabel="View all">
-            <FundingRadar rounds={fundingRadar} />
+          <HomeSection icon="📡" title="Funding Radar" viewAllHref="/funding" viewAllLabel="View all">
+            <FundingRadar rounds={recentFunding} />
           </HomeSection>
         </div>
 
@@ -580,7 +595,7 @@ export default async function HomePage() {
             <UpcomingEventsSection events={events.slice(0, 5)} />
           </HomeSection>
           {investorsData.length > 0 && (
-            <HomeSection icon="🏦" title="Top Investors" viewAllHref="/top-investors" viewAllLabel="View all">
+            <HomeSection icon="🏦" title="Top Investors" viewAllHref="/funding" viewAllLabel="View all">
               <TopInvestors investors={investorsData} />
             </HomeSection>
           )}
