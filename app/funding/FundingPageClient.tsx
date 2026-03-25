@@ -148,6 +148,7 @@ export default function FundingPageClient({
 
     return Array.from(investorMap.entries())
       .map(([name, data]) => ({
+        investor_name: name,
         name,
         total_invested: data.total,
         deal_count: data.deals,

@@ -580,15 +580,6 @@ export default async function HomePage() {
           </HomeSection>
         </div>
 
-        {/* Row 3b: Hot Pipelines */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {hotPipelines.length > 0 && (
-            <HomeSection icon="🧪" title="Hot Pipelines" viewAllHref="/pipeline" viewAllLabel="View all">
-              <HotPipelines pipelines={hotPipelines} />
-            </HomeSection>
-          )}
-        </div>
-
         {/* Row 4: Events + Investors */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <HomeSection icon="📅" title="Upcoming Events" viewAllHref="/events" viewAllLabel="View all">
@@ -600,30 +591,6 @@ export default async function HomePage() {
             </HomeSection>
           )}
         </div>
-
-        {/* Row 5: People + News */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {peopleData.length > 0 && (
-            <HomeSection icon="👤" title="People in Biotech" viewAllHref="/top-people" viewAllLabel="View all">
-              <TopPeople people={peopleData} />
-            </HomeSection>
-          )}
-          <HomeSection icon="📰" title="Trending News" viewAllHref="/news" viewAllLabel="View all">
-            <TrendingNews />
-          </HomeSection>
-        </div>
-
-        {/* Row 6: Papers */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <HomeSection icon="📄" title="Top Science Papers" viewAllHref="/papers" viewAllLabel="View all">
-            <SciencePapers />
-          </HomeSection>
-        </div>
-
-        {/* Open Positions */}
-        <HomeSection icon="💼" title="Open Positions" viewAllHref="/jobs" viewAllLabel="View all">
-          <OpenPositions />
-        </HomeSection>
       </div>
 
       <Footer />
