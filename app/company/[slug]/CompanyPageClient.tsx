@@ -190,31 +190,6 @@ function SectionCard({ icon, title, children, accent = false, count, className =
   );
 }
 
-/* ─── Quick Stat Card (dashboard style) ─── */
-function QuickStatCard({ label, value, subValue, isLast = false }: {
-  label: string; value: string; subValue?: string; isLast?: boolean;
-}) {
-  return (
-    <div
-      className="px-2 md:px-3 py-3 text-center"
-      style={{
-        borderRight: isLast ? "none" : "0.5px solid var(--color-border-subtle)",
-      }}
-    >
-      <div className="text-[16px] md:text-[18px] font-semibold tracking-tight" style={{ color: "var(--color-text-primary)", letterSpacing: "-0.3px" }}>
-        {value}
-      </div>
-      <div className="text-[9px] md:text-[10px] uppercase tracking-[0.5px] font-medium mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>
-        {label}
-      </div>
-      {subValue && (
-        <div className="text-[10px] md:text-[11px] mt-0.5 font-medium" style={{ color: "var(--color-text-tertiary)" }}>
-          {subValue}
-        </div>
-      )}
-    </div>
-  );
-}
 
 /* ─── Stage Badge ─── */
 function StageBadge({ stage }: { stage: string }) {
@@ -518,12 +493,12 @@ export function CompanyPageClient({
         className="border-b"
         style={{ borderColor: "var(--color-border-subtle)" }}
       >
-        <div className="max-w-[1400px] mx-auto px-4 md:px-6 pt-5 pb-0">
+        <div className="max-w-[1200px] mx-auto px-4 md:px-6 pt-5 pb-0">
 
           {/* ─── Row 1: Logo + Name + Ticker + Stage + Follow (desktop) ─── */}
           <div className="flex items-start gap-3">
             <div className="flex-shrink-0 mt-0.5">
-              <CompanyAvatar name={company.name} logoUrl={company.logoUrl} website={company.website} size={40} />
+              <CompanyAvatar name={company.name} logoUrl={company.logoUrl} website={company.website} size={56} />
             </div>
             <div className="flex-1 min-w-0">
               {/* Name line with ticker + stage */}
@@ -555,9 +530,8 @@ export function CompanyPageClient({
                 )}
                 {/* Follow button — desktop inline */}
                 {companyId && (
-                  <span className="hidden md:inline-flex items-center gap-1 ml-auto flex-shrink-0">
-                    <WatchlistButton companyId={companyId} size={15} />
-                    <span className="text-[11px] font-medium" style={{ color: "var(--color-text-secondary)" }}>Follow</span>
+                  <span className="hidden md:inline-flex items-center ml-auto flex-shrink-0 opacity-60 hover:opacity-100 transition-opacity">
+                    <WatchlistButton companyId={companyId} size={14} />
                   </span>
                 )}
               </div>
@@ -626,38 +600,12 @@ export function CompanyPageClient({
             )}
             {/* Follow button — mobile only */}
             {companyId && (
-              <span className="md:hidden inline-flex items-center gap-1 ml-auto">
+              <span className="md:hidden inline-flex items-center ml-auto opacity-60 hover:opacity-100 transition-opacity">
                 <WatchlistButton companyId={companyId} size={14} />
-                <span className="text-[11px] font-medium" style={{ color: "var(--color-text-secondary)" }}>Follow</span>
               </span>
             )}
           </div>
 
-          {/* ─── Quick Stats Row ─── */}
-          <div
-            className="grid grid-cols-4 mt-4 border-t"
-            style={{ borderColor: "var(--color-border-subtle)" }}
-          >
-            <QuickStatCard
-              label="Mkt Cap"
-              value={latestMarketCap && latestMarketCap > 0 ? formatCurrency(latestMarketCap) : (isPublic ? "N/A" : "Private")}
-              subValue={isPublic && chartData.length > 0 ? `${priceChangePct >= 0 ? "+" : ""}${priceChangePct.toFixed(1)}%` : undefined}
-            />
-            <QuickStatCard
-              label="Pipeline"
-              value={pipelines.length > 0 ? String(pipelines.length) : "\u2014"}
-              subValue={phase3Count > 0 ? `${phase3Count} Ph3` : undefined}
-            />
-            <QuickStatCard
-              label="Patents"
-              value={patents.length > 0 ? String(patents.length) : "\u2014"}
-            />
-            <QuickStatCard
-              label="Pubs"
-              value={publications.length > 0 ? String(publications.length) : "\u2014"}
-              isLast
-            />
-          </div>
         </div>
       </header>
 
@@ -671,7 +619,7 @@ export function CompanyPageClient({
         }}
       >
         <div
-          className="max-w-[1400px] mx-auto flex items-center gap-0.5 px-6 overflow-x-auto"
+          className="max-w-[1200px] mx-auto flex items-center gap-0.5 px-6 overflow-x-auto"
           style={{ scrollbarWidth: "none" }}
         >
           {tabs.map((tab) => (
@@ -698,7 +646,7 @@ export function CompanyPageClient({
       </div>
 
       {/* ─── Two Column Layout ─── */}
-      <div className="max-w-[1400px] mx-auto flex flex-col lg:grid" style={{ gridTemplateColumns: "1fr 320px" }}>
+      <div className="max-w-[1200px] mx-auto flex flex-col lg:grid" style={{ gridTemplateColumns: "1fr 320px" }}>
         {/* ═══ Main Content ═══ */}
         <div className="px-6 py-6 min-w-0 lg:border-r" style={{ borderColor: "var(--color-border-subtle)" }}>
 
@@ -747,6 +695,11 @@ export function CompanyPageClient({
                         {priceChange >= 0 ? "+" : ""}{Math.abs(priceChange).toFixed(2)} ({priceChange >= 0 ? "+" : ""}{priceChangePct.toFixed(2)}%)
                       </span>
                     </div>
+                    {latestMarketCap && latestMarketCap > 0 && (
+                      <div className="text-[12px] mt-1" style={{ color: "var(--color-text-tertiary)" }}>
+                        Market Cap: {formatCurrency(latestMarketCap)}
+                      </div>
+                    )}
                     {/* Timescale buttons */}
                     <div className="flex items-center gap-1 mt-3">
                       {priceTimescales.map((ts) => (
