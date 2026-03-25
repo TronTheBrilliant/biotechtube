@@ -24,14 +24,7 @@ export function HomeSection({
         boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 0 0 0.5px var(--color-border-subtle)",
       }}
     >
-      {/* Accent top bar */}
-      <div
-        style={{
-          height: 3,
-          background: "linear-gradient(90deg, var(--color-accent) 0%, var(--color-accent-light, #5DCAA5) 100%)",
-          borderRadius: "10px 10px 0 0",
-        }}
-      />
+      {/* Accent top bar - hidden for now */}
       <div
         className="flex items-center justify-between px-4 py-3"
         style={{ borderBottom: "0.5px solid var(--color-border-subtle)" }}

@@ -83,10 +83,14 @@ export function TvAreaChart({
   // Update data
   useEffect(() => {
     if (!seriesRef.current || !chart || data.length === 0) return;
-    const tvData = data.map((d) => ({
-      time: d.time as Time,
-      value: d.value,
-    }));
+    const MAX_CHART_VALUE = 90000000000000; // 90T - TradingView limit
+    const tvData = data
+      .filter((d) => d.value != null && isFinite(d.value) && Math.abs(d.value) <= MAX_CHART_VALUE)
+      .map((d) => ({
+        time: d.time as Time,
+        value: d.value,
+      }));
+    if (tvData.length === 0) return;
     seriesRef.current.setData(tvData);
     // Force relayout to recalculate price scale width for new data range
     if (containerRef.current) {
