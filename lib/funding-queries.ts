@@ -47,6 +47,23 @@ export interface FundingStats {
   totalCompanies: number;
 }
 
+export interface TopInvestorRow {
+  investor_name: string;
+  total_invested: number;
+  deal_count: number;
+  avg_deal_size: number;
+  top_companies: string;
+}
+
+export interface InvestorStats {
+  uniqueInvestors: number;
+  largestInvestorName: string;
+  largestInvestorTotal: number;
+  mostActiveName: string;
+  mostActiveDeals: number;
+  avgDealSizeAll: number;
+}
+
 // ── Queries using SQL RPC functions ──
 
 export async function getFundingAnnual(): Promise<FundingAnnualRow[]> {
@@ -135,19 +152,57 @@ export async function getFundingRounds(): Promise<FundingRoundRow[]> {
   return allRows;
 }
 
+// ── Top investors query ──
+
+export async function getTopInvestors(limit = 50): Promise<TopInvestorRow[]> {
+  const supabase = getSupabase();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await supabase.rpc("get_top_investors" as any, { p_limit: limit });
+  if (error || !data) return [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (data as any[]).map((r) => ({
+    investor_name: r.investor_name,
+    total_invested: Number(r.total_invested),
+    deal_count: Number(r.deal_count),
+    avg_deal_size: Number(r.avg_deal_size),
+    top_companies: r.top_companies || "",
+  }));
+}
+
+export async function getInvestorStats(): Promise<InvestorStats> {
+  const supabase = getSupabase();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await supabase.rpc("get_investor_stats" as any);
+  if (error || !data || (data as unknown[]).length === 0) {
+    return { uniqueInvestors: 0, largestInvestorName: "", largestInvestorTotal: 0, mostActiveName: "", mostActiveDeals: 0, avgDealSizeAll: 0 };
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const row = (data as any[])[0];
+  return {
+    uniqueInvestors: Number(row.unique_investors),
+    largestInvestorName: row.largest_investor_name || "",
+    largestInvestorTotal: Number(row.largest_investor_total),
+    mostActiveName: row.most_active_name || "",
+    mostActiveDeals: Number(row.most_active_deals),
+    avgDealSizeAll: Number(row.avg_deal_size_all),
+  };
+}
+
 // ── Combined fetch for funding page ──
 
 export async function getAllFundingData() {
-  const [annualData, quarterlyData, monthlyData, rounds, stats] =
+  const [annualData, quarterlyData, monthlyData, rounds, stats, topInvestors, investorStats] =
     await Promise.all([
       getFundingAnnual(),
       getFundingQuarterly(),
       getFundingMonthly(),
       getFundingRounds(),
       getFundingStats(),
+      getTopInvestors(50),
+      getInvestorStats(),
     ]);
 
-  return { annualData, quarterlyData, monthlyData, rounds, stats };
+  return { annualData, quarterlyData, monthlyData, rounds, stats, topInvestors, investorStats };
 }
 
 // ── Homepage chart data ──
