@@ -96,12 +96,39 @@ async function getCompanySectors(companyId: string) {
 
 async function getSimilarCompanies(company: Company) {
   const supabase = getSupabase();
-  // Try to find companies in the same country first
+  const companyCategories = (company as any).categories || [];
+  const companyValuation = (company as any).valuation || 0;
+
+  // Find companies in the same primary sector with similar market cap
+  if (companyCategories.length > 0) {
+    const primarySector = companyCategories[0];
+    const { data } = await supabase
+      .from('companies')
+      .select('*')
+      .contains('categories', [primarySector])
+      .neq('slug', company.slug)
+      .not('valuation', 'is', null)
+      .order('valuation', { ascending: false })
+      .limit(50);
+
+    if (data && data.length > 0) {
+      const sorted = data.sort((a: any, b: any) => {
+        const diffA = Math.abs((a.valuation || 0) - companyValuation);
+        const diffB = Math.abs((b.valuation || 0) - companyValuation);
+        return diffA - diffB;
+      });
+      return dbRowsToCompanies(sorted.slice(0, 5));
+    }
+  }
+
+  // Fallback: same country, ordered by valuation
   const { data } = await supabase
     .from('companies')
     .select('*')
     .eq('country', company.country)
     .neq('slug', company.slug)
+    .not('valuation', 'is', null)
+    .order('valuation', { ascending: false })
     .limit(5);
 
   return data ? dbRowsToCompanies(data) : [];
