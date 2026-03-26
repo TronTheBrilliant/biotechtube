@@ -19,7 +19,7 @@ function getSupabase() {
   );
 }
 
-async function getCompany(slug: string) {
+async function getCompanyWithId(slug: string): Promise<{ company: ReturnType<typeof dbRowToCompany>; id: string } | null> {
   const supabase = getSupabase();
   const { data } = await supabase
     .from('companies')
@@ -27,17 +27,7 @@ async function getCompany(slug: string) {
     .eq('slug', slug)
     .single();
 
-  return data ? dbRowToCompany(data) : null;
-}
-
-async function getCompanyId(slug: string): Promise<string | null> {
-  const supabase = getSupabase();
-  const { data } = await supabase
-    .from('companies')
-    .select('id')
-    .eq('slug', slug)
-    .single();
-  return data?.id || null;
+  return data ? { company: dbRowToCompany(data), id: data.id } : null;
 }
 
 async function getCompanyReport(slug: string): Promise<CompanyReport | null> {
@@ -199,8 +189,9 @@ export async function generateMetadata({
 }: {
   params: { slug: string };
 }): Promise<Metadata> {
-  const company = await getCompany(params.slug);
-  if (!company) return { title: "Company Not Found" };
+  const result = await getCompanyWithId(params.slug);
+  if (!result) return { title: "Company Not Found" };
+  const { company } = result;
 
   const report = await getCompanyReport(params.slug);
 
@@ -262,10 +253,9 @@ export default async function CompanyPage({
 }: {
   params: { slug: string };
 }) {
-  const company = await getCompany(params.slug);
-  if (!company) notFound();
-
-  const companyId = await getCompanyId(params.slug);
+  const result = await getCompanyWithId(params.slug);
+  if (!result) notFound();
+  const { company, id: companyId } = result;
 
   // Fetch all enriched data in parallel
   const [
@@ -286,16 +276,16 @@ export default async function CompanyPage({
     Promise.resolve(funding.filter((f) => f.companySlug === company.slug)),
     getSimilarCompanies(company),
     getCompanyReport(params.slug),
-    companyId ? getCompanySectors(companyId) : Promise.resolve([]),
-    companyId ? getPipelines(companyId) : Promise.resolve([]),
-    companyId ? getFundingRounds(companyId) : Promise.resolve([]),
-    companyId ? getFdaApprovals(companyId) : Promise.resolve([]),
-    companyId ? getPublications(companyId) : Promise.resolve([]),
-    companyId ? getPatents(companyId) : Promise.resolve([]),
-    companyId ? getPriceHistory(companyId) : Promise.resolve([]),
-    companyId ? getCompanyClaim(companyId) : Promise.resolve(null),
-    companyId ? getCompanyTeam(companyId) : Promise.resolve([]),
-    companyId ? getCompanyNews(companyId) : Promise.resolve([]),
+    getCompanySectors(companyId),
+    getPipelines(companyId),
+    getFundingRounds(companyId),
+    getFdaApprovals(companyId),
+    getPublications(companyId),
+    getPatents(companyId),
+    getPriceHistory(companyId),
+    getCompanyClaim(companyId),
+    getCompanyTeam(companyId),
+    getCompanyNews(companyId),
   ]);
 
   // Build JSON-LD structured data

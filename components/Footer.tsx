@@ -21,6 +21,23 @@ const companyLinks = [
   { label: "💎 Pricing", href: "/pricing" },
   { label: "🔒 Privacy policy", href: "/privacy" },
   { label: "📜 Terms", href: "/terms" },
+  { label: "📝 Blog", href: "/blog" },
+];
+
+const popularCompanyLinks = [
+  { label: "Eli Lilly", href: "/company/eli-lilly" },
+  { label: "Pfizer", href: "/company/pfizer" },
+  { label: "Novartis", href: "/company/novartis" },
+  { label: "Roche", href: "/company/roche" },
+  { label: "AstraZeneca", href: "/company/astrazeneca" },
+];
+
+const topSectorLinks = [
+  { label: "Small Molecules", href: "/sectors/small-molecules" },
+  { label: "Biologics", href: "/sectors/biologics" },
+  { label: "Cell Therapy", href: "/sectors/cell-therapy" },
+  { label: "AI / ML", href: "/sectors/ai-machine-learning" },
+  { label: "Gene Therapy", href: "/sectors/gene-therapy" },
 ];
 
 function FooterColumn({ title, links }: { title: string; links: { label: string; href: string }[] }) {
@@ -55,10 +72,12 @@ export function Footer() {
       style={{ borderTop: "0.5px solid var(--color-border-subtle)" }}
     >
       {/* Main footer */}
-      <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-8 grid grid-cols-2 md:grid-cols-3 gap-8">
+      <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
         <FooterColumn title="Platform" links={platformLinks} />
         <FooterColumn title="For Companies" links={forCompaniesLinks} />
         <FooterColumn title="Company" links={companyLinks} />
+        <FooterColumn title="Popular Companies" links={popularCompanyLinks} />
+        <FooterColumn title="Top Sectors" links={topSectorLinks} />
       </div>
       {/* Bottom strip */}
       <div

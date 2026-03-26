@@ -297,6 +297,20 @@ export default async function CountryDetailPage({
         public_company_count: null,
       };
 
+  // Build related countries (top 5 countries excluding current)
+  const topCountrySlugs = ["united-states", "switzerland", "united-kingdom", "japan", "germany", "china", "france", "south-korea", "india"];
+  const relatedCountries = topCountrySlugs
+    .filter((s) => s !== slug)
+    .slice(0, 5)
+    .map((s) => {
+      const meta = countries.find((c) => c.slug === s);
+      return {
+        slug: s,
+        name: meta?.name || s.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
+        flag: meta?.flag || "",
+      };
+    });
+
   return (
     <CountryDetailClient
       countryName={countryName}
@@ -308,6 +322,7 @@ export default async function CountryDetailPage({
       latestSnapshot={latestSnapshotProps}
       topCompanies={topCompanies}
       totalCompanyCount={totalCompanyCount}
+      relatedCountries={relatedCountries}
     />
   );
 }

@@ -32,7 +32,7 @@ import OpenPositions from "@/components/home/OpenPositions";
 import eventsData from "@/data/events.json";
 import { getFundingAnnualForHomepage } from "@/lib/funding-queries";
 
-export const revalidate = 300;
+export const revalidate = 600;
 
 export const metadata: Metadata = {
   title: "BiotechTube — Track the Global Biotech Market in Real Time",

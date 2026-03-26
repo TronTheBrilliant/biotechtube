@@ -278,6 +278,18 @@ export default async function SectorDetailPage({
     }
   }
 
+  // Fetch all sectors for "Related Sectors" section
+  const { data: allSectorRows } = await supabase
+    .from("sectors")
+    .select("slug, name")
+    .neq("slug", slug)
+    .order("company_count", { ascending: false })
+    .limit(20);
+
+  const relatedSectors = (allSectorRows ?? [])
+    .slice(0, 4)
+    .map((s: { slug: string; name: string }) => ({ slug: s.slug, name: s.name }));
+
   const sectorInfo: SectorInfo = {
     id: sector.id,
     slug: sector.slug,
@@ -303,6 +315,7 @@ export default async function SectorDetailPage({
       history={historyPoints}
       latestSnapshot={latestSnapshot}
       topCompanies={topCompanies}
+      relatedSectors={relatedSectors}
     />
   );
 }

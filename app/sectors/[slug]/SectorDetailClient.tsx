@@ -55,11 +55,17 @@ interface TopCompany {
   website: string | null;
 }
 
+interface RelatedSector {
+  slug: string;
+  name: string;
+}
+
 interface Props {
   sector: SectorInfo;
   history: SectorHistoryPoint[];
   latestSnapshot: LatestSnapshot | null;
   topCompanies: TopCompany[];
+  relatedSectors?: RelatedSector[];
 }
 
 // ── Component ──
@@ -69,6 +75,7 @@ export default function SectorDetailClient({
   history,
   latestSnapshot,
   topCompanies,
+  relatedSectors = [],
 }: Props) {
   type Timeframe = "1M" | "3M" | "6M" | "1Y" | "3Y" | "5Y" | "Max";
   const timeframes: Timeframe[] = ["1M", "3M", "6M", "1Y", "3Y", "5Y", "Max"];
@@ -481,6 +488,30 @@ export default function SectorDetailClient({
           </div>
         </div>
       </div>
+
+      {/* Related Sectors */}
+      {relatedSectors.length > 0 && (
+        <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-6 border-t" style={{ borderColor: "var(--color-border-subtle)" }}>
+          <h2
+            className="text-10 uppercase tracking-[0.5px] font-medium mb-3"
+            style={{ color: "var(--color-text-secondary)" }}
+          >
+            RELATED SECTORS
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {relatedSectors.map((rs) => (
+              <Link
+                key={rs.slug}
+                href={`/sectors/${rs.slug}`}
+                className="text-[12px] font-medium px-4 py-2 rounded-lg border transition-colors hover:border-[var(--color-accent)]"
+                style={{ borderColor: "var(--color-border-subtle)", color: "var(--color-text-secondary)" }}
+              >
+                {rs.name}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Internal links */}
       <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-6 border-t" style={{ borderColor: "var(--color-border-subtle)" }}>

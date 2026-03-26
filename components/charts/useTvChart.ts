@@ -14,11 +14,34 @@ export function useTvChart(
 ): IChartApi | null {
   const [chart, setChart] = useState<IChartApi | null>(null);
   const chartRef = useRef<IChartApi | null>(null);
+  const roRef = useRef<ResizeObserver | null>(null);
+  const initializedRef = useRef(false);
 
+  // Lazy-load: only create the chart when the container scrolls into view
   useEffect(() => {
     if (!containerRef.current) return;
+    if (initializedRef.current) return;
 
     const el = containerRef.current;
+
+    // Use IntersectionObserver to defer chart creation
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          observer.disconnect();
+          initializedRef.current = true;
+          initChart(el);
+        }
+      },
+      { rootMargin: "200px" } // start loading 200px before visible
+    );
+    observer.observe(el);
+
+    return () => observer.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function initChart(el: HTMLDivElement) {
     const style = getComputedStyle(document.documentElement);
 
     const bgColor =
@@ -89,17 +112,20 @@ export function useTvChart(
       }
     });
     ro.observe(el);
+    roRef.current = ro;
 
     chartRef.current = c;
     setChart(c);
+  }
 
+  // Cleanup on unmount
+  useEffect(() => {
     return () => {
-      ro.disconnect();
-      c.remove();
+      roRef.current?.disconnect();
+      chartRef.current?.remove();
       chartRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // only create once
+  }, []);
 
   // Theme sync - watch for class changes on <html>
   useEffect(() => {

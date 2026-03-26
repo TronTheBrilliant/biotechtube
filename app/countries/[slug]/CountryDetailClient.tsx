@@ -12,6 +12,12 @@ import { formatMarketCap, formatPercent, pctColor, capPercent } from "@/lib/mark
 
 // ── Types ──
 
+interface RelatedCountry {
+  slug: string;
+  name: string;
+  flag: string;
+}
+
 interface Props {
   countryName: string;
   flag: string;
@@ -42,6 +48,7 @@ interface Props {
     company_type: string | null;
   }[];
   totalCompanyCount: number;
+  relatedCountries?: RelatedCountry[];
 }
 
 // ── Component ──
@@ -56,6 +63,7 @@ export default function CountryDetailClient({
   latestSnapshot,
   topCompanies,
   totalCompanyCount,
+  relatedCountries = [],
 }: Props) {
   type Timeframe = "1M" | "3M" | "6M" | "1Y" | "3Y" | "5Y" | "Max";
   const timeframes: Timeframe[] = ["1M", "3M", "6M", "1Y", "3Y", "5Y", "Max"];
@@ -614,6 +622,30 @@ export default function CountryDetailClient({
           </Link>
         </div>
       </div>
+
+      {/* Explore Other Markets */}
+      {relatedCountries.length > 0 && (
+        <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-6 border-t" style={{ borderColor: "var(--color-border-subtle)" }}>
+          <h2
+            className="text-10 uppercase tracking-[0.5px] font-medium mb-3"
+            style={{ color: "var(--color-text-secondary)" }}
+          >
+            EXPLORE OTHER MARKETS
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {relatedCountries.map((rc) => (
+              <Link
+                key={rc.slug}
+                href={`/countries/${rc.slug}`}
+                className="text-[12px] font-medium px-4 py-2 rounded-lg border transition-colors hover:border-[var(--color-accent)]"
+                style={{ borderColor: "var(--color-border-subtle)", color: "var(--color-text-secondary)" }}
+              >
+                {rc.flag} {rc.name}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Internal links */}
       <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-6 border-t" style={{ borderColor: "var(--color-border-subtle)" }}>
