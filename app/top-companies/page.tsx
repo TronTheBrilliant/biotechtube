@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { formatMarketCap } from "@/lib/market-utils";
@@ -6,6 +7,25 @@ import { createClient } from "@supabase/supabase-js";
 import { TopCompaniesClient } from "./TopCompaniesClient";
 
 export const revalidate = 300;
+
+export const metadata: Metadata = {
+  title: "Top Biotech Companies by Market Cap (2026) | BiotechTube",
+  description:
+    "Definitive ranking of the world's largest publicly traded biotech companies by market capitalization. Updated daily with stock prices, 1-day change, and company details.",
+  openGraph: {
+    title: "Top Biotech Companies by Market Cap | BiotechTube",
+    description:
+      "Definitive ranking of the world's largest publicly traded biotech companies by market cap. Updated daily.",
+    type: "website",
+    siteName: "BiotechTube",
+  },
+  twitter: {
+    card: "summary",
+    title: "Top Biotech Companies by Market Cap | BiotechTube",
+    description:
+      "Definitive ranking of the world's largest publicly traded biotech companies by market cap.",
+  },
+};
 
 function getSupabase() {
   return createClient(

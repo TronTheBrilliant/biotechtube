@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: "/api/",
+        disallow: ["/dashboard", "/api/", "/auth/", "/admin", "/login", "/signup", "/profile", "/watchlist"],
       },
     ],
     sitemap: "https://biotechtube.io/sitemap.xml",

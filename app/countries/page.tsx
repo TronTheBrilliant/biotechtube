@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { formatMarketCap, formatPercent, pctColor, capPercent } from "@/lib/market-utils";
@@ -5,6 +6,25 @@ import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 
 export const revalidate = 300;
+
+export const metadata: Metadata = {
+  title: "Biotech Market by Country — Global Rankings | BiotechTube",
+  description:
+    "Explore the global biotech landscape by country. Market cap, company count, and daily performance for 30+ countries including the US, Switzerland, UK, Japan, and China.",
+  openGraph: {
+    title: "Biotech Market by Country | BiotechTube",
+    description:
+      "Explore the global biotech landscape: market cap and performance for 30+ countries.",
+    type: "website",
+    siteName: "BiotechTube",
+  },
+  twitter: {
+    card: "summary",
+    title: "Biotech Market by Country | BiotechTube",
+    description:
+      "Explore the global biotech landscape: market cap and performance for 30+ countries.",
+  },
+};
 
 interface CountryRow {
   country: string;

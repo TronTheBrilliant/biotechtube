@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { formatMarketCap, formatPercent, pctColor, capPercent } from "@/lib/market-utils";
@@ -6,6 +7,25 @@ import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 
 export const revalidate = 300;
+
+export const metadata: Metadata = {
+  title: "Top Biotech Sectors by Market Cap — Sector Rankings | BiotechTube",
+  description:
+    "Compare 20 biotech sectors by market cap, daily performance, and company count. From small molecules to gene therapy — find the fastest-growing biotech sectors.",
+  openGraph: {
+    title: "Top Biotech Sectors | BiotechTube",
+    description:
+      "Compare 20 biotech sectors by market cap, daily performance, and company count.",
+    type: "website",
+    siteName: "BiotechTube",
+  },
+  twitter: {
+    card: "summary",
+    title: "Top Biotech Sectors | BiotechTube",
+    description:
+      "Compare 20 biotech sectors by market cap, daily performance, and company count.",
+  },
+};
 
 interface SectorRanked {
   slug: string;

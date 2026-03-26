@@ -1,7 +1,9 @@
+import { Metadata } from "next";
 import { createClient } from "@supabase/supabase-js";
 import { notFound } from "next/navigation";
 import CountryDetailClient from "./CountryDetailClient";
 import countriesJson from "@/data/countries.json";
+import { formatMarketCap } from "@/lib/market-utils";
 
 export const revalidate = 300;
 
@@ -45,6 +47,54 @@ interface PriceHistoryRow {
   company_id: string;
   market_cap_usd: number | null;
   date: string;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const countries = countriesJson as CountryMeta[];
+  const countryMeta = countries.find((c) => c.slug === slug);
+  const countryName = countryMeta
+    ? countryMeta.name
+    : slug.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  const { data: latest } = await supabase
+    .from("country_market_data")
+    .select("combined_market_cap, public_company_count")
+    .eq("country", countryName)
+    .order("snapshot_date", { ascending: false })
+    .limit(1)
+    .single();
+
+  const marketCapText = latest?.combined_market_cap
+    ? ` — ${formatMarketCap(latest.combined_market_cap)} combined market cap`
+    : '';
+  const companyCountText = latest?.public_company_count
+    ? ` ${latest.public_company_count} public biotech companies`
+    : ' biotech companies';
+
+  const title = `${countryName} Biotech Companies — Market Cap & Rankings | BiotechTube`;
+  const description = `${countryName} has${companyCountText}${marketCapText}. Explore stock performance, top companies, and biotech market trends on BiotechTube.`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title: `${countryName} Biotech Market | BiotechTube`,
+      description,
+      type: "website",
+      siteName: "BiotechTube",
+    },
+    twitter: { card: "summary", title, description },
+  };
 }
 
 export default async function CountryDetailPage({

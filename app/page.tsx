@@ -459,11 +459,45 @@ export default async function HomePage() {
     website: c.website || null,
   }));
 
+  // JSON-LD structured data for homepage
+  const websiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "BiotechTube",
+    url: "https://biotechtube.io",
+    description: "Track 14,000+ biotech companies worldwide. Clinical pipeline data, biotech market intelligence, funding rounds, company rankings, and investment analysis.",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: "https://biotechtube.io/companies?q={search_term_string}",
+      },
+      "query-input": "required name=search_term_string",
+    },
+  };
+
+  const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "BiotechTube",
+    url: "https://biotechtube.io",
+    description: "Global biotech intelligence platform tracking companies, markets, funding, and clinical pipelines.",
+    sameAs: [],
+  };
+
   return (
     <div
       className="page-content"
       style={{ minHeight: "100vh" }}
     >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+      />
       {/* Background gradient: white at top fading to warm grey */}
       <div style={{
         position: "fixed",

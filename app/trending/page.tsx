@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { CompanyAvatar } from "@/components/CompanyAvatar";
@@ -6,6 +7,25 @@ import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 
 export const revalidate = 300;
+
+export const metadata: Metadata = {
+  title: "Trending Biotech Stocks — 30-Day Top Performers | BiotechTube",
+  description:
+    "Discover the hottest biotech stocks right now. Ranked by 30-day market cap performance with real-time data on price changes and market capitalization.",
+  openGraph: {
+    title: "Trending Biotech Stocks | BiotechTube",
+    description:
+      "Discover the hottest biotech stocks ranked by 30-day market cap performance.",
+    type: "website",
+    siteName: "BiotechTube",
+  },
+  twitter: {
+    card: "summary",
+    title: "Trending Biotech Stocks | BiotechTube",
+    description:
+      "Discover the hottest biotech stocks ranked by 30-day market cap performance.",
+  },
+};
 
 interface TrendingCompany {
   slug: string;

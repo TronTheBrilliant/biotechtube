@@ -1,7 +1,27 @@
+import { Metadata } from "next";
 import { createClient } from "@supabase/supabase-js";
 import MarketsPageClient from "./MarketsPageClient";
 
 export const revalidate = 300;
+
+export const metadata: Metadata = {
+  title: "Biotech Market Overview — Index, Sectors & Countries | BiotechTube",
+  description:
+    "Live biotech market data: total market cap, sector performance, country rankings, top gainers and losers. The definitive biotech market dashboard updated daily.",
+  openGraph: {
+    title: "Biotech Market Overview | BiotechTube",
+    description:
+      "Live biotech market data: total market cap, sector performance, and country rankings. Updated daily.",
+    type: "website",
+    siteName: "BiotechTube",
+  },
+  twitter: {
+    card: "summary",
+    title: "Biotech Market Overview | BiotechTube",
+    description:
+      "Live biotech market data: total market cap, sector performance, and country rankings.",
+  },
+};
 
 interface MarketSnapshot {
   snapshot_date: string;

@@ -1,6 +1,8 @@
+import { Metadata } from "next";
 import { createClient } from "@supabase/supabase-js";
 import { notFound } from "next/navigation";
 import SectorDetailClient from "./SectorDetailClient";
+import { formatMarketCap } from "@/lib/market-utils";
 
 export const revalidate = 300;
 
@@ -75,6 +77,56 @@ export interface TopCompany {
   valuation: number | null;
   logo_url: string | null;
   website: string | null;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+  const { data: sector } = await supabase
+    .from("sectors")
+    .select("name, description, company_count, public_company_count")
+    .eq("slug", slug)
+    .single();
+
+  if (!sector) return { title: "Sector Not Found | BiotechTube" };
+
+  const companyCount = sector.company_count || sector.public_company_count;
+  const countText = companyCount ? ` with ${companyCount} companies` : '';
+
+  // Get latest market cap for this sector
+  const { data: latestMarket } = await supabase
+    .from("sector_market_data")
+    .select("combined_market_cap")
+    .eq("sector_id", (await supabase.from("sectors").select("id").eq("slug", slug).single()).data?.id || '')
+    .order("snapshot_date", { ascending: false })
+    .limit(1)
+    .single();
+
+  const marketCapText = latestMarket?.combined_market_cap
+    ? ` — ${formatMarketCap(latestMarket.combined_market_cap)} market cap`
+    : '';
+
+  const title = `${sector.name} Biotech Companies — Market Cap & Performance | BiotechTube`;
+  const description = `Explore ${sector.name} biotech sector${countText}${marketCapText}. Track top companies, market performance, and sector trends on BiotechTube.`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title: `${sector.name} Biotech Sector | BiotechTube`,
+      description,
+      type: "website",
+      siteName: "BiotechTube",
+    },
+    twitter: { card: "summary", title, description },
+  };
 }
 
 export default async function SectorDetailPage({

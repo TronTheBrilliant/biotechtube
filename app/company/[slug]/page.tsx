@@ -4,6 +4,7 @@ import { Company, CompanyReport, FundingRound } from "@/lib/types";
 import { CompanyPageClient } from "./CompanyPageClient";
 import { dbRowToCompany, dbRowsToCompanies } from "@/lib/adapters";
 import { createClient } from "@supabase/supabase-js";
+import { formatMarketCap } from "@/lib/market-utils";
 
 import fundingData from "@/data/funding.json";
 
@@ -203,23 +204,27 @@ export async function generateMetadata({
 
   const report = await getCompanyReport(params.slug);
 
-  const title = `${company.name} | Pipeline, Funding & Analysis | BiotechTube`;
+  const ticker = company.ticker ? ` (${company.ticker})` : '';
+  const marketCap = company.valuation ? ` worth ${formatMarketCap(company.valuation)}` : '';
+  const title = `${company.name}${ticker} — Stock, Pipeline & Market Cap | BiotechTube`;
   const description =
     report?.summary ||
-    company.description ||
-    `${company.name} — a ${company.type?.toLowerCase() || ""} biotech company based in ${company.city}, ${company.country}.`;
+    `${company.name} is a ${company.country || 'global'} biotech company${marketCap}. Track stock price, pipeline drugs, funding history, patents, and FDA approvals on BiotechTube.`;
 
   const keywords = [
     company.name,
+    company.ticker,
     "biotech",
+    "stock price",
+    "pipeline",
     ...(company.focus || []),
     ...(report?.therapeutic_areas || []),
     company.country,
     company.city,
-    "pipeline",
     "clinical trials",
     "FDA approvals",
     "patents",
+    "market cap",
   ].filter(Boolean);
 
   return {
@@ -227,16 +232,16 @@ export async function generateMetadata({
     description,
     keywords: keywords.join(", "),
     openGraph: {
-      title,
-      description,
-      type: "profile",
+      title: `${company.name}${ticker} | BiotechTube`,
+      description: `Track ${company.name}'s stock price, pipeline, and market data.`,
+      type: "website",
       siteName: "BiotechTube",
       url: `https://biotechtube.io/company/${params.slug}`,
     },
     twitter: {
       card: "summary",
-      title,
-      description,
+      title: `${company.name}${ticker} | BiotechTube`,
+      description: `Track ${company.name}'s stock price, pipeline, and market data.`,
     },
   };
 }
