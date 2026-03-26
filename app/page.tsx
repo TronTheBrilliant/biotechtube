@@ -446,19 +446,23 @@ async function getHotProducts() {
 // ── Page ──
 
 export default async function HomePage() {
+  // Wrap each fetch so a single failure doesn't crash the whole page
+  const safe = <T,>(fn: () => Promise<T>, fallback: T): Promise<T> =>
+    fn().catch((err) => { console.error("Homepage fetch error:", err?.message || err); return fallback; });
+
   const [companies, snapshot, trending, sectors, countries, investorsData, peopleData, fundingAnnualData, indexHistory, hotPipelines, recentFunding] =
     await Promise.all([
-      getTopCompanies(),
-      getLatestSnapshot(),
-      getTrendingCompanies(),
-      getTopSectors(),
-      getTopCountries(),
-      getTopInvestorsData(),
-      getTopPeopleData(),
-      getFundingAnnualForHomepage(),
-      getIndexHistory(),
-      getHotPipelines(),
-      getRecentFunding(),
+      safe(getTopCompanies, []),
+      safe(getLatestSnapshot, null),
+      safe(getTrendingCompanies, []),
+      safe(getTopSectors, []),
+      safe(getTopCountries, []),
+      safe(getTopInvestorsData, []),
+      safe(getTopPeopleData, []),
+      safe(getFundingAnnualForHomepage, []),
+      safe(getIndexHistory, []),
+      safe(getHotPipelines, []),
+      safe(getRecentFunding, []),
     ]);
 
   const events = eventsData as BiotechEvent[];
@@ -574,14 +578,28 @@ export default async function HomePage() {
       <main className="px-4 md:px-6 py-4 space-y-4 max-w-[1200px] mx-auto">
         {/* Row 1: Trending + Top Companies */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {trending.length > 0 && (
+          {trending.length > 0 ? (
             <HomeSection icon="🔥" title="Trending Companies" viewAllHref="/trending" viewAllLabel="View all">
               <TrendingCompanies companies={trending} />
             </HomeSection>
+          ) : (
+            <HomeSection icon="🔥" title="Trending Companies" viewAllHref="/trending" viewAllLabel="View all">
+              <div className="px-4 py-8 text-center">
+                <p className="text-13" style={{ color: "var(--color-text-tertiary)" }}>Loading trending data...</p>
+              </div>
+            </HomeSection>
           )}
-          <HomeSection icon="📊" title="Top Companies" viewAllHref="/top-companies" viewAllLabel="View all 750+">
-            <TopCompanies companies={top5Companies} />
-          </HomeSection>
+          {top5Companies.length > 0 ? (
+            <HomeSection icon="📊" title="Top Companies" viewAllHref="/top-companies" viewAllLabel="View all 750+">
+              <TopCompanies companies={top5Companies} />
+            </HomeSection>
+          ) : (
+            <HomeSection icon="📊" title="Top Companies" viewAllHref="/top-companies" viewAllLabel="View all 750+">
+              <div className="px-4 py-8 text-center">
+                <p className="text-13" style={{ color: "var(--color-text-tertiary)" }}>Loading company data...</p>
+              </div>
+            </HomeSection>
+          )}
         </div>
 
         {/* Biotech Market Index — full width */}
