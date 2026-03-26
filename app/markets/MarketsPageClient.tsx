@@ -356,8 +356,8 @@ export default function MarketsPageClient({
             </div>
           </section>
 
-          {/* Top Movers */}
-          {latestSnapshot && (latestSnapshot.top_gainer_pct != null || latestSnapshot.top_loser_pct != null) && (
+          {/* Top Movers — cap at ±15% for 1D to filter out data artifacts */}
+          {latestSnapshot && (capPercent(latestSnapshot.top_gainer_pct, "1d") != null || capPercent(latestSnapshot.top_loser_pct, "1d") != null) && (
             <section
               className="mb-6 border-t pt-4"
               style={{ borderColor: "var(--color-border-subtle)" }}
@@ -369,7 +369,7 @@ export default function MarketsPageClient({
                 TOP MOVERS TODAY
               </h2>
               <div className="grid grid-cols-2 gap-3">
-                {latestSnapshot.top_gainer_pct != null && (
+                {capPercent(latestSnapshot.top_gainer_pct, "1d") != null && (
                   <div
                     className="rounded-lg p-3 border"
                     style={{
@@ -390,11 +390,11 @@ export default function MarketsPageClient({
                       className="text-[20px] font-medium"
                       style={{ color: "var(--color-accent)" }}
                     >
-                      {formatPercent(latestSnapshot.top_gainer_pct)}
+                      {formatPercent(capPercent(latestSnapshot.top_gainer_pct, "1d"))}
                     </span>
                   </div>
                 )}
-                {latestSnapshot.top_loser_pct != null && (
+                {capPercent(latestSnapshot.top_loser_pct, "1d") != null && (
                   <div
                     className="rounded-lg p-3 border"
                     style={{
@@ -415,7 +415,7 @@ export default function MarketsPageClient({
                       className="text-[20px] font-medium"
                       style={{ color: "#c0392b" }}
                     >
-                      {formatPercent(latestSnapshot.top_loser_pct)}
+                      {formatPercent(capPercent(latestSnapshot.top_loser_pct, "1d"))}
                     </span>
                   </div>
                 )}

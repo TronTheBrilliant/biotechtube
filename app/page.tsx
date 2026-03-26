@@ -194,8 +194,8 @@ async function getTrendingCompanies() {
   const changes: { companyId: string; change30d: number; marketCap: number }[] = [];
   currentMap.forEach((currentMcap, companyId) => {
     const oldMcap = oldMap.get(companyId);
-    if (oldMcap && oldMcap > 0 && currentMcap > 500_000_000) {
-      // Only include companies with >$500M market cap
+    if (oldMcap && oldMcap > 0 && currentMcap > 100_000_000) {
+      // Only include companies with >$100M market cap
       const pct = ((currentMcap - oldMcap) / oldMcap) * 100;
       if (Math.abs(pct) <= 80) {
         changes.push({ companyId, change30d: Math.round(pct * 100) / 100, marketCap: currentMcap });

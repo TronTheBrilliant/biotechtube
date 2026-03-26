@@ -35,8 +35,7 @@ const MENUS: MenuCategory[] = [
   {
     label: "Data",
     items: [
-      { href: "/companies", emoji: "🏢", title: "Companies", subtitle: "14,000+ tracked", iconBg: "#f0fdf4" },
-      { href: "/pipeline", emoji: "🧪", title: "Pipeline", subtitle: "Drug tracker", iconBg: "#eff6ff" },
+      { href: "/top-companies", emoji: "🏢", title: "Companies", subtitle: "14,000+ tracked", iconBg: "#f0fdf4" },
       { href: "/funding", emoji: "💰", title: "Funding", subtitle: "Rounds & deals", iconBg: "#fef3c7" },
       { href: "/markets", emoji: "📊", title: "Markets", subtitle: "Stock data", iconBg: "#fce7f3" },
       { href: "/sectors", emoji: "🏷️", title: "Sectors", subtitle: "20 biotech sectors", iconBg: "#f5f3ff" },
