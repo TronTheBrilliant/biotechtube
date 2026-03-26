@@ -30,6 +30,14 @@ import {
   GripVertical,
   Check,
   X,
+  Palette,
+  Video,
+  Briefcase,
+  FileText,
+  MessageSquare,
+  Mail,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 
 /* ─── Types ─── */
@@ -51,6 +59,36 @@ interface ClaimRow {
   status: string;
   plan: string;
   verified_at: string | null;
+  brand_color: string | null;
+  hero_tagline: string | null;
+  video_url: string | null;
+  investor_deck_url: string | null;
+  contact_email: string | null;
+  custom_sections: { title: string; content: string }[] | null;
+}
+
+interface JobRow {
+  id: string;
+  company_id: string;
+  title: string;
+  location: string | null;
+  type: string;
+  department: string | null;
+  description: string | null;
+  apply_url: string | null;
+  posted_at: string;
+  status: string;
+}
+
+interface InquiryRow {
+  id: string;
+  company_id: string;
+  name: string;
+  email: string;
+  sender_company: string | null;
+  message: string;
+  created_at: string;
+  read: boolean;
 }
 
 interface TeamMember {
@@ -76,15 +114,24 @@ interface ViewStat {
 }
 
 /* ─── Tabs ─── */
-type AdminTab = "overview" | "profile" | "team" | "news" | "pipeline" | "analytics";
+type AdminTab = "overview" | "profile" | "team" | "news" | "pipeline" | "analytics" | "branding" | "media" | "jobs" | "sections" | "inquiries" | "contact";
 
-const tabs: { id: AdminTab; label: string; icon: React.ReactNode }[] = [
+const baseTabs: { id: AdminTab; label: string; icon: React.ReactNode }[] = [
   { id: "overview", label: "Overview", icon: <LayoutDashboard size={15} /> },
   { id: "profile", label: "Edit Profile", icon: <Pencil size={15} /> },
   { id: "team", label: "Team", icon: <Users size={15} /> },
   { id: "news", label: "News", icon: <Newspaper size={15} /> },
   { id: "pipeline", label: "Pipeline", icon: <FlaskConical size={15} /> },
   { id: "analytics", label: "Analytics", icon: <BarChart3 size={15} /> },
+];
+
+const premiumTabs: { id: AdminTab; label: string; icon: React.ReactNode }[] = [
+  { id: "branding", label: "Branding", icon: <Palette size={15} /> },
+  { id: "media", label: "Media", icon: <Video size={15} /> },
+  { id: "jobs", label: "Jobs", icon: <Briefcase size={15} /> },
+  { id: "sections", label: "Custom Sections", icon: <FileText size={15} /> },
+  { id: "inquiries", label: "Inquiries", icon: <MessageSquare size={15} /> },
+  { id: "contact", label: "Contact", icon: <Mail size={15} /> },
 ];
 
 /* ─── Mini bar chart ─── */
@@ -147,6 +194,33 @@ export default function CompanyAdminPage({
 
   // Pipeline state
   const [pipelines, setPipelines] = useState<{ id: string; product_name: string; indication: string; stage: string }[]>([]);
+
+  // Premium state
+  const [brandColor, setBrandColor] = useState("#1a7a5e");
+  const [heroTagline, setHeroTagline] = useState("");
+  const [videoUrl, setVideoUrl] = useState("");
+  const [investorDeckUrl, setInvestorDeckUrl] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  const [customSections, setCustomSections] = useState<{ title: string; content: string }[]>([]);
+  const [editingSectionIdx, setEditingSectionIdx] = useState<number | null>(null);
+  const [brandingSaving, setBrandingSaving] = useState(false);
+  const [brandingSaved, setBrandingSaved] = useState(false);
+  const [mediaSaving, setMediaSaving] = useState(false);
+  const [mediaSaved, setMediaSaved] = useState(false);
+  const [contactSaving, setContactSaving] = useState(false);
+  const [contactSaved, setContactSaved] = useState(false);
+  const [sectionsSaving, setSectionsSaving] = useState(false);
+  const [sectionsSaved, setSectionsSaved] = useState(false);
+
+  // Jobs state
+  const [jobs, setJobs] = useState<JobRow[]>([]);
+  const [editingJob, setEditingJob] = useState<Partial<JobRow> | null>(null);
+  const [jobSaving, setJobSaving] = useState(false);
+
+  // Inquiries state
+  const [inquiries, setInquiries] = useState<InquiryRow[]>([]);
+
+  const isPremium = claim?.plan === "premium" || claim?.plan === "enterprise";
 
   /* ─── Load data ─── */
   const loadData = useCallback(async () => {
@@ -221,6 +295,34 @@ export default function CompanyAdminPage({
       .eq("company_id", companyData.id)
       .order("stage");
     setPipelines(pipelineData || []);
+
+    // Load premium fields from claim
+    if (claimData) {
+      setBrandColor(claimData.brand_color || "#1a7a5e");
+      setHeroTagline(claimData.hero_tagline || "");
+      setVideoUrl(claimData.video_url || "");
+      setInvestorDeckUrl(claimData.investor_deck_url || "");
+      setContactEmail(claimData.contact_email || "");
+      setCustomSections(
+        Array.isArray(claimData.custom_sections) ? claimData.custom_sections : []
+      );
+    }
+
+    // Load jobs
+    const { data: jobsData } = await supabase
+      .from("company_jobs")
+      .select("*")
+      .eq("company_id", companyData.id)
+      .order("posted_at", { ascending: false });
+    setJobs(jobsData || []);
+
+    // Load inquiries
+    const { data: inquiryData } = await supabase
+      .from("company_inquiries")
+      .select("*")
+      .eq("company_id", companyData.id)
+      .order("created_at", { ascending: false });
+    setInquiries(inquiryData || []);
 
     // Load analytics (last 30 days)
     const thirtyDaysAgo = new Date();
@@ -374,6 +476,106 @@ export default function CompanyAdminPage({
     loadData();
   };
 
+  /* ─── Premium: Branding save ─── */
+  const saveBranding = async () => {
+    if (!claim) return;
+    setBrandingSaving(true);
+    setBrandingSaved(false);
+    await supabase
+      .from("company_claims")
+      .update({ brand_color: brandColor, hero_tagline: heroTagline })
+      .eq("id", claim.id);
+    setBrandingSaving(false);
+    setBrandingSaved(true);
+    setTimeout(() => setBrandingSaved(false), 3000);
+  };
+
+  /* ─── Premium: Media save ─── */
+  const saveMedia = async () => {
+    if (!claim) return;
+    setMediaSaving(true);
+    setMediaSaved(false);
+    await supabase
+      .from("company_claims")
+      .update({ video_url: videoUrl, investor_deck_url: investorDeckUrl })
+      .eq("id", claim.id);
+    setMediaSaving(false);
+    setMediaSaved(true);
+    setTimeout(() => setMediaSaved(false), 3000);
+  };
+
+  /* ─── Premium: Contact save ─── */
+  const saveContact = async () => {
+    if (!claim) return;
+    setContactSaving(true);
+    setContactSaved(false);
+    await supabase
+      .from("company_claims")
+      .update({ contact_email: contactEmail })
+      .eq("id", claim.id);
+    setContactSaving(false);
+    setContactSaved(true);
+    setTimeout(() => setContactSaved(false), 3000);
+  };
+
+  /* ─── Premium: Custom Sections save ─── */
+  const saveCustomSections = async () => {
+    if (!claim) return;
+    setSectionsSaving(true);
+    setSectionsSaved(false);
+    await supabase
+      .from("company_claims")
+      .update({ custom_sections: customSections })
+      .eq("id", claim.id);
+    setSectionsSaving(false);
+    setSectionsSaved(true);
+    setTimeout(() => setSectionsSaved(false), 3000);
+  };
+
+  /* ─── Premium: Job CRUD ─── */
+  const saveJob = async () => {
+    if (!company || !editingJob) return;
+    setJobSaving(true);
+    if (editingJob.id) {
+      await supabase
+        .from("company_jobs")
+        .update({
+          title: editingJob.title,
+          location: editingJob.location,
+          type: editingJob.type || "Full-time",
+          department: editingJob.department,
+          description: editingJob.description,
+          apply_url: editingJob.apply_url,
+          status: editingJob.status || "active",
+        })
+        .eq("id", editingJob.id);
+    } else {
+      await supabase.from("company_jobs").insert({
+        company_id: company.id,
+        title: editingJob.title || "",
+        location: editingJob.location,
+        type: editingJob.type || "Full-time",
+        department: editingJob.department,
+        description: editingJob.description,
+        apply_url: editingJob.apply_url,
+      });
+    }
+    setEditingJob(null);
+    setJobSaving(false);
+    loadData();
+  };
+
+  const deleteJob = async (id: string) => {
+    await supabase.from("company_jobs").delete().eq("id", id);
+    loadData();
+  };
+
+  /* ─── Premium: Mark inquiry read ─── */
+  const markInquiryRead = async (id: string) => {
+    await supabase.from("company_inquiries").update({ read: true }).eq("id", id);
+    setInquiries((prev) => prev.map((i) => (i.id === id ? { ...i, read: true } : i)));
+  };
+
   /* ─── Loading / Auth guard ─── */
   if (loading || authLoading) {
     return (
@@ -468,7 +670,7 @@ export default function CompanyAdminPage({
         style={{ background: "var(--color-bg-primary)", borderColor: "var(--color-border-subtle)" }}
       >
         <div className="max-w-6xl mx-auto flex gap-0.5">
-          {tabs.map((tab) => (
+          {[...baseTabs, ...(isPremium ? premiumTabs : [])].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
@@ -1050,6 +1252,647 @@ export default function CompanyAdminPage({
                     </div>
                   )}
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* ═══ PREMIUM: BRANDING ═══ */}
+          {activeTab === "branding" && isPremium && (
+            <div>
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-[18px] font-semibold" style={{ color: "var(--color-text-primary)" }}>Branding</h2>
+                <button
+                  onClick={saveBranding}
+                  disabled={brandingSaving}
+                  className="flex items-center gap-1.5 text-13 font-medium px-4 py-2 rounded-lg text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                  style={{ background: brandingSaved ? "#16a34a" : "var(--color-accent)" }}
+                >
+                  {brandingSaving ? <Loader2 size={14} className="animate-spin" /> : brandingSaved ? <Check size={14} /> : <Save size={14} />}
+                  {brandingSaved ? "Saved!" : "Save Branding"}
+                </button>
+              </div>
+
+              <div
+                className="rounded-xl border divide-y"
+                style={{ background: "var(--color-bg-primary)", borderColor: "var(--color-border-subtle)" }}
+              >
+                {/* Brand Color */}
+                <div className="px-5 py-5" style={{ borderColor: "var(--color-border-subtle)" }}>
+                  <label className="text-12 font-medium mb-2 block" style={{ color: "var(--color-text-primary)" }}>
+                    Brand Color
+                  </label>
+                  <p className="text-11 mb-3" style={{ color: "var(--color-text-tertiary)" }}>
+                    Used as accent color throughout your premium profile (buttons, links, badges).
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="color"
+                      value={brandColor}
+                      onChange={(e) => setBrandColor(e.target.value)}
+                      className="w-10 h-10 rounded-lg border cursor-pointer"
+                      style={{ borderColor: "var(--color-border-medium)" }}
+                    />
+                    <input
+                      type="text"
+                      value={brandColor}
+                      onChange={(e) => setBrandColor(e.target.value)}
+                      placeholder="#1a7a5e"
+                      className="w-32 text-13 px-3 py-2 rounded-lg border outline-none font-mono"
+                      style={{
+                        borderColor: "var(--color-border-medium)",
+                        background: "var(--color-bg-primary)",
+                        color: "var(--color-text-primary)",
+                      }}
+                    />
+                    <div
+                      className="h-10 flex-1 rounded-lg"
+                      style={{ background: `linear-gradient(135deg, ${brandColor}20, ${brandColor}60, ${brandColor})` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Hero Tagline */}
+                <div className="px-5 py-5" style={{ borderColor: "var(--color-border-subtle)" }}>
+                  <label className="text-12 font-medium mb-1.5 block" style={{ color: "var(--color-text-primary)" }}>
+                    Hero Tagline
+                  </label>
+                  <p className="text-11 mb-3" style={{ color: "var(--color-text-tertiary)" }}>
+                    Displayed prominently below your company name in the hero section.
+                  </p>
+                  <input
+                    type="text"
+                    value={heroTagline}
+                    onChange={(e) => setHeroTagline(e.target.value)}
+                    placeholder="Pioneering next-generation cell therapies for solid tumors"
+                    className="w-full text-13 px-3 py-2.5 rounded-lg border outline-none"
+                    style={{
+                      borderColor: "var(--color-border-medium)",
+                      background: "var(--color-bg-primary)",
+                      color: "var(--color-text-primary)",
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Preview */}
+              <div className="mt-6">
+                <h3 className="text-13 font-semibold mb-3" style={{ color: "var(--color-text-secondary)" }}>Preview</h3>
+                <div
+                  className="rounded-xl overflow-hidden"
+                  style={{
+                    background: `linear-gradient(135deg, ${brandColor}12 0%, ${brandColor}06 50%, transparent 100%)`,
+                    border: `1px solid ${brandColor}20`,
+                  }}
+                >
+                  <div className="h-1 w-full" style={{ background: `linear-gradient(90deg, ${brandColor}, ${brandColor}80, transparent)` }} />
+                  <div className="px-6 py-8">
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <span className="text-[22px] font-bold" style={{ color: "var(--color-text-primary)" }}>{company?.name}</span>
+                      <span className="text-11 font-semibold px-2.5 py-0.5 rounded-full text-white" style={{ background: brandColor }}>
+                        Verified Company
+                      </span>
+                    </div>
+                    {heroTagline && (
+                      <p className="text-14 mt-2" style={{ color: "var(--color-text-secondary)" }}>{heroTagline}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ═══ PREMIUM: MEDIA ═══ */}
+          {activeTab === "media" && isPremium && (
+            <div>
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-[18px] font-semibold" style={{ color: "var(--color-text-primary)" }}>Media</h2>
+                <button
+                  onClick={saveMedia}
+                  disabled={mediaSaving}
+                  className="flex items-center gap-1.5 text-13 font-medium px-4 py-2 rounded-lg text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                  style={{ background: mediaSaved ? "#16a34a" : "var(--color-accent)" }}
+                >
+                  {mediaSaving ? <Loader2 size={14} className="animate-spin" /> : mediaSaved ? <Check size={14} /> : <Save size={14} />}
+                  {mediaSaved ? "Saved!" : "Save Media"}
+                </button>
+              </div>
+
+              <div
+                className="rounded-xl border divide-y"
+                style={{ background: "var(--color-bg-primary)", borderColor: "var(--color-border-subtle)" }}
+              >
+                <div className="px-5 py-5" style={{ borderColor: "var(--color-border-subtle)" }}>
+                  <label className="text-12 font-medium mb-1.5 block" style={{ color: "var(--color-text-primary)" }}>
+                    Video URL
+                  </label>
+                  <p className="text-11 mb-3" style={{ color: "var(--color-text-tertiary)" }}>
+                    YouTube or Vimeo URL for your company overview video.
+                  </p>
+                  <input
+                    type="text"
+                    value={videoUrl}
+                    onChange={(e) => setVideoUrl(e.target.value)}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    className="w-full text-13 px-3 py-2.5 rounded-lg border outline-none"
+                    style={{
+                      borderColor: "var(--color-border-medium)",
+                      background: "var(--color-bg-primary)",
+                      color: "var(--color-text-primary)",
+                    }}
+                  />
+                </div>
+                <div className="px-5 py-5" style={{ borderColor: "var(--color-border-subtle)" }}>
+                  <label className="text-12 font-medium mb-1.5 block" style={{ color: "var(--color-text-primary)" }}>
+                    Investor Deck URL
+                  </label>
+                  <p className="text-11 mb-3" style={{ color: "var(--color-text-tertiary)" }}>
+                    Link to your investor presentation PDF or hosted deck.
+                  </p>
+                  <input
+                    type="text"
+                    value={investorDeckUrl}
+                    onChange={(e) => setInvestorDeckUrl(e.target.value)}
+                    placeholder="https://example.com/investor-deck.pdf"
+                    className="w-full text-13 px-3 py-2.5 rounded-lg border outline-none"
+                    style={{
+                      borderColor: "var(--color-border-medium)",
+                      background: "var(--color-bg-primary)",
+                      color: "var(--color-text-primary)",
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ═══ PREMIUM: JOBS ═══ */}
+          {activeTab === "jobs" && isPremium && (
+            <div>
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-[18px] font-semibold" style={{ color: "var(--color-text-primary)" }}>
+                  Job Listings
+                </h2>
+                <button
+                  onClick={() => setEditingJob({ title: "", location: "", type: "Full-time", department: "", description: "", apply_url: "" })}
+                  className="flex items-center gap-1.5 text-13 font-medium px-4 py-2 rounded-lg text-white"
+                  style={{ background: "var(--color-accent)" }}
+                >
+                  <Plus size={14} />
+                  Add Job
+                </button>
+              </div>
+
+              {/* Job form */}
+              {editingJob && (
+                <div
+                  className="rounded-xl border p-5 mb-5"
+                  style={{ background: "var(--color-bg-primary)", borderColor: "var(--color-accent)" }}
+                >
+                  <h3 className="text-14 font-semibold mb-4" style={{ color: "var(--color-text-primary)" }}>
+                    {editingJob.id ? "Edit" : "Add"} Position
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <label className="text-11 font-medium mb-1 block" style={{ color: "var(--color-text-secondary)" }}>Title *</label>
+                      <input
+                        type="text"
+                        value={editingJob.title || ""}
+                        onChange={(e) => setEditingJob((j) => ({ ...j, title: e.target.value }))}
+                        placeholder="Senior Research Scientist"
+                        className="w-full text-13 px-3 py-2 rounded-lg border outline-none"
+                        style={{ borderColor: "var(--color-border-medium)", background: "var(--color-bg-primary)", color: "var(--color-text-primary)" }}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-11 font-medium mb-1 block" style={{ color: "var(--color-text-secondary)" }}>Location</label>
+                      <input
+                        type="text"
+                        value={editingJob.location || ""}
+                        onChange={(e) => setEditingJob((j) => ({ ...j, location: e.target.value }))}
+                        placeholder="Boston, MA"
+                        className="w-full text-13 px-3 py-2 rounded-lg border outline-none"
+                        style={{ borderColor: "var(--color-border-medium)", background: "var(--color-bg-primary)", color: "var(--color-text-primary)" }}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-11 font-medium mb-1 block" style={{ color: "var(--color-text-secondary)" }}>Type</label>
+                      <select
+                        value={editingJob.type || "Full-time"}
+                        onChange={(e) => setEditingJob((j) => ({ ...j, type: e.target.value }))}
+                        className="w-full text-13 px-3 py-2 rounded-lg border outline-none"
+                        style={{ borderColor: "var(--color-border-medium)", background: "var(--color-bg-primary)", color: "var(--color-text-primary)" }}
+                      >
+                        <option value="Full-time">Full-time</option>
+                        <option value="Part-time">Part-time</option>
+                        <option value="Contract">Contract</option>
+                        <option value="Remote">Remote</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-11 font-medium mb-1 block" style={{ color: "var(--color-text-secondary)" }}>Department</label>
+                      <input
+                        type="text"
+                        value={editingJob.department || ""}
+                        onChange={(e) => setEditingJob((j) => ({ ...j, department: e.target.value }))}
+                        placeholder="R&D"
+                        className="w-full text-13 px-3 py-2 rounded-lg border outline-none"
+                        style={{ borderColor: "var(--color-border-medium)", background: "var(--color-bg-primary)", color: "var(--color-text-primary)" }}
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="text-11 font-medium mb-1 block" style={{ color: "var(--color-text-secondary)" }}>Description</label>
+                      <textarea
+                        value={editingJob.description || ""}
+                        onChange={(e) => setEditingJob((j) => ({ ...j, description: e.target.value }))}
+                        placeholder="Brief job description..."
+                        rows={3}
+                        className="w-full text-13 px-3 py-2 rounded-lg border outline-none resize-y"
+                        style={{ borderColor: "var(--color-border-medium)", background: "var(--color-bg-primary)", color: "var(--color-text-primary)" }}
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="text-11 font-medium mb-1 block" style={{ color: "var(--color-text-secondary)" }}>Apply URL</label>
+                      <input
+                        type="text"
+                        value={editingJob.apply_url || ""}
+                        onChange={(e) => setEditingJob((j) => ({ ...j, apply_url: e.target.value }))}
+                        placeholder="https://careers.yourcompany.com/apply/123"
+                        className="w-full text-13 px-3 py-2 rounded-lg border outline-none"
+                        style={{ borderColor: "var(--color-border-medium)", background: "var(--color-bg-primary)", color: "var(--color-text-primary)" }}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={saveJob}
+                      disabled={jobSaving || !editingJob.title}
+                      className="flex items-center gap-1.5 text-12 font-medium px-4 py-2 rounded-lg text-white disabled:opacity-50"
+                      style={{ background: "var(--color-accent)" }}
+                    >
+                      {jobSaving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
+                      Save
+                    </button>
+                    <button
+                      onClick={() => setEditingJob(null)}
+                      className="text-12 font-medium px-4 py-2 rounded-lg border"
+                      style={{ borderColor: "var(--color-border-medium)", color: "var(--color-text-secondary)" }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Job list */}
+              {jobs.length === 0 && !editingJob ? (
+                <div
+                  className="rounded-xl border p-8 text-center"
+                  style={{ background: "var(--color-bg-primary)", borderColor: "var(--color-border-subtle)" }}
+                >
+                  <Briefcase size={28} className="mx-auto mb-3" style={{ color: "var(--color-text-tertiary)" }} />
+                  <p className="text-13" style={{ color: "var(--color-text-secondary)" }}>No job listings yet.</p>
+                  <p className="text-11 mt-1" style={{ color: "var(--color-text-tertiary)" }}>Attract top talent by posting open positions.</p>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  {jobs.map((job) => (
+                    <div
+                      key={job.id}
+                      className="rounded-xl border p-4 flex items-start justify-between"
+                      style={{ background: "var(--color-bg-primary)", borderColor: "var(--color-border-subtle)" }}
+                    >
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h4 className="text-14 font-semibold" style={{ color: "var(--color-text-primary)" }}>{job.title}</h4>
+                          <span
+                            className="text-10 font-semibold px-2 py-0.5 rounded-full"
+                            style={{
+                              background: job.status === "active" ? "#dcfce7" : "#fee2e2",
+                              color: job.status === "active" ? "#166534" : "#991b1b",
+                            }}
+                          >
+                            {job.status}
+                          </span>
+                          <span
+                            className="text-10 font-medium px-2 py-0.5 rounded-full"
+                            style={{ background: "var(--color-bg-tertiary)", color: "var(--color-text-secondary)" }}
+                          >
+                            {job.type}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3 mt-1">
+                          {job.location && <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>{job.location}</span>}
+                          {job.department && <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>{job.department}</span>}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <button
+                          onClick={() => setEditingJob(job)}
+                          className="p-1.5 rounded-lg hover:bg-[var(--color-bg-secondary)] transition-colors"
+                          style={{ color: "var(--color-text-tertiary)" }}
+                        >
+                          <Pencil size={13} />
+                        </button>
+                        <button
+                          onClick={() => deleteJob(job.id)}
+                          className="p-1.5 rounded-lg hover:bg-[var(--color-bg-secondary)] transition-colors"
+                          style={{ color: "#dc2626" }}
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ═══ PREMIUM: CUSTOM SECTIONS ═══ */}
+          {activeTab === "sections" && isPremium && (
+            <div>
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-[18px] font-semibold" style={{ color: "var(--color-text-primary)" }}>
+                  Custom Sections
+                </h2>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      setCustomSections([...customSections, { title: "", content: "" }]);
+                      setEditingSectionIdx(customSections.length);
+                    }}
+                    className="flex items-center gap-1.5 text-13 font-medium px-4 py-2 rounded-lg text-white"
+                    style={{ background: "var(--color-accent)" }}
+                  >
+                    <Plus size={14} />
+                    Add Section
+                  </button>
+                  <button
+                    onClick={saveCustomSections}
+                    disabled={sectionsSaving}
+                    className="flex items-center gap-1.5 text-13 font-medium px-4 py-2 rounded-lg text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                    style={{ background: sectionsSaved ? "#16a34a" : "var(--color-accent)" }}
+                  >
+                    {sectionsSaving ? <Loader2 size={14} className="animate-spin" /> : sectionsSaved ? <Check size={14} /> : <Save size={14} />}
+                    {sectionsSaved ? "Saved!" : "Save All"}
+                  </button>
+                </div>
+              </div>
+
+              <p className="text-12 mb-4" style={{ color: "var(--color-text-tertiary)" }}>
+                Add custom content blocks to your profile (Investor Relations, Technology Platform, Partnerships, etc.). Content supports basic Markdown.
+              </p>
+
+              {customSections.length === 0 ? (
+                <div
+                  className="rounded-xl border p-8 text-center"
+                  style={{ background: "var(--color-bg-primary)", borderColor: "var(--color-border-subtle)" }}
+                >
+                  <FileText size={28} className="mx-auto mb-3" style={{ color: "var(--color-text-tertiary)" }} />
+                  <p className="text-13" style={{ color: "var(--color-text-secondary)" }}>No custom sections yet.</p>
+                  <p className="text-11 mt-1" style={{ color: "var(--color-text-tertiary)" }}>Tell your story with custom content blocks.</p>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-4">
+                  {customSections.map((section, idx) => (
+                    <div
+                      key={idx}
+                      className="rounded-xl border p-5"
+                      style={{
+                        background: "var(--color-bg-primary)",
+                        borderColor: editingSectionIdx === idx ? "var(--color-accent)" : "var(--color-border-subtle)",
+                      }}
+                    >
+                      {editingSectionIdx === idx ? (
+                        <div className="flex flex-col gap-3">
+                          <input
+                            type="text"
+                            value={section.title}
+                            onChange={(e) => {
+                              const updated = [...customSections];
+                              updated[idx] = { ...updated[idx], title: e.target.value };
+                              setCustomSections(updated);
+                            }}
+                            placeholder="Section Title (e.g. Investor Relations)"
+                            className="w-full text-14 font-semibold px-3 py-2 rounded-lg border outline-none"
+                            style={{
+                              borderColor: "var(--color-border-medium)",
+                              background: "var(--color-bg-primary)",
+                              color: "var(--color-text-primary)",
+                            }}
+                          />
+                          <textarea
+                            value={section.content}
+                            onChange={(e) => {
+                              const updated = [...customSections];
+                              updated[idx] = { ...updated[idx], content: e.target.value };
+                              setCustomSections(updated);
+                            }}
+                            placeholder="Section content (supports **bold**, *italic*, [links](url))..."
+                            rows={6}
+                            className="w-full text-13 px-3 py-2 rounded-lg border outline-none resize-y"
+                            style={{
+                              borderColor: "var(--color-border-medium)",
+                              background: "var(--color-bg-primary)",
+                              color: "var(--color-text-primary)",
+                            }}
+                          />
+                          <button
+                            onClick={() => setEditingSectionIdx(null)}
+                            className="self-start text-12 font-medium px-3 py-1.5 rounded-lg"
+                            style={{ color: "var(--color-accent)" }}
+                          >
+                            Done editing
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-14 font-semibold" style={{ color: "var(--color-text-primary)" }}>
+                              {section.title || "(Untitled)"}
+                            </h4>
+                            {section.content && (
+                              <p className="text-12 mt-1 line-clamp-2" style={{ color: "var(--color-text-tertiary)" }}>
+                                {section.content}
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1 shrink-0 ml-3">
+                            {idx > 0 && (
+                              <button
+                                onClick={() => {
+                                  const updated = [...customSections];
+                                  [updated[idx - 1], updated[idx]] = [updated[idx], updated[idx - 1]];
+                                  setCustomSections(updated);
+                                }}
+                                className="p-1.5 rounded-lg hover:bg-[var(--color-bg-secondary)] transition-colors"
+                                style={{ color: "var(--color-text-tertiary)" }}
+                              >
+                                <ChevronUp size={13} />
+                              </button>
+                            )}
+                            {idx < customSections.length - 1 && (
+                              <button
+                                onClick={() => {
+                                  const updated = [...customSections];
+                                  [updated[idx], updated[idx + 1]] = [updated[idx + 1], updated[idx]];
+                                  setCustomSections(updated);
+                                }}
+                                className="p-1.5 rounded-lg hover:bg-[var(--color-bg-secondary)] transition-colors"
+                                style={{ color: "var(--color-text-tertiary)" }}
+                              >
+                                <ChevronDown size={13} />
+                              </button>
+                            )}
+                            <button
+                              onClick={() => setEditingSectionIdx(idx)}
+                              className="p-1.5 rounded-lg hover:bg-[var(--color-bg-secondary)] transition-colors"
+                              style={{ color: "var(--color-text-tertiary)" }}
+                            >
+                              <Pencil size={13} />
+                            </button>
+                            <button
+                              onClick={() => {
+                                setCustomSections(customSections.filter((_, i) => i !== idx));
+                                if (editingSectionIdx === idx) setEditingSectionIdx(null);
+                              }}
+                              className="p-1.5 rounded-lg hover:bg-[var(--color-bg-secondary)] transition-colors"
+                              style={{ color: "#dc2626" }}
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ═══ PREMIUM: INQUIRIES ═══ */}
+          {activeTab === "inquiries" && isPremium && (
+            <div>
+              <h2 className="text-[18px] font-semibold mb-5" style={{ color: "var(--color-text-primary)" }}>
+                Inquiries
+                {inquiries.filter((i) => !i.read).length > 0 && (
+                  <span
+                    className="ml-2 text-11 font-semibold px-2 py-0.5 rounded-full text-white"
+                    style={{ background: "#dc2626" }}
+                  >
+                    {inquiries.filter((i) => !i.read).length} new
+                  </span>
+                )}
+              </h2>
+
+              {inquiries.length === 0 ? (
+                <div
+                  className="rounded-xl border p-8 text-center"
+                  style={{ background: "var(--color-bg-primary)", borderColor: "var(--color-border-subtle)" }}
+                >
+                  <MessageSquare size={28} className="mx-auto mb-3" style={{ color: "var(--color-text-tertiary)" }} />
+                  <p className="text-13" style={{ color: "var(--color-text-secondary)" }}>No inquiries yet.</p>
+                  <p className="text-11 mt-1" style={{ color: "var(--color-text-tertiary)" }}>
+                    Investors and partners can reach you through your profile contact form.
+                  </p>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  {inquiries.map((inquiry) => (
+                    <div
+                      key={inquiry.id}
+                      className="rounded-xl border p-5"
+                      style={{
+                        background: inquiry.read ? "var(--color-bg-primary)" : `var(--color-accent-subtle, ${brandColor}08)`,
+                        borderColor: inquiry.read ? "var(--color-border-subtle)" : brandColor + "30",
+                      }}
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-14 font-semibold" style={{ color: "var(--color-text-primary)" }}>
+                              {inquiry.name}
+                            </h4>
+                            {!inquiry.read && (
+                              <span className="text-10 font-semibold px-1.5 py-0.5 rounded-full text-white" style={{ background: brandColor }}>
+                                New
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>{inquiry.email}</span>
+                            {inquiry.sender_company && (
+                              <>
+                                <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>|</span>
+                                <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>{inquiry.sender_company}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className="text-10" style={{ color: "var(--color-text-tertiary)" }}>
+                            {new Date(inquiry.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                          </span>
+                          {!inquiry.read && (
+                            <button
+                              onClick={() => markInquiryRead(inquiry.id)}
+                              className="text-11 font-medium px-2 py-1 rounded-lg border hover:bg-[var(--color-bg-secondary)] transition-colors"
+                              style={{ borderColor: "var(--color-border-medium)", color: "var(--color-text-secondary)" }}
+                            >
+                              Mark read
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-13 mt-2" style={{ color: "var(--color-text-secondary)", lineHeight: 1.6 }}>
+                        {inquiry.message}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ═══ PREMIUM: CONTACT ═══ */}
+          {activeTab === "contact" && isPremium && (
+            <div>
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-[18px] font-semibold" style={{ color: "var(--color-text-primary)" }}>Contact Settings</h2>
+                <button
+                  onClick={saveContact}
+                  disabled={contactSaving}
+                  className="flex items-center gap-1.5 text-13 font-medium px-4 py-2 rounded-lg text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                  style={{ background: contactSaved ? "#16a34a" : "var(--color-accent)" }}
+                >
+                  {contactSaving ? <Loader2 size={14} className="animate-spin" /> : contactSaved ? <Check size={14} /> : <Save size={14} />}
+                  {contactSaved ? "Saved!" : "Save Contact"}
+                </button>
+              </div>
+
+              <div
+                className="rounded-xl border p-5"
+                style={{ background: "var(--color-bg-primary)", borderColor: "var(--color-border-subtle)" }}
+              >
+                <label className="text-12 font-medium mb-1.5 block" style={{ color: "var(--color-text-primary)" }}>
+                  Contact Email
+                </label>
+                <p className="text-11 mb-3" style={{ color: "var(--color-text-tertiary)" }}>
+                  Inquiries from your profile contact form will be stored and visible in the Inquiries tab. Set this email for your records.
+                </p>
+                <input
+                  type="email"
+                  value={contactEmail}
+                  onChange={(e) => setContactEmail(e.target.value)}
+                  placeholder="ir@yourcompany.com"
+                  className="w-full text-13 px-3 py-2.5 rounded-lg border outline-none"
+                  style={{
+                    borderColor: "var(--color-border-medium)",
+                    background: "var(--color-bg-primary)",
+                    color: "var(--color-text-primary)",
+                  }}
+                />
               </div>
             </div>
           )}
