@@ -24,7 +24,7 @@ const tiers = [
       "1 watchlist (up to 10 items)",
       "100 API requests/day",
     ],
-    cta: "Get started",
+    cta: "Get Started",
     ctaHref: "/signup",
     highlighted: false,
   },
@@ -44,7 +44,7 @@ const tiers = [
       "People & investor intelligence",
       "Priority access to new features",
     ],
-    cta: "Get started",
+    cta: "Upgrade",
     ctaHref: "/signup",
     highlighted: true,
   },
@@ -64,7 +64,7 @@ const tiers = [
       "SSO & compliance controls",
       "Priority support",
     ],
-    cta: "Contact us",
+    cta: "Contact Us",
     ctaHref: "mailto:hello@biotechtube.com",
     highlighted: false,
   },
@@ -234,10 +234,10 @@ export default function PricingPage() {
               </p>
               <Link
                 href="/claim"
-                className="inline-flex items-center gap-1.5 text-[13px] font-medium"
-                style={{ color: "var(--color-accent)" }}
+                className="inline-flex items-center gap-1.5 text-[13px] font-medium px-4 py-2 rounded-lg text-white"
+                style={{ background: "var(--color-accent)" }}
               >
-                Claim your profile <ArrowRight size={13} />
+                Claim Profile <ArrowRight size={13} />
               </Link>
             </div>
 

@@ -433,6 +433,30 @@ export default function DashboardClient() {
       <main className="px-4 py-10 md:py-16" style={{ minHeight: "calc(100vh - 120px)" }}>
         <div className="w-full mx-auto" style={{ maxWidth: 960 }}>
 
+          {/* Pro Upgrade Banner (free users only) */}
+          {profile?.tier === "free" && (
+            <div
+              className="rounded-xl px-5 py-4 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+              style={{
+                background: "linear-gradient(135deg, rgba(26,122,94,0.08), rgba(99,102,241,0.08))",
+                border: "1px solid var(--color-border-subtle)",
+              }}
+            >
+              <div>
+                <p className="text-14 font-medium" style={{ color: "var(--color-text-primary)" }}>
+                  Upgrade to Pro for unlimited watchlists, alerts, and more. $29/mo
+                </p>
+              </div>
+              <Link
+                href="/pricing"
+                className="text-13 font-medium px-4 py-2 rounded-lg whitespace-nowrap"
+                style={{ background: "var(--color-accent)", color: "#fff" }}
+              >
+                Learn more
+              </Link>
+            </div>
+          )}
+
           {/* Dashboard Header */}
           <div className="mb-8">
             <h1

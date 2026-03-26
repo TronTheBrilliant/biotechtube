@@ -116,30 +116,30 @@ export default function ClaimFlowPage({
     setError(null);
 
     try {
-      const supabase = createBrowserClient();
-
-      // Create claim - auto-verify for now
-      const { error: claimError } = await supabase
-        .from("company_claims")
-        .insert({
-          company_id: company.id,
-          user_id: user.id,
-          status: "verified",
-          verification_method: "email_domain",
-          verified_at: new Date().toISOString(),
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          companyId: company.id,
           plan: selectedPlan,
-        });
+          userId: user.id,
+        }),
+      });
 
-      if (claimError) {
-        if (claimError.code === "23505") {
-          setError("This company has already been claimed.");
-        } else {
-          setError(claimError.message);
-        }
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Something went wrong.");
         return;
       }
 
-      // Move to confirmation step
+      // If Stripe is configured, redirect to Stripe Checkout
+      if (data.url) {
+        window.location.href = data.url;
+        return;
+      }
+
+      // Mock flow: auto-complete and go to confirmation
       setStep(3);
     } catch {
       setError("Something went wrong. Please try again.");
