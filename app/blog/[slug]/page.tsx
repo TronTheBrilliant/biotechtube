@@ -143,6 +143,7 @@ function formatDate(dateStr: string) {
 
 function categoryLabel(cat: string) {
   const labels: Record<string, string> = {
+    "weekly-recap": "Weekly Recap",
     "market-analysis": "Market Analysis",
     "company-spotlights": "Company Spotlights",
     "sector-reports": "Sector Reports",

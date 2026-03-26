@@ -29,6 +29,7 @@ export const revalidate = 3600; // revalidate every hour
 
 const CATEGORIES = [
   { label: "All", value: "all" },
+  { label: "Weekly Recap", value: "weekly-recap" },
   { label: "Market Analysis", value: "market-analysis" },
   { label: "Company Spotlights", value: "company-spotlights" },
   { label: "Sector Reports", value: "sector-reports" },
@@ -67,6 +68,7 @@ function categoryLabel(cat: string) {
 // Category gradient colors for card thumbnails
 function categoryGradient(cat: string) {
   const gradients: Record<string, string> = {
+    "weekly-recap": "from-rose-500/80 to-red-800/90",
     "market-analysis": "from-emerald-600/80 to-teal-800/90",
     "company-spotlights": "from-blue-600/80 to-indigo-800/90",
     "sector-reports": "from-violet-600/80 to-purple-800/90",
