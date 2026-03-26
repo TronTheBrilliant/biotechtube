@@ -12,12 +12,18 @@ import {
   type WatchlistCollection,
 } from "@/lib/useWatchlistCollections";
 import {
-  Heart, Trash2, BarChart3, Bell, TrendingUp,
+  Heart, Trash2, Bell,
   Building2, Search, Plus, X, Pencil, Check,
-  Bookmark, FlaskConical, ChevronDown,
+  FlaskConical,
 } from "lucide-react";
 
 const supabase = createBrowserClient();
+
+interface PriceData {
+  market_cap_usd: number | null;
+  change_1d: number | null;
+  change_30d: number | null;
+}
 
 interface WatchlistCompany {
   watchlist_id: string;
@@ -30,6 +36,7 @@ interface WatchlistCompany {
   logo_url: string | null;
   stage: string | null;
   created_at: string;
+  priceData?: PriceData;
 }
 
 interface WatchlistPipeline {
@@ -42,11 +49,25 @@ interface WatchlistPipeline {
   company_slug: string | null;
 }
 
-function formatValuation(val: number | null): string {
+function formatValuation(val: number | null | undefined): string {
   if (!val) return "\u2014";
+  if (val >= 1e12) return `$${(val / 1e12).toFixed(1)}T`;
   if (val >= 1e9) return `$${(val / 1e9).toFixed(1)}B`;
   if (val >= 1e6) return `$${(val / 1e6).toFixed(0)}M`;
   return `$${val.toLocaleString()}`;
+}
+
+function formatPct(val: number | null | undefined): string {
+  if (val === null || val === undefined) return "\u2014";
+  const sign = val >= 0 ? "+" : "";
+  return `${sign}${val.toFixed(1)}%`;
+}
+
+function pctColor(val: number | null | undefined): string {
+  if (val === null || val === undefined) return "var(--color-text-tertiary)";
+  if (val > 0) return "#16a34a";
+  if (val < 0) return "#dc2626";
+  return "var(--color-text-tertiary)";
 }
 
 export default function DashboardClient() {
@@ -79,6 +100,7 @@ export default function DashboardClient() {
   const [editNameValue, setEditNameValue] = useState("");
   const [showNewCollection, setShowNewCollection] = useState(false);
   const [newCollectionName, setNewCollectionName] = useState("");
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   // Active tab: "companies" or "pipelines"
   const [activeTab, setActiveTab] = useState<"companies" | "pipelines">("companies");
@@ -103,6 +125,85 @@ export default function DashboardClient() {
       ensureDefault();
     }
   }, [user, collections.length, ensureDefault]);
+
+  // Fetch price data for company IDs
+  async function fetchPriceData(companyIds: string[]): Promise<Map<string, PriceData>> {
+    const priceMap = new Map<string, PriceData>();
+    if (companyIds.length === 0) return priceMap;
+
+    // Get latest price per company (most recent date)
+    const { data: latestPrices } = await supabase
+      .from("company_price_history")
+      .select("company_id, date, close, market_cap_usd")
+      .in("company_id", companyIds)
+      .order("date", { ascending: false })
+      .limit(companyIds.length * 2);
+
+    // Get price from ~1 day ago and ~30 days ago for each company
+    const today = new Date();
+    const d1 = new Date(today);
+    d1.setDate(d1.getDate() - 2); // 2 days back to account for weekends
+    const d30 = new Date(today);
+    d30.setDate(d30.getDate() - 31);
+
+    const { data: oldPrices } = await supabase
+      .from("company_price_history")
+      .select("company_id, date, close")
+      .in("company_id", companyIds)
+      .gte("date", d30.toISOString().split("T")[0])
+      .lte("date", d1.toISOString().split("T")[0])
+      .order("date", { ascending: false });
+
+    // Build price maps
+    const latestByCompany = new Map<string, { close: number; market_cap_usd: number | null }>();
+    const priceAgo1d = new Map<string, number>();
+    const priceAgo30d = new Map<string, number>();
+
+    if (latestPrices) {
+      for (const p of latestPrices) {
+        if (!latestByCompany.has(p.company_id)) {
+          latestByCompany.set(p.company_id, {
+            close: Number(p.close),
+            market_cap_usd: p.market_cap_usd ? Number(p.market_cap_usd) : null,
+          });
+        }
+      }
+    }
+
+    if (oldPrices) {
+      for (const p of oldPrices) {
+        const dateStr = p.date;
+        const priceDate = new Date(dateStr);
+        const daysAgo = Math.round((today.getTime() - priceDate.getTime()) / (1000 * 60 * 60 * 24));
+
+        if (!priceAgo1d.has(p.company_id) && daysAgo >= 1) {
+          priceAgo1d.set(p.company_id, Number(p.close));
+        }
+        if (!priceAgo30d.has(p.company_id) && daysAgo >= 28) {
+          priceAgo30d.set(p.company_id, Number(p.close));
+        }
+      }
+    }
+
+    for (const cid of companyIds) {
+      const latest = latestByCompany.get(cid);
+      if (!latest) {
+        priceMap.set(cid, { market_cap_usd: null, change_1d: null, change_30d: null });
+        continue;
+      }
+
+      const p1d = priceAgo1d.get(cid);
+      const p30d = priceAgo30d.get(cid);
+
+      priceMap.set(cid, {
+        market_cap_usd: latest.market_cap_usd,
+        change_1d: p1d ? ((latest.close - p1d) / p1d) * 100 : null,
+        change_30d: p30d ? ((latest.close - p30d) / p30d) * 100 : null,
+      });
+    }
+
+    return priceMap;
+  }
 
   // Fetch watchlist items for active collection
   const fetchItems = useCallback(async () => {
@@ -147,6 +248,14 @@ export default function DashboardClient() {
           created_at: item.created_at as string,
         };
       });
+
+    // Fetch price data for all companies
+    const companyIds = mapped.map((c) => c.company_id);
+    const priceMap = await fetchPriceData(companyIds);
+    for (const company of mapped) {
+      company.priceData = priceMap.get(company.company_id);
+    }
+
     setCompanies(mapped);
 
     // Fetch pipelines
@@ -169,7 +278,7 @@ export default function DashboardClient() {
     // Get company slugs for pipelines
     const pipelineMapped: WatchlistPipeline[] = [];
     if (pipelineData) {
-      const companyIds = Array.from(
+      const pipelineCompanyIds = Array.from(
         new Set(
           pipelineData
             .map((p: Record<string, unknown>) => {
@@ -180,11 +289,11 @@ export default function DashboardClient() {
         )
       );
       const slugMap = new Map<string, string>();
-      if (companyIds.length > 0) {
+      if (pipelineCompanyIds.length > 0) {
         const { data: slugData } = await supabase
           .from("companies")
           .select("id, slug")
-          .in("id", companyIds);
+          .in("id", pipelineCompanyIds);
         if (slugData) {
           for (const s of slugData) {
             slugMap.set(s.id, s.slug);
@@ -208,6 +317,7 @@ export default function DashboardClient() {
     }
     setPipelines(pipelineMapped);
     setLoading(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, activeCollectionId]);
 
   useEffect(() => {
@@ -287,6 +397,7 @@ export default function DashboardClient() {
     if (activeCollectionId === col.id) {
       setActiveCollectionId(collections.find((c) => c.id !== col.id)?.id || null);
     }
+    setConfirmDeleteId(null);
   }
 
   async function handleCreateCollection() {
@@ -405,27 +516,45 @@ export default function DashboardClient() {
           <div className="mb-6">
             <div className="flex items-center gap-2 flex-wrap mb-4">
               {collections.map((col) => (
-                <button
-                  key={col.id}
-                  onClick={() => setActiveCollectionId(col.id)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all"
-                  style={{
-                    background:
-                      activeCollectionId === col.id
-                        ? "var(--color-accent)"
-                        : "var(--color-bg-secondary)",
-                    color:
-                      activeCollectionId === col.id
-                        ? "#fff"
-                        : "var(--color-text-secondary)",
-                    border:
-                      activeCollectionId === col.id
-                        ? "1px solid var(--color-accent)"
-                        : "1px solid var(--color-border-subtle)",
-                  }}
-                >
-                  {col.name}
-                </button>
+                <div key={col.id} className="relative inline-flex items-center group">
+                  <button
+                    onClick={() => setActiveCollectionId(col.id)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all"
+                    style={{
+                      background:
+                        activeCollectionId === col.id
+                          ? "var(--color-accent)"
+                          : "var(--color-bg-secondary)",
+                      color:
+                        activeCollectionId === col.id
+                          ? "#fff"
+                          : "var(--color-text-secondary)",
+                      border:
+                        activeCollectionId === col.id
+                          ? "1px solid var(--color-accent)"
+                          : "1px solid var(--color-border-subtle)",
+                      paddingRight: !col.is_default ? "28px" : undefined,
+                    }}
+                  >
+                    {col.name}
+                  </button>
+                  {/* Delete button on non-default tabs */}
+                  {!col.is_default && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setConfirmDeleteId(col.id);
+                      }}
+                      className="absolute right-1 top-1/2 -translate-y-1/2 p-0.5 rounded transition-opacity opacity-0 group-hover:opacity-100"
+                      style={{
+                        color: activeCollectionId === col.id ? "rgba(255,255,255,0.7)" : "var(--color-text-tertiary)",
+                      }}
+                      title="Delete list"
+                    >
+                      <X size={12} />
+                    </button>
+                  )}
+                </div>
               ))}
               <button
                 onClick={() => setShowNewCollection(true)}
@@ -447,6 +576,41 @@ export default function DashboardClient() {
                 <Plus size={13} /> New list
               </button>
             </div>
+
+            {/* Confirm delete dialog */}
+            {confirmDeleteId && (
+              <div
+                className="flex items-center gap-3 mb-4 px-4 py-3 rounded-lg"
+                style={{
+                  background: "rgba(220, 38, 38, 0.06)",
+                  border: "1px solid rgba(220, 38, 38, 0.2)",
+                }}
+              >
+                <Trash2 size={14} style={{ color: "#dc2626", flexShrink: 0 }} />
+                <span className="text-[13px]" style={{ color: "var(--color-text-primary)" }}>
+                  Delete this watchlist? All items in it will be removed.
+                </span>
+                <div className="flex items-center gap-2 ml-auto shrink-0">
+                  <button
+                    onClick={() => {
+                      const col = collections.find((c) => c.id === confirmDeleteId);
+                      if (col) handleDelete(col);
+                    }}
+                    className="text-[12px] font-medium px-3 py-1 rounded-lg text-white"
+                    style={{ background: "#dc2626" }}
+                  >
+                    Delete
+                  </button>
+                  <button
+                    onClick={() => setConfirmDeleteId(null)}
+                    className="text-[12px] font-medium px-3 py-1 rounded-lg"
+                    style={{ color: "var(--color-text-secondary)", background: "var(--color-bg-secondary)", border: "1px solid var(--color-border-subtle)" }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* New collection inline input */}
             {showNewCollection && (
@@ -553,7 +717,7 @@ export default function DashboardClient() {
                     </button>
                     {!activeCollection.is_default && (
                       <button
-                        onClick={() => handleDelete(activeCollection)}
+                        onClick={() => setConfirmDeleteId(activeCollection.id)}
                         className="p-1 rounded transition-colors"
                         style={{ color: "var(--color-text-tertiary)" }}
                         onMouseEnter={(e) => {
@@ -740,10 +904,11 @@ export default function DashboardClient() {
                     border: "1px solid var(--color-border-subtle)",
                   }}
                 >
+                  {/* Desktop header */}
                   <div
                     className="hidden sm:grid px-4 py-2.5 text-[11px] font-medium"
                     style={{
-                      gridTemplateColumns: "1fr 90px 100px 40px",
+                      gridTemplateColumns: "1fr 80px 100px 70px 70px 36px",
                       color: "var(--color-text-tertiary)",
                       borderBottom: "1px solid var(--color-border-subtle)",
                     }}
@@ -751,38 +916,94 @@ export default function DashboardClient() {
                     <span>Company</span>
                     <span>Ticker</span>
                     <span className="text-right">Market Cap</span>
+                    <span className="text-right">1D %</span>
+                    <span className="text-right">30D %</span>
                     <span />
                   </div>
 
                   {companies.map((company) => (
-                    <div
-                      key={company.watchlist_id}
-                      className="grid px-4 py-3 items-center transition-colors"
-                      style={{
-                        gridTemplateColumns: "1fr 90px 100px 40px",
-                        borderBottom: "1px solid var(--color-border-subtle)",
-                      }}
-                      onMouseEnter={(e) => { e.currentTarget.style.background = "var(--color-bg-primary)"; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
+                    <div key={company.watchlist_id}>
+                      {/* Desktop row */}
+                      <div
+                        className="hidden sm:grid px-4 py-3 items-center transition-colors"
+                        style={{
+                          gridTemplateColumns: "1fr 80px 100px 70px 70px 36px",
+                          borderBottom: "1px solid var(--color-border-subtle)",
+                        }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = "var(--color-bg-primary)"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          {company.logo_url ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={company.logo_url}
+                              alt=""
+                              className="w-7 h-7 rounded-md object-contain shrink-0"
+                              style={{ background: "var(--color-bg-primary)" }}
+                            />
+                          ) : (
+                            <div
+                              className="w-7 h-7 rounded-md flex items-center justify-center text-[11px] font-semibold shrink-0"
+                              style={{ background: "var(--color-bg-tertiary)", color: "var(--color-text-tertiary)" }}
+                            >
+                              {company.name.charAt(0)}
+                            </div>
+                          )}
+                          <Link
+                            href={`/company/${company.slug}`}
+                            className="text-[13px] font-medium hover:underline truncate"
+                            style={{ color: "var(--color-text-primary)" }}
+                          >
+                            {company.name}
+                          </Link>
+                        </div>
+                        <span className="text-[12px]" style={{ color: "var(--color-text-tertiary)" }}>
+                          {company.ticker || "\u2014"}
+                        </span>
+                        <span className="text-[12px] text-right" style={{ color: "var(--color-text-secondary)" }}>
+                          {formatValuation(company.priceData?.market_cap_usd ?? company.valuation)}
+                        </span>
+                        <span className="text-[12px] text-right font-medium" style={{ color: pctColor(company.priceData?.change_1d) }}>
+                          {formatPct(company.priceData?.change_1d)}
+                        </span>
+                        <span className="text-[12px] text-right font-medium" style={{ color: pctColor(company.priceData?.change_30d) }}>
+                          {formatPct(company.priceData?.change_30d)}
+                        </span>
+                        <button
+                          onClick={() => removeCompany(company.watchlist_id)}
+                          className="p-1 rounded transition-colors justify-self-end"
+                          style={{ color: "var(--color-text-tertiary)" }}
+                          onMouseEnter={(e) => { e.currentTarget.style.color = "#dc2626"; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.color = "var(--color-text-tertiary)"; }}
+                          title="Remove from list"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+
+                      {/* Mobile row */}
+                      <div
+                        className="sm:hidden flex items-center gap-3 px-4 py-3"
+                        style={{ borderBottom: "1px solid var(--color-border-subtle)" }}
+                      >
                         {company.logo_url ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
                             src={company.logo_url}
                             alt=""
-                            className="w-7 h-7 rounded-md object-contain shrink-0"
+                            className="w-8 h-8 rounded-md object-contain shrink-0"
                             style={{ background: "var(--color-bg-primary)" }}
                           />
                         ) : (
                           <div
-                            className="w-7 h-7 rounded-md flex items-center justify-center text-[11px] font-semibold shrink-0"
+                            className="w-8 h-8 rounded-md flex items-center justify-center text-[12px] font-semibold shrink-0"
                             style={{ background: "var(--color-bg-tertiary)", color: "var(--color-text-tertiary)" }}
                           >
                             {company.name.charAt(0)}
                           </div>
                         )}
-                        <div className="min-w-0">
+                        <div className="flex-1 min-w-0">
                           <Link
                             href={`/company/${company.slug}`}
                             className="text-[13px] font-medium hover:underline truncate block"
@@ -790,27 +1011,20 @@ export default function DashboardClient() {
                           >
                             {company.name}
                           </Link>
-                          <span className="text-[11px] sm:hidden" style={{ color: "var(--color-text-tertiary)" }}>
-                            {company.ticker || company.country}
-                          </span>
+                          <div className="flex items-center gap-2 text-[11px]" style={{ color: "var(--color-text-tertiary)" }}>
+                            {company.ticker && <span>{company.ticker}</span>}
+                            <span>{formatValuation(company.priceData?.market_cap_usd ?? company.valuation)}</span>
+                          </div>
                         </div>
+                        <button
+                          onClick={() => removeCompany(company.watchlist_id)}
+                          className="p-1.5 rounded transition-colors shrink-0"
+                          style={{ color: "var(--color-text-tertiary)" }}
+                          title="Remove"
+                        >
+                          <Trash2 size={14} />
+                        </button>
                       </div>
-                      <span className="text-[12px] hidden sm:block" style={{ color: "var(--color-text-tertiary)" }}>
-                        {company.ticker || "\u2014"}
-                      </span>
-                      <span className="text-[12px] text-right hidden sm:block" style={{ color: "var(--color-text-secondary)" }}>
-                        {formatValuation(company.valuation)}
-                      </span>
-                      <button
-                        onClick={() => removeCompany(company.watchlist_id)}
-                        className="p-1 rounded transition-colors ml-auto"
-                        style={{ color: "var(--color-text-tertiary)" }}
-                        onMouseEnter={(e) => { e.currentTarget.style.color = "#dc2626"; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.color = "var(--color-text-tertiary)"; }}
-                        title="Remove from list"
-                      >
-                        <Trash2 size={14} />
-                      </button>
                     </div>
                   ))}
                 </div>

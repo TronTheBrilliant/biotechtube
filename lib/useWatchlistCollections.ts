@@ -42,10 +42,32 @@ export function useWatchlistCollections() {
 
   const ensureDefault = useCallback(async (): Promise<WatchlistCollection | null> => {
     if (!user) return null;
-    // Check if default already exists
-    const existing = collections.find((c) => c.is_default);
-    if (existing) return existing;
 
+    // Check local state first
+    const localExisting = collections.find((c) => c.is_default);
+    if (localExisting) return localExisting;
+
+    // Always query DB to prevent duplicates from race conditions
+    const { data: dbExisting } = await supabase
+      .from("watchlist_collections")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("is_default", true)
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .single();
+
+    if (dbExisting) {
+      const col = dbExisting as WatchlistCollection;
+      // Update local state if not already there
+      setCollections((prev) => {
+        if (prev.some((c) => c.id === col.id)) return prev;
+        return [col, ...prev];
+      });
+      return col;
+    }
+
+    // No default exists anywhere — create one
     const { data, error } = await supabase
       .from("watchlist_collections")
       .insert({ user_id: user.id, name: "My Watchlist", is_default: true })
@@ -96,6 +118,16 @@ export function useWatchlistCollections() {
 
   const deleteCollection = useCallback(
     async (id: string) => {
+      // Delete watchlist items in this collection first
+      await supabase
+        .from("user_watchlist")
+        .delete()
+        .eq("collection_id", id);
+      await supabase
+        .from("user_pipeline_watchlist")
+        .delete()
+        .eq("collection_id", id);
+      // Then delete the collection
       const { error } = await supabase
         .from("watchlist_collections")
         .delete()
