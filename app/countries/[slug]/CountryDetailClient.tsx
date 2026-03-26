@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { CompanyAvatar } from "@/components/CompanyAvatar";
 import { ArrowUpRight, ArrowDownRight, Globe } from "lucide-react";
 import { TvAreaChart } from "@/components/charts/TvAreaChart";
@@ -144,6 +145,13 @@ export default function CountryDetailClient({
       <div className="max-w-[1200px] mx-auto px-4 md:px-6">
         {/* Hero */}
         <div className="pt-6 pb-4">
+          <div className="mb-3">
+            <Breadcrumbs items={[
+              { label: "Home", href: "/" },
+              { label: "Countries", href: "/countries" },
+              { label: countryName },
+            ]} />
+          </div>
           <div className="flex items-center gap-2 mb-1">
             <Globe size={16} style={{ color: "var(--color-accent)" }} />
             <Link
@@ -603,6 +611,33 @@ export default function CountryDetailClient({
             style={{ color: "var(--color-accent)" }}
           >
             &larr; Back to countries
+          </Link>
+        </div>
+      </div>
+
+      {/* Internal links */}
+      <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-6 border-t" style={{ borderColor: "var(--color-border-subtle)" }}>
+        <div className="flex flex-wrap gap-3">
+          <Link
+            href="/countries"
+            className="text-[12px] font-medium px-4 py-2 rounded-lg border transition-colors hover:border-[var(--color-accent)]"
+            style={{ borderColor: "var(--color-border-subtle)", color: "var(--color-text-secondary)" }}
+          >
+            View all countries &rarr;
+          </Link>
+          <Link
+            href="/top-companies"
+            className="text-[12px] font-medium px-4 py-2 rounded-lg border transition-colors hover:border-[var(--color-accent)]"
+            style={{ borderColor: "var(--color-border-subtle)", color: "var(--color-text-secondary)" }}
+          >
+            Top biotech companies &rarr;
+          </Link>
+          <Link
+            href="/markets"
+            className="text-[12px] font-medium px-4 py-2 rounded-lg border transition-colors hover:border-[var(--color-accent)]"
+            style={{ borderColor: "var(--color-border-subtle)", color: "var(--color-text-secondary)" }}
+          >
+            Market overview &rarr;
           </Link>
         </div>
       </div>

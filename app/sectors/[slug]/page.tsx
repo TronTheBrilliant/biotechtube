@@ -116,6 +116,10 @@ export async function generateMetadata({
   const title = `${sector.name} Biotech Companies — Market Cap & Performance | BiotechTube`;
   const description = `Explore ${sector.name} biotech sector${countText}${marketCapText}. Track top companies, market performance, and sector trends on BiotechTube.`;
 
+  const ogMarketCapText = latestMarket?.combined_market_cap ? formatMarketCap(latestMarket.combined_market_cap) : '';
+  const ogSubtitle = `Biotech Sector${ogMarketCapText ? ` · ${ogMarketCapText}` : ''}`;
+  const ogImageUrl = `https://biotechtube.io/api/og?title=${encodeURIComponent(sector.name)}&subtitle=${encodeURIComponent(ogSubtitle)}&type=sector`;
+
   return {
     title,
     description,
@@ -124,8 +128,9 @@ export async function generateMetadata({
       description,
       type: "website",
       siteName: "BiotechTube",
+      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: `${sector.name} sector on BiotechTube` }],
     },
-    twitter: { card: "summary", title, description },
+    twitter: { card: "summary_large_image", site: "@biotechtube", title, description, images: [ogImageUrl] },
   };
 }
 

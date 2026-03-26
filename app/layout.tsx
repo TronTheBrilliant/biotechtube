@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Space_Grotesk } from "next/font/google";
+import Script from "next/script";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/lib/auth";
 import "./globals.css";
@@ -34,14 +35,21 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "BiotechTube",
     url: "https://biotechtube.io",
+    images: [{ url: "https://biotechtube.io/api/og?title=BiotechTube&subtitle=Track%20%247.5T%2B%20in%20biotech%20market%20cap&type=default", width: 1200, height: 630, alt: "BiotechTube — Global Biotech Intelligence" }],
   },
   twitter: {
     card: "summary_large_image",
+    site: "@biotechtube",
     title: "BiotechTube — Global Biotech Intelligence Platform",
     description:
       "Track 14,000+ biotech companies worldwide. Clinical pipeline data, biotech market intelligence, funding rounds, and investment analysis.",
+    images: ["https://biotechtube.io/api/og?title=BiotechTube&subtitle=Track%20%247.5T%2B%20in%20biotech%20market%20cap&type=default"],
   },
   metadataBase: new URL("https://biotechtube.io"),
+  icons: {
+    icon: '/icon.svg',
+    apple: '/apple-icon.png',
+  },
 };
 
 export default function RootLayout({
@@ -51,6 +59,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-JFHJXRVELX"
+          strategy="beforeInteractive"
+        />
+        <Script id="google-analytics" strategy="beforeInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-JFHJXRVELX');
+          `}
+        </Script>
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} font-sans antialiased`}
       >

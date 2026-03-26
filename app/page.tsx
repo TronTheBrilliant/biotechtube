@@ -1,4 +1,5 @@
 
+import { Metadata } from "next";
 import { Nav } from "@/components/Nav";
 import { TickerBar } from "@/components/TickerBar";
 import { Footer } from "@/components/Footer";
@@ -32,6 +33,17 @@ import eventsData from "@/data/events.json";
 import { getFundingAnnualForHomepage } from "@/lib/funding-queries";
 
 export const revalidate = 300;
+
+export const metadata: Metadata = {
+  title: "BiotechTube — Track the Global Biotech Market in Real Time",
+  description:
+    "Track $7T+ in biotech market cap across 1,000+ public companies, 20 sectors, and 30+ countries. Live stock prices, drug pipelines, funding rounds, and FDA approvals updated daily.",
+  keywords:
+    "biotech, biotechnology, market cap, pharmaceutical, drug pipeline, biotech stocks, biotech funding, clinical trials, FDA approvals, biotech companies",
+  alternates: {
+    canonical: "https://biotechtube.io",
+  },
+};
 
 function getSupabase() {
   return createClient(
@@ -513,7 +525,7 @@ export default async function HomePage() {
       <TickerBar />
 
       {/* Hero — centred */}
-      <div className="max-w-[1200px] mx-auto px-4 md:px-6 pt-8 md:pt-14 pb-6 md:pb-8 text-center">
+      <section aria-label="Hero" className="max-w-[1200px] mx-auto px-4 md:px-6 pt-8 md:pt-14 pb-6 md:pb-8 text-center">
         <h1
           className="text-[36px] md:text-[56px] font-bold tracking-tight mx-auto"
           style={{
@@ -522,7 +534,7 @@ export default async function HomePage() {
             lineHeight: 1.05,
           }}
         >
-          The Pulse of Global Biotech.
+          The Pulse of the Global Biotech Market.
         </h1>
         <p
           className="text-[15px] md:text-[17px] mt-3 max-w-[560px] mx-auto"
@@ -550,13 +562,13 @@ export default async function HomePage() {
             />
           ))}
         </div>
-      </div>
+      </section>
 
       {/* Index Cards — hidden for testing */}
       {/* {snapshot && <IndexCards snapshot={snapshot} />} */}
 
       {/* Sections Grid */}
-      <div className="px-4 md:px-6 py-4 space-y-4 max-w-[1200px] mx-auto">
+      <main className="px-4 md:px-6 py-4 space-y-4 max-w-[1200px] mx-auto">
         {/* Row 1: Trending + Top Companies */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {trending.length > 0 && (
@@ -613,7 +625,7 @@ export default async function HomePage() {
             </HomeSection>
           )}
         </div>
-      </div>
+      </main>
 
       <Footer />
     </div>

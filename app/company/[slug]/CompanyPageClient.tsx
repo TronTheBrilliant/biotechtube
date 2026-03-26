@@ -21,6 +21,7 @@ import { TvAreaChart } from "@/components/charts/TvAreaChart";
 import { WatchlistButton } from "@/components/WatchlistButton";
 import { createBrowserClient } from "@/lib/supabase";
 import { PipelineWatchButton } from "@/components/PipelineWatchButton";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 /* ─── Types for enriched data ─── */
 interface PipelineRow {
@@ -494,6 +495,13 @@ export function CompanyPageClient({
         style={{ borderColor: "var(--color-border-subtle)" }}
       >
         <div className="max-w-[1200px] mx-auto px-4 md:px-6 pt-5 pb-4">
+          <div className="mb-3">
+            <Breadcrumbs items={[
+              { label: "Home", href: "/" },
+              { label: "Companies", href: "/companies" },
+              { label: company.name },
+            ]} />
+          </div>
 
           {/* ─── Row 1: Logo + Name + Ticker ─── */}
           <div className="flex items-start gap-3 md:gap-4">
@@ -533,11 +541,19 @@ export function CompanyPageClient({
                 {(company.city || company.country) && (
                   <span className="flex items-center gap-1">
                     <MapPin size={10} />
-                    {company.city ? `${company.city}, ${company.country}` : company.country}
+                    {company.country ? (
+                      <Link
+                        href={`/countries/${company.country.toLowerCase().replace(/\s+/g, '-')}`}
+                        className="hover:underline"
+                        style={{ color: "var(--color-text-tertiary)" }}
+                      >
+                        {company.city ? `${company.city}, ${company.country}` : company.country}
+                      </Link>
+                    ) : company.city}
                   </span>
                 )}
                 {company.founded > 0 && (
-                  <span>· Est. {company.founded}</span>
+                  <span>· Est. <time dateTime={String(company.founded)}>{company.founded}</time></span>
                 )}
               </div>
             </div>
@@ -881,7 +897,11 @@ export function CompanyPageClient({
                         {r.lead_investor && (
                           <span className="text-[11px] hidden sm:inline" style={{ color: "var(--color-text-tertiary)" }}>{r.lead_investor}</span>
                         )}
-                        <span className="text-[11px]" style={{ color: "var(--color-text-tertiary)" }}>{fmtDate(r.announced_date)}</span>
+                        {r.announced_date ? (
+                          <time dateTime={r.announced_date} className="text-[11px]" style={{ color: "var(--color-text-tertiary)" }}>{fmtDate(r.announced_date)}</time>
+                        ) : (
+                          <span className="text-[11px]" style={{ color: "var(--color-text-tertiary)" }}>{fmtDate(r.announced_date)}</span>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -1102,7 +1122,7 @@ export function CompanyPageClient({
                             background: idx % 2 === 0 ? "transparent" : "var(--color-bg-secondary)",
                           }}
                         >
-                          <td className="px-4 py-3" style={{ color: "var(--color-text-secondary)" }}>{fmtDate(r.announced_date)}</td>
+                          <td className="px-4 py-3" style={{ color: "var(--color-text-secondary)" }}>{r.announced_date ? <time dateTime={r.announced_date}>{fmtDate(r.announced_date)}</time> : fmtDate(r.announced_date)}</td>
                           <td className="px-3 py-3"><RoundBadge type={r.round_type} /></td>
                           <td className="px-3 py-3 font-semibold" style={{ color: "var(--color-text-primary)" }}>
                             {r.amount_usd ? formatCurrency(r.amount_usd) : "Undisclosed"}
@@ -1635,6 +1655,30 @@ export function CompanyPageClient({
             </div>
           </div>
         </aside>
+      </div>
+
+      {/* Internal links section */}
+      <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-6 border-t" style={{ borderColor: "var(--color-border-subtle)" }}>
+        <div className="flex flex-wrap gap-3">
+          {sectors.length > 0 && sectors[0].sectors && (
+            <Link
+              href={`/sectors/${sectors[0].sectors.slug}`}
+              className="text-[12px] font-medium px-4 py-2 rounded-lg border transition-colors hover:border-[var(--color-accent)]"
+              style={{ borderColor: "var(--color-border-subtle)", color: "var(--color-text-secondary)" }}
+            >
+              More companies in {sectors[0].sectors.name} &rarr;
+            </Link>
+          )}
+          {company.country && (
+            <Link
+              href={`/countries/${company.country.toLowerCase().replace(/\s+/g, '-')}`}
+              className="text-[12px] font-medium px-4 py-2 rounded-lg border transition-colors hover:border-[var(--color-accent)]"
+              style={{ borderColor: "var(--color-border-subtle)", color: "var(--color-text-secondary)" }}
+            >
+              More companies in {company.country} &rarr;
+            </Link>
+          )}
+        </div>
       </div>
 
       <Footer />

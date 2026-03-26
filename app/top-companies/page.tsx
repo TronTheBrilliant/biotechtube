@@ -5,8 +5,11 @@ import { formatMarketCap } from "@/lib/market-utils";
 import { dbRowsToCompanies } from "@/lib/adapters";
 import { createClient } from "@supabase/supabase-js";
 import { TopCompaniesClient } from "./TopCompaniesClient";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 export const revalidate = 300;
+
+const ogImageUrl = "https://biotechtube.io/api/og?title=Top%20Biotech%20Companies&subtitle=Ranked%20by%20Market%20Cap%20%C2%B7%20Updated%20Daily&type=default";
 
 export const metadata: Metadata = {
   title: "Top Biotech Companies by Market Cap (2026) | BiotechTube",
@@ -18,12 +21,15 @@ export const metadata: Metadata = {
       "Definitive ranking of the world's largest publicly traded biotech companies by market cap. Updated daily.",
     type: "website",
     siteName: "BiotechTube",
+    images: [{ url: ogImageUrl, width: 1200, height: 630, alt: "Top Biotech Companies on BiotechTube" }],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
+    site: "@biotechtube",
     title: "Top Biotech Companies by Market Cap | BiotechTube",
     description:
       "Definitive ranking of the world's largest publicly traded biotech companies by market cap.",
+    images: [ogImageUrl],
   },
 };
 
@@ -126,6 +132,12 @@ export default async function TopCompaniesPage() {
 
       {/* Hero */}
       <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-6 md:py-8">
+        <div className="mb-3">
+          <Breadcrumbs items={[
+            { label: "Home", href: "/" },
+            { label: "Top Companies" },
+          ]} />
+        </div>
         <h1
           className="text-[32px] md:text-[48px] font-bold tracking-tight"
           style={{

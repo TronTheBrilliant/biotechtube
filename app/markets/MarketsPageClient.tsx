@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PaywallCard } from "@/components/PaywallCard";
 import {
   Activity,
@@ -216,6 +217,12 @@ export default function MarketsPageClient({
         className="max-w-[1200px] mx-auto px-4 md:px-6 pt-6 pb-4"
         style={{ borderBottom: "0.5px solid var(--color-border-subtle)" }}
       >
+        <div className="mb-3">
+          <Breadcrumbs items={[
+            { label: "Home", href: "/" },
+            { label: "Markets" },
+          ]} />
+        </div>
         <div className="flex items-center gap-2 mb-1">
           <Activity size={16} style={{ color: "var(--color-accent)" }} />
           <span

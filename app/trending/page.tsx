@@ -5,8 +5,11 @@ import { CompanyAvatar } from "@/components/CompanyAvatar";
 import { formatMarketCap, formatPercent, pctColor } from "@/lib/market-utils";
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 export const revalidate = 300;
+
+const ogImageUrl = "https://biotechtube.io/api/og?title=Trending%20Biotech%20Stocks&subtitle=30-Day%20Top%20Performers&type=default";
 
 export const metadata: Metadata = {
   title: "Trending Biotech Stocks — 30-Day Top Performers | BiotechTube",
@@ -18,12 +21,15 @@ export const metadata: Metadata = {
       "Discover the hottest biotech stocks ranked by 30-day market cap performance.",
     type: "website",
     siteName: "BiotechTube",
+    images: [{ url: ogImageUrl, width: 1200, height: 630, alt: "Trending Biotech Stocks on BiotechTube" }],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
+    site: "@biotechtube",
     title: "Trending Biotech Stocks | BiotechTube",
     description:
       "Discover the hottest biotech stocks ranked by 30-day market cap performance.",
+    images: [ogImageUrl],
   },
 };
 
@@ -170,6 +176,12 @@ export default async function TrendingPage() {
 
       {/* Hero */}
       <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-6 md:py-8">
+        <div className="mb-3">
+          <Breadcrumbs items={[
+            { label: "Home", href: "/" },
+            { label: "Trending" },
+          ]} />
+        </div>
         <h1
           className="text-[32px] md:text-[48px] font-bold tracking-tight"
           style={{

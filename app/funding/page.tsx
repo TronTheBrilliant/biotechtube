@@ -5,6 +5,8 @@ import FundingPageClient from "./FundingPageClient";
 
 export const revalidate = 300;
 
+const ogImageUrl = "https://biotechtube.io/api/og?title=Biotech%20Funding%20Tracker&subtitle=%24473B%2B%20tracked%20%C2%B7%2017%2C000%2B%20rounds&type=funding";
+
 export const metadata: Metadata = {
   title: "Biotech Funding Rounds & Investment Data | BiotechTube",
   description:
@@ -15,12 +17,15 @@ export const metadata: Metadata = {
       "Track biotech funding rounds, VC deals, and investment trends across the global biotech industry.",
     type: "website",
     siteName: "BiotechTube",
+    images: [{ url: ogImageUrl, width: 1200, height: 630, alt: "Biotech Funding Tracker on BiotechTube" }],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
+    site: "@biotechtube",
     title: "Biotech Funding & Investment Data | BiotechTube",
     description:
       "Track biotech funding rounds, VC deals, and investment trends across the global biotech industry.",
+    images: [ogImageUrl],
   },
 };
 

@@ -3,6 +3,7 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PaywallCard } from "@/components/PaywallCard";
 import { FundingInteractiveChart } from "@/components/charts/FundingInteractiveChart";
 import type {
@@ -282,6 +283,12 @@ export default function FundingPageClient({
       <Nav />
 
       <main className="max-w-6xl mx-auto px-4 py-8">
+        <div className="mb-4">
+          <Breadcrumbs items={[
+            { label: "Home", href: "/" },
+            { label: "Funding" },
+          ]} />
+        </div>
         {/* Header */}
         <div className="mb-6">
           <h1

@@ -4,6 +4,8 @@ import MarketsPageClient from "./MarketsPageClient";
 
 export const revalidate = 300;
 
+const ogImageUrl = "https://biotechtube.io/api/og?title=Biotech%20Market%20Overview&subtitle=Index%2C%20Sectors%20%26%20Country%20Rankings&type=default";
+
 export const metadata: Metadata = {
   title: "Biotech Market Overview — Index, Sectors & Countries | BiotechTube",
   description:
@@ -14,12 +16,15 @@ export const metadata: Metadata = {
       "Live biotech market data: total market cap, sector performance, and country rankings. Updated daily.",
     type: "website",
     siteName: "BiotechTube",
+    images: [{ url: ogImageUrl, width: 1200, height: 630, alt: "Biotech Market Overview on BiotechTube" }],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
+    site: "@biotechtube",
     title: "Biotech Market Overview | BiotechTube",
     description:
       "Live biotech market data: total market cap, sector performance, and country rankings.",
+    images: [ogImageUrl],
   },
 };
 

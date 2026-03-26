@@ -206,15 +206,17 @@ export async function generateMetadata({
 
   const ticker = company.ticker ? ` (${company.ticker})` : '';
   const marketCap = company.valuation ? ` worth ${formatMarketCap(company.valuation)}` : '';
+  const pipelineCount = report?.pipeline_count || '';
   const title = `${company.name}${ticker} — Stock, Pipeline & Market Cap | BiotechTube`;
   const description =
     report?.summary ||
-    `${company.name} is a ${company.country || 'global'} biotech company${marketCap}. Track stock price, pipeline drugs, funding history, patents, and FDA approvals on BiotechTube.`;
+    `Explore ${company.name}'s${pipelineCount ? ` pipeline of ${pipelineCount} drugs,` : ' drug pipeline,'}${marketCap ? ` ${formatMarketCap(company.valuation!)} market cap,` : ''} and latest funding. Track stock price and FDA approvals on BiotechTube.`;
 
   const keywords = [
     company.name,
     company.ticker,
     "biotech",
+    "pharmaceutical",
     "stock price",
     "pipeline",
     ...(company.focus || []),
@@ -227,21 +229,30 @@ export async function generateMetadata({
     "market cap",
   ].filter(Boolean);
 
+  const ogSubtitle = `${company.ticker || 'Biotech'}${marketCap ? ` · ${formatMarketCap(company.valuation!)} Market Cap` : ''}`;
+  const ogImageUrl = `https://biotechtube.io/api/og?title=${encodeURIComponent(company.name)}&subtitle=${encodeURIComponent(ogSubtitle)}&type=company${marketCap ? `&value=${encodeURIComponent(formatMarketCap(company.valuation!))}` : ''}`;
+
   return {
     title,
     description,
     keywords: keywords.join(", "),
+    alternates: {
+      canonical: `https://biotechtube.io/company/${params.slug}`,
+    },
     openGraph: {
       title: `${company.name}${ticker} | BiotechTube`,
       description: `Track ${company.name}'s stock price, pipeline, and market data.`,
       type: "website",
       siteName: "BiotechTube",
       url: `https://biotechtube.io/company/${params.slug}`,
+      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: `${company.name} on BiotechTube` }],
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
+      site: "@biotechtube",
       title: `${company.name}${ticker} | BiotechTube`,
       description: `Track ${company.name}'s stock price, pipeline, and market data.`,
+      images: [ogImageUrl],
     },
   };
 }
@@ -296,14 +307,24 @@ export default async function CompanyPage({
     url: company.website || `https://biotechtube.io/company/${params.slug}`,
     description: report?.summary || company.description || undefined,
     foundingDate: company.founded ? String(company.founded) : undefined,
-    numberOfEmployees: report?.employee_estimate || company.employees || undefined,
   };
 
-  if (report?.headquarters_city || company.city) {
+  if (report?.employee_estimate || company.employees) {
+    const empValue = report?.employee_estimate || company.employees;
+    const empNum = typeof empValue === 'string' ? parseInt(empValue, 10) : empValue;
+    if (empNum && !isNaN(empNum)) {
+      jsonLd.numberOfEmployees = {
+        "@type": "QuantitativeValue",
+        value: empNum,
+      };
+    }
+  }
+
+  if (report?.headquarters_city || company.city || company.country) {
     jsonLd.address = {
       "@type": "PostalAddress",
-      addressLocality: report?.headquarters_city || company.city,
-      addressCountry: report?.headquarters_country || company.country,
+      ...(report?.headquarters_city || company.city ? { addressLocality: report?.headquarters_city || company.city } : {}),
+      ...(report?.headquarters_country || company.country ? { addressCountry: report?.headquarters_country || company.country } : {}),
       ...(report?.contact_address ? { streetAddress: report.contact_address } : {}),
     };
   }
@@ -316,7 +337,7 @@ export default async function CompanyPage({
   const cleanJsonLd = JSON.parse(JSON.stringify(jsonLd));
 
   return (
-    <>
+    <article>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(cleanJsonLd) }}
@@ -339,6 +360,6 @@ export default async function CompanyPage({
         teamMembers={companyTeam}
         companyNews={companyNews}
       />
-    </>
+    </article>
   );
 }
