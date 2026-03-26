@@ -5,7 +5,7 @@ import { TickerBar } from "@/components/TickerBar";
 import { Footer } from "@/components/Footer";
 // import { IndexCards } from "@/components/IndexCards";
 import { HomeSection } from "@/components/HomeSection";
-import { BiotechEvent } from "@/lib/types";
+
 import { dbRowsToCompanies } from "@/lib/adapters";
 import { createClient } from "@supabase/supabase-js";
 import { formatMarketCap } from "@/lib/market-utils";
@@ -29,7 +29,6 @@ import SciencePapers from "@/components/home/SciencePapers";
 import OpenPositions from "@/components/home/OpenPositions";
 
 
-import eventsData from "@/data/events.json";
 import { getFundingAnnualForHomepage } from "@/lib/funding-queries";
 
 export const revalidate = 600;
@@ -443,6 +442,24 @@ async function getHotProducts() {
   }));
 }
 
+async function getUpcomingEvents() {
+  const supabase = getSupabase();
+  const today = new Date().toISOString().split("T")[0];
+  const { data } = await supabase
+    .from("biotech_events")
+    .select("name, start_date, end_date, city, country")
+    .gte("start_date", today)
+    .order("start_date", { ascending: true })
+    .limit(5);
+  if (!data) return [];
+  return data.map((e: { name: string; start_date: string; end_date: string | null; city: string | null; country: string | null }) => ({
+    name: e.name,
+    date: e.start_date,
+    endDate: e.end_date || undefined,
+    location: [e.city, e.country].filter(Boolean).join(", "),
+  }));
+}
+
 // ── Page ──
 
 async function safeFetch<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
@@ -451,7 +468,7 @@ async function safeFetch<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
 
 export default async function HomePage() {
 
-  const [companies, snapshot, trending, sectors, countries, investorsData, peopleData, fundingAnnualData, indexHistory, hotPipelines, recentFunding] =
+  const [companies, snapshot, trending, sectors, countries, investorsData, peopleData, fundingAnnualData, indexHistory, hotPipelines, recentFunding, events] =
     await Promise.all([
       safeFetch(getTopCompanies, []),
       safeFetch(getLatestSnapshot, null),
@@ -464,9 +481,8 @@ export default async function HomePage() {
       safeFetch(getIndexHistory, []),
       safeFetch(getHotPipelines, []),
       safeFetch(getRecentFunding, []),
+      safeFetch(getUpcomingEvents, []),
     ]);
-
-  const events = eventsData as BiotechEvent[];
 
   // Prepare top 5 companies for display
   const top5Companies = companies.slice(0, 5).map((c) => ({

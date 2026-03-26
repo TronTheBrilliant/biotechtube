@@ -16,7 +16,8 @@
     "pivot:backfill-prices": "tsx scripts/backfill-prices.ts",
     "pivot:backfill-aggs": "tsx scripts/backfill-aggregations.ts",
     "pivot:daily-update": "tsx scripts/daily-update.ts",
-    "aggregate:funding": "tsx scripts/aggregate-funding-periods.ts"
+    "aggregate:funding": "tsx scripts/aggregate-funding-periods.ts",
+    "fetch:events": "tsx scripts/fetch-events.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",
