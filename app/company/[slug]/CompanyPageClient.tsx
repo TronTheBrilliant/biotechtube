@@ -239,6 +239,169 @@ function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string;
   );
 }
 
+/* ─── QuickStatCard ─── */
+function QuickStatCard({ label, value, isLast = false }: { label: string; value: string; isLast?: boolean }) {
+  return (
+    <div
+      className={`px-4 py-3 rounded-xl border ${isLast ? '' : ''}`}
+      style={{ borderColor: "var(--color-border-subtle)", background: "var(--color-bg-secondary)" }}
+    >
+      <div className="text-[10px] uppercase tracking-[0.6px] font-semibold mb-0.5" style={{ color: "var(--color-text-tertiary)" }}>{label}</div>
+      <div className="text-[16px] font-bold" style={{ color: "var(--color-text-primary)" }}>{value}</div>
+    </div>
+  );
+}
+
+/* ─── Key Metrics Bar (Enhanced tier) ─── */
+function KeyMetricsBar({ metrics }: { metrics: { label: string; value: string }[] }) {
+  return (
+    <div className="flex items-center flex-wrap gap-2 mb-5">
+      {metrics.map((m, i) => (
+        <span
+          key={i}
+          className="text-[11px] font-medium px-3 py-1.5 rounded-full border whitespace-nowrap"
+          style={{
+            borderColor: "var(--color-border-subtle)",
+            background: "var(--color-bg-secondary)",
+            color: "var(--color-text-secondary)",
+          }}
+        >
+          <span style={{ color: "var(--color-text-tertiary)" }}>{m.label}: </span>
+          <span className="font-semibold" style={{ color: "var(--color-text-primary)" }}>{m.value}</span>
+        </span>
+      ))}
+    </div>
+  );
+}
+
+/* ─── Sector Ranking (Enhanced tier) ─── */
+function SectorRankingBar({ rankings }: { rankings: SectorRanking[] }) {
+  if (rankings.length === 0) return null;
+  return (
+    <div
+      className="flex items-center gap-3 flex-wrap text-[11px] mb-5 px-4 py-2.5 rounded-lg"
+      style={{ background: "var(--color-bg-secondary)", color: "var(--color-text-secondary)" }}
+    >
+      <span style={{ color: "var(--color-text-tertiary)" }}>Sector Ranking</span>
+      {rankings.map((r, i) => (
+        <Link
+          key={i}
+          href={`/sectors/${r.sectorSlug}`}
+          className="font-semibold hover:underline"
+          style={{ color: "var(--color-accent)" }}
+        >
+          #{r.rank} in {r.sector}
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+/* ─── Competitor Snapshot (Enhanced tier) ─── */
+function CompetitorSnapshot({ competitors }: { competitors: CompetitorEntry[] }) {
+  if (competitors.length === 0) return null;
+  return (
+    <SectionCard
+      icon={<Swords size={14} style={{ color: "var(--color-accent)" }} />}
+      title="Competitors"
+    >
+      <div className="flex flex-col gap-0">
+        {competitors.map((c) => (
+          <Link
+            key={c.slug}
+            href={`/company/${c.slug}`}
+            className="flex items-center gap-3 py-2.5 border-b last:border-0 transition-colors duration-100 hover:opacity-80"
+            style={{ borderColor: "var(--color-border-subtle)" }}
+          >
+            <CompanyAvatar name={c.name} logoUrl={c.logoUrl} website={null} size={24} />
+            <span className="text-[13px] font-medium flex-1 truncate" style={{ color: "var(--color-text-primary)" }}>
+              {c.name}
+            </span>
+            {c.marketCap && c.marketCap > 0 && (
+              <span className="text-[11px] font-semibold" style={{ color: "var(--color-text-secondary)" }}>
+                {formatCurrency(c.marketCap)}
+              </span>
+            )}
+            {c.primarySector && (
+              <span
+                className="text-[10px] px-2 py-0.5 rounded-full hidden sm:inline-block"
+                style={{ background: "var(--color-bg-tertiary)", color: "var(--color-text-tertiary)" }}
+              >
+                {c.primarySector}
+              </span>
+            )}
+          </Link>
+        ))}
+      </div>
+    </SectionCard>
+  );
+}
+
+/* ─── Company Timeline (Enhanced tier) ─── */
+const timelineColors: Record<string, string> = {
+  founded: 'var(--color-text-tertiary)',
+  funding: '#7c3aed',
+  ipo: '#16a34a',
+  fda: 'var(--color-accent)',
+};
+
+function CompanyTimeline({ events }: { events: TimelineEvent[] }) {
+  if (events.length < 3) return null;
+  return (
+    <SectionCard
+      icon={<Calendar size={14} style={{ color: "var(--color-accent)" }} />}
+      title="Company Timeline"
+    >
+      <div className="relative pl-6">
+        {/* Connecting line */}
+        <div
+          className="absolute left-[7px] top-2 bottom-2 w-[2px]"
+          style={{ background: "var(--color-border-subtle)" }}
+        />
+        {events.map((event, i) => (
+          <div key={i} className="relative flex items-start gap-3 mb-4 last:mb-0">
+            {/* Dot */}
+            <div
+              className="absolute -left-6 top-1 w-[14px] h-[14px] rounded-full border-2 flex-shrink-0"
+              style={{
+                borderColor: timelineColors[event.type] || 'var(--color-text-tertiary)',
+                background: "var(--color-bg-primary)",
+              }}
+            >
+              <div
+                className="w-[6px] h-[6px] rounded-full m-auto mt-[2px]"
+                style={{ background: timelineColors[event.type] || 'var(--color-text-tertiary)' }}
+              />
+            </div>
+            {/* Content */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-baseline gap-2">
+                <span className="text-[12px] font-bold" style={{ color: "var(--color-text-primary)" }}>
+                  {event.year}
+                </span>
+                <span
+                  className="text-[10px] font-bold uppercase tracking-[0.5px] px-1.5 py-0.5 rounded"
+                  style={{
+                    color: timelineColors[event.type] || 'var(--color-text-tertiary)',
+                    background: event.type === 'fda' ? 'var(--color-accent-subtle)' :
+                      event.type === 'ipo' ? 'rgba(22,163,74,0.08)' :
+                      event.type === 'funding' ? 'rgba(124,58,237,0.08)' : 'var(--color-bg-tertiary)',
+                  }}
+                >
+                  {event.label}
+                </span>
+              </div>
+              <p className="text-[12px] mt-0.5" style={{ color: "var(--color-text-secondary)" }}>
+                {event.detail}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </SectionCard>
+  );
+}
+
 /* ─── Sector type ─── */
 interface CompanySector {
   sector_id: string;
@@ -265,6 +428,28 @@ interface ClaimedNewsItem {
   published_at: string;
 }
 
+/* ─── Enhanced tier types ─── */
+interface SectorRanking {
+  sector: string;
+  sectorSlug: string;
+  rank: number;
+}
+
+interface CompetitorEntry {
+  slug: string;
+  name: string;
+  logoUrl: string | null;
+  marketCap: number | null;
+  primarySector: string | null;
+}
+
+interface TimelineEvent {
+  year: number;
+  label: string;
+  detail: string;
+  type: 'founded' | 'funding' | 'ipo' | 'fda';
+}
+
 /* ─── Props ─── */
 interface CompanyPageProps {
   company: Company;
@@ -283,6 +468,10 @@ interface CompanyPageProps {
   claimPlan?: string | null;
   teamMembers?: ClaimedTeamMember[];
   companyNews?: ClaimedNewsItem[];
+  tier?: 'basic' | 'enhanced' | 'premium';
+  sectorRankings?: SectorRanking[];
+  competitors?: CompetitorEntry[];
+  timelineEvents?: TimelineEvent[];
 }
 
 /* ═══════════════════════════════════════════════
@@ -305,6 +494,10 @@ export function CompanyPageClient({
   claimPlan,
   teamMembers = [],
   companyNews = [],
+  tier = 'basic',
+  sectorRankings = [],
+  competitors = [],
+  timelineEvents = [],
 }: CompanyPageProps) {
   const [activeTab, setActiveTab] = useState<Tab>("Overview");
   const [priceTimescale, setPriceTimescale] = useState<PriceTimescale>("1Y");
@@ -492,7 +685,12 @@ export function CompanyPageClient({
       {/* ═══ HERO HEADER ═══ */}
       <header
         className="border-b"
-        style={{ borderColor: "var(--color-border-subtle)" }}
+        style={{
+          borderColor: "var(--color-border-subtle)",
+          background: (tier === 'enhanced' || tier === 'premium')
+            ? "linear-gradient(180deg, var(--color-accent-subtle) 0%, var(--color-bg-primary) 100%)"
+            : undefined,
+        }}
       >
         <div className="max-w-[1200px] mx-auto px-4 md:px-6 pt-5 pb-4">
           <div className="mb-3">
@@ -523,6 +721,15 @@ export function CompanyPageClient({
                     style={{ background: "var(--color-bg-tertiary)", color: "var(--color-text-secondary)" }}
                   >
                     {company.ticker}
+                  </span>
+                )}
+                {tier === 'enhanced' && !isClaimed && (
+                  <span
+                    className="flex-shrink-0 cursor-help"
+                    title="Enhanced profile — verified and enriched with additional data"
+                    style={{ color: "var(--color-accent)" }}
+                  >
+                    <Sparkles size={14} />
                   </span>
                 )}
                 {isClaimed && (
@@ -563,7 +770,7 @@ export function CompanyPageClient({
           {summaryText && (
             <div className="mt-3">
               <p
-                className={`text-[12px] md:text-[13px] max-w-2xl ${descExpanded ? "" : "line-clamp-2"}`}
+                className={`text-[12px] md:text-[13px] max-w-2xl ${descExpanded ? "" : (tier === 'enhanced' || tier === 'premium') ? "line-clamp-3" : "line-clamp-2"}`}
                 style={{ color: "var(--color-text-secondary)", lineHeight: 1.6 }}
               >
                 {summaryText}
@@ -622,7 +829,7 @@ export function CompanyPageClient({
               style={{
                 color: activeTab === tab ? "var(--color-accent)" : "var(--color-text-secondary)",
                 borderBottomColor: activeTab === tab ? "var(--color-accent)" : "transparent",
-                fontWeight: activeTab === tab ? 600 : 400,
+                fontWeight: activeTab === tab ? 600 : (tier === 'enhanced' || tier === 'premium') ? 500 : 400,
               }}
             >
               <span style={{ opacity: activeTab === tab ? 1 : 0.5 }}>{tabIcons[tab]}</span>
@@ -753,6 +960,26 @@ export function CompanyPageClient({
                     </p>
                   </div>
                 </div>
+              )}
+
+              {/* ─── Enhanced Profile Sections ─── */}
+              {(tier === 'enhanced' || tier === 'premium') && (
+                <>
+                  {/* Key Metrics Bar */}
+                  <KeyMetricsBar
+                    metrics={[
+                      ...(latestMarketCap && latestMarketCap > 0 ? [{ label: "Market Cap", value: formatCurrency(latestMarketCap) }] : []),
+                      ...(pipelines.length > 0 ? [{ label: "Pipeline", value: `${pipelines.length} drug${pipelines.length !== 1 ? 's' : ''}${phase3Count > 0 ? ` (${phase3Count} Phase 3)` : ''}` }] : []),
+                      ...(patents.length > 0 ? [{ label: "Patents", value: String(patents.length) }] : []),
+                      ...(company.founded > 0 ? [{ label: "Founded", value: String(company.founded) }] : []),
+                      ...((report?.employee_estimate || (company.employees && company.employees !== "0")) ? [{ label: "Employees", value: report?.employee_estimate || company.employees }] : []),
+                      ...((company.city || company.country) ? [{ label: "HQ", value: [company.city, company.country].filter(Boolean).join(', ') }] : []),
+                    ].filter(m => m.value)}
+                  />
+
+                  {/* Sector Rankings */}
+                  <SectorRankingBar rankings={sectorRankings} />
+                </>
               )}
 
               {/* ─── About Section ─── */}
@@ -990,6 +1217,16 @@ export function CompanyPageClient({
                 <SectionCard icon={<Swords size={14} style={{ color: "var(--color-accent)" }} />} title="Competitive Landscape">
                   <p className="text-[13px]" style={{ color: "var(--color-text-secondary)", lineHeight: 1.75 }}>{report.competitive_landscape}</p>
                 </SectionCard>
+              )}
+
+              {/* ─── Enhanced: Competitor Snapshot ─── */}
+              {(tier === 'enhanced' || tier === 'premium') && competitors.length > 0 && (
+                <CompetitorSnapshot competitors={competitors} />
+              )}
+
+              {/* ─── Enhanced: Company Timeline ─── */}
+              {(tier === 'enhanced' || tier === 'premium') && timelineEvents.length >= 3 && (
+                <CompanyTimeline events={timelineEvents} />
               )}
             </>
           )}

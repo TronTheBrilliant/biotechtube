@@ -10,6 +10,43 @@ import fundingData from "@/data/funding.json";
 
 export const revalidate = 300;
 
+/* ─── Tier detection ─── */
+interface SectorRanking {
+  sector: string;
+  sectorSlug: string;
+  rank: number;
+}
+
+interface CompetitorEntry {
+  slug: string;
+  name: string;
+  logoUrl: string | null;
+  marketCap: number | null;
+  primarySector: string | null;
+}
+
+interface TimelineEvent {
+  year: number;
+  label: string;
+  detail: string;
+  type: 'founded' | 'funding' | 'ipo' | 'fda';
+}
+
+function getProfileTier(
+  company: ReturnType<typeof dbRowToCompany>,
+  qualityScore: number,
+  isClaimed: boolean,
+  claimPlan: string | null,
+  dataSectionCount: number,
+): 'basic' | 'enhanced' | 'premium' {
+  if (isClaimed && claimPlan) return 'premium';
+
+  const hasGoodDescription = company.description && company.description.length > 200;
+  if (hasGoodDescription && qualityScore >= 6.5 && dataSectionCount >= 2) return 'enhanced';
+
+  return 'basic';
+}
+
 const funding = fundingData as FundingRound[];
 
 function getSupabase() {
@@ -161,6 +198,150 @@ async function getCompanyNews(companyId: string) {
   return data || [];
 }
 
+async function getQualityScore(companyId: string): Promise<number> {
+  const supabase = getSupabase();
+  const { data } = await supabase
+    .from('profile_quality')
+    .select('quality_score')
+    .eq('company_id', companyId)
+    .single();
+  return data?.quality_score ? Number(data.quality_score) : 0;
+}
+
+async function getSectorRankings(companyId: string, sectors: { sector_id: string; is_primary: boolean; sectors: { id: string; name: string; slug: string } | null }[], marketCap: number | undefined): Promise<SectorRanking[]> {
+  if (!marketCap || marketCap <= 0 || sectors.length === 0) return [];
+  const supabase = getSupabase();
+  const rankings: SectorRanking[] = [];
+
+  // Only rank in top 2 sectors (primary first)
+  const topSectors = sectors.filter(s => s.sectors).slice(0, 2);
+
+  for (const s of topSectors) {
+    if (!s.sectors) continue;
+    // Count companies with higher market cap in this sector
+    const { count } = await supabase
+      .from('company_sectors')
+      .select('company_id, companies!inner(valuation)', { count: 'exact', head: true })
+      .eq('sector_id', s.sector_id)
+      .gt('companies.valuation', marketCap);
+
+    rankings.push({
+      sector: s.sectors.name,
+      sectorSlug: s.sectors.slug,
+      rank: (count || 0) + 1,
+    });
+  }
+
+  return rankings;
+}
+
+async function getEnhancedCompetitors(company: ReturnType<typeof dbRowToCompany>, sectors: { sector_id: string; sectors: { id: string; name: string; slug: string } | null }[]): Promise<CompetitorEntry[]> {
+  const supabase = getSupabase();
+
+  // Get the primary sector
+  const primarySector = sectors.find(s => s.sectors);
+  if (!primarySector?.sectors) return [];
+
+  const marketCap = company.valuation || 0;
+  // Find companies in the same primary sector, with closest market cap
+  const { data } = await supabase
+    .from('company_sectors')
+    .select('companies(slug, name, logo_url, valuation, country)')
+    .eq('sector_id', primarySector.sector_id)
+    .neq('companies.slug', company.slug)
+    .limit(50);
+
+  if (!data || data.length === 0) return [];
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const candidates = data.filter((r: any) => r.companies && !Array.isArray(r.companies)).map((r: any) => ({
+    slug: r.companies.slug as string,
+    name: r.companies.name as string,
+    logoUrl: r.companies.logo_url as string | null,
+    marketCap: r.companies.valuation as number | null,
+    primarySector: primarySector.sectors!.name,
+  }));
+
+  // Sort by closest market cap (prefer companies with a market cap)
+  candidates.sort((a: CompetitorEntry, b: CompetitorEntry) => {
+    const aCap = a.marketCap || 0;
+    const bCap = b.marketCap || 0;
+    // Prefer companies that have market caps
+    if (aCap > 0 && bCap === 0) return -1;
+    if (aCap === 0 && bCap > 0) return 1;
+    return Math.abs(aCap - marketCap) - Math.abs(bCap - marketCap);
+  });
+
+  return candidates.slice(0, 4);
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function buildTimelineEvents(company: ReturnType<typeof dbRowToCompany>, fundingRounds: any[], fdaApprovals: any[]): TimelineEvent[] {
+  const events: TimelineEvent[] = [];
+
+  // Founded
+  if (company.founded > 0) {
+    const location = [company.city, company.country].filter(Boolean).join(', ');
+    events.push({
+      year: company.founded,
+      label: 'Founded',
+      detail: location ? `Founded in ${location}` : 'Company founded',
+      type: 'founded',
+    });
+  }
+
+  // IPO from funding rounds
+  const ipoRound = fundingRounds.find((r: { round_type: string }) => r.round_type === 'IPO');
+  if (ipoRound) {
+    const year = ipoRound.announced_date ? new Date(ipoRound.announced_date).getFullYear() : null;
+    if (year) {
+      events.push({
+        year,
+        label: 'IPO',
+        detail: ipoRound.amount_usd
+          ? `IPO — ${formatMarketCap(ipoRound.amount_usd)}`
+          : 'Initial Public Offering',
+        type: 'ipo',
+      });
+    }
+  }
+
+  // Major funding rounds (non-IPO, take top 2 by amount)
+  const majorRounds = fundingRounds
+    .filter((r: { round_type: string; amount_usd: number | null; announced_date: string | null }) =>
+      r.round_type !== 'IPO' && r.amount_usd && r.amount_usd > 0 && r.announced_date)
+    .sort((a: { amount_usd: number }, b: { amount_usd: number }) => b.amount_usd - a.amount_usd)
+    .slice(0, 2);
+
+  for (const r of majorRounds) {
+    const year = new Date(r.announced_date).getFullYear();
+    events.push({
+      year,
+      label: r.round_type,
+      detail: `${r.round_type}: ${formatMarketCap(r.amount_usd)}`,
+      type: 'funding',
+    });
+  }
+
+  // FDA approvals (first 3)
+  const topFda = fdaApprovals
+    .filter((a: { approval_date: string | null }) => a.approval_date)
+    .slice(0, 3);
+  for (const a of topFda) {
+    const year = new Date(a.approval_date).getFullYear();
+    events.push({
+      year,
+      label: 'FDA Approval',
+      detail: `FDA Approval: ${a.drug_name}`,
+      type: 'fda',
+    });
+  }
+
+  // Sort by year, deduplicate, limit to 6
+  events.sort((a, b) => a.year - b.year);
+  return events.slice(0, 6);
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function getPriceHistory(companyId: string): Promise<any[]> {
   const supabase = getSupabase();
@@ -288,6 +469,32 @@ export default async function CompanyPage({
     getCompanyNews(companyId),
   ]);
 
+  // Count data sections for tier detection
+  let dataSectionCount = 0;
+  if (pipelines.length > 0) dataSectionCount++;
+  if (dbFundingRounds.length > 0 || companyFunding.length > 0) dataSectionCount++;
+  if (fdaApprovals.length > 0) dataSectionCount++;
+  if (patents.length > 0) dataSectionCount++;
+  if (publications.length > 0) dataSectionCount++;
+  if (priceHistory.length > 0) dataSectionCount++;
+
+  // Fetch quality score for tier detection
+  const qualityScore = await getQualityScore(companyId);
+  const tier = getProfileTier(company, qualityScore, !!companyClaim, companyClaim?.plan || null, dataSectionCount);
+
+  // Fetch enhanced data only for enhanced/premium tiers
+  let sectorRankings: SectorRanking[] = [];
+  let competitors: CompetitorEntry[] = [];
+  let timelineEvents: TimelineEvent[] = [];
+
+  if (tier === 'enhanced' || tier === 'premium') {
+    [sectorRankings, competitors] = await Promise.all([
+      getSectorRankings(companyId, sectors, company.valuation),
+      getEnhancedCompetitors(company, sectors),
+    ]);
+    timelineEvents = buildTimelineEvents(company, dbFundingRounds, fdaApprovals);
+  }
+
   // Build JSON-LD structured data
   const isPublic = company.type === "Public";
   const jsonLd: Record<string, unknown> = {
@@ -349,6 +556,10 @@ export default async function CompanyPage({
         claimPlan={companyClaim?.plan || null}
         teamMembers={companyTeam}
         companyNews={companyNews}
+        tier={tier}
+        sectorRankings={sectorRankings}
+        competitors={competitors}
+        timelineEvents={timelineEvents}
       />
     </article>
   );
