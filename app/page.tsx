@@ -445,24 +445,25 @@ async function getHotProducts() {
 
 // ── Page ──
 
+async function safeFetch<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
+  try { return await fn(); } catch (err: any) { console.error("Homepage fetch error:", err?.message || err); return fallback; }
+}
+
 export default async function HomePage() {
-  // Wrap each fetch so a single failure doesn't crash the whole page
-  const safe = <T,>(fn: () => Promise<T>, fallback: T): Promise<T> =>
-    fn().catch((err) => { console.error("Homepage fetch error:", err?.message || err); return fallback; });
 
   const [companies, snapshot, trending, sectors, countries, investorsData, peopleData, fundingAnnualData, indexHistory, hotPipelines, recentFunding] =
     await Promise.all([
-      safe(getTopCompanies, []),
-      safe(getLatestSnapshot, null),
-      safe(getTrendingCompanies, []),
-      safe(getTopSectors, []),
-      safe(getTopCountries, []),
-      safe(getTopInvestorsData, []),
-      safe(getTopPeopleData, []),
-      safe(getFundingAnnualForHomepage, []),
-      safe(getIndexHistory, []),
-      safe(getHotPipelines, []),
-      safe(getRecentFunding, []),
+      safeFetch(getTopCompanies, []),
+      safeFetch(getLatestSnapshot, null),
+      safeFetch(getTrendingCompanies, []),
+      safeFetch(getTopSectors, []),
+      safeFetch(getTopCountries, []),
+      safeFetch(getTopInvestorsData, []),
+      safeFetch(getTopPeopleData, []),
+      safeFetch(getFundingAnnualForHomepage, []),
+      safeFetch(getIndexHistory, []),
+      safeFetch(getHotPipelines, []),
+      safeFetch(getRecentFunding, []),
     ]);
 
   const events = eventsData as BiotechEvent[];
