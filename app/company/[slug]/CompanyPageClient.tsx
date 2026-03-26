@@ -81,6 +81,37 @@ interface PricePoint {
   adj_close: number | null;
   volume: number | null;
   market_cap_usd: number | null;
+  currency: string | null;
+}
+
+/* ─── Currency formatting helpers ─── */
+const ZERO_DECIMAL_CURRENCIES = new Set(["JPY", "KRW", "VND", "IDR", "CLP", "ISK", "UGX", "HUF"]);
+
+function normaliseCurrency(raw: string): { label: string; divisor: number } {
+  const upper = raw.toUpperCase();
+  if (upper === "GBP" || raw === "GBp" || raw === "GBX") return { label: "GBP", divisor: raw === "GBp" || raw === "GBX" ? 100 : 1 };
+  if (upper === "ZAR" || raw === "ZAc" || raw === "ZAX") return { label: "ZAR", divisor: raw === "ZAc" || raw === "ZAX" ? 100 : 1 };
+  if (upper === "ILA" || raw === "ILA") return { label: "ILS", divisor: 100 };
+  return { label: upper, divisor: 1 };
+}
+
+function formatStockPrice(value: number, currencyRaw: string): string {
+  const { label, divisor } = normaliseCurrency(currencyRaw);
+  const adjusted = value / divisor;
+  if (ZERO_DECIMAL_CURRENCIES.has(label)) {
+    return `${label} ${adjusted.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
+  }
+  return `${label} ${adjusted.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function formatStockChange(value: number, currencyRaw: string): string {
+  const { divisor } = normaliseCurrency(currencyRaw);
+  const adjusted = value / divisor;
+  const { label } = normaliseCurrency(currencyRaw);
+  if (ZERO_DECIMAL_CURRENCIES.has(label)) {
+    return adjusted.toLocaleString("en-US", { maximumFractionDigits: 0 });
+  }
+  return adjusted.toFixed(2);
 }
 
 /* ─── Tab config ─── */
@@ -634,7 +665,9 @@ export function CompanyPageClient({
   const firstPrice = chartData.length > 0 ? chartData[0].value : 0;
   const priceChange = currentPrice - firstPrice;
   const priceChangePct = firstPrice > 0 ? (priceChange / firstPrice) * 100 : 0;
-  const currency = stockMeta?.currency || "USD";
+  // Prefer currency from DB price history, fall back to Yahoo Finance API
+  const dbCurrency = priceHistory.length > 0 ? (priceHistory[priceHistory.length - 1].currency || null) : null;
+  const currency = dbCurrency || stockMeta?.currency || "USD";
   const latestMarketCap = priceHistory.length > 0
     ? priceHistory[priceHistory.length - 1].market_cap_usd
     : stockMeta?.marketCap ?? company.valuation ?? null;
@@ -881,7 +914,7 @@ export function CompanyPageClient({
                         className="text-[32px] font-bold tracking-tight"
                         style={{ color: "var(--color-text-primary)", letterSpacing: "-0.8px" }}
                       >
-                        {currency} {currentPrice.toFixed(2)}
+                        {formatStockPrice(currentPrice, currency)}
                       </span>
                       <span
                         className="flex items-center gap-0.5 text-[14px] font-semibold px-2 py-0.5 rounded-md"
@@ -891,7 +924,7 @@ export function CompanyPageClient({
                         }}
                       >
                         {priceChange >= 0 ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
-                        {priceChange >= 0 ? "+" : ""}{Math.abs(priceChange).toFixed(2)} ({priceChange >= 0 ? "+" : ""}{priceChangePct.toFixed(2)}%)
+                        {priceChange >= 0 ? "+" : "-"}{formatStockChange(Math.abs(priceChange), currency)} ({priceChange >= 0 ? "+" : ""}{priceChangePct.toFixed(2)}%)
                       </span>
                     </div>
                     {latestMarketCap && latestMarketCap > 0 && (
@@ -921,7 +954,7 @@ export function CompanyPageClient({
                       data={chartData}
                       height={380}
                       isPositive={priceChange >= 0}
-                      formatValue={(v) => `${currency} ${v.toFixed(2)}`}
+                      formatValue={(v) => formatStockPrice(v, currency)}
                       tooltipTitle="Price"
                     />
                   ) : stockData.length > 0 ? (
@@ -1761,7 +1794,7 @@ export function CompanyPageClient({
                 <div className="flex flex-col">
                   <InfoRow icon={<Hash size={13} />} label="Ticker" value={<span className="font-mono font-bold" style={{ color: "var(--color-accent)" }}>{company.ticker}</span>} />
                   <InfoRow icon={<Activity size={13} />} label="Exchange" value={report.exchange} />
-                  <InfoRow icon={<DollarSign size={13} />} label="Currency" value={currency} />
+                  <InfoRow icon={<DollarSign size={13} />} label="Currency" value={normaliseCurrency(currency).label} />
                 </div>
               </div>
             )}

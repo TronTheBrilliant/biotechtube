@@ -379,7 +379,7 @@ async function getPriceHistory(companyId: string): Promise<any[]> {
   while (true) {
     const { data } = await supabase
       .from('company_price_history')
-      .select('date, close, adj_close, volume, market_cap_usd')
+      .select('date, close, adj_close, volume, market_cap_usd, currency')
       .eq('company_id', companyId)
       .order('date', { ascending: true })
       .range(offset, offset + pageSize - 1);

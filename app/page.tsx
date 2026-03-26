@@ -158,47 +158,50 @@ async function getTrendingCompanies() {
   oldEnd.setDate(oldEnd.getDate() - 25);
   const oldEndStr = oldEnd.toISOString().split("T")[0];
 
-  // Get current prices (last 5 trading days to catch all markets)
+  // Get current prices (last 5 trading days to catch all markets) — use adj_close for price-based trending
   const fiveDaysAgo = new Date(latestDate);
   fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
   const fiveDaysAgoStr = fiveDaysAgo.toISOString().split("T")[0];
   const { data: currentPrices } = await supabase
     .from("company_price_history")
-    .select("company_id, market_cap_usd, date")
+    .select("company_id, market_cap_usd, adj_close, date")
     .gte("date", fiveDaysAgoStr)
     .not("market_cap_usd", "is", null)
     .order("date", { ascending: false });
 
-  // Get old prices (~30 days ago range)
+  // Get old prices (~30 days ago range) — use adj_close for price-based comparison
   const { data: oldPrices } = await supabase
     .from("company_price_history")
-    .select("company_id, market_cap_usd, date")
+    .select("company_id, market_cap_usd, adj_close, date")
     .gte("date", oldCutoff)
     .lte("date", oldEndStr)
-    .not("market_cap_usd", "is", null)
+    .not("adj_close", "is", null)
     .order("date", { ascending: false });
 
   if (!currentPrices || !oldPrices) return [];
 
-  // Build maps
-  const currentMap = new Map<string, number>();
+  // Build maps — use adj_close for price-based trending (avoids shares_outstanding artifacts)
+  const currentMap = new Map<string, { marketCap: number; adjClose: number }>();
   for (const r of currentPrices) {
-    if (!currentMap.has(r.company_id)) currentMap.set(r.company_id, r.market_cap_usd);
+    if (!currentMap.has(r.company_id) && r.adj_close != null) {
+      currentMap.set(r.company_id, { marketCap: r.market_cap_usd, adjClose: Number(r.adj_close) });
+    }
   }
   const oldMap = new Map<string, number>();
   for (const r of oldPrices) {
-    if (!oldMap.has(r.company_id)) oldMap.set(r.company_id, r.market_cap_usd);
+    if (!oldMap.has(r.company_id) && r.adj_close != null) {
+      oldMap.set(r.company_id, Number(r.adj_close));
+    }
   }
 
-  // Compute 30d change — filter out extreme changes (>200%) which are likely backfill artifacts
+  // Compute 30d change from adj_close price — currency-neutral, no shares_outstanding artifacts
   const changes: { companyId: string; change30d: number; marketCap: number }[] = [];
-  currentMap.forEach((currentMcap, companyId) => {
-    const oldMcap = oldMap.get(companyId);
-    if (oldMcap && oldMcap > 0 && currentMcap > 100_000_000) {
-      // Only include companies with >$100M market cap
-      const pct = ((currentMcap - oldMcap) / oldMcap) * 100;
+  currentMap.forEach((current, companyId) => {
+    const oldAdjClose = oldMap.get(companyId);
+    if (oldAdjClose && oldAdjClose > 0 && current.adjClose > 0 && current.marketCap > 100_000_000) {
+      const pct = ((current.adjClose - oldAdjClose) / oldAdjClose) * 100;
       if (Math.abs(pct) <= 80) {
-        changes.push({ companyId, change30d: Math.round(pct * 100) / 100, marketCap: currentMcap });
+        changes.push({ companyId, change30d: Math.round(pct * 100) / 100, marketCap: current.marketCap });
       }
     }
   });

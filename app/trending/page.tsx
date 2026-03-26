@@ -95,68 +95,66 @@ async function getTrendingData(): Promise<TrendingCompanyRow[]> {
   const thirtyDaysAgoStartStr = thirtyDaysAgoStart.toISOString().split("T")[0];
   const thirtyDaysAgoEndStr = thirtyDaysAgoEnd.toISOString().split("T")[0];
 
-  // Fetch current prices (last 5 days)
+  // Fetch current prices (last 5 days) — include adj_close for price-based trending
   const { data: currentPrices } = await supabase
     .from("company_price_history")
-    .select("company_id, market_cap_usd, close, change_pct, date")
+    .select("company_id, market_cap_usd, adj_close, change_pct, date")
     .gte("date", fiveDaysAgoStr)
     .not("market_cap_usd", "is", null)
     .order("date", { ascending: false });
 
-  // Fetch 7-day-ago prices
+  // Fetch 7-day-ago prices — use adj_close for price-based comparison
   const { data: sevenDayPrices } = await supabase
     .from("company_price_history")
-    .select("company_id, market_cap_usd, close, date")
+    .select("company_id, market_cap_usd, adj_close, date")
     .gte("date", sevenDaysAgoStartStr)
     .lte("date", sevenDaysAgoEndStr)
-    .not("market_cap_usd", "is", null)
+    .not("adj_close", "is", null)
     .order("date", { ascending: false });
 
-  // Fetch 30-day-ago prices
+  // Fetch 30-day-ago prices — use adj_close for price-based comparison
   const { data: thirtyDayPrices } = await supabase
     .from("company_price_history")
-    .select("company_id, market_cap_usd, close, date")
+    .select("company_id, market_cap_usd, adj_close, date")
     .gte("date", thirtyDaysAgoStartStr)
     .lte("date", thirtyDaysAgoEndStr)
-    .not("market_cap_usd", "is", null)
+    .not("adj_close", "is", null)
     .order("date", { ascending: false });
 
   if (!currentPrices) return [];
 
-  // Build maps: company_id -> { marketCap, close, changePct }
+  // Build maps: company_id -> { marketCap, adjClose, changePct }
   const currentMap = new Map<
     string,
-    { marketCap: number; close: number | null; changePct: number | null }
+    { marketCap: number; adjClose: number | null; changePct: number | null }
   >();
   for (const r of currentPrices) {
     if (!currentMap.has(r.company_id)) {
       currentMap.set(r.company_id, {
         marketCap: r.market_cap_usd,
-        close: r.close,
+        adjClose: r.adj_close != null ? Number(r.adj_close) : null,
         changePct: r.change_pct,
       });
     }
   }
 
-  const sevenDayMap = new Map<string, { marketCap: number; close: number | null }>();
+  const sevenDayMap = new Map<string, { adjClose: number | null }>();
   if (sevenDayPrices) {
     for (const r of sevenDayPrices) {
       if (!sevenDayMap.has(r.company_id)) {
         sevenDayMap.set(r.company_id, {
-          marketCap: r.market_cap_usd,
-          close: r.close,
+          adjClose: r.adj_close != null ? Number(r.adj_close) : null,
         });
       }
     }
   }
 
-  const thirtyDayMap = new Map<string, { marketCap: number; close: number | null }>();
+  const thirtyDayMap = new Map<string, { adjClose: number | null }>();
   if (thirtyDayPrices) {
     for (const r of thirtyDayPrices) {
       if (!thirtyDayMap.has(r.company_id)) {
         thirtyDayMap.set(r.company_id, {
-          marketCap: r.market_cap_usd,
-          close: r.close,
+          adjClose: r.adj_close != null ? Number(r.adj_close) : null,
         });
       }
     }
@@ -183,22 +181,22 @@ async function getTrendingData(): Promise<TrendingCompanyRow[]> {
       }
     }
 
-    // 7D change from market cap comparison
+    // 7D change from adj_close price comparison (currency-neutral)
     let change7d: number | null = null;
     const old7d = sevenDayMap.get(companyId);
-    if (old7d && old7d.marketCap > 0) {
-      const pct = ((current.marketCap - old7d.marketCap) / old7d.marketCap) * 100;
+    if (old7d && old7d.adjClose && old7d.adjClose > 0 && current.adjClose && current.adjClose > 0) {
+      const pct = ((current.adjClose - old7d.adjClose) / old7d.adjClose) * 100;
       if (Math.abs(pct) <= CAP_7D) {
         change7d = Math.round(pct * 100) / 100;
       }
     }
 
-    // 30D change from market cap comparison
+    // 30D change from adj_close price comparison (currency-neutral)
     let change30d: number | null = null;
     const old30d = thirtyDayMap.get(companyId);
-    if (old30d && old30d.marketCap > 0) {
+    if (old30d && old30d.adjClose && old30d.adjClose > 0 && current.adjClose && current.adjClose > 0) {
       const pct =
-        ((current.marketCap - old30d.marketCap) / old30d.marketCap) * 100;
+        ((current.adjClose - old30d.adjClose) / old30d.adjClose) * 100;
       if (Math.abs(pct) <= CAP_30D) {
         change30d = Math.round(pct * 100) / 100;
       }
