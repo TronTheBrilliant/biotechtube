@@ -64,6 +64,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/investors`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.6 },
     { url: `${BASE_URL}/about`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.5 },
     { url: `${BASE_URL}/pricing`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.5 },
+    { url: `${BASE_URL}/blog`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
   ];
 
   // Company pages
@@ -144,6 +145,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.5,
     }));
 
+  // Blog post pages
+  const { data: blogRows } = await supabase
+    .from("blog_posts")
+    .select("slug, published_at")
+    .eq("status", "published");
+  const blogPages: MetadataRoute.Sitemap = (blogRows || []).map((b: { slug: string; published_at: string }) => ({
+    url: `${BASE_URL}/blog/${b.slug}`,
+    lastModified: new Date(b.published_at),
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
+
   return [
     ...staticPages,
     ...companyPages,
@@ -153,5 +166,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...drugPages,
     ...peoplePages,
     ...investorPages,
+    ...blogPages,
   ];
 }
