@@ -11,6 +11,7 @@ import { Company, FundingRound } from "@/lib/types";
 import { formatCurrency } from "@/lib/formatting";
 import fundingData from "@/data/funding.json";
 import { Shield, ArrowRight } from "lucide-react";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 const funding = fundingData as FundingRound[];
 
@@ -165,6 +166,13 @@ export function CountryPageClient({ country, nearbyCountries }: CountryPageClien
   return (
     <div style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
       <Nav />
+      <div className="max-w-7xl mx-auto px-5 pt-4">
+        <Breadcrumbs items={[
+          { label: "Home", href: "/" },
+          { label: "Companies", href: "/companies" },
+          { label: country.name },
+        ]} />
+      </div>
 
       {/* ═══ HERO SECTION ═══ */}
       <div className="px-5 md:px-8 pt-8 md:pt-12 pb-6 md:pb-8 max-w-5xl mx-auto">

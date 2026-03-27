@@ -279,6 +279,14 @@ export function CompanyPageClient({ company, companyFunding, similar }: CompanyP
   return (
     <div style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
       <Nav />
+      <div className="max-w-7xl mx-auto px-5 pt-4">
+        <Breadcrumbs items={[
+          { label: "Home", href: "/" },
+          { label: "Companies", href: "/companies" },
+          { label: company.country, href: `/companies/${company.country.toLowerCase().replace(/\s+/g, "-")}` },
+          { label: company.name },
+        ]} />
+      </div>
 
       <CompanyProfileHero company={company} />
 
