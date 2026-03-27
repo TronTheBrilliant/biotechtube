@@ -8,6 +8,8 @@ import { ReadingProgress } from "@/components/blog/ReadingProgress";
 import { ShareButtons } from "@/components/blog/ShareButtons";
 import { NewsletterCTA } from "@/components/blog/NewsletterCTA";
 import { TableOfContents } from "@/components/blog/TableOfContents";
+import { ChartEmbed } from "@/components/blog/ChartEmbed";
+import { extractChartPlaceholders, fetchChartData, type ChartPoint } from "@/lib/blog-chart-data";
 
 export const revalidate = 3600;
 
@@ -306,6 +308,20 @@ export default async function BlogArticlePage({
   const { before, after } = splitContentForNewsletter(htmlContent);
   const articleUrl = `https://biotechtube.io/blog/${post.slug}`;
 
+  // Fetch chart data for any [chart:...] placeholders
+  const chartPlaceholders = extractChartPlaceholders(post.content);
+  const chartDataMap = new Map<string, { title: string; type: string; data: ChartPoint[] }>();
+  await Promise.all(
+    chartPlaceholders.map(async (cp) => {
+      try {
+        const data = await fetchChartData(cp);
+        if (data.length > 0) {
+          chartDataMap.set(cp.placeholder, { title: cp.title, type: cp.type, data });
+        }
+      } catch { /* ignore chart fetch errors */ }
+    })
+  );
+
   // Author initials
   const initials = post.author
     .split(" ")
@@ -433,22 +449,68 @@ export default async function BlogArticlePage({
         <div className="lg:grid lg:grid-cols-[1fr_240px] lg:gap-10" id="article-content">
           {/* Article Content */}
           <article className="min-w-0">
-            {/* First half of content */}
-            <div
-              className="prose"
-              dangerouslySetInnerHTML={{ __html: before }}
-            />
+            {/* Render content with inline charts */}
+            {(() => {
+              // Combine before + newsletter + after, then split by chart placeholders
+              const fullHtml = after ? before + after : before;
+              const chartKeys = [...chartDataMap.keys()];
 
-            {/* Newsletter CTA */}
-            {after && <NewsletterCTA />}
+              if (chartKeys.length === 0) {
+                // No charts — render normally with newsletter CTA
+                return (
+                  <>
+                    <div className="prose" dangerouslySetInnerHTML={{ __html: before }} />
+                    {after && <NewsletterCTA />}
+                    {after && <div className="prose" dangerouslySetInnerHTML={{ __html: after }} />}
+                  </>
+                );
+              }
 
-            {/* Second half of content */}
-            {after && (
-              <div
-                className="prose"
-                dangerouslySetInnerHTML={{ __html: after }}
-              />
-            )}
+              // Split content at chart placeholders and interleave with chart components
+              const segments: React.ReactNode[] = [];
+              let remaining = fullHtml;
+              let segIdx = 0;
+              let newsletterInserted = false;
+
+              for (const key of chartKeys) {
+                const htmlKey = markdownToHtml(key); // The placeholder might be wrapped in <p>
+                const plainKey = key;
+                const splitPoint = remaining.indexOf(htmlKey) !== -1 ? htmlKey :
+                                   remaining.indexOf(plainKey) !== -1 ? plainKey :
+                                   remaining.indexOf(key.replace(/\[/g, '\\[').replace(/\]/g, '\\]')) !== -1 ? key : null;
+
+                if (splitPoint) {
+                  const idx = remaining.indexOf(splitPoint);
+                  const beforeChart = remaining.substring(0, idx);
+                  remaining = remaining.substring(idx + splitPoint.length);
+
+                  if (beforeChart.trim()) {
+                    segments.push(<div key={`seg-${segIdx++}`} className="prose" dangerouslySetInnerHTML={{ __html: beforeChart }} />);
+                  }
+
+                  // Insert newsletter CTA roughly in the middle
+                  if (!newsletterInserted && segIdx >= 1) {
+                    segments.push(<NewsletterCTA key="newsletter" />);
+                    newsletterInserted = true;
+                  }
+
+                  const cd = chartDataMap.get(key)!;
+                  segments.push(
+                    <ChartEmbed key={`chart-${segIdx++}`} type={cd.type as any} title={cd.title} data={cd.data} />
+                  );
+                }
+              }
+
+              // Remaining content after last chart
+              if (remaining.trim()) {
+                if (!newsletterInserted) {
+                  segments.push(<NewsletterCTA key="newsletter" />);
+                }
+                segments.push(<div key={`seg-${segIdx++}`} className="prose" dangerouslySetInnerHTML={{ __html: remaining }} />);
+              }
+
+              return <>{segments}</>;
+            })()}
 
             {/* Tags */}
             {post.tags && post.tags.length > 0 && (
