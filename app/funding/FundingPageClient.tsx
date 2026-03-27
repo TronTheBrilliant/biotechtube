@@ -11,6 +11,7 @@ import { Company, FundingRound } from "@/lib/types";
 import fundingData from "@/data/funding.json";
 import companiesData from "@/data/companies.json";
 import { formatCurrency } from "@/lib/formatting";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 interface FundingRow {
   companySlug: string;
@@ -109,6 +110,9 @@ export function FundingPageClient() {
   return (
     <div style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
       <Nav />
+      <div className="max-w-7xl mx-auto px-5 pt-4">
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Funding" }]} />
+      </div>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}

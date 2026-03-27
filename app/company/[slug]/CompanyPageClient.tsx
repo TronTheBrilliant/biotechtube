@@ -10,6 +10,8 @@ import { FundingTimeline } from "@/components/FundingTimeline";
 // TeamGrid and PublicationsList rendered inline in their tabs
 import { AIChatWidget } from "@/components/AIChatWidget";
 import { SimilarCompanies } from "@/components/SimilarCompanies";
+import { CompanyFAQ } from "@/components/CompanyFAQ";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Company, FundingRound } from "@/lib/types";
 import { formatCurrency } from "@/lib/formatting";
 import { Calendar, FileText, ExternalLink, TrendingUp, Users, FlaskConical, Newspaper, Activity, BarChart3, ArrowUpRight, ArrowDownRight } from "lucide-react";
@@ -891,6 +893,9 @@ formatter={((value: number) => [`$${value}M`, "Amount"]) as any}
           <div className="p-3.5">
             <AIChatWidget companyName={company.name} />
           </div>
+
+          {/* FAQ Section */}
+          <CompanyFAQ company={company} />
 
           {/* Similar Companies */}
           {similar.length > 0 && <SimilarCompanies companies={similar} />}

@@ -1,0 +1,86 @@
+[
+  {
+    "slug": "oncology",
+    "name": "Oncology",
+    "description": "Oncology is the largest and most actively funded therapeutic area in biotechnology, encompassing the development of novel cancer treatments across solid tumors and hematologic malignancies. Biotech companies in oncology are pioneering targeted therapies, immune checkpoint inhibitors, antibody-drug conjugates, and precision medicine approaches that match treatments to specific tumor biomarkers. The oncology pipeline includes small molecules, biologics, and combination regimens advancing through clinical trials for indications ranging from breast and lung cancer to rare pediatric tumors. With global cancer incidence rising, investor interest in oncology biotech remains exceptionally strong, driving record funding rounds and a wave of IPOs. Key trends include next-generation sequencing-guided therapy selection, minimal residual disease monitoring, and bispecific antibody platforms that are reshaping how oncologists treat drug-resistant cancers.",
+    "icon": "🎯",
+    "keywords": ["cancer biotech", "oncology companies", "cancer treatment", "tumor therapy", "checkpoint inhibitors", "antibody-drug conjugates", "precision oncology", "immuno-oncology"]
+  },
+  {
+    "slug": "immunotherapy",
+    "name": "Immunotherapy",
+    "description": "Immunotherapy harnesses the body's own immune system to fight disease, representing one of the most transformative advances in modern medicine. Biotech companies specializing in immunotherapy develop treatments that activate, enhance, or redirect immune responses against cancer, autoimmune disorders, and infectious diseases. Key modalities include checkpoint inhibitors, CAR-T cell therapies, bispecific T-cell engagers, cancer vaccines, and cytokine-based therapies. The immunotherapy landscape continues to expand beyond oncology into areas such as fibrosis, neuroinflammation, and transplant rejection. Companies are also developing next-generation approaches like natural killer cell engagers, tumor-infiltrating lymphocyte therapies, and mRNA-based immune activators. With dozens of approvals and hundreds of clinical trials underway, immunotherapy biotech attracts substantial venture capital and pharmaceutical partnership deals each year.",
+    "icon": "🛡️",
+    "keywords": ["immunotherapy companies", "immune checkpoint", "CAR-T therapy", "bispecific antibodies", "cancer immunotherapy", "immune-oncology", "T-cell therapy", "cancer vaccines"]
+  },
+  {
+    "slug": "gene-therapy",
+    "name": "Gene Therapy",
+    "description": "Gene therapy aims to treat or cure diseases by delivering functional genetic material into a patient's cells, correcting the underlying cause at the DNA level. Biotech companies in gene therapy develop viral and non-viral vector platforms, including adeno-associated virus (AAV), lentivirus, and lipid nanoparticle delivery systems, to address genetic disorders that were previously untreatable. The field has achieved landmark approvals for conditions such as spinal muscular atrophy, inherited retinal dystrophy, and sickle cell disease. Current research focuses on expanding gene therapy to more prevalent conditions, improving vector manufacturing scalability, reducing immunogenicity, and developing in vivo gene editing approaches using CRISPR-Cas9 and base editing technologies. With curative potential in a single treatment, gene therapy commands premium pricing and has attracted billions in venture funding and major pharma partnerships worldwide.",
+    "icon": "🧬",
+    "keywords": ["gene therapy companies", "AAV vectors", "CRISPR biotech", "gene editing", "genetic medicine", "viral vectors", "gene correction", "inherited disease treatment"]
+  },
+  {
+    "slug": "cell-therapy",
+    "name": "Cell Therapy",
+    "description": "Cell therapy involves the transplantation of human cells to replace or repair damaged tissue and restore lost function, offering potentially curative treatments for a range of serious diseases. Biotech companies in this space develop autologous and allogeneic cell therapies using T cells, natural killer cells, stem cells, and engineered cellular platforms. CAR-T cell therapy has demonstrated remarkable efficacy in blood cancers, while next-generation approaches aim to extend cell therapy benefits to solid tumors and autoimmune diseases. Companies are also advancing iPSC-derived cell products, mesenchymal stem cell therapies, and islet cell transplantation for diabetes. Manufacturing innovation is critical in this field, with firms developing closed automated systems to reduce costs and improve consistency. The cell therapy sector continues to attract major investment as the technology matures toward off-the-shelf products.",
+    "icon": "🦠",
+    "keywords": ["cell therapy companies", "CAR-T biotech", "stem cell therapy", "allogeneic cell therapy", "iPSC therapeutics", "NK cell therapy", "regenerative medicine", "cell manufacturing"]
+  },
+  {
+    "slug": "rare-diseases",
+    "name": "Rare Diseases",
+    "description": "Rare disease biotech focuses on developing treatments for the estimated 7,000 rare diseases that collectively affect over 300 million people worldwide, yet more than 90 percent of these conditions lack an approved therapy. Biotech companies in this space leverage orphan drug designation, which provides regulatory incentives including market exclusivity, tax credits, and accelerated review pathways. Therapeutic approaches span small molecules, enzyme replacement therapies, gene therapies, and RNA-based medicines targeting conditions such as Duchenne muscular dystrophy, Fabry disease, phenylketonuria, and rare epilepsies. The rare disease model is attractive to investors because of high unmet need, well-defined patient populations, and the potential for expedited clinical development timelines. Many rare disease biotechs have successfully achieved approval and commercialization, making this one of the most productive segments of the industry.",
+    "icon": "🦋",
+    "keywords": ["rare disease biotech", "orphan drugs", "enzyme replacement therapy", "rare genetic disorders", "ultra-rare diseases", "orphan drug designation", "rare disease treatment", "unmet medical need"]
+  },
+  {
+    "slug": "neuroscience",
+    "name": "Neuroscience",
+    "description": "Neuroscience biotech encompasses the development of therapies for neurological and psychiatric disorders, including Alzheimer's disease, Parkinson's disease, ALS, epilepsy, multiple sclerosis, depression, and schizophrenia. These conditions represent some of the largest unmet medical needs in healthcare, affecting hundreds of millions of patients globally. Biotech companies are advancing novel mechanisms of action such as anti-amyloid and anti-tau antibodies, gene therapies for neurodegeneration, psychedelic-inspired compounds for treatment-resistant depression, and antisense oligonucleotides for genetic neurological conditions. Recent FDA approvals of anti-amyloid antibodies for Alzheimer's have reinvigorated investor confidence in the neuroscience pipeline. Challenges in this area include blood-brain barrier penetration, long clinical trial timelines, and complex endpoint measurements, but breakthrough therapies continue to emerge from innovative biotech companies.",
+    "icon": "🧠",
+    "keywords": ["neuroscience biotech", "Alzheimer's treatment", "Parkinson's therapy", "CNS drugs", "neurodegeneration", "psychiatric drugs", "brain disease", "neurology companies"]
+  },
+  {
+    "slug": "cardiovascular",
+    "name": "Cardiovascular",
+    "description": "Cardiovascular biotech targets heart disease, stroke, and related vascular conditions that remain the leading cause of death worldwide, responsible for nearly 18 million deaths annually. Biotech companies in this therapeutic area are developing next-generation lipid-lowering therapies, including PCSK9 inhibitors and siRNA-based treatments, as well as novel anticoagulants, heart failure drugs, and gene therapies for inherited cardiomyopathies. RNA interference approaches have shown particular promise, with long-acting injectable treatments that can reduce LDL cholesterol with just one or two doses per year. Other active areas of research include cardiac regeneration using stem cells, anti-inflammatory therapies that address the residual cardiovascular risk beyond cholesterol management, and digital biomarkers for early detection. The cardiovascular space offers large addressable markets and growing interest from biotech investors seeking therapeutic areas with clear clinical endpoints.",
+    "icon": "❤️",
+    "keywords": ["cardiovascular biotech", "heart disease treatment", "lipid lowering drugs", "PCSK9 inhibitors", "heart failure therapy", "anticoagulants", "cardiac gene therapy", "vascular disease"]
+  },
+  {
+    "slug": "infectious-disease",
+    "name": "Infectious Disease",
+    "description": "Infectious disease biotech develops vaccines, antivirals, antibiotics, and antifungals to combat pathogens that pose serious threats to global health. The COVID-19 pandemic dramatically accelerated innovation in this space, particularly in mRNA vaccine technology, monoclonal antibody cocktails, and antiviral small molecules. Biotech companies continue to build on these platforms to address a broad range of infectious threats including influenza, RSV, HIV, hepatitis B, tuberculosis, and antimicrobial-resistant bacteria. The growing crisis of antibiotic resistance has spurred investment in novel antimicrobial approaches such as bacteriophage therapy, antimicrobial peptides, and microbiome-based interventions. Pandemic preparedness initiatives and government funding programs provide additional financial incentives for biotech companies working on emerging infectious diseases. The sector remains strategically important for both public health security and commercial opportunity.",
+    "icon": "🦠",
+    "keywords": ["infectious disease biotech", "vaccine companies", "antiviral drugs", "antibiotic resistance", "mRNA vaccines", "pandemic preparedness", "antimicrobial biotech", "pathogen therapeutics"]
+  },
+  {
+    "slug": "diagnostics",
+    "name": "Diagnostics",
+    "description": "Diagnostics biotech develops tests, assays, and platforms that detect diseases, monitor treatment response, and guide clinical decision-making. Modern diagnostics companies are building on advances in genomics, proteomics, and artificial intelligence to create liquid biopsies for early cancer detection, companion diagnostics that match patients with targeted therapies, and rapid point-of-care tests for infectious diseases. Next-generation sequencing panels enable comprehensive tumor profiling, while multi-cancer early detection tests promise to identify cancers before symptoms appear. The diagnostics sector also includes companies developing novel biomarker discovery platforms, digital pathology tools, and microfluidics-based testing systems. With the shift toward precision medicine and value-based care, diagnostics companies play an increasingly central role in the biotech ecosystem, and the market is projected to grow significantly as more treatments require companion diagnostic support.",
+    "icon": "🔬",
+    "keywords": ["diagnostics biotech", "liquid biopsy", "companion diagnostics", "cancer screening", "molecular diagnostics", "genomic testing", "point-of-care testing", "biomarker discovery"]
+  },
+  {
+    "slug": "drug-delivery",
+    "name": "Drug Delivery",
+    "description": "Drug delivery biotech focuses on technologies that improve how therapeutic agents reach their targets in the body, enhancing efficacy while reducing side effects. Companies in this space develop lipid nanoparticles, polymer conjugates, antibody-drug conjugates, exosome-based carriers, and implantable delivery systems that can precisely control the timing, location, and concentration of drug release. Lipid nanoparticle technology gained widespread recognition through its role in mRNA COVID-19 vaccines and is now being adapted for gene therapy and cancer applications. Other innovations include targeted delivery across the blood-brain barrier, inhaled nanoparticle formulations for lung diseases, and long-acting injectable depot formulations that improve patient adherence. Drug delivery platforms are highly valued as enabling technologies, often forming the basis of licensing deals and partnerships with major pharmaceutical companies seeking to improve existing drug candidates.",
+    "icon": "💉",
+    "keywords": ["drug delivery biotech", "lipid nanoparticles", "antibody-drug conjugates", "nanoparticle technology", "targeted delivery", "controlled release", "drug formulation", "LNP technology"]
+  },
+  {
+    "slug": "radiopharmaceuticals",
+    "name": "Radiopharmaceuticals",
+    "description": "Radiopharmaceutical biotech develops targeted radioactive compounds that deliver cytotoxic radiation directly to cancer cells while sparing healthy tissue. This rapidly growing therapeutic area combines the targeting precision of biologics with the cell-killing power of radiation, creating a new class of cancer treatments known as radioligand therapies. Following the landmark approval of lutetium-177 PSMA for prostate cancer, the sector has seen explosive growth in investment and dealmaking. Biotech companies are developing radiopharmaceuticals targeting a wide range of tumor types using isotopes such as actinium-225, lead-212, and thorium-227 for alpha-particle therapy, which offers even more potent tumor killing with a shorter radiation range. Key challenges include radioisotope supply chain development, specialized manufacturing requirements, and managing radiation safety protocols. Major pharma companies have made multi-billion-dollar acquisitions in this space, signaling strong long-term confidence.",
+    "icon": "☢️",
+    "keywords": ["radiopharmaceutical companies", "radioligand therapy", "targeted radiation", "alpha therapy", "lutetium-177", "actinium-225", "nuclear medicine biotech", "theranostics"]
+  },
+  {
+    "slug": "digital-health",
+    "name": "Digital Health",
+    "description": "Digital health biotech sits at the intersection of technology and life sciences, developing AI-powered drug discovery platforms, digital therapeutics, remote patient monitoring systems, and clinical trial optimization tools. Companies in this space use machine learning algorithms to identify novel drug targets, predict molecular properties, design clinical trials, and analyze real-world patient data at unprecedented scale and speed. AI-driven drug discovery has attracted billions in investment as companies demonstrate the ability to advance candidates to clinical stages faster and at lower cost than traditional approaches. Digital therapeutics — software-based interventions that treat medical conditions — represent another growing segment, with FDA-cleared products addressing insomnia, substance use disorders, and chronic pain. The convergence of artificial intelligence, big data, and biotechnology is creating new business models and accelerating the pace of innovation across the entire drug development pipeline.",
+    "icon": "🤖",
+    "keywords": ["digital health biotech", "AI drug discovery", "digital therapeutics", "machine learning pharma", "clinical trial AI", "health tech", "computational biology", "biotech AI companies"]
+  }
+]

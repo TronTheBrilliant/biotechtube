@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Company, FundingRound } from "@/lib/types";
 import { CompanyPageClient } from "./CompanyPageClient";
 import { CompanyJsonLd } from "./CompanyJsonLd";
+import { CompanyFAQJsonLd } from "@/components/CompanyFAQJsonLd";
 import { dbRowToCompany, dbRowsToCompanies } from "@/lib/adapters";
 import { createServerClient } from "@/lib/supabase";
 import { cache } from "react";
@@ -122,6 +123,7 @@ export default async function CompanyPage({
   return (
     <>
       <CompanyJsonLd company={company} />
+      <CompanyFAQJsonLd company={company} />
       <CompanyPageClient
         company={company}
         companyFunding={companyFunding}

@@ -4,6 +4,7 @@ import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { RecentlyFunded } from "@/components/RecentlyFunded";
 import { PaywallCard } from "@/components/PaywallCard";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Company, FundingRound } from "@/lib/types";
 import eventsData from "@/data/events.json";
 import fundingData from "@/data/funding.json";
@@ -133,6 +134,9 @@ export default function EventsPage() {
   return (
     <div style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
       <Nav />
+      <div className="max-w-7xl mx-auto px-5 pt-4">
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Events" }]} />
+      </div>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(eventsJsonLd) }}

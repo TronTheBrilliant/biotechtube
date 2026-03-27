@@ -9,6 +9,7 @@ import { Activity, TrendingUp, FlaskConical, Landmark, ArrowUpRight, ArrowDownRi
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from "recharts";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 // ── Generate long-term index data (2010–2026) ──
 const timescales = ["1Y", "3Y", "5Y", "10Y", "Max"] as const;
@@ -96,6 +97,9 @@ export function MarketsPageClient() {
   return (
     <div style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
       <Nav />
+      <div className="max-w-7xl mx-auto px-5 pt-4">
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Markets" }]} />
+      </div>
 
       {/* Hero */}
       <div className="px-5 pt-6 pb-4" style={{ borderBottom: "0.5px solid var(--color-border-subtle)" }}>

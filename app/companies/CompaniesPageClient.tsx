@@ -10,6 +10,7 @@ import { Company, FundingRound } from "@/lib/types";
 import { formatCurrency } from "@/lib/formatting";
 import { Search, ArrowRight, Shield, ChevronRight } from "lucide-react";
 import { CompanyAvatar } from "@/components/CompanyAvatar";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { dbRowsToCompanies } from "@/lib/adapters";
 
 import fundingData from "@/data/funding.json";
@@ -145,6 +146,9 @@ export function CompaniesPageClient() {
   return (
     <div style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
       <Nav />
+      <div className="max-w-7xl mx-auto px-5 pt-4">
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Companies" }]} />
+      </div>
 
       {/* ═══ HERO + SEARCH ═══ */}
       <div className="px-5 md:px-8 pt-8 md:pt-12 pb-6 md:pb-8 text-center max-w-3xl mx-auto">

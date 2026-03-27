@@ -11,6 +11,7 @@ import { ArrowRight, X, SlidersHorizontal } from "lucide-react";
 
 import companiesData from "@/data/companies.json";
 import fundingData from "@/data/funding.json";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 const companies = companiesData as Company[];
 const funding = fundingData as FundingRound[];
@@ -445,6 +446,9 @@ export function PipelinePageClient() {
   return (
     <div style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
       <Nav />
+      <div className="max-w-7xl mx-auto px-5 pt-4">
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Pipeline" }]} />
+      </div>
 
       {/* Page Header */}
       <div
