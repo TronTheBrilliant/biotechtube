@@ -4,6 +4,10 @@ import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { createServerClient } from "@/lib/supabase";
+import { ReadingProgress } from "@/components/blog/ReadingProgress";
+import { ShareButtons } from "@/components/blog/ShareButtons";
+import { NewsletterCTA } from "@/components/blog/NewsletterCTA";
+import { TableOfContents } from "@/components/blog/TableOfContents";
 
 export const revalidate = 3600;
 
@@ -20,6 +24,36 @@ interface BlogPost {
   updated_at: string;
   meta_title: string | null;
   meta_description: string | null;
+}
+
+/* ── Category colors ── */
+
+const CATEGORY_GRADIENTS: Record<string, string> = {
+  "market-analysis": "linear-gradient(135deg, #065f46 0%, #059669 50%, #10b981 100%)",
+  "sector-reports": "linear-gradient(135deg, #1e3a5f 0%, #2563eb 50%, #3b82f6 100%)",
+  guides: "linear-gradient(135deg, #4c1d95 0%, #7c3aed 50%, #8b5cf6 100%)",
+  funding: "linear-gradient(135deg, #78350f 0%, #d97706 50%, #f59e0b 100%)",
+  "weekly-recap": "linear-gradient(135deg, #881337 0%, #e11d48 50%, #f43f5e 100%)",
+  analysis: "linear-gradient(135deg, #065f46 0%, #059669 50%, #10b981 100%)",
+  "company-spotlights": "linear-gradient(135deg, #1e3a5f 0%, #2563eb 50%, #3b82f6 100%)",
+};
+
+const CATEGORY_BADGE_COLORS: Record<string, { bg: string; text: string }> = {
+  "market-analysis": { bg: "rgba(16,185,129,0.15)", text: "#10b981" },
+  "sector-reports": { bg: "rgba(59,130,246,0.15)", text: "#3b82f6" },
+  guides: { bg: "rgba(139,92,246,0.15)", text: "#8b5cf6" },
+  funding: { bg: "rgba(245,158,11,0.15)", text: "#f59e0b" },
+  "weekly-recap": { bg: "rgba(244,63,94,0.15)", text: "#f43f5e" },
+  analysis: { bg: "rgba(16,185,129,0.15)", text: "#10b981" },
+  "company-spotlights": { bg: "rgba(59,130,246,0.15)", text: "#3b82f6" },
+};
+
+function getCategoryGradient(cat: string) {
+  return CATEGORY_GRADIENTS[cat] || "linear-gradient(135deg, #065f46 0%, #059669 50%, #10b981 100%)";
+}
+
+function getCategoryBadge(cat: string) {
+  return CATEGORY_BADGE_COLORS[cat] || { bg: "rgba(16,185,129,0.15)", text: "#10b981" };
 }
 
 /* ── Markdown to HTML (lightweight, no dependencies) ── */
@@ -61,7 +95,7 @@ function markdownToHtml(md: string): string {
   html = html.replace(/^#### (.+)$/gm, '<h4 id="$1">$1</h4>');
   html = html.replace(/^### (.+)$/gm, '<h3 id="$1">$1</h3>');
   html = html.replace(/^## (.+)$/gm, '<h2 id="$1">$1</h2>');
-  html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+  html = html.replace(/^# (.+)$/gm, "<h1>$1</h1>");
 
   // Bold and italic
   html = html.replace(/\*\*\*(.+?)\*\*\*/g, "<strong><em>$1</em></strong>");
@@ -84,7 +118,7 @@ function markdownToHtml(md: string): string {
   // Horizontal rule
   html = html.replace(/^---$/gm, "<hr />");
 
-  // Paragraphs — wrap remaining lines that aren't already HTML
+  // Paragraphs
   html = html
     .split("\n\n")
     .map((block) => {
@@ -127,8 +161,7 @@ function extractHeadings(md: string) {
 /* ── Reading time calc ── */
 
 function calcReadingTime(content: string) {
-  const words = content.split(/\s+/).length;
-  return Math.max(1, Math.ceil(words / 250));
+  return Math.max(1, Math.ceil(content.split(/\s+/).length / 200));
 }
 
 /* ── Date formatter ── */
@@ -152,6 +185,18 @@ function categoryLabel(cat: string) {
     analysis: "Analysis",
   };
   return labels[cat] || cat.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+/* ── Insert newsletter CTA into HTML at ~50% mark ── */
+
+function splitContentForNewsletter(html: string): { before: string; after: string } {
+  const paragraphs = html.split("</p>");
+  if (paragraphs.length < 4) return { before: html, after: "" };
+
+  const midPoint = Math.floor(paragraphs.length / 2);
+  const before = paragraphs.slice(0, midPoint).join("</p>") + "</p>";
+  const after = paragraphs.slice(midPoint).join("</p>");
+  return { before, after };
 }
 
 /* ── Metadata ── */
@@ -234,7 +279,7 @@ export default async function BlogArticlePage({
   if (!post) notFound();
 
   // Fetch related articles (same category, excluding current)
-  const { data: related } = await supabase
+  let { data: related } = await supabase
     .from("blog_posts")
     .select("slug, title, excerpt, category, published_at")
     .eq("status", "published")
@@ -243,9 +288,31 @@ export default async function BlogArticlePage({
     .order("published_at", { ascending: false })
     .limit(3);
 
+  // Fallback: most recent if no same-category matches
+  if (!related || related.length === 0) {
+    const { data: fallback } = await supabase
+      .from("blog_posts")
+      .select("slug, title, excerpt, category, published_at")
+      .eq("status", "published")
+      .neq("slug", slug)
+      .order("published_at", { ascending: false })
+      .limit(3);
+    related = fallback;
+  }
+
   const htmlContent = markdownToHtml(post.content);
   const headings = extractHeadings(post.content);
   const readTime = calcReadingTime(post.content);
+  const { before, after } = splitContentForNewsletter(htmlContent);
+  const articleUrl = `https://biotechtube.io/blog/${post.slug}`;
+
+  // Author initials
+  const initials = post.author
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   // JSON-LD Article schema
   const jsonLd = {
@@ -260,13 +327,14 @@ export default async function BlogArticlePage({
       name: "BiotechTube",
       url: "https://biotechtube.io",
     },
-    mainEntityOfPage: `https://biotechtube.io/blog/${post.slug}`,
+    mainEntityOfPage: articleUrl,
     description: post.meta_description || post.excerpt || "",
     image: `https://biotechtube.io/api/og?title=${encodeURIComponent(post.title)}&type=blog`,
   };
 
   return (
     <div className="page-content" style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
+      <ReadingProgress />
       <Nav />
 
       <script
@@ -274,101 +342,124 @@ export default async function BlogArticlePage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <main className="max-w-4xl mx-auto px-4 py-10">
-        {/* Breadcrumbs */}
-        <nav
-          className="flex items-center gap-1.5 text-12 mb-6"
-          style={{ color: "var(--color-text-tertiary)" }}
-          aria-label="Breadcrumb"
-        >
-          <Link href="/" className="hover:underline" style={{ color: "var(--color-text-tertiary)" }}>
-            Home
-          </Link>
-          <span>/</span>
-          <Link href="/blog" className="hover:underline" style={{ color: "var(--color-text-tertiary)" }}>
-            Blog
-          </Link>
-          <span>/</span>
-          <span className="truncate" style={{ color: "var(--color-text-secondary)" }}>
-            {post.title}
-          </span>
-        </nav>
+      {/* ── Hero Section ── */}
+      <header
+        className="relative overflow-hidden"
+        style={{ background: getCategoryGradient(post.category) }}
+      >
+        {/* Subtle pattern overlay */}
+        <div
+          className="absolute inset-0 opacity-[0.07]"
+          style={{
+            backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
+            backgroundSize: "32px 32px",
+          }}
+        />
 
-        {/* Article Header */}
-        <header className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <span
-              className="text-11 font-medium uppercase tracking-wider px-2.5 py-0.5 rounded-full"
-              style={{
-                background: "var(--color-accent-subtle)",
-                color: "var(--color-accent)",
-              }}
-            >
-              {categoryLabel(post.category)}
+        <div className="relative max-w-4xl mx-auto px-4 pt-10 pb-12 md:pt-14 md:pb-16">
+          {/* Breadcrumbs */}
+          <nav
+            className="flex items-center gap-1.5 text-[12px] mb-6"
+            style={{ color: "rgba(255,255,255,0.6)" }}
+            aria-label="Breadcrumb"
+          >
+            <Link href="/" className="hover:underline" style={{ color: "rgba(255,255,255,0.6)" }}>
+              Home
+            </Link>
+            <span>/</span>
+            <Link href="/blog" className="hover:underline" style={{ color: "rgba(255,255,255,0.6)" }}>
+              Blog
+            </Link>
+            <span>/</span>
+            <span className="truncate" style={{ color: "rgba(255,255,255,0.85)" }}>
+              {post.title}
             </span>
-          </div>
+          </nav>
+
+          {/* Category badge */}
+          <span
+            className="inline-block text-[11px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full mb-5"
+            style={{
+              background: "rgba(255,255,255,0.18)",
+              color: "rgba(255,255,255,0.95)",
+            }}
+          >
+            {categoryLabel(post.category)}
+          </span>
+
+          {/* Title */}
           <h1
-            className="text-[32px] md:text-[40px] font-bold leading-tight mb-4"
-            style={{ color: "var(--color-text-primary)", letterSpacing: "-0.5px" }}
+            className="text-[28px] md:text-[40px] lg:text-[44px] font-bold leading-[1.15] mb-6"
+            style={{ color: "#fff", letterSpacing: "-0.5px", maxWidth: "800px" }}
           >
             {post.title}
           </h1>
-          <div
-            className="flex flex-wrap items-center gap-3 text-13"
-            style={{ color: "var(--color-text-secondary)" }}
-          >
-            <span>{post.author}</span>
-            <span>&middot;</span>
-            <time dateTime={post.published_at}>{formatDate(post.published_at)}</time>
-            <span>&middot;</span>
-            <span>{readTime} min read</span>
-          </div>
-        </header>
 
-        <div className="flex gap-8">
-          {/* Table of Contents — desktop sidebar */}
-          {headings.length > 2 && (
-            <aside className="hidden lg:block w-56 flex-shrink-0">
-              <div className="sticky top-20">
-                <h4
-                  className="text-11 font-semibold uppercase tracking-wider mb-3"
-                  style={{ color: "var(--color-text-tertiary)" }}
-                >
-                  Table of Contents
-                </h4>
-                <nav className="flex flex-col gap-1.5">
-                  {headings.map((h, i) => (
-                    <a
-                      key={i}
-                      href={`#${h.id}`}
-                      className="text-12 hover:underline transition-colors"
-                      style={{
-                        color: "var(--color-text-secondary)",
-                        paddingLeft: h.level === 3 ? "12px" : "0",
-                      }}
-                    >
-                      {h.text}
-                    </a>
-                  ))}
-                </nav>
+          {/* Meta row */}
+          <div className="flex flex-wrap items-center gap-4 mb-5">
+            {/* Author avatar */}
+            <div className="flex items-center gap-2.5">
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold"
+                style={{ background: "rgba(255,255,255,0.2)", color: "#fff" }}
+              >
+                {initials}
               </div>
-            </aside>
-          )}
+              <div>
+                <p className="text-[13px] font-medium" style={{ color: "rgba(255,255,255,0.95)" }}>
+                  BiotechTube Research
+                </p>
+                <div className="flex items-center gap-2 text-[12px]" style={{ color: "rgba(255,255,255,0.6)" }}>
+                  <time dateTime={post.published_at}>{formatDate(post.published_at)}</time>
+                  <span>&middot;</span>
+                  <span>{readTime} min read</span>
+                </div>
+              </div>
+            </div>
+          </div>
 
+          {/* Share buttons */}
+          <ShareButtons title={post.title} url={articleUrl} />
+        </div>
+      </header>
+
+      {/* ── Article Body ── */}
+      <main className="max-w-5xl mx-auto px-4 py-10">
+        {/* Mobile TOC */}
+        <div className="lg:hidden">
+          <TableOfContents headings={headings} variant="mobile" />
+        </div>
+
+        <div className="lg:grid lg:grid-cols-[1fr_240px] lg:gap-10" id="article-content">
           {/* Article Content */}
-          <article className="flex-1 min-w-0">
+          <article className="min-w-0">
+            {/* First half of content */}
             <div
               className="prose"
-              dangerouslySetInnerHTML={{ __html: htmlContent }}
+              dangerouslySetInnerHTML={{ __html: before }}
             />
+
+            {/* Newsletter CTA */}
+            {after && <NewsletterCTA />}
+
+            {/* Second half of content */}
+            {after && (
+              <div
+                className="prose"
+                dangerouslySetInnerHTML={{ __html: after }}
+              />
+            )}
 
             {/* Tags */}
             {post.tags && post.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-8 pt-6 border-t" style={{ borderColor: "var(--color-border-subtle)" }}>
+              <div
+                className="flex flex-wrap gap-2 mt-10 pt-6 border-t"
+                style={{ borderColor: "var(--color-border-subtle)" }}
+              >
                 {post.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="text-11 px-2.5 py-1 rounded-full"
+                    className="text-[11px] px-2.5 py-1 rounded-full"
                     style={{
                       background: "var(--color-bg-tertiary)",
                       color: "var(--color-text-secondary)",
@@ -380,51 +471,73 @@ export default async function BlogArticlePage({
               </div>
             )}
           </article>
+
+          {/* Desktop TOC sidebar */}
+          <div className="hidden lg:block">
+            <TableOfContents headings={headings} />
+          </div>
         </div>
 
         {/* Related Articles */}
         {related && related.length > 0 && (
-          <section className="mt-16 pt-8 border-t" style={{ borderColor: "var(--color-border-subtle)" }}>
+          <section className="mt-16 pt-10 border-t" style={{ borderColor: "var(--color-border-subtle)" }}>
             <h2
-              className="text-18 font-semibold mb-6"
+              className="text-[20px] font-semibold mb-6"
               style={{ color: "var(--color-text-primary)" }}
             >
               Related Articles
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {related.map((r: { slug: string; title: string; excerpt: string | null; published_at: string }) => (
-                <Link
-                  key={r.slug}
-                  href={`/blog/${r.slug}`}
-                  className="group rounded-lg border p-5 transition-all hover:shadow-md"
-                  style={{
-                    background: "var(--color-bg-secondary)",
-                    borderColor: "var(--color-border-subtle)",
-                  }}
-                >
-                  <h3
-                    className="text-14 font-semibold mb-2 group-hover:underline line-clamp-2"
-                    style={{ color: "var(--color-text-primary)" }}
-                  >
-                    {r.title}
-                  </h3>
-                  {r.excerpt && (
-                    <p
-                      className="text-12 line-clamp-2 mb-2"
-                      style={{ color: "var(--color-text-secondary)" }}
+              {related.map(
+                (r: {
+                  slug: string;
+                  title: string;
+                  excerpt: string | null;
+                  category: string;
+                  published_at: string;
+                }) => {
+                  const rBadge = getCategoryBadge(r.category);
+                  return (
+                    <Link
+                      key={r.slug}
+                      href={`/blog/${r.slug}`}
+                      className="group rounded-xl border p-5 transition-all hover:shadow-md"
+                      style={{
+                        background: "var(--color-bg-secondary)",
+                        borderColor: "var(--color-border-subtle)",
+                      }}
                     >
-                      {r.excerpt}
-                    </p>
-                  )}
-                  <span className="text-11" style={{ color: "var(--color-text-tertiary)" }}>
-                    {new Date(r.published_at).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </span>
-                </Link>
-              ))}
+                      <span
+                        className="inline-block text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full mb-3"
+                        style={{ background: rBadge.bg, color: rBadge.text }}
+                      >
+                        {categoryLabel(r.category)}
+                      </span>
+                      <h3
+                        className="text-[14px] font-semibold mb-2 group-hover:underline line-clamp-2"
+                        style={{ color: "var(--color-text-primary)" }}
+                      >
+                        {r.title}
+                      </h3>
+                      {r.excerpt && (
+                        <p
+                          className="text-[12px] line-clamp-2 mb-3"
+                          style={{ color: "var(--color-text-secondary)" }}
+                        >
+                          {r.excerpt}
+                        </p>
+                      )}
+                      <span className="text-[11px]" style={{ color: "var(--color-text-tertiary)" }}>
+                        {new Date(r.published_at).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </span>
+                    </Link>
+                  );
+                }
+              )}
             </div>
           </section>
         )}
