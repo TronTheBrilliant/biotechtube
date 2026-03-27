@@ -111,34 +111,37 @@ function addInternalLinks(
   content: string,
   companies: { name: string; slug: string }[]
 ): string {
-  // Sort by name length descending to avoid partial replacements
   const sorted = [...companies].sort((a, b) => b.name.length - a.name.length);
-  let result = content;
+  const linked = new Set<string>();
 
-  for (const co of sorted) {
-    if (!co.name || !co.slug) continue;
-    // Skip if name is too short (avoid false matches like "AI", "RNA")
-    if (co.name.length < 4) continue;
+  // Process line-by-line to skip headings
+  const lines = content.split("\n");
+  const result = lines.map((line) => {
+    if (/^#{1,4}\s/.test(line)) return line;
 
-    // Escape special regex chars in name
-    const escaped = co.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    let modifiedLine = line;
+    for (const co of sorted) {
+      if (!co.name || !co.slug || co.name.length < 4) continue;
+      if (linked.has(co.slug)) continue;
 
-    // Only replace occurrences NOT already inside a markdown link
-    // Match the company name that is NOT preceded by [ or followed by ](
-    const regex = new RegExp(
-      `(?<!\\[)\\b${escaped}\\b(?!\\]\\()(?![^\\[]*\\])`,
-      "g"
-    );
+      const escaped = co.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const regex = new RegExp(
+        `(?<!\\[)\\b${escaped}\\b(?!\\]\\()(?![^\\[]*\\])`,
+        "gi"
+      );
 
-    let replaced = false;
-    result = result.replace(regex, (match) => {
-      if (replaced) return match; // Only link first occurrence
-      replaced = true;
-      return `[${match}](/company/${co.slug})`;
-    });
-  }
+      let replaced = false;
+      modifiedLine = modifiedLine.replace(regex, (match) => {
+        if (replaced) return match;
+        replaced = true;
+        linked.add(co.slug);
+        return `[${match}](/company/${co.slug})`;
+      });
+    }
+    return modifiedLine;
+  });
 
-  return result;
+  return result.join("\n");
 }
 
 /* ─── Database queries ─── */

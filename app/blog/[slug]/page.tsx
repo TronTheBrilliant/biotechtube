@@ -141,6 +141,22 @@ function markdownToHtml(md: string): string {
     })
     .join("\n");
 
+  // Convert [Source: N] citations to styled badges
+  html = html.replace(
+    /\[Source:?\s*(\d+)\]/gi,
+    '<span class="source-citation" title="Source $1">$1</span>'
+  );
+
+  // Wrap the Sources section in a styled container
+  html = html.replace(
+    /(<h2[^>]*id="Sources"[^>]*>Sources<\/h2>)/i,
+    '<div class="sources-section">$1'
+  );
+  // If sources section exists, close the wrapper at the end
+  if (html.includes('class="sources-section"')) {
+    html += "</div>";
+  }
+
   return html;
 }
 

@@ -271,6 +271,52 @@ body {
   margin: 24px 0;
 }
 
+/* Source citations - inline [Source: N] badges */
+.prose .source-citation {
+  display: inline;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  background: var(--color-bg-tertiary);
+  padding: 1px 5px;
+  border-radius: 3px;
+  vertical-align: super;
+  line-height: 1;
+  letter-spacing: 0.2px;
+  cursor: default;
+}
+/* Sources section at bottom of articles */
+.prose .sources-section {
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-border-subtle);
+}
+.prose .sources-section h2 {
+  font-size: 18px;
+  color: var(--color-text-tertiary);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.prose .sources-section ol {
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+  line-height: 1.6;
+}
+.prose .sources-section li {
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+  margin-bottom: 4px;
+}
+.prose .sources-section a {
+  color: var(--color-text-secondary);
+  text-decoration: underline;
+  text-decoration-color: var(--color-border-medium);
+}
+.prose .sources-section em {
+  font-style: italic;
+  color: var(--color-text-tertiary);
+}
+
 /* Company hover card animation */
 @keyframes hovercard-in {
   from { opacity: 0; transform: translateY(4px); }

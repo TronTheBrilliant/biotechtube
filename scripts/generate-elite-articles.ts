@@ -95,24 +95,37 @@ function addInternalLinks(
   companies: { name: string; slug: string }[]
 ): string {
   const sorted = [...companies].sort((a, b) => b.name.length - a.name.length);
-  let result = content;
+  const linked = new Set<string>();
 
-  for (const co of sorted) {
-    if (!co.name || !co.slug || co.name.length < 4) continue;
-    const escaped = co.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const regex = new RegExp(
-      `(?<!\\[)\\b${escaped}\\b(?!\\]\\()(?![^\\[]*\\])`,
-      "g"
-    );
-    let replaced = false;
-    result = result.replace(regex, (match) => {
-      if (replaced) return match;
-      replaced = true;
-      return `[${match}](/company/${co.slug})`;
-    });
-  }
+  // Process line-by-line to skip headings
+  const lines = content.split("\n");
+  const result = lines.map((line) => {
+    // Skip heading lines and lines that are already links
+    if (/^#{1,4}\s/.test(line)) return line;
 
-  return result;
+    let modifiedLine = line;
+    for (const co of sorted) {
+      if (!co.name || !co.slug || co.name.length < 4) continue;
+      if (linked.has(co.slug)) continue;
+
+      const escaped = co.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const regex = new RegExp(
+        `(?<!\\[)\\b${escaped}\\b(?!\\]\\()(?![^\\[]*\\])`,
+        "gi"
+      );
+
+      let replaced = false;
+      modifiedLine = modifiedLine.replace(regex, (match) => {
+        if (replaced) return match;
+        replaced = true;
+        linked.add(co.slug);
+        return `[${match}](/company/${co.slug})`;
+      });
+    }
+    return modifiedLine;
+  });
+
+  return result.join("\n");
 }
 
 /* ─── Database queries ─── */
