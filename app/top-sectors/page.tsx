@@ -25,6 +25,9 @@ export const metadata: Metadata = {
     description:
       "Compare 20 biotech sectors by market cap, daily performance, and company count.",
   },
+  alternates: {
+    canonical: "https://biotechtube.io/top-sectors",
+  },
 };
 
 interface SectorRanked {

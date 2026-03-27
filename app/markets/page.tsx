@@ -26,6 +26,9 @@ export const metadata: Metadata = {
       "Live biotech market data: total market cap, sector performance, and country rankings.",
     images: [ogImageUrl],
   },
+  alternates: {
+    canonical: "https://biotechtube.io/markets",
+  },
 };
 
 interface MarketSnapshot {

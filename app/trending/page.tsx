@@ -37,6 +37,9 @@ export const metadata: Metadata = {
       "Discover the hottest biotech stocks — top gainers and losers ranked by performance.",
     images: [ogImageUrl],
   },
+  alternates: {
+    canonical: "https://biotechtube.io/trending",
+  },
 };
 
 const MIN_MARKET_CAP = 100_000_000; // $100M

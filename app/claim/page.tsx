@@ -18,6 +18,9 @@ export const metadata: Metadata = {
   title: "Claim Your Company — BiotechTube",
   description:
     "Manage your company profile on BiotechTube. Get a verified badge, showcase your pipeline, reach investors, and attract top biotech talent.",
+  alternates: {
+    canonical: "https://biotechtube.io/claim",
+  },
 };
 
 /* ---------- data ---------- */

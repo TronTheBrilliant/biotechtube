@@ -31,6 +31,9 @@ export const metadata: Metadata = {
       "Definitive ranking of the world's largest publicly traded biotech companies by market cap.",
     images: [ogImageUrl],
   },
+  alternates: {
+    canonical: "https://biotechtube.io/top-companies",
+  },
 };
 
 function getSupabase() {

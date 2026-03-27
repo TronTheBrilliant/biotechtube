@@ -123,6 +123,9 @@ export async function generateMetadata({
   return {
     title,
     description,
+    alternates: {
+      canonical: `https://biotechtube.io/sectors/${slug}`,
+    },
     openGraph: {
       title: `${sector.name} Biotech Sector | BiotechTube`,
       description,

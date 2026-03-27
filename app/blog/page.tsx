@@ -23,6 +23,9 @@ export const metadata: Metadata = {
       },
     ],
   },
+  alternates: {
+    canonical: "https://biotechtube.io/blog",
+  },
 };
 
 export const revalidate = 3600; // revalidate every hour

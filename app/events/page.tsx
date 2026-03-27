@@ -11,6 +11,9 @@ import companiesData from "@/data/companies.json";
 
 export const metadata: Metadata = {
   title: "Events — BiotechTube",
+  alternates: {
+    canonical: "https://biotechtube.io/events",
+  },
 };
 
 // Revalidate every hour

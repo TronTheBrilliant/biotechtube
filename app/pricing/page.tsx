@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   title: "Pricing — BiotechTube",
   description:
     "Simple, transparent pricing for biotech intelligence. Free explorer access, Pro for investors and analysts, Enterprise for institutions.",
+  alternates: {
+    canonical: "https://biotechtube.io/pricing",
+  },
 };
 
 const tiers = [

@@ -92,6 +92,9 @@ export async function generateMetadata({
   return {
     title,
     description,
+    alternates: {
+      canonical: `https://biotechtube.io/countries/${slug}`,
+    },
     openGraph: {
       title: `${countryName} Biotech Market | BiotechTube`,
       description,

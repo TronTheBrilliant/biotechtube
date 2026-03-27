@@ -27,6 +27,9 @@ export const metadata: Metadata = {
       "Track biotech funding rounds, VC deals, and investment trends across the global biotech industry.",
     images: [ogImageUrl],
   },
+  alternates: {
+    canonical: "https://biotechtube.io/funding",
+  },
 };
 
 export default async function FundingPage() {

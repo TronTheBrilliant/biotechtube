@@ -24,6 +24,9 @@ export const metadata: Metadata = {
     description:
       "Explore the global biotech landscape: market cap and performance for 30+ countries.",
   },
+  alternates: {
+    canonical: "https://biotechtube.io/countries",
+  },
 };
 
 interface CountryRow {
