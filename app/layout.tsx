@@ -25,13 +25,13 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   title: "BiotechTube — Global Biotech Intelligence Platform",
   description:
-    "Track 14,000+ biotech companies worldwide. Clinical pipeline data, biotech market intelligence, funding rounds, company rankings, and investment analysis.",
+    "Track $7.5T+ in biotech market cap. Company profiles, drug pipelines, funding data, and market analysis for 11,000+ biotech companies worldwide. Free.",
   keywords:
-    "biotech companies, clinical pipeline, biotech market, biotechnology, life sciences, drug development, clinical trials, biotech funding, pharmaceutical companies",
+    "biotech companies, clinical pipeline, biotech market, biotechnology, life sciences, drug development, clinical trials, biotech funding, pharmaceutical companies, biotech market cap",
   openGraph: {
-    title: "BiotechTube — Global Biotech Intelligence Platform",
+    title: "BiotechTube — The Bloomberg Terminal for Biotech, but Free",
     description:
-      "Track 14,000+ biotech companies worldwide. Clinical pipeline data, biotech market intelligence, funding rounds, and investment analysis.",
+      "Track $7.5T+ in biotech market cap. Company profiles, drug pipelines, funding data, and market analysis for 11,000+ biotech companies worldwide. Free.",
     type: "website",
     siteName: "BiotechTube",
     url: "https://biotechtube.io",
@@ -40,9 +40,9 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     site: "@biotechtube",
-    title: "BiotechTube — Global Biotech Intelligence Platform",
+    title: "BiotechTube — The Bloomberg Terminal for Biotech, but Free",
     description:
-      "Track 14,000+ biotech companies worldwide. Clinical pipeline data, biotech market intelligence, funding rounds, and investment analysis.",
+      "Track $7.5T+ in biotech market cap. Company profiles, drug pipelines, funding data, and market analysis for 11,000+ biotech companies worldwide. Free.",
     images: ["https://biotechtube.io/api/og?title=BiotechTube&subtitle=Track%20%247.5T%2B%20in%20biotech%20market%20cap&type=default"],
   },
   metadataBase: new URL("https://biotechtube.io"),

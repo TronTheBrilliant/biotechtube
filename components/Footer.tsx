@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FooterNewsletter } from "./FooterNewsletter";
 
 const platformLinks = [
   { label: "🏢 Companies", href: "/companies" },
@@ -49,12 +50,12 @@ function FooterColumn({ title, links }: { title: string; links: { label: string;
       >
         {title}
       </h3>
-      <ul className="flex flex-col gap-2">
+      <ul className="flex flex-col gap-1">
         {links.map((link) => (
           <li key={link.label}>
             <Link
               href={link.href}
-              className="text-14 transition-colors duration-150 hover:text-[var(--color-text-primary)] whitespace-nowrap"
+              className="text-13 md:text-14 transition-colors duration-150 hover:text-[var(--color-text-primary)] whitespace-nowrap inline-block py-1"
               style={{ color: "var(--color-text-tertiary)" }}
             >
               {link.label}
@@ -72,12 +73,19 @@ export function Footer() {
       style={{ borderTop: "0.5px solid var(--color-border-subtle)" }}
     >
       {/* Main footer */}
-      <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
+      <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 md:gap-8">
         <FooterColumn title="Platform" links={platformLinks} />
         <FooterColumn title="For Companies" links={forCompaniesLinks} />
         <FooterColumn title="Company" links={companyLinks} />
         <FooterColumn title="Popular Companies" links={popularCompanyLinks} />
         <FooterColumn title="Top Sectors" links={topSectorLinks} />
+      </div>
+      {/* Newsletter row */}
+      <div
+        className="max-w-[1200px] mx-auto px-4 md:px-6 py-5"
+        style={{ borderTop: "0.5px solid var(--color-border-subtle)" }}
+      >
+        <FooterNewsletter />
       </div>
       {/* Bottom strip */}
       <div

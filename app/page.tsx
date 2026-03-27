@@ -27,7 +27,7 @@ import HotPipelines from "@/components/home/HotPipelines";
 import TrendingNews from "@/components/home/TrendingNews";
 import SciencePapers from "@/components/home/SciencePapers";
 import OpenPositions from "@/components/home/OpenPositions";
-
+import { NewsletterSignup } from "@/components/home/NewsletterSignup";
 
 import { getFundingAnnualForHomepage } from "@/lib/funding-queries";
 
@@ -575,14 +575,14 @@ export default async function HomePage() {
         </p>
 
         {/* Company logos as social proof */}
-        <div className="flex items-center justify-center gap-5 mt-6 opacity-30">
+        <div className="flex items-center justify-center gap-3 md:gap-5 mt-6 opacity-30 overflow-hidden px-2">
           {["lilly.com", "pfizer.com", "novartis.com", "roche.com", "amgen.com", "gilead.com"].map((domain) => (
             <img
               key={domain}
               src={`https://img.logo.dev/${domain}?token=pk_FNHUWoZORpiR_7j_vzFnmQ`}
               alt={domain.split(".")[0]}
-              className="h-5 md:h-6 object-contain grayscale"
-              style={{ maxWidth: 80 }}
+              className="h-4 md:h-6 object-contain grayscale flex-shrink-0"
+              style={{ maxWidth: 60 }}
             />
           ))}
         </div>
@@ -664,6 +664,9 @@ export default async function HomePage() {
           )}
         </div>
       </main>
+
+      {/* Newsletter signup */}
+      <NewsletterSignup source="homepage" />
 
       <Footer />
     </div>
