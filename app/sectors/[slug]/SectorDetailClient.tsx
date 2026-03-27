@@ -174,7 +174,7 @@ export default function SectorDetailClient({
 
       {/* Hero */}
       <div
-        className="px-5 pt-6 pb-4"
+        className="px-4 md:px-5 pt-6 pb-4"
         style={{ borderBottom: "0.5px solid var(--color-border-subtle)" }}
       >
         <div className="mb-3">
@@ -216,7 +216,7 @@ export default function SectorDetailClient({
 
       {/* Stats Strip */}
       <div
-        className="flex items-center gap-4 px-5 py-3 overflow-x-auto"
+        className="flex items-center gap-4 px-4 md:px-5 py-3 overflow-x-auto"
         style={{
           borderBottom: "0.5px solid var(--color-border-subtle)",
           scrollbarWidth: "none",
@@ -251,13 +251,13 @@ export default function SectorDetailClient({
         style={{ gridTemplateColumns: "1fr 260px" }}
       >
         <div
-          className="px-5 py-4 min-w-0 lg:border-r"
+          className="px-4 md:px-5 py-4 min-w-0 lg:border-r"
           style={{ borderColor: "var(--color-border-subtle)" }}
         >
           {/* Market Cap Chart */}
           {chartPoints.length > 0 && (
             <section className="mb-6">
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
                 <h2
                   className="text-10 uppercase tracking-[0.5px] font-medium"
                   style={{ color: "var(--color-text-secondary)" }}
@@ -265,14 +265,14 @@ export default function SectorDetailClient({
                   SECTOR MARKET CAP
                 </h2>
                 <div
-                  className="flex items-center gap-1 p-0.5 rounded-lg"
-                  style={{ background: "var(--color-bg-secondary)", border: "0.5px solid var(--color-border-subtle)" }}
+                  className="flex items-center gap-0.5 md:gap-1 p-0.5 rounded-lg overflow-x-auto flex-shrink-0"
+                  style={{ background: "var(--color-bg-secondary)", border: "0.5px solid var(--color-border-subtle)", scrollbarWidth: "none" }}
                 >
                   {timeframes.map((tf) => (
                     <button
                       key={tf}
                       onClick={() => setSelectedTimeframe(tf)}
-                      className="text-10 font-medium px-2 py-1 rounded-md transition-colors duration-100"
+                      className="text-10 font-medium px-1.5 md:px-2 py-1 rounded-md transition-colors duration-100 flex-shrink-0"
                       style={{
                         background:
                           selectedTimeframe === tf

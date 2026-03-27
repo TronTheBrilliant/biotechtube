@@ -61,7 +61,7 @@ export function FooterNewsletter() {
           placeholder="you@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="min-w-0 w-[160px] px-2.5 py-1.5 rounded-md text-[12px] outline-none transition-colors"
+          className="min-w-0 flex-1 max-w-[200px] px-2.5 py-1.5 rounded-md text-[12px] outline-none transition-colors"
           style={{
             background: "var(--color-bg-primary)",
             border: "1px solid var(--color-border-medium)",

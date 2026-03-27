@@ -851,7 +851,7 @@ export function CompanyPageClient({
         }}
       >
         <div
-          className="max-w-[1200px] mx-auto flex items-center gap-0.5 px-6 overflow-x-auto"
+          className="max-w-[1200px] mx-auto flex items-center gap-0.5 px-4 md:px-6 overflow-x-auto"
           style={{ scrollbarWidth: "none" }}
         >
           {tabs.map((tab) => (
@@ -880,7 +880,7 @@ export function CompanyPageClient({
       {/* ─── Two Column Layout ─── */}
       <div className="max-w-[1200px] mx-auto flex flex-col lg:grid" style={{ gridTemplateColumns: "1fr 320px" }}>
         {/* ═══ Main Content ═══ */}
-        <div className="px-6 py-6 min-w-0 lg:border-r" style={{ borderColor: "var(--color-border-subtle)" }}>
+        <div className="px-4 md:px-6 py-6 min-w-0 lg:border-r" style={{ borderColor: "var(--color-border-subtle)" }}>
 
           {/* ════════════ OVERVIEW TAB ════════════ */}
           {activeTab === "Overview" && (
@@ -1084,8 +1084,8 @@ export function CompanyPageClient({
                       </span>
                     )}
                   </div>
-                  <div className="overflow-x-auto -mx-5">
-                    <table className="w-full text-[12px]" style={{ borderCollapse: "collapse" }}>
+                  <div className="overflow-x-auto -mx-5" style={{ scrollbarWidth: "none" }}>
+                    <table className="w-full min-w-[400px] text-[12px]" style={{ borderCollapse: "collapse" }}>
                       <thead>
                         <tr style={{ background: "var(--color-bg-tertiary)" }}>
                           <th className="text-left px-5 py-2.5 font-semibold text-[10px] uppercase tracking-[0.6px]" style={{ color: "var(--color-text-secondary)" }}>Drug</th>

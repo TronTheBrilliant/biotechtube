@@ -203,8 +203,13 @@ async function main() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const totalVol = prices.reduce((s: number, p: any) => s + (p.volume || 0), 0);
 
+      // Filter to $100M+ market cap to avoid penny-stock noise
+      const MIN_MCAP_FOR_MOVERS = 100_000_000;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const withChange = prices.filter((p: any) => p.change_pct !== null);
+      const withChange = prices.filter(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (p: any) => p.change_pct !== null && (p.market_cap_usd ?? 0) >= MIN_MCAP_FOR_MOVERS
+      );
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       withChange.sort((a: any, b: any) => b.change_pct - a.change_pct);
 

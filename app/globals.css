@@ -184,12 +184,17 @@ body {
 }
 .prose table {
   width: 100%;
+  min-width: 400px;
   border-collapse: collapse;
   margin: 24px 0;
   font-size: 14px;
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid var(--color-border-subtle);
+}
+/* Make prose tables horizontally scrollable on mobile */
+.prose {
+  overflow-x: auto;
 }
 .prose thead {
   background: var(--color-bg-tertiary);

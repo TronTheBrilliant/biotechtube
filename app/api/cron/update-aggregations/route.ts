@@ -132,8 +132,13 @@ async function calculateMarketSnapshot(supabase: SupabaseClient): Promise<string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const totalVolume = todayPrices.reduce((sum: number, p: any) => sum + (p.volume || 0), 0);
 
+  // Filter to companies with meaningful market cap ($100M+) to avoid penny-stock noise
+  const MIN_MCAP_FOR_MOVERS = 100_000_000;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const withChange = todayPrices.filter((p: any) => p.change_pct !== null);
+  const withChange = todayPrices.filter(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (p: any) => p.change_pct !== null && (p.market_cap_usd ?? 0) >= MIN_MCAP_FOR_MOVERS
+  );
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   withChange.sort((a: any, b: any) => b.change_pct - a.change_pct);
   const topGainer = withChange[0];

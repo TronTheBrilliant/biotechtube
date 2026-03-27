@@ -309,7 +309,7 @@ export default function CountryDetailClient({
         {/* Market Cap Index Chart */}
         {chartPoints.length > 0 && (
           <section className="py-5">
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
               <h2
                 className="text-10 uppercase tracking-[0.5px] font-medium"
                 style={{ color: "var(--color-text-secondary)" }}
@@ -317,17 +317,18 @@ export default function CountryDetailClient({
                 BIOTECH MARKET CAP INDEX
               </h2>
               <div
-                className="flex items-center gap-1 p-0.5 rounded-lg"
+                className="flex items-center gap-0.5 md:gap-1 p-0.5 rounded-lg overflow-x-auto flex-shrink-0"
                 style={{
                   background: "var(--color-bg-secondary)",
                   border: "0.5px solid var(--color-border-subtle)",
+                  scrollbarWidth: "none",
                 }}
               >
                 {timeframes.map((tf) => (
                   <button
                     key={tf}
                     onClick={() => setSelectedTimeframe(tf)}
-                    className="text-10 font-medium px-2 py-1 rounded-md transition-colors duration-100"
+                    className="text-10 font-medium px-1.5 md:px-2 py-1 rounded-md transition-colors duration-100 flex-shrink-0"
                     style={{
                       background:
                         selectedTimeframe === tf
@@ -542,7 +543,7 @@ export default function CountryDetailClient({
               {/* Pagination */}
               {totalCompanyPages > 1 && (
                 <div
-                  className="flex items-center justify-between px-3 py-2.5"
+                  className="flex items-center justify-between px-3 py-2.5 flex-wrap gap-2"
                   style={{
                     borderTop: "0.5px solid var(--color-border-subtle)",
                   }}
@@ -551,8 +552,8 @@ export default function CountryDetailClient({
                     className="text-11"
                     style={{ color: "var(--color-text-tertiary)" }}
                   >
-                    Showing {companyStart + 1}–{Math.min(companyEnd, topCompanies.length)} of{" "}
-                    {topCompanies.length.toLocaleString()} companies
+                    {companyStart + 1}–{Math.min(companyEnd, topCompanies.length)} of{" "}
+                    {topCompanies.length.toLocaleString()}
                   </span>
                   <div className="flex items-center gap-2">
                     <button

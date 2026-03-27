@@ -289,19 +289,19 @@ export default function MarketsPageClient({
         >
           {/* Market Cap Chart */}
           <section className="mb-6">
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
               <h2
                 className="text-10 uppercase tracking-[0.5px] font-medium"
                 style={{ color: "var(--color-text-secondary)" }}
               >
                 TOTAL MARKET CAP
               </h2>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-0.5 md:gap-1 flex-shrink-0">
                 {timescales.map((ts) => (
                   <button
                     key={ts}
                     onClick={() => handleTimescaleChange(ts)}
-                    className="text-10 font-medium px-2 py-1 rounded transition-all duration-150"
+                    className="text-10 font-medium px-1.5 md:px-2 py-1 rounded transition-all duration-150 flex-shrink-0"
                     style={{
                       background:
                         timescale === ts ? "var(--color-accent)" : "transparent",

@@ -98,7 +98,8 @@ const filterControlStyle: React.CSSProperties = {
 const filterInputStyle: React.CSSProperties = {
   ...filterControlStyle,
   cursor: "text",
-  width: 180,
+  width: "100%",
+  maxWidth: 180,
 };
 
 export default function FundingPageClient({
@@ -670,9 +671,9 @@ export default function FundingPageClient({
         </div>
 
         {/* Two-column layout: Funding rounds table */}
-        <div className="flex gap-6" style={{ alignItems: "flex-start" }}>
+        <div className="flex flex-col lg:flex-row gap-6" style={{ alignItems: "flex-start" }}>
           {/* Main column */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 w-full">
             {/* Funding Rounds header + inline search + filter button */}
             <div className="mb-3 mt-2">
               <div className="flex items-center gap-3 flex-wrap">
@@ -684,9 +685,9 @@ export default function FundingPageClient({
                     Browse all tracked biotech funding rounds.
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   {/* Inline company search */}
-                  <div style={{ position: "relative" }}>
+                  <div style={{ position: "relative", flex: "1 1 140px", maxWidth: 190, minWidth: 140 }}>
                     <svg
                       width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-tertiary)"
                       strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
@@ -703,7 +704,7 @@ export default function FundingPageClient({
                       style={{
                         ...filterControlStyle,
                         cursor: "text",
-                        width: 190,
+                        width: "100%",
                         paddingLeft: 32,
                       }}
                     />
