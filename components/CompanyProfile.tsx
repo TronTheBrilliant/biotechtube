@@ -143,9 +143,9 @@ export function CompanyProfileHero({ company, reportSummary }: CompanyProfilePro
           <span
             className="text-12 px-2 py-[3px] rounded-sm border"
             style={{
-              background: company.type === "Public" ? "#e8f5f0" : "var(--color-bg-secondary)",
-              color: company.type === "Public" ? "#0a3d2e" : "var(--color-text-secondary)",
-              borderColor: company.type === "Public" ? "#5DCAA5" : "var(--color-border-medium)",
+              background: company.type === "Public" ? "var(--color-accent-subtle)" : "var(--color-bg-secondary)",
+              color: company.type === "Public" ? "var(--color-accent-dark)" : "var(--color-text-secondary)",
+              borderColor: company.type === "Public" ? "var(--color-accent-light)" : "var(--color-border-medium)",
               borderWidth: "0.5px",
             }}
           >

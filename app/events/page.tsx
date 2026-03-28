@@ -5,9 +5,16 @@ import { Footer } from "@/components/Footer";
 import { RecentlyFunded } from "@/components/RecentlyFunded";
 import { PaywallCard } from "@/components/PaywallCard";
 import { Company, FundingRound } from "@/lib/types";
-import { createBrowserClient } from "@/lib/supabase";
+import { createClient } from "@supabase/supabase-js";
 import fundingData from "@/data/funding.json";
 import companiesData from "@/data/companies.json";
+
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 export const metadata: Metadata = {
   title: "Events — BiotechTube",
@@ -45,7 +52,7 @@ interface EventItem {
 }
 
 async function getEvents(): Promise<EventItem[]> {
-  const supabase = createBrowserClient();
+  const supabase = getSupabase();
 
   // Get upcoming events and recent (last 30 days)
   const thirtyDaysAgo = new Date();

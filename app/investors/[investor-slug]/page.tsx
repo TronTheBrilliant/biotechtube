@@ -98,7 +98,7 @@ export default async function InvestorPage({ params }: InvestorPageProps) {
           <div className="flex items-start gap-3 mb-4">
             <div
               className="w-12 h-12 rounded-lg flex items-center justify-center"
-              style={{ background: "#e8f5f0", border: "1px solid #5DCAA5" }}
+              style={{ background: "var(--color-accent-subtle)", border: "1px solid var(--color-accent-light)" }}
             >
               <Landmark size={22} style={{ color: "#0a3d2e" }} />
             </div>

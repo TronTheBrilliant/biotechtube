@@ -847,7 +847,7 @@ export function PipelinePageClient() {
                 className="flex items-center justify-between rounded-lg border px-4 py-3.5 mt-4"
                 style={{
                   borderColor: "var(--color-accent)",
-                  background: "#e8f5f0",
+                  background: "var(--color-accent-subtle)",
                   borderWidth: "0.5px",
                 }}
               >

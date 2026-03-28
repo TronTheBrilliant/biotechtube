@@ -145,7 +145,7 @@ export default function TemplatesPage() {
                           key={inc}
                           className="text-10 px-2 py-[3px] rounded-sm border"
                           style={{
-                            background: "#e8f5f0",
+                            background: "var(--color-accent-subtle)",
                             color: "#0a3d2e",
                             borderColor: "#5DCAA5",
                             borderWidth: "0.5px",

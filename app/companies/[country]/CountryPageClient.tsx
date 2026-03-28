@@ -260,7 +260,7 @@ export function CountryPageClient({ country, nearbyCountries }: CountryPageClien
                       style={{
                         borderWidth: "0.5px",
                         borderColor: isActive ? "var(--color-accent)" : "var(--color-border-subtle)",
-                        background: isActive ? "#e8f5f0" : "transparent",
+                        background: isActive ? "var(--color-accent-subtle)" : "transparent",
                         color: isActive ? "var(--color-accent)" : "var(--color-text-secondary)",
                         fontWeight: isActive ? 500 : 400,
                       }}
@@ -392,7 +392,7 @@ export function CountryPageClient({ country, nearbyCountries }: CountryPageClien
                     className="flex items-center justify-between rounded-lg border px-4 py-3.5"
                     style={{
                       borderColor: "var(--color-accent)",
-                      background: "#e8f5f0",
+                      background: "var(--color-accent-subtle)",
                       borderWidth: "0.5px",
                     }}
                   >

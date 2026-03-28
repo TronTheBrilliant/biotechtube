@@ -267,7 +267,7 @@ export function Nav() {
                             >
                               <div
                                 className="w-8 h-8 rounded-lg flex items-center justify-center text-[16px] shrink-0"
-                                style={{ background: item.iconBg || "var(--color-bg-secondary)" }}
+                                style={{ background: "var(--color-bg-tertiary)" }}
                               >
                                 {item.emoji}
                               </div>

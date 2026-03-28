@@ -232,7 +232,7 @@ export function CompaniesPageClient() {
             })}
           </div>
           {filtered.length > 6 && (
-            <div className="flex items-center justify-between rounded-lg border px-4 py-3.5 mt-4" style={{ borderColor: "var(--color-accent)", background: "#e8f5f0", borderWidth: "0.5px" }}>
+            <div className="flex items-center justify-between rounded-lg border px-4 py-3.5 mt-4" style={{ borderColor: "var(--color-accent)", background: "var(--color-accent-subtle)", borderWidth: "0.5px" }}>
               <div>
                 <div className="text-14 font-medium" style={{ color: "var(--color-text-primary)" }}>Sign up to see all {filtered.length} results</div>
                 <div className="text-12" style={{ color: "var(--color-text-secondary)" }}>Full access with advanced filters, watchlists, and alerts.</div>

@@ -599,7 +599,7 @@ export function RankingTable({ companies, mode = "top", funding = [], startRank 
                         {company.founded}
                       </span>
                       {company.founded >= 2023 && (
-                        <span className="text-[8px] px-[3px] py-[1px] rounded-[2px] font-semibold" style={{ background: "#e8f5f0", color: "#0a3d2e" }}>NEW</span>
+                        <span className="text-[8px] px-[3px] py-[1px] rounded-[2px] font-semibold" style={{ background: "var(--color-accent-subtle)", color: "var(--color-accent-dark)" }}>NEW</span>
                       )}
                     </div>
                   ) : (

@@ -268,7 +268,7 @@ export function HomePageClient({ companies, funding }: HomePageClientProps) {
                     }}
                     className="w-full flex items-start gap-3 px-3 py-3 text-left transition-colors duration-100"
                     style={{
-                      background: isActive ? "#e8f5f0" : "transparent",
+                      background: isActive ? "var(--color-accent-subtle)" : "transparent",
                       borderBottom: "0.5px solid var(--color-border-subtle)",
                       opacity: item.locked ? 0.5 : 1,
                     }}
@@ -305,7 +305,7 @@ export function HomePageClient({ companies, funding }: HomePageClientProps) {
               style={{
                 borderColor: selectedCountry.code !== "global" ? "var(--color-accent)" : "var(--color-border-medium)",
                 color: selectedCountry.code !== "global" ? "var(--color-accent)" : "var(--color-text-secondary)",
-                background: selectedCountry.code !== "global" ? "#e8f5f0" : "transparent",
+                background: selectedCountry.code !== "global" ? "var(--color-accent-subtle)" : "transparent",
               }}
             >
               <Globe size={12} />
@@ -367,7 +367,7 @@ export function HomePageClient({ companies, funding }: HomePageClientProps) {
                           }}
                           className="w-full flex items-center gap-2.5 px-3 py-2 text-left transition-colors duration-100"
                           style={{
-                            background: isSelected ? "#e8f5f0" : "transparent",
+                            background: isSelected ? "var(--color-accent-subtle)" : "transparent",
                             color: isSelected ? "var(--color-accent)" : "var(--color-text-primary)",
                           }}
                           onMouseEnter={(e) => { if (!isSelected) e.currentTarget.style.background = "var(--color-bg-secondary)"; }}
@@ -406,7 +406,7 @@ export function HomePageClient({ companies, funding }: HomePageClientProps) {
             style={{
               borderColor: activeFilterCount > 0 ? "var(--color-accent)" : "var(--color-border-medium)",
               color: activeFilterCount > 0 ? "var(--color-accent)" : "var(--color-text-secondary)",
-              background: activeFilterCount > 0 ? "#e8f5f0" : "transparent",
+              background: activeFilterCount > 0 ? "var(--color-accent-subtle)" : "transparent",
             }}
           >
             <SlidersHorizontal size={12} />
