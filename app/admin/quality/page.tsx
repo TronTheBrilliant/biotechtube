@@ -63,7 +63,7 @@ const ADMIN_EMAIL = "trond.skattum@gmail.com";
 
 export default function QualityDashboard() {
   const { user, loading: authLoading } = useAuth();
-  const supabase = createBrowserClient();
+  const [supabase] = useState(() => createBrowserClient());
 
   /* ─── State ─── */
   const [stats, setStats] = useState({ totalCompanies: 0, verifiedPct: 0, openFlags: 0, pendingReports: 0 });
@@ -102,7 +102,7 @@ export default function QualityDashboard() {
       { data: chatData },
     ] = await Promise.all([
       supabase.from("companies").select("*", { count: "exact", head: true }),
-      supabase.from("profile_quality").select("*", { count: "exact", head: true }).gte("quality_score", 70),
+      supabase.from("profile_quality").select("*", { count: "exact", head: true }).gte("quality_score", 7),
       supabase.from("integrity_checks").select("*", { count: "exact", head: true }).eq("status", "open"),
       supabase.from("error_reports").select("*", { count: "exact", head: true }).eq("status", "open"),
       supabase.from("integrity_checks").select("*").eq("status", "open").order("created_at", { ascending: false }).limit(50),
@@ -128,8 +128,8 @@ export default function QualityDashboard() {
       { count: pipelineCount },
       { data: watchlistData },
     ] = await Promise.all([
-      supabase.from("company_price_history").select("price_date").order("price_date", { ascending: false }).limit(1),
-      supabase.from("news_items").select("published_at").order("published_at", { ascending: false }).limit(1),
+      supabase.from("company_price_history").select("date").order("date", { ascending: false }).limit(1),
+      supabase.from("news_items").select("published_date").order("published_date", { ascending: false }).limit(1),
       supabase.from("pipelines").select("*", { count: "exact", head: true }),
       supabase.from("curated_watchlists").select("updated_at").order("updated_at", { ascending: false }).limit(1),
     ]);
@@ -157,18 +157,20 @@ export default function QualityDashboard() {
     }
     setChatMessages((chatData || []).map((m: any) => ({ role: m.role, content: m.content, model_used: m.model_used, created_at: m.created_at })));
     setFreshness({
-      lastPrice: priceData?.[0]?.price_date || "N/A",
-      lastNews: newsData?.[0]?.published_at?.split("T")[0] || "N/A",
+      lastPrice: priceData?.[0]?.date || "N/A",
+      lastNews: newsData?.[0]?.published_date?.split("T")[0] || "N/A",
       pipelineCount: pipelineCount || 0,
       lastWatchlist: watchlistData?.[0]?.updated_at?.split("T")[0] || "N/A",
     });
     setPageLoading(false);
-  }, [supabase, selectedModelId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (!authLoading && user?.email === ADMIN_EMAIL) loadData();
     else if (!authLoading) setPageLoading(false);
-  }, [authLoading, user, loadData]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authLoading, user]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
