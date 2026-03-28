@@ -1,6 +1,7 @@
 #!/usr/bin/env npx tsx
 /**
  * Scrape biotech news from RSS feeds and insert into news_items table.
+ * Also extracts drug/product mentions from each article and inserts into drug_mentions.
  *
  * Sources:
  *  - BioSpace RSS
@@ -30,6 +31,156 @@ const DEEPSEEK_URL = "https://api.deepseek.com/chat/completions";
 if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
   console.error("Missing Supabase credentials");
   process.exit(1);
+}
+
+/* ─── Pipeline Product Matching ─── */
+
+interface PipelineProduct {
+  id: string;
+  product_name: string;
+  company_name: string | null;
+}
+
+/** Load all pipeline product names for drug mention matching (paginated) */
+async function loadPipelineProducts(): Promise<PipelineProduct[]> {
+  const all: PipelineProduct[] = [];
+  let offset = 0;
+  const pageSize = 1000;
+
+  while (true) {
+    const { data } = await supabase
+      .from("pipelines")
+      .select("id, product_name, company_name")
+      .range(offset, offset + pageSize - 1);
+
+    if (!data || data.length === 0) break;
+    all.push(...(data as PipelineProduct[]));
+    offset += pageSize;
+    if (data.length < pageSize) break;
+  }
+
+  return all;
+}
+
+/**
+ * Build a search index: lowercased product name -> { id, company_name }
+ * Only index names with 4+ chars to avoid false positives (e.g. "ACE", "AMP").
+ * Also builds word-boundary regex for each product for precise matching.
+ */
+interface DrugIndex {
+  name: string;         // original product_name
+  id: string;           // pipeline id
+  company: string | null;
+  regex: RegExp;
+}
+
+function buildDrugIndex(products: PipelineProduct[]): DrugIndex[] {
+  // Deduplicate by product_name (keep first occurrence per name)
+  const seen = new Map<string, PipelineProduct>();
+  for (const p of products) {
+    const key = p.product_name.toLowerCase().trim();
+    if (key.length >= 4 && !seen.has(key)) {
+      seen.set(key, p);
+    }
+  }
+
+  const index: DrugIndex[] = [];
+  for (const [key, p] of seen) {
+    // Escape regex special chars and build word-boundary pattern
+    const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    try {
+      index.push({
+        name: p.product_name,
+        id: p.id,
+        company: p.company_name,
+        regex: new RegExp(`\\b${escaped}\\b`, "i"),
+      });
+    } catch {
+      // Skip invalid regex patterns
+    }
+  }
+
+  return index;
+}
+
+interface DrugMention {
+  drug_name: string;
+  pipeline_id: string;
+  company_name: string | null;
+  source: string;
+  article_title: string;
+  article_url: string | null;
+  mentioned_at: string; // YYYY-MM-DD
+}
+
+/** Scan article text for drug/product name matches */
+function findDrugMentions(
+  title: string,
+  summary: string,
+  source: string,
+  articleUrl: string | null,
+  publishedDate: string | null,
+  drugIndex: DrugIndex[]
+): DrugMention[] {
+  const text = title + " " + summary;
+  const mentions: DrugMention[] = [];
+  const today = new Date().toISOString().split("T")[0];
+  const date = publishedDate || today;
+
+  for (const drug of drugIndex) {
+    if (drug.regex.test(text)) {
+      mentions.push({
+        drug_name: drug.name,
+        pipeline_id: drug.id,
+        company_name: drug.company,
+        source,
+        article_title: title.slice(0, 500),
+        article_url: articleUrl || null,
+        mentioned_at: date,
+      });
+    }
+  }
+
+  return mentions;
+}
+
+/** Insert drug mentions into Supabase, deduplicating by drug+article_url+date */
+async function insertDrugMentions(mentions: DrugMention[]): Promise<number> {
+  let inserted = 0;
+
+  // Batch insert in chunks of 50
+  for (let i = 0; i < mentions.length; i += 50) {
+    const batch = mentions.slice(i, i + 50);
+    const { error, count } = await supabase
+      .from("drug_mentions")
+      .upsert(batch, {
+        onConflict: "drug_name,article_url,mentioned_at",
+        ignoreDuplicates: true,
+      });
+
+    if (error) {
+      // If upsert fails (no unique constraint), fall back to individual inserts
+      for (const m of batch) {
+        // Check for existing
+        const { data: existing } = await supabase
+          .from("drug_mentions")
+          .select("id")
+          .eq("drug_name", m.drug_name)
+          .eq("mentioned_at", m.mentioned_at)
+          .eq("article_title", m.article_title)
+          .limit(1);
+
+        if (existing && existing.length > 0) continue;
+
+        const { error: insertErr } = await supabase.from("drug_mentions").insert(m);
+        if (!insertErr) inserted++;
+      }
+    } else {
+      inserted += batch.length;
+    }
+  }
+
+  return inserted;
 }
 
 /* ─── Helpers ─── */
@@ -339,6 +490,12 @@ async function main() {
   const companyNames = companies.map((c) => c.name);
   console.log(`  Loaded ${companyNames.length} company names\n`);
 
+  // Load pipeline products for drug mention extraction
+  console.log("Loading pipeline products for drug mention matching...");
+  const pipelineProducts = await loadPipelineProducts();
+  const drugIndex = buildDrugIndex(pipelineProducts);
+  console.log(`  Loaded ${pipelineProducts.length} pipeline products, indexed ${drugIndex.length} unique drug names\n`);
+
   let allItems: NewsItem[] = [];
 
   // 1. Try RSS feeds
@@ -366,11 +523,37 @@ async function main() {
   const inserted = await insertNewsItems(allItems);
   console.log(`\nInserted ${inserted} new items (${allItems.length - inserted} duplicates skipped)`);
 
-  // 4. Summary
+  // 4. Extract drug mentions from all articles
+  console.log("\n--- Extracting Drug Mentions ---");
+  const allMentions: DrugMention[] = [];
+  for (const item of allItems) {
+    const mentions = findDrugMentions(
+      item.title,
+      item.summary,
+      item.source_name,
+      item.source_url || null,
+      item.published_date,
+      drugIndex
+    );
+    allMentions.push(...mentions);
+  }
+  console.log(`  Found ${allMentions.length} drug mentions across ${allItems.length} articles`);
+
+  if (allMentions.length > 0) {
+    const mentionsInserted = await insertDrugMentions(allMentions);
+    console.log(`  Inserted ${mentionsInserted} drug mentions into drug_mentions table`);
+  }
+
+  // 5. Summary
   const { count } = await supabase
     .from("news_items")
     .select("*", { count: "exact", head: true });
   console.log(`\nTotal news items in database: ${count}`);
+
+  const { count: mentionCount } = await supabase
+    .from("drug_mentions")
+    .select("*", { count: "exact", head: true });
+  console.log(`Total drug mentions in database: ${mentionCount}`);
 
   // Category breakdown
   const { data: categories } = await supabase
@@ -384,6 +567,24 @@ async function main() {
     console.log("\nCategory breakdown:");
     for (const [cat, cnt] of Object.entries(counts).sort((a, b) => b[1] - a[1])) {
       console.log(`  ${cat}: ${cnt}`);
+    }
+  }
+
+  // Top mentioned drugs
+  const { data: topDrugs } = await supabase
+    .from("drug_mentions")
+    .select("drug_name")
+    .gte("mentioned_at", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]);
+
+  if (topDrugs && topDrugs.length > 0) {
+    const drugCounts: Record<string, number> = {};
+    for (const d of topDrugs) {
+      drugCounts[d.drug_name] = (drugCounts[d.drug_name] || 0) + 1;
+    }
+    const sorted = Object.entries(drugCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+    console.log("\nTop 10 mentioned drugs (last 7 days):");
+    for (const [drug, cnt] of sorted) {
+      console.log(`  ${drug}: ${cnt} mentions`);
     }
   }
 }
