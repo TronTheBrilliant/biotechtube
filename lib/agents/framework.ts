@@ -97,7 +97,7 @@ export async function completeRun(
       items_fixed: result.items_fixed,
       issues_found: result.issues_found,
       summary: result.summary,
-      details: result.details || {},
+      details: (result.details || {}) as any,
       model_used: result.model_used || null,
     })
     .eq("id", runId);

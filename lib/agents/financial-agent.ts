@@ -45,15 +45,15 @@ export async function runFinancialAgent(
   // 2. Check for market cap anomalies
   const { data: anomalies } = await supabase
     .from("company_price_history")
-    .select("company_id, date, market_cap_usd, change_1d")
-    .gt("change_1d", 50)
+    .select("company_id, date, market_cap_usd, change_pct")
+    .gt("change_pct", 50)
     .order("date", { ascending: false })
     .limit(20);
 
   const negAnomalies = await supabase
     .from("company_price_history")
-    .select("company_id, date, market_cap_usd, change_1d")
-    .lt("change_1d", -50)
+    .select("company_id, date, market_cap_usd, change_pct")
+    .lt("change_pct", -50)
     .order("date", { ascending: false })
     .limit(20);
 
@@ -66,7 +66,7 @@ export async function runFinancialAgent(
     issuesFound += allAnomalies.length;
 
     // Get company names for context
-    const anomalyIds = [...new Set(allAnomalies.map((a: any) => a.company_id))];
+    const anomalyIds = Array.from(new Set(allAnomalies.map((a: any) => a.company_id)));
     const { data: anomalyCompanies } = await supabase
       .from("companies")
       .select("id, name, ticker")
@@ -79,8 +79,8 @@ export async function runFinancialAgent(
       allFixes.push({
         entity_type: "company_price",
         entity_id: anomaly.company_id,
-        field: "change_1d",
-        old_value: String(anomaly.change_1d),
+        field: "change_pct",
+        old_value: String(anomaly.change_pct),
         new_value: null, // Flagged, not corrected
         confidence: null,
       });

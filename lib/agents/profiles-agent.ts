@@ -35,7 +35,7 @@ export async function runProfilesAgent(
   const companyIds = batch.map((b: any) => b.company_id);
   const { data: companies } = await supabase
     .from("companies")
-    .select("id, name, slug, ticker, country, city, description, founded_year, category, sub_category")
+    .select("id, name, slug, ticker, country, city, description, founded")
     .in("id", companyIds);
 
   if (!companies || companies.length === 0) {
@@ -57,8 +57,7 @@ export async function runProfilesAgent(
     if (!company.description) missing.push("description");
     if (!company.country) missing.push("country");
     if (!company.city) missing.push("city");
-    if (!company.founded_year) missing.push("founded_year");
-    if (!company.category) missing.push("category");
+    if (!company.founded) missing.push("founded");
 
     if (missing.length === 0) continue;
     issuesFound++;
@@ -73,9 +72,7 @@ Current data: ${JSON.stringify({
       country: company.country,
       city: company.city,
       description: company.description,
-      founded_year: company.founded_year,
-      category: company.category,
-      sub_category: company.sub_category,
+      founded: company.founded,
     })}
 
 Missing/suspect fields: ${missing.join(", ")}

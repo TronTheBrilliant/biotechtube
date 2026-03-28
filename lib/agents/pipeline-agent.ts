@@ -35,26 +35,27 @@ export async function runPipelineAgent(
 
   for (const item of pipelines) {
     const missing: string[] = [];
-    if (!item.indication) missing.push("indication");
-    if (!item.stage) missing.push("stage");
+    if (!item.ai_summary) missing.push("ai_summary");
+    if (!item.reason) missing.push("reason");
 
     if (missing.length === 0) continue;
     issuesFound++;
 
-    const systemPrompt = `You are a biotech pipeline data analyst. Return ONLY valid JSON with corrections. Each field should have "value" and "confidence" (0-1).`;
+    const systemPrompt = `You are a biotech pipeline data analyst. Return ONLY valid JSON with enriched content. Each field should have "value" and "confidence" (0-1).`;
 
-    const prompt = `Research this drug/product and fill missing fields.
+    const prompt = `Enrich this featured pipeline entry by filling missing fields.
 
-Product: ${item.product_name || item.name || "Unknown"}
-Company: ${item.company_name || "Unknown"}
+Pipeline ID: ${item.pipeline_id || item.id}
+Rank: ${item.rank ?? "N/A"}
+Featured month: ${item.featured_month || "N/A"}
 Current data: ${JSON.stringify(item)}
 
 Missing fields: ${missing.join(", ")}
 
 Return JSON like:
 {
-  "indication": { "value": "Oncology - NSCLC", "confidence": 0.85 },
-  "stage": { "value": "Phase 2", "confidence": 0.9 }
+  "ai_summary": { "value": "A concise AI-generated summary of this pipeline...", "confidence": 0.85 },
+  "reason": { "value": "Why this pipeline is featured this month...", "confidence": 0.9 }
 }`;
 
     try {
