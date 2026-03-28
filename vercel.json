@@ -7,6 +7,10 @@
     {
       "path": "/api/cron/update-aggregations",
       "schedule": "30 14 * * 1-5"
+    },
+    {
+      "path": "/api/cron/agents",
+      "schedule": "0 * * * *"
     }
   ]
 }
