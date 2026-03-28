@@ -14,7 +14,8 @@ import {
   ArrowDownRight, Globe, Mail, Phone, MapPin, Building2,
   Target, ShieldAlert, Swords, Sparkles, BookOpen, Beaker,
   ChevronRight, ChevronDown, Award, Zap, CircleDot, FileText, Shield,
-  ScrollText, TestTubes, Pill, ShieldCheck, Newspaper, Hash, DollarSign
+  ScrollText, TestTubes, Pill, ShieldCheck, Newspaper, Hash, DollarSign,
+  Flag, X
 } from "lucide-react";
 import { TvStockChart } from "@/components/charts/TvStockChart";
 import { TvAreaChart } from "@/components/charts/TvAreaChart";
@@ -536,6 +537,41 @@ export function CompanyPageClient({
   const [showAllPubs, setShowAllPubs] = useState(false);
   const [showAllPatents, setShowAllPatents] = useState(false);
   const [descExpanded, setDescExpanded] = useState(false);
+
+  // Error report modal state
+  const [showErrorReport, setShowErrorReport] = useState(false);
+  const [errorReportType, setErrorReportType] = useState("data_error");
+  const [errorReportDesc, setErrorReportDesc] = useState("");
+  const [errorReportEmail, setErrorReportEmail] = useState("");
+  const [errorReportSubmitting, setErrorReportSubmitting] = useState(false);
+  const [errorReportDone, setErrorReportDone] = useState(false);
+
+  const submitErrorReport = async () => {
+    if (!errorReportDesc.trim() || errorReportSubmitting) return;
+    setErrorReportSubmitting(true);
+    try {
+      await fetch("/api/report-error", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          companyId: companyId,
+          pageUrl: typeof window !== "undefined" ? window.location.href : null,
+          issueType: errorReportType,
+          description: errorReportDesc,
+          email: errorReportEmail || null,
+        }),
+      });
+      setErrorReportDone(true);
+      setTimeout(() => {
+        setShowErrorReport(false);
+        setErrorReportDone(false);
+        setErrorReportDesc("");
+        setErrorReportType("data_error");
+        setErrorReportEmail("");
+      }, 2000);
+    } catch {}
+    setErrorReportSubmitting(false);
+  };
 
   // On-demand report generation state
   const [report, setReport] = useState<CompanyReport | null>(initialReport);
@@ -1890,6 +1926,92 @@ export function CompanyPageClient({
 
             {/* Similar Companies */}
             {similar.length > 0 && <SimilarCompanies companies={similar} />}
+
+            {/* Report Error */}
+            <div className="px-5 py-4 border-b" style={{ borderColor: "var(--color-border-subtle)" }}>
+              <button
+                onClick={() => setShowErrorReport(true)}
+                className="text-[11px] flex items-center gap-1.5 transition-opacity hover:opacity-80"
+                style={{ color: "var(--color-text-tertiary)" }}
+              >
+                <Flag size={12} />
+                Report an error on this page
+              </button>
+            </div>
+
+            {/* Error Report Modal */}
+            {showErrorReport && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowErrorReport(false)}>
+                <div
+                  className="w-full max-w-md mx-4 rounded-xl p-6 shadow-xl"
+                  style={{ background: "var(--color-bg-secondary)", border: "1px solid var(--color-border-subtle)" }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {errorReportDone ? (
+                    <div className="text-center py-4">
+                      <div className="text-2xl mb-2">&#10003;</div>
+                      <p className="text-[14px] font-medium" style={{ color: "var(--color-text-primary)" }}>Thank you for your report!</p>
+                      <p className="text-[12px] mt-1" style={{ color: "var(--color-text-secondary)" }}>We will review it shortly.</p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-[15px] font-bold" style={{ color: "var(--color-text-primary)" }}>Report an Error</h3>
+                        <button onClick={() => setShowErrorReport(false)} className="p-1 rounded hover:opacity-70" style={{ color: "var(--color-text-tertiary)" }}>
+                          <X size={16} />
+                        </button>
+                      </div>
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-[11px] font-medium block mb-1" style={{ color: "var(--color-text-secondary)" }}>Issue Type</label>
+                          <select
+                            value={errorReportType}
+                            onChange={(e) => setErrorReportType(e.target.value)}
+                            className="w-full text-[13px] px-3 py-2 rounded-lg border outline-none"
+                            style={{ borderColor: "var(--color-border-subtle)", background: "var(--color-bg-primary)", color: "var(--color-text-primary)" }}
+                          >
+                            <option value="data_error">Incorrect Data</option>
+                            <option value="broken_link">Broken Link</option>
+                            <option value="wrong_info">Wrong Information</option>
+                            <option value="other">Other</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="text-[11px] font-medium block mb-1" style={{ color: "var(--color-text-secondary)" }}>Description</label>
+                          <textarea
+                            value={errorReportDesc}
+                            onChange={(e) => setErrorReportDesc(e.target.value)}
+                            placeholder="Describe the issue..."
+                            rows={3}
+                            className="w-full text-[13px] px-3 py-2 rounded-lg border outline-none resize-none"
+                            style={{ borderColor: "var(--color-border-subtle)", background: "var(--color-bg-primary)", color: "var(--color-text-primary)" }}
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[11px] font-medium block mb-1" style={{ color: "var(--color-text-secondary)" }}>Your email (optional)</label>
+                          <input
+                            value={errorReportEmail}
+                            onChange={(e) => setErrorReportEmail(e.target.value)}
+                            placeholder="email@example.com"
+                            type="email"
+                            className="w-full text-[13px] px-3 py-2 rounded-lg border outline-none"
+                            style={{ borderColor: "var(--color-border-subtle)", background: "var(--color-bg-primary)", color: "var(--color-text-primary)" }}
+                          />
+                        </div>
+                        <button
+                          onClick={submitErrorReport}
+                          disabled={!errorReportDesc.trim() || errorReportSubmitting}
+                          className="w-full text-[13px] font-medium px-4 py-2.5 rounded-lg text-white disabled:opacity-50 transition-opacity"
+                          style={{ background: "var(--color-accent)" }}
+                        >
+                          {errorReportSubmitting ? "Submitting..." : "Submit Report"}
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Claim CTA */}
             <div className="px-5 py-5">
