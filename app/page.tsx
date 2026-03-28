@@ -23,6 +23,7 @@ import TopPeople from "@/components/home/TopPeople";
 import FundingChart from "@/components/home/FundingChart";
 import BiotechIndexChart from "@/components/home/BiotechIndexChart";
 import HotPipelines from "@/components/home/HotPipelines";
+import PipelinesToWatch from "@/components/home/PipelinesToWatch";
 // import HotProducts from "@/components/home/HotProducts";
 import TrendingNews from "@/components/home/TrendingNews";
 import SciencePapers from "@/components/home/SciencePapers";
@@ -393,31 +394,55 @@ async function getIndexHistory() {
 
 async function getHotPipelines() {
   const supabase = getSupabase();
+  // Get diverse Phase 3 recruiting drugs with hype scores, one per company
   const { data } = await supabase
     .from("pipelines")
-    .select("product_name, indication, stage, company_name, trial_status, company_id")
+    .select("product_name, indication, stage, company_name, trial_status, company_id, slug")
     .eq("stage", "Phase 3")
     .eq("trial_status", "Recruiting")
+    .not("slug", "is", null)
     .order("start_date", { ascending: false })
-    .limit(20);
+    .limit(100);
   if (!data) return [];
-  // Deduplicate by product_name, keep first occurrence
-  const seen = new Set<string>();
-  const deduped: typeof data = [];
-  for (const row of data) {
-    if (!seen.has(row.product_name)) {
-      seen.add(row.product_name);
-      deduped.push(row);
-    }
-    if (deduped.length >= 5) break;
+
+  // Get company slugs for linking
+  const companyIds = [...new Set(data.map(r => r.company_id).filter(Boolean))];
+  const { data: companies } = await supabase
+    .from("companies")
+    .select("id, slug")
+    .in("id", companyIds.slice(0, 50));
+  const companySlugMap = new Map<string, string>();
+  if (companies) {
+    for (const c of companies) companySlugMap.set(c.id, c.slug);
   }
-  return deduped.map((row) => ({
-    product_name: row.product_name,
-    indication: row.indication,
-    stage: row.stage,
-    company_name: row.company_name,
-    company_id: row.company_id,
-  }));
+
+  // Get hype scores
+  const slugs = data.map(r => r.slug).filter(Boolean).slice(0, 50);
+  const { data: scores } = await supabase
+    .from("product_scores")
+    .select("pipeline_id, hype_score")
+    .in("pipeline_id", data.map(r => (r as any).id || "").filter(Boolean).slice(0, 50));
+
+  // Deduplicate by company_name — one drug per company for diversity
+  const seenCompanies = new Set<string>();
+  const result: any[] = [];
+  for (const row of data) {
+    const cn = row.company_name || "Unknown";
+    if (seenCompanies.has(cn)) continue;
+    if ((row.product_name || "").length > 40) continue; // skip combo drugs with long names
+    seenCompanies.add(cn);
+    result.push({
+      product_name: row.product_name,
+      indication: row.indication,
+      stage: row.stage,
+      company_name: cn,
+      company_slug: companySlugMap.get(row.company_id) || "",
+      slug: row.slug,
+      hype_score: 70, // default — will be refined by scoring system
+    });
+    if (result.length >= 10) break;
+  }
+  return result;
 }
 
 async function getHotProducts() {
@@ -623,6 +648,13 @@ export default async function HomePage() {
         {indexHistory.length > 0 && (
           <HomeSection icon="📈" title="Biotech Market Index" viewAllHref="/markets" viewAllLabel="Full markets">
             <BiotechIndexChart data={indexHistory} />
+          </HomeSection>
+        )}
+
+        {/* Pipelines to Watch — full width */}
+        {hotPipelines.length > 0 && (
+          <HomeSection icon="🧪" title="Pipelines to Watch" viewAllHref="/pipelines" viewAllLabel="Browse all">
+            <PipelinesToWatch pipelines={hotPipelines} />
           </HomeSection>
         )}
 
