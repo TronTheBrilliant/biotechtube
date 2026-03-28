@@ -21,7 +21,7 @@ export async function runSeoAgent(
   // Left join: companies NOT IN company_seo
   const { data: companies } = await supabase
     .from("companies")
-    .select("id, name, slug, description, category, sub_category, country")
+    .select("id, name, slug, description, country")
     .limit(batchSize);
 
   if (!companies || companies.length === 0) {
@@ -61,7 +61,7 @@ export async function runSeoAgent(
 
 Company: ${company.name}
 Description: ${company.description || "N/A"}
-Category: ${company.category || "N/A"}
+Slug: ${company.slug || "N/A"}
 Country: ${company.country || "N/A"}
 
 Return JSON:
