@@ -3,13 +3,29 @@ import { createServerClient } from "@/lib/supabase";
 
 const ADMIN_EMAIL = "trond.skattum@gmail.com";
 
-// Terminal commands for long-running scripts (can't run on Vercel)
-const TERMINAL_COMMANDS: Record<string, string> = {
-  "run-cia": "npx tsx scripts/cia-agent.ts --batch 50",
-  "scrape-news": "npx tsx scripts/scrape-biotech-news.ts",
-  "integrity-check": "npx tsx scripts/daily-integrity-check.ts",
-  "generate-recap": "npx tsx scripts/generate-weekly-recap.ts",
-  "refresh-watchlists": "npx tsx scripts/populate-curated-watchlists.ts",
+const BASE_DIR = "/Users/trondmariusbrilskattum/Desktop/Biotechtube/biotechtube";
+
+const TERMINAL_COMMANDS: Record<string, { message: string; command: string }> = {
+  "run-cia": {
+    message: "CIA agent command ready",
+    command: `cd ${BASE_DIR} && npx tsx scripts/cia-agent.ts --batch 50`,
+  },
+  "scrape-news": {
+    message: "News scraper command ready",
+    command: `cd ${BASE_DIR} && npx tsx scripts/scrape-biotech-news.ts`,
+  },
+  "integrity-check": {
+    message: "Integrity check command ready",
+    command: `cd ${BASE_DIR} && npx tsx scripts/daily-integrity-check.ts`,
+  },
+  "generate-recap": {
+    message: "Weekly recap command ready",
+    command: `cd ${BASE_DIR} && npx tsx scripts/generate-weekly-recap.ts`,
+  },
+  "refresh-watchlists": {
+    message: "Watchlist refresh command ready",
+    command: `cd ${BASE_DIR} && npx tsx scripts/populate-curated-watchlists.ts`,
+  },
 };
 
 export async function POST(req: NextRequest) {
@@ -24,7 +40,6 @@ export async function POST(req: NextRequest) {
 
     switch (action) {
       case "refresh-prices": {
-        // Call internal cron endpoint
         const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://biotechtube.com";
         try {
           fetch(`${baseUrl}/api/cron/update-prices`, { method: "POST" }).catch(() => {});
@@ -36,7 +51,8 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({
             success: false,
             message: "Failed to trigger price update",
-            terminalCommand: "npx tsx scripts/update-prices.ts",
+            command: "npx tsx scripts/update-prices.ts",
+            copyToClipboard: true,
           });
         }
       }
@@ -75,15 +91,24 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ success: true, message: "Report resolved" });
       }
 
+      case "dismiss-report": {
+        const { id } = params || {};
+        if (!id) return NextResponse.json({ error: "Missing report id" }, { status: 400 });
+        await supabase
+          .from("error_reports")
+          .update({ status: "dismissed", resolved_at: new Date().toISOString() })
+          .eq("id", id);
+        return NextResponse.json({ success: true, message: "Report dismissed" });
+      }
+
       default: {
-        // Long-running scripts: return terminal command
-        const cmd = TERMINAL_COMMANDS[action];
-        if (cmd) {
+        const terminalCmd = TERMINAL_COMMANDS[action];
+        if (terminalCmd) {
           return NextResponse.json({
             success: true,
-            message: `Run locally: ${cmd}`,
-            terminalCommand: cmd,
-            isBackground: true,
+            message: terminalCmd.message,
+            command: terminalCmd.command,
+            copyToClipboard: true,
           });
         }
         return NextResponse.json({ error: `Unknown action: ${action}` }, { status: 400 });
