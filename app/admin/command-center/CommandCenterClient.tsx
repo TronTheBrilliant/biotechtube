@@ -216,7 +216,7 @@ export default function CommandCenterClient() {
   return (
     <>
       <Nav />
-      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "2rem 1rem" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "6rem 1rem 2rem" }}>
         {/* Top bar */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
           <div>
