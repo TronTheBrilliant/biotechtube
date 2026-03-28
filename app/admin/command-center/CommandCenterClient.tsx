@@ -1,85 +1,21 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { useAuth } from "@/lib/auth";
+import { Play, History, Loader2, X, Zap } from "lucide-react";
 import {
-  Users, TrendingUp, Beaker, FileText,
-  Globe, Monitor, Play, History,
-  Loader2, X, Zap,
-} from "lucide-react";
-
-// Matches the pattern in /admin/quality — hardcoded for client-side gating
-// Server-side auth is enforced in the API routes
-const ADMIN_EMAIL = "trond.skattum@gmail.com";
-
-const AGENT_META: Record<string, { name: string; icon: React.ReactNode; color: string }> = {
-  profiles: { name: "Profiles", icon: <Users size={18} />, color: "#818cf8" },
-  financial: { name: "Financial", icon: <TrendingUp size={18} />, color: "#22c55e" },
-  pipeline: { name: "Pipeline", icon: <Beaker size={18} />, color: "#a855f7" },
-  content: { name: "Content", icon: <FileText size={18} />, color: "#fb923c" },
-  seo: { name: "SEO", icon: <Globe size={18} />, color: "#38bdf8" },
-  ux: { name: "UX", icon: <Monitor size={18} />, color: "#f43f5e" },
-};
-
-interface AgentStatus {
-  agent_id: string;
-  enabled: boolean;
-  schedule_cron: string;
-  batch_size: number;
-  health_score: number;
-  health_summary: string;
-  latest_run: {
-    id: string;
-    status: string;
-    started_at: string;
-    completed_at: string | null;
-    items_scanned: number;
-    items_fixed: number;
-    issues_found: number;
-    summary: string | null;
-  } | null;
-}
-
-interface AgentRun {
-  id: string;
-  agent_id: string;
-  status: string;
-  started_at: string;
-  completed_at: string | null;
-  items_scanned: number;
-  items_fixed: number;
-  issues_found: number;
-  summary: string | null;
-  triggered_by: string;
-}
-
-function scoreColor(score: number): string {
-  if (score >= 80) return "#22c55e";
-  if (score >= 50) return "#eab308";
-  return "#ef4444";
-}
-
-function timeAgo(dateStr: string | null): string {
-  if (!dateStr) return "Never";
-  const d = Math.floor((Date.now() - new Date(dateStr).getTime()) / 60000);
-  if (d < 1) return "Just now";
-  if (d < 60) return `${d}m ago`;
-  const h = Math.floor(d / 60);
-  if (h < 24) return `${h}h ago`;
-  return `${Math.floor(h / 24)}d ago`;
-}
-
-function cronToHuman(cron: string): string {
-  const parts = cron.split(" ");
-  const hour = parts[1] || "*";
-  const dow = parts[4] || "*";
-  if (dow !== "*") return "Weekly";
-  if (hour.startsWith("*/")) return `Every ${hour.replace("*/", "")}h`;
-  if (hour === "0") return "Daily";
-  return cron;
-}
+  ADMIN_EMAIL,
+  AGENT_META,
+  AgentStatus,
+  AgentRun,
+  scoreColor,
+  timeAgo,
+  cronToHuman,
+} from "@/lib/admin-utils";
+import { AdminNav } from "@/components/admin/AdminNav";
 
 export default function CommandCenterClient() {
   const { user, loading: authLoading } = useAuth();
@@ -217,6 +153,7 @@ export default function CommandCenterClient() {
     <>
       <Nav />
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "6rem 1rem 2rem" }}>
+        <AdminNav />
         {/* Top bar */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
           <div>
@@ -284,9 +221,12 @@ export default function CommandCenterClient() {
                       {meta?.icon}
                     </div>
                     <div>
-                      <div style={{ fontSize: 15, fontWeight: 600, color: "var(--color-text-primary)" }}>
+                      <Link
+                        href={`/admin/agents/${agent.agent_id}`}
+                        style={{ fontSize: 15, fontWeight: 600, color: "var(--color-text-primary)", textDecoration: "none" }}
+                      >
                         {meta?.name || agent.agent_id}
-                      </div>
+                      </Link>
                       <div style={{ fontSize: 12, color: "var(--color-text-tertiary)" }}>
                         {cronToHuman(agent.schedule_cron)} &middot; Last: {timeAgo(agent.latest_run?.started_at || null)}
                       </div>
