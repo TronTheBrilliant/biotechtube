@@ -1,19 +1,28 @@
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { createClient } from "@supabase/supabase-js";
 import { PipelinesPageClient } from "./PipelinesPageClient";
 import type { Metadata } from "next";
 
-export const revalidate = 300;
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Drug Pipeline Intelligence | BiotechTube",
   description:
     "Curated biotech watchlists, FDA decision calendar, and 54,000+ drugs in development. Track small-cap gems, mid-cap catalysts, and big pharma pipelines.",
+  alternates: { canonical: "https://biotechtube.io/pipelines" },
   openGraph: {
     title: "Drug Pipeline Intelligence | BiotechTube",
     description:
       "Curated biotech watchlists, FDA decision calendar, and 54,000+ drugs in development.",
+    url: "https://biotechtube.io/pipelines",
+    images: ["/api/og?title=Drug%20Pipeline%20Intelligence&subtitle=54%2C699%20drugs%20across%20686%20companies&type=pipeline"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Drug Pipeline Intelligence | BiotechTube",
+    description: "Curated biotech watchlists, FDA decision calendar, and 54,000+ drugs in development.",
   },
 };
 
@@ -520,12 +529,20 @@ export default async function PipelinesPage() {
     getFDACalendar(),
   ]);
 
+  const breadcrumbItems = [
+    { label: "Home", href: "/" },
+    { label: "Pipeline Intelligence" },
+  ];
+
   return (
     <div
       className="page-content"
       style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}
     >
       <Nav />
+      <div className="max-w-6xl mx-auto px-4 pt-3 pb-0">
+        <Breadcrumbs items={breadcrumbItems} />
+      </div>
       <PipelinesPageClient
         stats={stats}
         rows={rows}

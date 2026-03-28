@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { RecentlyFunded } from "@/components/RecentlyFunded";
 import { PaywallCard } from "@/components/PaywallCard";
 import { Company, FundingRound } from "@/lib/types";
@@ -17,9 +18,20 @@ function getSupabase() {
 }
 
 export const metadata: Metadata = {
-  title: "Events — BiotechTube",
-  alternates: {
-    canonical: "https://biotechtube.io/events",
+  title: "Biotech Events & Conferences 2026-2027 | BiotechTube",
+  description:
+    "Upcoming biotech conferences, medical meetings, and investor events. BIO International, ASCO, JPMorgan Healthcare, and 40+ more events worldwide.",
+  alternates: { canonical: "https://biotechtube.io/events" },
+  openGraph: {
+    title: "Biotech Events & Conferences 2026-2027",
+    description: "Complete calendar of biotech industry events worldwide",
+    url: "https://biotechtube.io/events",
+    images: ["/api/og?title=Biotech%20Events&subtitle=Conferences%2C%20meetings%2C%20and%20FDA%20dates&type=events"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Biotech Events & Conferences 2026-2027 | BiotechTube",
+    description: "Upcoming biotech conferences, medical meetings, and investor events worldwide.",
   },
 };
 
@@ -126,11 +138,45 @@ export default async function EventsPage() {
   const recentEvents = allEvents.filter((e) => e.past);
   const grouped = groupByMonth(upcomingEvents);
 
+  // JSON-LD Event structured data
+  const eventsJsonLd = allEvents
+    .filter((e) => !e.past)
+    .slice(0, 30)
+    .map((ev) => ({
+      "@context": "https://schema.org",
+      "@type": "Event",
+      name: ev.name,
+      startDate: ev.date,
+      ...(ev.endDate ? { endDate: ev.endDate } : {}),
+      location: {
+        "@type": "Place",
+        name: ev.location,
+      },
+      eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+      ...(ev.description ? { description: ev.description } : {}),
+      ...(ev.url ? { url: ev.url } : {}),
+    }));
+
+  const breadcrumbItems = [
+    { label: "Home", href: "/" },
+    { label: "Events" },
+  ];
+
   return (
     <div className="page-content" style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
       <Nav />
+      {eventsJsonLd.map((ld, i) => (
+        <script
+          key={i}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
+        />
+      ))}
 
       <main className="max-w-6xl mx-auto px-4 py-8">
+        <div className="mb-4">
+          <Breadcrumbs items={breadcrumbItems} />
+        </div>
         {/* Header */}
         <div className="mb-6">
           <h1

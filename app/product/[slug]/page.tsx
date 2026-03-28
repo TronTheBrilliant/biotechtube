@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ProductPageClient } from "./ProductPageClient";
 
 export const revalidate = 300;
@@ -238,6 +239,21 @@ async function getCompanyTopProducts(companyId: string, excludeId: string): Prom
   }));
 }
 
+async function isFeaturedProduct(pipelineId: string): Promise<boolean> {
+  const supabase = getSupabase();
+  const { count: cwCount } = await supabase
+    .from("curated_watchlist_items")
+    .select("id", { count: "exact", head: true })
+    .eq("pipeline_id", pipelineId);
+  if (cwCount && cwCount > 0) return true;
+
+  const { count: fpCount } = await supabase
+    .from("featured_pipelines")
+    .select("id", { count: "exact", head: true })
+    .eq("pipeline_id", pipelineId);
+  return (fpCount ?? 0) > 0;
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -246,21 +262,36 @@ export async function generateMetadata({
   const product = await getProductBySlug(params.slug);
   if (!product) return { title: "Product Not Found | BiotechTube" };
 
-  const title = `${product.product_name} | ${product.company_name} | BiotechTube`;
-  const description = `${product.product_name} is a ${product.stage || "clinical"} stage product by ${product.company_name} for ${product.indication || "various indications"}. Track clinical trials, hype score, and competing products.`;
+  const productName = product.product_name;
+  const companyName = product.company_name || "Unknown";
+  const indication = product.indication || "various indications";
+  const stage = product.stage || "clinical";
+  const canonicalUrl = `https://biotechtube.io/product/${params.slug}`;
+
+  const title = `${productName} — ${indication} | ${companyName} Pipeline | BiotechTube`;
+  const description = `Track ${productName} by ${companyName} — ${stage} ${indication} drug. Clinical trial data, competitive landscape, and investment analysis on BiotechTube.`;
+
+  const featured = await isFeaturedProduct(product.id);
 
   return {
-    robots: "noindex, nofollow",
+    ...(featured ? {} : { robots: "noindex, nofollow" }),
     title,
     description,
+    alternates: { canonical: canonicalUrl },
     openGraph: {
       title,
       description,
       type: "article",
       siteName: "BiotechTube",
-      url: `https://biotechtube.io/product/${params.slug}`,
+      url: canonicalUrl,
+      images: [`/api/og?title=${encodeURIComponent(productName)}&subtitle=${encodeURIComponent(companyName + " \u00B7 " + stage)}&type=product`],
     },
-    twitter: { card: "summary", title, description },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [`/api/og?title=${encodeURIComponent(productName)}&subtitle=${encodeURIComponent(companyName + " \u00B7 " + stage)}&type=product`],
+    },
   };
 }
 
@@ -298,20 +329,39 @@ export default async function ProductPage({
     getHistoricalContext(product.indication, product.id),
   ]);
 
-  // JSON-LD structured data
+  // JSON-LD structured data (MedicalEntity + study)
+  const canonicalUrl = `https://biotechtube.io/product/${product.slug}`;
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "MedicalEntity",
     name: product.product_name,
-    description: `${product.product_name} — a ${product.stage || ""} product by ${product.company_name} for ${product.indication || "various indications"}.`,
+    description: `Track ${product.product_name} by ${product.company_name} — ${product.stage || "clinical"} ${product.indication || "various indications"} drug. Clinical trial data, competitive landscape, and investment analysis.`,
+    url: canonicalUrl,
     manufacturer: company
       ? {
           "@type": "Organization",
           name: company.name,
-          url: company.website || undefined,
+          url: company.website || `https://biotechtube.io/company/${company.slug}`,
         }
       : undefined,
+    relevantSpecialty: product.indication || undefined,
+    ...(product.nct_id
+      ? {
+          study: {
+            "@type": "MedicalStudy",
+            studyType: "Clinical trial",
+            status: product.trial_status || undefined,
+            identifier: product.nct_id,
+          },
+        }
+      : {}),
   };
+
+  const breadcrumbItems = [
+    { label: "Home", href: "/" },
+    { label: "Pipeline", href: "/pipelines" },
+    { label: product.product_name },
+  ];
 
   return (
     <>
@@ -324,6 +374,9 @@ export default async function ProductPage({
         style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}
       >
         <Nav />
+        <div className="max-w-6xl mx-auto px-4 pt-3 pb-0">
+          <Breadcrumbs items={breadcrumbItems} />
+        </div>
         <ProductPageClient
           product={product}
           company={company}

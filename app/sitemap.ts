@@ -57,8 +57,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/top-sectors`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.7 },
     { url: `${BASE_URL}/countries`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.7 },
     { url: `${BASE_URL}/companies`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.5 },
+    { url: `${BASE_URL}/pipelines`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
     { url: `${BASE_URL}/pipeline`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.5 },
-    { url: `${BASE_URL}/events`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.5 },
+    { url: `${BASE_URL}/events`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.7 },
     { url: `${BASE_URL}/therapeutic-areas`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.8 },
     { url: `${BASE_URL}/people`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.6 },
     { url: `${BASE_URL}/investors`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.6 },
@@ -157,6 +158,49 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  // Featured product pages (curated watchlists + featured pipelines only — NOT all 54K)
+  const productPages: MetadataRoute.Sitemap = [];
+  const seenProductSlugs = new Set<string>();
+
+  // Get pipeline IDs from curated watchlists
+  const { data: cwItems } = await supabase
+    .from("curated_watchlist_items")
+    .select("pipeline_id");
+  // Get pipeline IDs from featured pipelines
+  const { data: fpItems } = await supabase
+    .from("featured_pipelines")
+    .select("pipeline_id");
+
+  const featuredPipelineIds = [
+    ...new Set([
+      ...(cwItems || []).map((r: { pipeline_id: string }) => r.pipeline_id),
+      ...(fpItems || []).map((r: { pipeline_id: string }) => r.pipeline_id),
+    ]),
+  ];
+
+  // Fetch slugs for these pipeline IDs in batches
+  for (let i = 0; i < featuredPipelineIds.length; i += 200) {
+    const batch = featuredPipelineIds.slice(i, i + 200);
+    const { data: pipelines } = await supabase
+      .from("pipelines")
+      .select("slug")
+      .in("id", batch)
+      .not("slug", "is", null);
+    if (pipelines) {
+      for (const p of pipelines) {
+        if (p.slug && !seenProductSlugs.has(p.slug)) {
+          seenProductSlugs.add(p.slug);
+          productPages.push({
+            url: `${BASE_URL}/product/${p.slug}`,
+            lastModified: new Date(),
+            changeFrequency: "weekly" as const,
+            priority: 0.7,
+          });
+        }
+      }
+    }
+  }
+
   return [
     ...staticPages,
     ...companyPages,
@@ -167,5 +211,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...peoplePages,
     ...investorPages,
     ...blogPages,
+    ...productPages,
   ];
 }

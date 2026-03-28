@@ -16,6 +16,9 @@ export async function GET(request: NextRequest) {
     sector: '#8b5cf6',
     country: '#f59e0b',
     funding: '#10b981',
+    product: '#ec4899',
+    pipeline: '#14b8a6',
+    events: '#f59e0b',
     default: '#14b8a6',
   }[type] || '#14b8a6';
 
