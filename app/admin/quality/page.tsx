@@ -89,92 +89,77 @@ export default function QualityDashboard() {
   const healthColor = healthScore >= 80 ? "#22c55e" : healthScore >= 50 ? "#eab308" : "#ef4444";
 
   /* ─── Load Data ─── */
-  const loadData = useCallback(async () => {
-    const [
-      { count: companyCount },
-      { count: verifiedCount },
-      { count: openFlagCount },
-      { count: pendingReportCount },
-      { data: issueData },
-      { data: reportData },
-      { data: ciaData },
-      { data: modelData },
-      { data: chatData },
-    ] = await Promise.all([
-      supabase.from("companies").select("*", { count: "exact", head: true }),
-      supabase.from("profile_quality").select("*", { count: "exact", head: true }).gte("quality_score", 7),
-      supabase.from("integrity_checks").select("*", { count: "exact", head: true }).eq("status", "open"),
-      supabase.from("error_reports").select("*", { count: "exact", head: true }).eq("status", "open"),
-      supabase.from("integrity_checks").select("*").eq("status", "open").order("created_at", { ascending: false }).limit(50),
-      supabase.from("error_reports").select("*").eq("status", "open").order("created_at", { ascending: false }).limit(20),
-      supabase.from("profile_quality").select("company_id, quality_score, last_checked_at").order("last_checked_at", { ascending: false }).limit(20),
-      supabase.from("admin_ai_models").select("*").order("is_default", { ascending: false }),
-      supabase.from("admin_chat_history").select("*").order("created_at", { ascending: true }).limit(100),
-    ]);
-
-    // Get company names for CIA logs
-    let ciaWithNames: CiaLog[] = [];
-    if (ciaData && ciaData.length > 0) {
-      const ids = ciaData.map((c: any) => c.company_id);
-      const { data: companies } = await supabase.from("companies").select("id, name").in("id", ids);
-      const nameMap = new Map((companies || []).map((c: any) => [c.id, c.name]));
-      ciaWithNames = ciaData.map((c: any) => ({ ...c, company_name: nameMap.get(c.company_id) || "Unknown" }));
-    }
-
-    // Freshness checks
-    const [
-      { data: priceData },
-      { data: newsData },
-      { count: pipelineCount },
-      { data: watchlistData },
-    ] = await Promise.all([
-      supabase.from("company_price_history").select("date").order("date", { ascending: false }).limit(1),
-      supabase.from("news_items").select("published_date").order("published_date", { ascending: false }).limit(1),
-      supabase.from("pipelines").select("*", { count: "exact", head: true }),
-      supabase.from("curated_watchlists").select("updated_at").order("updated_at", { ascending: false }).limit(1),
-    ]);
-
-    const total = companyCount || 0;
-    const verified = verifiedCount || 0;
-
-    setStats({
-      totalCompanies: total,
-      verifiedPct: total > 0 ? Math.round((verified / total) * 100) : 0,
-      openFlags: openFlagCount || 0,
-      pendingReports: pendingReportCount || 0,
-    });
-
-    // Sort issues: critical first, then warning, then info
-    const severityOrder: Record<string, number> = { critical: 0, warning: 1, info: 2 };
-    const sorted = (issueData || []).sort((a: any, b: any) => (severityOrder[a.severity] ?? 3) - (severityOrder[b.severity] ?? 3));
-    setIssues(sorted);
-    setReports(reportData || []);
-    setCiaLogs(ciaWithNames);
-    setModels(modelData || []);
-    if (modelData && modelData.length > 0 && !selectedModelId) {
-      const def = modelData.find((m: any) => m.is_default) || modelData[0];
-      setSelectedModelId(def.id);
-    }
-    setChatMessages((chatData || []).map((m: any) => ({ role: m.role, content: m.content, model_used: m.model_used, created_at: m.created_at })));
-    setFreshness({
-      lastPrice: priceData?.[0]?.date || "N/A",
-      lastNews: newsData?.[0]?.published_date?.split("T")[0] || "N/A",
-      pipelineCount: pipelineCount || 0,
-      lastWatchlist: watchlistData?.[0]?.updated_at?.split("T")[0] || "N/A",
-    });
-    setPageLoading(false);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const loadedRef = useRef(false);
 
   useEffect(() => {
-    if (!authLoading && user?.email === ADMIN_EMAIL) loadData();
-    else if (!authLoading) setPageLoading(false);
+    if (authLoading || loadedRef.current) return;
+    if (user?.email !== ADMIN_EMAIL) { setPageLoading(false); return; }
+    loadedRef.current = true;
+
+    (async () => {
+      try {
+        // Batch 1: counts + lists
+        const [companyRes, verifiedRes, flagRes, reportRes, issueRes, reportListRes, ciaRes, modelRes] = await Promise.all([
+          supabase.from("companies").select("*", { count: "exact", head: true }),
+          supabase.from("profile_quality").select("*", { count: "exact", head: true }).gte("quality_score", 7),
+          supabase.from("integrity_checks").select("*", { count: "exact", head: true }).eq("status", "open"),
+          supabase.from("error_reports").select("*", { count: "exact", head: true }).eq("status", "open"),
+          supabase.from("integrity_checks").select("*").eq("status", "open").order("created_at", { ascending: false }).limit(20),
+          supabase.from("error_reports").select("*").eq("status", "open").order("created_at", { ascending: false }).limit(10),
+          supabase.from("profile_quality").select("company_id, quality_score, last_checked_at").order("last_checked_at", { ascending: false }).limit(10),
+          supabase.from("admin_ai_models").select("*").order("is_default", { ascending: false }),
+        ]);
+
+        const total = companyRes.count || 0;
+        const verified = verifiedRes.count || 0;
+        setStats({
+          totalCompanies: total,
+          verifiedPct: total > 0 ? Math.round((verified / total) * 100) : 0,
+          openFlags: flagRes.count || 0,
+          pendingReports: reportRes.count || 0,
+        });
+
+        const severityOrder: Record<string, number> = { critical: 0, warning: 1, info: 2 };
+        setIssues((issueRes.data || []).sort((a: any, b: any) => (severityOrder[a.severity] ?? 3) - (severityOrder[b.severity] ?? 3)));
+        setReports(reportListRes.data || []);
+
+        // CIA logs with names
+        const ciaData = ciaRes.data || [];
+        if (ciaData.length > 0) {
+          const ids = ciaData.map((c: any) => c.company_id);
+          const { data: companies } = await supabase.from("companies").select("id, name").in("id", ids);
+          const nameMap = new Map((companies || []).map((c: any) => [c.id, c.name]));
+          setCiaLogs(ciaData.map((c: any) => ({ ...c, company_name: nameMap.get(c.company_id) || "Unknown" })));
+        }
+
+        // Models
+        const mods = modelRes.data || [];
+        setModels(mods);
+        if (mods.length > 0) {
+          const def = mods.find((m: any) => m.is_default) || mods[0];
+          setSelectedModelId(def.id);
+        }
+
+        // Freshness (lighter queries)
+        const [priceRes, newsRes, pipeRes] = await Promise.all([
+          supabase.from("company_price_history").select("date").order("date", { ascending: false }).limit(1),
+          supabase.from("news_items").select("published_date").order("published_date", { ascending: false }).limit(1),
+          supabase.from("pipelines").select("*", { count: "exact", head: true }),
+        ]);
+
+        setFreshness({
+          lastPrice: priceRes.data?.[0]?.date || "N/A",
+          lastNews: newsRes.data?.[0]?.published_date?.split("T")[0] || "N/A",
+          pipelineCount: pipeRes.count || 0,
+          lastWatchlist: "N/A",
+        });
+      } catch (err) {
+        console.error("Dashboard load error:", err);
+      }
+      setPageLoading(false);
+    })();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authLoading, user]);
-
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chatMessages]);
 
   /* ─── Actions ─── */
   const dismissIssue = async (id: string) => {
