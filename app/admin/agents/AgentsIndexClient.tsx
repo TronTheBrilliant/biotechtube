@@ -70,7 +70,7 @@ export default function AgentsIndexClient() {
           {agents.length} agents configured. Click any agent to view details and configure.
         </p>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 16 }}>
           {agents.map((agent) => {
             const meta = AGENT_META[agent.agent_id];
             return (

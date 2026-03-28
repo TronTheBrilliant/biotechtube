@@ -198,7 +198,7 @@ export default function CommandCenterClient() {
         </div>
 
         {/* Agent Grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 16, marginBottom: 24 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 16, marginBottom: 24 }}>
           {agents.map((agent) => {
             const meta = AGENT_META[agent.agent_id];
             const isRunning = runningAgents.has(agent.agent_id);

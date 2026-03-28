@@ -118,7 +118,9 @@ export async function calculateHealth(agentId: string): Promise<AgentHealth> {
       return {
         agent_id: "seo",
         score,
-        summary: `${withSeo.toLocaleString()} of ${total.toLocaleString()} pages have meta descriptions`,
+        summary: withSeo === 0
+          ? "Not yet configured — run SEO agent to generate"
+          : `${withSeo.toLocaleString()} of ${total.toLocaleString()} pages have meta descriptions`,
         details: { total, with_seo: withSeo },
       };
     }

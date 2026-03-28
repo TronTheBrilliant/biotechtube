@@ -19,7 +19,9 @@ export function AdminNav() {
       display: "flex",
       gap: 0,
       borderBottom: "1px solid var(--color-border, rgba(255,255,255,0.06))",
-      background: "var(--color-bg-secondary, rgba(255,255,255,0.02))",
+      background: "var(--color-bg-secondary, rgba(255,255,255,0.04))",
+      borderTop: "1px solid var(--color-border, rgba(255,255,255,0.06))",
+      paddingLeft: 8,
       marginBottom: 24,
     }}>
       {TABS.map((tab) => {
