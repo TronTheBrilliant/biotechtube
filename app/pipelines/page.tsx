@@ -68,6 +68,7 @@ export interface CuratedWatchlist {
   description: string | null;
   icon: string | null;
   category: string;
+  totalItems: number;
   items: CuratedWatchlistItem[];
 }
 
@@ -295,11 +296,11 @@ async function getCuratedWatchlists(): Promise<CuratedWatchlist[]> {
     }
   }
 
-  // Build result
+  // Build result — only include top 3 items per watchlist for the preview cards
   return watchlists.map((w) => {
-    const watchlistItems = items
-      .filter((item) => item.watchlist_id === w.id)
-      .map((item) => {
+    const allItems = items.filter((item) => item.watchlist_id === w.id);
+    const top3 = allItems.slice(0, 3);
+    const watchlistItems = top3.map((item) => {
         const pipeline = pipelineMap.get(item.pipeline_id);
         const company = pipeline ? companyMap.get(pipeline.company_id) : null;
         return {
@@ -322,6 +323,7 @@ async function getCuratedWatchlists(): Promise<CuratedWatchlist[]> {
 
     return {
       ...w,
+      totalItems: allItems.length,
       items: watchlistItems,
     } as CuratedWatchlist;
   });

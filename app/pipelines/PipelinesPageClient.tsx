@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { CompanyAvatar } from "@/components/CompanyAvatar";
 import { PipelineWatchButton } from "@/components/PipelineWatchButton";
-import { ChevronDown, ChevronUp, Calendar, ListChecks, Search } from "lucide-react";
+import { ArrowRight, Calendar, ListChecks, Search } from "lucide-react";
 
 // ── Types ──
 
@@ -84,6 +84,7 @@ interface CuratedWatchlist {
   description: string | null;
   icon: string | null;
   category: string;
+  totalItems: number;
   items: CuratedWatchlistItem[];
 }
 
@@ -203,22 +204,9 @@ export function PipelinesPageClient({
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
-  // Curated lists state - track expanded sections
+  // Curated lists
   const sizeWatchlists = watchlists.filter((w) => w.category === "size");
   const sectorWatchlists = watchlists.filter((w) => w.category === "sector");
-  const orderedWatchlists = [...sizeWatchlists, ...sectorWatchlists];
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(
-    new Set(orderedWatchlists.length > 0 ? [orderedWatchlists[0].id] : [])
-  );
-
-  const toggleSection = (id: string) => {
-    setExpandedSections((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
 
   // Browse All filtering
   const filtered = useMemo(() => {
@@ -299,8 +287,8 @@ export function PipelinesPageClient({
 
       {/* ═══ TAB 1: CURATED LISTS ═══ */}
       {activeTab === "curated" && (
-        <div className="mt-6 space-y-3">
-          {orderedWatchlists.length === 0 ? (
+        <div className="mt-6">
+          {watchlists.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-[14px]" style={{ color: "var(--color-text-tertiary)" }}>
                 Curated watchlists are being prepared. Check back soon.
@@ -310,39 +298,31 @@ export function PipelinesPageClient({
             <>
               {/* Size-based header */}
               {sizeWatchlists.length > 0 && (
-                <div className="mb-1">
-                  <h2 className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--color-text-tertiary)" }}>
+                <>
+                  <h2 className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: "var(--color-text-tertiary)" }}>
                     By Market Cap
                   </h2>
-                </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    {sizeWatchlists.map((wl) => (
+                      <WatchlistCard key={wl.id} watchlist={wl} />
+                    ))}
+                  </div>
+                </>
               )}
-
-              {sizeWatchlists.map((wl) => (
-                <WatchlistSection
-                  key={wl.id}
-                  watchlist={wl}
-                  isExpanded={expandedSections.has(wl.id)}
-                  onToggle={() => toggleSection(wl.id)}
-                />
-              ))}
 
               {/* Sector header */}
               {sectorWatchlists.length > 0 && (
-                <div className="mb-1 mt-6">
-                  <h2 className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--color-text-tertiary)" }}>
+                <>
+                  <h2 className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: "var(--color-text-tertiary)" }}>
                     By Therapeutic Area
                   </h2>
-                </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {sectorWatchlists.map((wl) => (
+                      <WatchlistCard key={wl.id} watchlist={wl} />
+                    ))}
+                  </div>
+                </>
               )}
-
-              {sectorWatchlists.map((wl) => (
-                <WatchlistSection
-                  key={wl.id}
-                  watchlist={wl}
-                  isExpanded={expandedSections.has(wl.id)}
-                  onToggle={() => toggleSection(wl.id)}
-                />
-              ))}
             </>
           )}
         </div>
@@ -787,150 +767,112 @@ export function PipelinesPageClient({
 
 // ── Sub-Components ──
 
-function WatchlistSection({
-  watchlist,
-  isExpanded,
-  onToggle,
-}: {
-  watchlist: CuratedWatchlist;
-  isExpanded: boolean;
-  onToggle: () => void;
-}) {
+const RANK_STYLES: Record<number, { medal: string; borderColor: string; bgTint: string }> = {
+  1: { medal: "\uD83E\uDD47", borderColor: "#D4A843", bgTint: "rgba(212,168,67,0.06)" },
+  2: { medal: "\uD83E\uDD48", borderColor: "#A0A0A0", bgTint: "rgba(160,160,160,0.05)" },
+  3: { medal: "\uD83E\uDD49", borderColor: "#CD7F32", bgTint: "rgba(205,127,50,0.05)" },
+};
+
+function WatchlistCard({ watchlist }: { watchlist: CuratedWatchlist }) {
+  const top3 = watchlist.items.slice(0, 3);
+
   return (
     <div
-      className="rounded-xl overflow-hidden transition-all duration-200"
+      className="rounded-xl overflow-hidden flex flex-col transition-shadow hover:shadow-md"
       style={{
         background: "var(--color-bg-secondary)",
         border: "1px solid var(--color-border-subtle)",
       }}
     >
-      {/* Header - clickable */}
-      <button
-        onClick={onToggle}
-        className="w-full px-4 md:px-5 py-4 flex items-center gap-3 text-left hover:bg-[var(--color-bg-primary)] transition-colors"
-      >
-        {watchlist.icon && (
-          <span className="text-[20px] flex-shrink-0">{watchlist.icon}</span>
-        )}
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-[16px] md:text-[18px] font-bold" style={{ color: "var(--color-text-primary)" }}>
-              {watchlist.name}
-            </h3>
-            <span
-              className="px-2 py-0.5 rounded-full text-[11px] font-semibold"
-              style={{ background: "rgba(99,102,241,0.08)", color: "var(--color-accent)" }}
-            >
-              {watchlist.items.length} programs
-            </span>
-          </div>
-          {watchlist.description && (
-            <p className="text-[13px] mt-0.5 line-clamp-1" style={{ color: "var(--color-text-tertiary)" }}>
-              {watchlist.description}
-            </p>
+      {/* Header */}
+      <div className="px-5 pt-5 pb-3">
+        <div className="flex items-center gap-2 mb-1">
+          {watchlist.icon && (
+            <span className="text-[22px] flex-shrink-0">{watchlist.icon}</span>
           )}
+          <h3 className="text-[17px] font-bold leading-tight" style={{ color: "var(--color-text-primary)" }}>
+            {watchlist.name}
+          </h3>
         </div>
-        <div className="flex-shrink-0" style={{ color: "var(--color-text-tertiary)" }}>
-          {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-        </div>
-      </button>
+        {watchlist.description && (
+          <p className="text-[13px] mt-1 line-clamp-2 leading-relaxed" style={{ color: "var(--color-text-tertiary)" }}>
+            {watchlist.description}
+          </p>
+        )}
+        <p className="text-[12px] mt-2 font-medium" style={{ color: "var(--color-text-tertiary)" }}>
+          {watchlist.totalItems} programs
+        </p>
+      </div>
 
-      {/* Items */}
-      {isExpanded && watchlist.items.length > 0 && (
-        <div style={{ borderTop: "1px solid var(--color-border-subtle)" }}>
-          {watchlist.items.map((item, i) => (
-            <div
-              key={item.id}
-              className="px-4 md:px-5 py-3 flex items-start gap-3 hover:bg-[var(--color-bg-primary)] transition-colors"
-              style={
-                i < watchlist.items.length - 1
-                  ? { borderBottom: "1px solid var(--color-border-subtle)" }
-                  : undefined
-              }
-            >
-              {/* Rank */}
+      {/* Top 3 preview */}
+      {top3.length > 0 && (
+        <div className="px-4 pb-2 flex-1">
+          {top3.map((item, i) => {
+            const rank = item.rank || i + 1;
+            const style = RANK_STYLES[rank] || RANK_STYLES[3];
+            return (
               <div
-                className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-bold mt-0.5"
+                key={item.id}
+                className="rounded-lg px-3 py-2.5 mb-2"
                 style={{
-                  background: (item.rank || i + 1) <= 3 ? "var(--color-accent)" : "var(--color-bg-tertiary)",
-                  color: (item.rank || i + 1) <= 3 ? "#fff" : "var(--color-text-secondary)",
+                  background: style.bgTint,
+                  borderLeft: `3px solid ${style.borderColor}`,
                 }}
               >
-                {item.rank || i + 1}
-              </div>
-
-              {/* Content */}
-              <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[14px] flex-shrink-0" aria-label={`Rank ${rank}`}>
+                    {style.medal}
+                  </span>
                   {item.slug ? (
                     <Link
                       href={`/product/${item.slug}`}
-                      className="text-[14px] md:text-[15px] font-bold hover:underline"
+                      className="text-[14px] font-bold hover:underline truncate"
                       style={{ color: "var(--color-text-primary)" }}
                     >
                       {item.product_name}
                     </Link>
                   ) : (
-                    <span className="text-[14px] md:text-[15px] font-bold" style={{ color: "var(--color-text-primary)" }}>
+                    <span className="text-[14px] font-bold truncate" style={{ color: "var(--color-text-primary)" }}>
                       {item.product_name}
                     </span>
                   )}
+                  <span className="text-[12px] truncate" style={{ color: "var(--color-text-secondary)" }}>
+                    ({item.company_name})
+                  </span>
                   {item.stage && (
                     <span
-                      className="px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                      className="px-1.5 py-0.5 rounded-full text-[10px] font-semibold flex-shrink-0"
                       style={getStageBadgeStyle(item.stage)}
                     >
                       {item.stage}
                     </span>
                   )}
                 </div>
-
-                <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                  {item.company_slug ? (
-                    <Link
-                      href={`/company/${item.company_slug}`}
-                      className="inline-flex items-center gap-1 hover:underline"
-                    >
-                      <CompanyAvatar
-                        name={item.company_name}
-                        logoUrl={item.company_logo_url ?? undefined}
-                        website={item.company_website ?? undefined}
-                        size={16}
-                      />
-                      <span className="text-[12px] font-medium" style={{ color: "var(--color-accent)" }}>
-                        {item.company_name}
-                      </span>
-                    </Link>
-                  ) : (
-                    <span className="text-[12px]" style={{ color: "var(--color-text-secondary)" }}>
-                      {item.company_name}
-                    </span>
-                  )}
-                  {item.indication && (
-                    <>
-                      <span className="text-[10px]" style={{ color: "var(--color-text-tertiary)" }}>&middot;</span>
-                      <span className="text-[12px] line-clamp-1" style={{ color: "var(--color-text-tertiary)" }}>
-                        {item.indication}
-                      </span>
-                    </>
-                  )}
-                </div>
-
-                {item.reason && (
-                  <p className="text-[12px] mt-1 line-clamp-1 leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                    {item.reason}
+                {item.indication && (
+                  <p className="text-[11px] mt-0.5 line-clamp-1 ml-6" style={{ color: "var(--color-text-tertiary)" }}>
+                    {item.indication}
                   </p>
                 )}
               </div>
-
-              {/* Watch button */}
-              <div className="flex-shrink-0 mt-0.5">
-                <PipelineWatchButton pipelineId={item.pipeline_id} size={13} />
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
+
+      {/* View full list button */}
+      <div className="px-5 pb-4 pt-1 mt-auto">
+        <Link
+          href={`/watchlist/${watchlist.slug}`}
+          className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-lg text-[13px] font-semibold transition-colors hover:opacity-90"
+          style={{
+            background: "rgba(99,102,241,0.08)",
+            color: "var(--color-accent)",
+          }}
+        >
+          View full list
+          <ArrowRight size={14} />
+        </Link>
+      </div>
     </div>
   );
 }
