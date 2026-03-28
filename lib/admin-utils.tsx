@@ -10,13 +10,13 @@ export const ADMIN_EMAIL = "trond.skattum@gmail.com";
 export const AGENT_IDS = ["profiles", "financial", "pipeline", "content", "seo", "ux"] as const;
 export type AgentId = (typeof AGENT_IDS)[number];
 
-export const AGENT_META: Record<string, { name: string; icon: React.ReactNode; color: string; description: string }> = {
-  profiles: { name: "Profiles", icon: <Users size={18} />, color: "#818cf8", description: "Crawls company profiles, fact-checks data, fills missing fields" },
-  financial: { name: "Financial", icon: <TrendingUp size={18} />, color: "#22c55e", description: "Checks price freshness, detects market cap anomalies" },
-  pipeline: { name: "Pipeline", icon: <Beaker size={18} />, color: "#a855f7", description: "Enriches pipeline data, fills missing indications and stages" },
-  content: { name: "Content", icon: <FileText size={18} />, color: "#fb923c", description: "Monitors news and blog freshness, checks for weekly recaps" },
-  seo: { name: "SEO", icon: <Globe size={18} />, color: "#38bdf8", description: "Generates meta descriptions and Open Graph tags for company pages" },
-  ux: { name: "UX", icon: <Monitor size={18} />, color: "#f43f5e", description: "Checks error reports, spot-checks page availability" },
+export const AGENT_META: Record<string, { name: string; icon: React.ReactNode; description: string }> = {
+  profiles: { name: "Profiles", icon: <Users size={18} />, description: "Crawls company profiles, fact-checks data, fills missing fields" },
+  financial: { name: "Financial", icon: <TrendingUp size={18} />, description: "Checks price freshness, detects market cap anomalies" },
+  pipeline: { name: "Pipeline", icon: <Beaker size={18} />, description: "Enriches pipeline data, fills missing indications and stages" },
+  content: { name: "Content", icon: <FileText size={18} />, description: "Monitors news and blog freshness, checks for weekly recaps" },
+  seo: { name: "SEO", icon: <Globe size={18} />, description: "Generates meta descriptions and Open Graph tags for company pages" },
+  ux: { name: "UX", icon: <Monitor size={18} />, description: "Checks error reports, spot-checks page availability" },
 };
 
 // ─── Types ───
@@ -59,9 +59,9 @@ export interface AgentFix {
 // ─── Utilities ───
 
 export function scoreColor(score: number): string {
-  if (score >= 80) return "#22c55e";
-  if (score >= 50) return "#eab308";
-  return "#ef4444";
+  if (score >= 80) return "var(--color-text-primary)";
+  if (score >= 50) return "#b58a1b";
+  return "#c45a5a";
 }
 
 export function timeAgo(dateStr: string | null): string {

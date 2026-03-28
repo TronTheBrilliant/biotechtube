@@ -50,6 +50,7 @@ table[style*="height: 48px"] #tv-attr-logo {
   --color-text-secondary: #6b6b65;
   --color-text-tertiary: #9e9e96;
   --color-text-accent: #1a7a5e;
+  --color-border: var(--color-border-subtle);
 }
 
 .dark {
@@ -68,6 +69,7 @@ table[style*="height: 48px"] #tv-attr-logo {
 
   --color-accent-subtle: rgba(93, 202, 165, 0.12);
   --color-accent-dark: #5DCAA5;
+  --color-border: var(--color-border-subtle);
 }
 
 /* Dark mode adjustments for decorative badge backgrounds */

@@ -157,36 +157,32 @@ export default function CommandCenterClient() {
         {/* Top bar */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
           <div>
-            <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0, color: "var(--color-text-primary)" }}>
+            <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0, color: "var(--color-text-primary)" }}>
               Command Center
             </h1>
-            <p style={{ fontSize: 13, color: "var(--color-text-tertiary)", margin: "4px 0 0" }}>
+            <p style={{ fontSize: 12, color: "var(--color-text-tertiary)", margin: "4px 0 0" }}>
               6 agents &middot; {agents.filter(a => a.latest_run).length} have run
             </p>
           </div>
           <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-            <div style={{
-              padding: "8px 16px",
-              background: `${scoreColor(overallHealth)}15`,
-              border: `1px solid ${scoreColor(overallHealth)}40`,
-              borderRadius: 8,
-              color: scoreColor(overallHealth),
-              fontSize: 13,
-              fontWeight: 600,
+            <span style={{
+              fontSize: 12,
+              fontWeight: 500,
+              color: "var(--color-text-secondary)",
             }}>
-              Health: {overallHealth}%
-            </div>
+              System Health {overallHealth}%
+            </span>
             <button
               onClick={runAllAgents}
               disabled={runningAgents.size > 0}
               style={{
                 padding: "8px 16px",
-                background: "rgba(99,102,241,0.15)",
-                border: "1px solid rgba(99,102,241,0.3)",
-                borderRadius: 8,
-                color: "#818cf8",
-                fontSize: 13,
-                fontWeight: 600,
+                background: "var(--color-text-primary)",
+                border: "none",
+                borderRadius: 6,
+                color: "var(--color-bg-primary)",
+                fontSize: 14,
+                fontWeight: 500,
                 cursor: runningAgents.size > 0 ? "not-allowed" : "pointer",
                 opacity: runningAgents.size > 0 ? 0.5 : 1,
               }}
@@ -204,26 +200,27 @@ export default function CommandCenterClient() {
             const isRunning = runningAgents.has(agent.agent_id);
             return (
               <div key={agent.agent_id} style={{
-                background: "var(--color-bg-secondary, rgba(255,255,255,0.03))",
-                border: "1px solid var(--color-border, rgba(255,255,255,0.08))",
-                borderRadius: 12,
+                background: "var(--color-bg-primary)",
+                border: "1px solid var(--color-border-subtle)",
+                borderRadius: 10,
                 padding: 20,
+                boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
               }}>
                 {/* Header */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: 16 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <div style={{
-                      width: 36, height: 36, borderRadius: 8,
-                      background: `${meta?.color || "#666"}20`,
+                      width: 32, height: 32, borderRadius: 8,
+                      background: "var(--color-bg-secondary)",
                       display: "flex", alignItems: "center", justifyContent: "center",
-                      color: meta?.color || "#666",
+                      color: "var(--color-text-secondary)",
                     }}>
                       {meta?.icon}
                     </div>
                     <div>
                       <Link
                         href={`/admin/agents/${agent.agent_id}`}
-                        style={{ fontSize: 15, fontWeight: 600, color: "var(--color-text-primary)", textDecoration: "none" }}
+                        style={{ fontSize: 14, fontWeight: 500, color: "var(--color-text-primary)", textDecoration: "none" }}
                       >
                         {meta?.name || agent.agent_id}
                       </Link>
@@ -232,15 +229,15 @@ export default function CommandCenterClient() {
                       </div>
                     </div>
                   </div>
-                  <div style={{ fontSize: 22, fontWeight: 700, color: scoreColor(agent.health_score) }}>
+                  <div style={{ fontSize: 16, fontWeight: 600, color: scoreColor(agent.health_score) }}>
                     {agent.health_score}%
                   </div>
                 </div>
 
                 {/* Progress bar */}
-                <div style={{ height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 2, marginBottom: 12 }}>
+                <div style={{ height: 3, background: "var(--color-border-subtle)", borderRadius: 2, marginBottom: 12 }}>
                   <div style={{
-                    height: 4,
+                    height: 3,
                     background: scoreColor(agent.health_score),
                     borderRadius: 2,
                     width: `${agent.health_score}%`,
@@ -256,14 +253,13 @@ export default function CommandCenterClient() {
                 {/* Last run box */}
                 {agent.latest_run && (
                   <div style={{
-                    background: "rgba(255,255,255,0.02)",
                     borderRadius: 8,
                     padding: "10px 12px",
                     marginBottom: 14,
                     fontSize: 12,
                     color: "var(--color-text-tertiary)",
                   }}>
-                    <div style={{ color: "var(--color-text-secondary)", fontWeight: 600, marginBottom: 4 }}>
+                    <div style={{ color: "var(--color-text-secondary)", fontWeight: 500, marginBottom: 4 }}>
                       Last run: {agent.latest_run.summary || agent.latest_run.status}
                     </div>
                     Scanned {agent.latest_run.items_scanned}, fixed {agent.latest_run.items_fixed}, found {agent.latest_run.issues_found} issues
@@ -279,12 +275,12 @@ export default function CommandCenterClient() {
                       flex: 1,
                       padding: 8,
                       textAlign: "center",
-                      background: "rgba(99,102,241,0.12)",
-                      border: "1px solid rgba(99,102,241,0.25)",
+                      background: "var(--color-text-primary)",
+                      border: "none",
                       borderRadius: 6,
-                      color: "#818cf8",
+                      color: "var(--color-bg-primary)",
                       fontSize: 12,
-                      fontWeight: 600,
+                      fontWeight: 500,
                       cursor: isRunning ? "not-allowed" : "pointer",
                       opacity: isRunning ? 0.5 : 1,
                     }}
@@ -299,10 +295,10 @@ export default function CommandCenterClient() {
                     onClick={() => openHistory(agent.agent_id)}
                     style={{
                       padding: "8px 12px",
-                      background: "rgba(255,255,255,0.04)",
-                      border: "1px solid var(--color-border, rgba(255,255,255,0.08))",
+                      background: "transparent",
+                      border: "1px solid var(--color-border-subtle)",
                       borderRadius: 6,
-                      color: "var(--color-text-tertiary)",
+                      color: "var(--color-text-secondary)",
                       fontSize: 12,
                       cursor: "pointer",
                     }}
@@ -318,12 +314,13 @@ export default function CommandCenterClient() {
 
         {/* Activity Feed */}
         <div style={{
-          background: "var(--color-bg-secondary, rgba(255,255,255,0.03))",
-          border: "1px solid var(--color-border, rgba(255,255,255,0.08))",
-          borderRadius: 12,
+          background: "var(--color-bg-primary)",
+          border: "1px solid var(--color-border-subtle)",
+          borderRadius: 10,
           padding: 20,
+          boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
         }}>
-          <h2 style={{ fontSize: 15, fontWeight: 600, margin: "0 0 16px", color: "var(--color-text-primary)" }}>
+          <h2 style={{ fontSize: 14, fontWeight: 500, margin: "0 0 16px", color: "var(--color-text-primary)" }}>
             Recent Activity
           </h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -333,15 +330,14 @@ export default function CommandCenterClient() {
                 alignItems: "center",
                 gap: 12,
                 padding: "10px 12px",
-                background: "rgba(255,255,255,0.02)",
                 borderRadius: 8,
               }}>
                 <div style={{
-                  width: 8, height: 8, borderRadius: "50%", flexShrink: 0,
-                  background: run.status === "completed" ? "#22c55e"
-                    : run.status === "failed" ? "#ef4444" : "#eab308",
+                  width: 6, height: 6, borderRadius: "50%", flexShrink: 0,
+                  background: run.status === "completed" ? "var(--color-text-tertiary)"
+                    : run.status === "failed" ? "#c45a5a" : "#b58a1b",
                 }} />
-                <div style={{ fontSize: 13, color: "var(--color-text-secondary)", flex: 1 }}>
+                <div style={{ fontSize: 12, color: "var(--color-text-secondary)", flex: 1 }}>
                   <span style={{ color: "var(--color-text-primary)", fontWeight: 500 }}>
                     {AGENT_META[run.agent_id]?.name}
                   </span>{" "}
@@ -353,7 +349,7 @@ export default function CommandCenterClient() {
               </div>
             ))}
             {activity.length === 0 && (
-              <div style={{ fontSize: 13, color: "var(--color-text-tertiary)", textAlign: "center", padding: 20 }}>
+              <div style={{ fontSize: 12, color: "var(--color-text-tertiary)", textAlign: "center", padding: 20 }}>
                 No agent runs yet. Click &ldquo;Run Now&rdquo; on any agent to get started.
               </div>
             )}
@@ -365,14 +361,14 @@ export default function CommandCenterClient() {
       {historyAgent && (
         <div style={{
           position: "fixed", top: 0, right: 0, bottom: 0, width: 420,
-          background: "var(--color-bg-primary, #0a0a0f)",
-          borderLeft: "1px solid var(--color-border, rgba(255,255,255,0.08))",
+          background: "var(--color-bg-primary)",
+          borderLeft: "1px solid var(--color-border-subtle)",
           zIndex: 1000,
           overflowY: "auto",
           padding: 24,
         }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, margin: 0, color: "var(--color-text-primary)" }}>
+            <h3 style={{ fontSize: 14, fontWeight: 500, margin: 0, color: "var(--color-text-primary)" }}>
               {AGENT_META[historyAgent]?.name} History
             </h3>
             <button onClick={() => setHistoryAgent(null)} style={{
@@ -387,33 +383,33 @@ export default function CommandCenterClient() {
               <Loader2 size={24} className="animate-spin" style={{ color: "var(--color-text-tertiary)" }} />
             </div>
           ) : historyRuns.length === 0 ? (
-            <div style={{ fontSize: 13, color: "var(--color-text-tertiary)", textAlign: "center", padding: 40 }}>
+            <div style={{ fontSize: 12, color: "var(--color-text-tertiary)", textAlign: "center", padding: 40 }}>
               No runs yet
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {historyRuns.map((run) => (
                 <div key={run.id} style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.06)",
+                  background: "var(--color-bg-primary)",
+                  border: "1px solid var(--color-border-subtle)",
                   borderRadius: 8,
                   padding: 14,
                 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
                     <div style={{
-                      fontSize: 11, fontWeight: 600, textTransform: "uppercase",
-                      color: run.status === "completed" ? "#22c55e" : run.status === "failed" ? "#ef4444" : "#eab308",
+                      fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.02em",
+                      color: run.status === "completed" ? "var(--color-text-primary)" : run.status === "failed" ? "#c45a5a" : "#b58a1b",
                     }}>
                       {run.status}
                     </div>
-                    <div style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>
+                    <div style={{ fontSize: 12, color: "var(--color-text-tertiary)" }}>
                       {timeAgo(run.started_at)} &middot; {run.triggered_by}
                     </div>
                   </div>
-                  <div style={{ fontSize: 13, color: "var(--color-text-secondary)", marginBottom: 6 }}>
+                  <div style={{ fontSize: 12, color: "var(--color-text-secondary)", marginBottom: 6 }}>
                     {run.summary || "No summary"}
                   </div>
-                  <div style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>
+                  <div style={{ fontSize: 12, color: "var(--color-text-tertiary)" }}>
                     Scanned {run.items_scanned} &middot; Fixed {run.items_fixed} &middot; Issues {run.issues_found}
                   </div>
                 </div>
@@ -429,7 +425,7 @@ export default function CommandCenterClient() {
           onClick={() => setHistoryAgent(null)}
           style={{
             position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-            background: "rgba(0,0,0,0.5)",
+            background: "rgba(0,0,0,0.3)",
             zIndex: 999,
           }}
         />
@@ -440,12 +436,14 @@ export default function CommandCenterClient() {
         <div style={{
           position: "fixed", bottom: 24, right: 24,
           padding: "12px 20px",
-          background: toast.type === "error" ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)",
-          border: `1px solid ${toast.type === "error" ? "rgba(239,68,68,0.3)" : "rgba(34,197,94,0.3)"}`,
+          background: "var(--color-bg-primary)",
+          border: "1px solid var(--color-border-subtle)",
+          borderLeft: toast.type === "error" ? "3px solid #c45a5a" : "3px solid var(--color-text-tertiary)",
           borderRadius: 8,
-          color: toast.type === "error" ? "#ef4444" : "#22c55e",
-          fontSize: 13,
-          fontWeight: 500,
+          boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+          color: "var(--color-text-primary)",
+          fontSize: 12,
+          fontWeight: 400,
           zIndex: 1001,
           maxWidth: 400,
         }}>

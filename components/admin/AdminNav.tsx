@@ -18,11 +18,10 @@ export function AdminNav() {
     <nav style={{
       display: "flex",
       gap: 0,
-      borderBottom: "1px solid var(--color-border, rgba(255,255,255,0.06))",
-      background: "var(--color-bg-secondary, rgba(255,255,255,0.04))",
-      borderTop: "1px solid var(--color-border, rgba(255,255,255,0.06))",
+      borderBottom: "1px solid var(--color-border-subtle)",
+      background: "transparent",
       paddingLeft: 8,
-      marginBottom: 24,
+      marginBottom: 32,
     }}>
       {TABS.map((tab) => {
         const isActive = pathname === tab.path || pathname.startsWith(tab.path + "/");
@@ -31,12 +30,12 @@ export function AdminNav() {
             key={tab.path}
             href={tab.path}
             style={{
-              padding: "12px 20px",
-              fontSize: 13,
-              color: isActive ? "#818cf8" : "var(--color-text-tertiary)",
+              padding: "10px 16px",
+              fontSize: 14,
+              color: isActive ? "var(--color-text-primary)" : "var(--color-text-tertiary)",
               textDecoration: "none",
-              borderBottom: isActive ? "2px solid #818cf8" : "2px solid transparent",
-              fontWeight: isActive ? 600 : 400,
+              borderBottom: isActive ? "2px solid var(--color-text-primary)" : "2px solid transparent",
+              fontWeight: isActive ? 500 : 400,
               transition: "color 0.15s, border-color 0.15s",
             }}
           >
