@@ -89,6 +89,38 @@ interface CompanyProduct {
   stage: string | null;
 }
 
+interface CuratedWatchlistInfo {
+  name: string;
+  slug: string;
+  icon: string | null;
+}
+
+interface HistoricalContextData {
+  similar: {
+    product_name: string;
+    company_name: string;
+    stage: string | null;
+    trial_status: string | null;
+    slug: string | null;
+    outcome: "approved" | "terminated" | "active";
+  }[];
+  approvedCount: number;
+  terminatedCount: number;
+  activeCount: number;
+  totalCount: number;
+}
+
+interface FeaturedData {
+  reason: string | null;
+  ai_summary: string | null;
+  key_facts: { label: string; value: string }[] | null;
+  competitive_landscape: string | null;
+  investment_thesis: string | null;
+  risk_factors: string | null;
+  featured_month: string;
+  rank: number;
+}
+
 interface Props {
   product: Pipeline;
   company: Company | null;
@@ -99,6 +131,9 @@ interface Props {
   watchlistCount: number;
   marketCap: number | null;
   companyTopProducts: CompanyProduct[];
+  featuredData?: FeaturedData | null;
+  curatedWatchlistInfo?: CuratedWatchlistInfo | null;
+  historicalContext?: HistoricalContextData | null;
 }
 
 /* ─── Helpers ─── */
@@ -202,6 +237,9 @@ export function ProductPageClient({
   watchlistCount,
   marketCap,
   companyTopProducts,
+  featuredData,
+  curatedWatchlistInfo,
+  historicalContext,
 }: Props) {
   const hypeScore = productScore?.hype_score ?? 0;
   const hype = getHypeLabel(hypeScore);
@@ -256,6 +294,14 @@ export function ProductPageClient({
           {/* Left: Product info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 flex-wrap mb-2">
+              {featuredData && (
+                <span
+                  className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
+                  style={{ background: "rgba(22,163,74,0.1)", color: "#16a34a", border: "1px solid rgba(22,163,74,0.2)" }}
+                >
+                  BiotechTube Pick
+                </span>
+              )}
               <h1
                 className="text-[28px] md:text-[36px] font-bold tracking-tight"
                 style={{ color: "var(--color-text-primary)", letterSpacing: "-0.5px", lineHeight: 1.1 }}
@@ -303,13 +349,13 @@ export function ProductPageClient({
               </Link>
             )}
 
-            {/* Community stats */}
-            <div className="flex items-center gap-4 text-[12px]" style={{ color: "var(--color-text-tertiary)" }}>
-              <span className="inline-flex items-center gap-1">
-                <Users size={13} /> {watchlistCount} watching
-              </span>
+            {/* Community stats + social proof */}
+            <div className="flex items-center gap-4 text-[12px] flex-wrap" style={{ color: "var(--color-text-tertiary)" }}>
               <span className="inline-flex items-center gap-1">
                 <Eye size={13} /> {viewCount7d} views this week
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <Users size={13} /> {watchlistCount} watching
               </span>
               {productScore && (
                 <TrendingBadge
@@ -317,7 +363,29 @@ export function ProductPageClient({
                   score={hypeScore}
                 />
               )}
+              {curatedWatchlistInfo && (
+                <Link
+                  href="/pipelines"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full hover:opacity-80 transition-opacity"
+                  style={{ background: "rgba(22,163,74,0.08)", color: "#16a34a" }}
+                >
+                  {curatedWatchlistInfo.icon && <span className="text-[10px]">{curatedWatchlistInfo.icon}</span>}
+                  <span className="text-[11px] font-semibold">Featured in {curatedWatchlistInfo.name}</span>
+                </Link>
+              )}
             </div>
+            {/* Interest Score badge */}
+            {productScore && productScore.hype_score > 0 && (
+              <div className="mt-2">
+                <span
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold"
+                  style={{ background: hype.bg, color: hype.color, border: `1px solid ${hype.color}20` }}
+                  title={`Interest Score based on clinical stage (${productScore.clinical_score}), activity (${productScore.activity_score}), company (${productScore.company_score}), novelty (${productScore.novelty_score}), and community engagement (${productScore.community_score})`}
+                >
+                  Interest: {productScore.hype_score}/100
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Right: Hype Score + Watchlist */}
@@ -435,6 +503,163 @@ export function ProductPageClient({
         </div>
       </div>
 
+      {/* ─── FEATURED ANALYSIS (BiotechTube Picks) ─── */}
+      {featuredData && (
+        <div className="space-y-4 mb-6">
+          {/* Why We're Watching */}
+          {featuredData.reason && (
+            <div
+              className="rounded-xl p-5"
+              style={{
+                background: "linear-gradient(135deg, rgba(22,163,74,0.04), rgba(22,163,74,0.08))",
+                border: "1px solid rgba(22,163,74,0.15)",
+              }}
+            >
+              <h2
+                className="text-[11px] font-semibold uppercase tracking-wider mb-2"
+                style={{ color: "#16a34a" }}
+              >
+                Why We&apos;re Watching
+              </h2>
+              <p
+                className="text-[15px] md:text-[16px] leading-relaxed font-medium"
+                style={{ color: "var(--color-text-primary)" }}
+              >
+                {featuredData.reason}
+              </p>
+            </div>
+          )}
+
+          {/* Key Facts + Detailed Analysis side by side on desktop */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {/* Key Facts Card */}
+            {featuredData.key_facts && featuredData.key_facts.length > 0 && (
+              <div
+                className="rounded-xl p-5"
+                style={{
+                  background: "var(--color-bg-secondary)",
+                  border: "1px solid var(--color-border-subtle)",
+                }}
+              >
+                <h2
+                  className="text-[11px] font-semibold uppercase tracking-wider mb-3"
+                  style={{ color: "var(--color-text-tertiary)" }}
+                >
+                  Key Facts
+                </h2>
+                <div className="space-y-2.5">
+                  {featuredData.key_facts.map((fact, i) => (
+                    <div key={i}>
+                      <div className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--color-text-tertiary)" }}>
+                        {fact.label}
+                      </div>
+                      <div className="text-[13px] font-medium" style={{ color: "var(--color-text-primary)" }}>
+                        {fact.value}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Detailed Analysis */}
+            {featuredData.ai_summary && (
+              <div
+                className="lg:col-span-2 rounded-xl p-5"
+                style={{
+                  background: "var(--color-bg-secondary)",
+                  border: "1px solid var(--color-border-subtle)",
+                }}
+              >
+                <h2
+                  className="text-[14px] font-bold mb-3"
+                  style={{ color: "var(--color-text-primary)" }}
+                >
+                  BiotechTube Analysis
+                </h2>
+                <div className="text-[13px] leading-relaxed space-y-3" style={{ color: "var(--color-text-secondary)" }}>
+                  {featuredData.ai_summary.split("\n\n").map((para, i) => (
+                    <p key={i}>{para}</p>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Competitive Landscape + Investment Thesis + Risk Factors */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {featuredData.competitive_landscape && (
+              <div
+                className="rounded-xl p-5"
+                style={{
+                  background: "var(--color-bg-secondary)",
+                  border: "1px solid var(--color-border-subtle)",
+                }}
+              >
+                <h2
+                  className="text-[11px] font-semibold uppercase tracking-wider mb-3"
+                  style={{ color: "var(--color-text-tertiary)" }}
+                >
+                  Competitive Landscape
+                </h2>
+                <div className="text-[13px] leading-relaxed space-y-2" style={{ color: "var(--color-text-secondary)" }}>
+                  {featuredData.competitive_landscape.split("\n\n").map((para, i) => (
+                    <p key={i}>{para}</p>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {featuredData.investment_thesis && (
+              <div
+                className="rounded-xl p-5"
+                style={{
+                  background: "var(--color-bg-secondary)",
+                  border: "1px solid var(--color-border-subtle)",
+                }}
+              >
+                <h2
+                  className="text-[11px] font-semibold uppercase tracking-wider mb-3"
+                  style={{ color: "var(--color-text-tertiary)" }}
+                >
+                  Investment Thesis
+                </h2>
+                <div className="text-[13px] leading-relaxed space-y-2" style={{ color: "var(--color-text-secondary)" }}>
+                  {featuredData.investment_thesis.split("\n\n").map((para, i) => (
+                    <p key={i}>{para}</p>
+                  ))}
+                </div>
+                <p className="text-[10px] mt-3 italic" style={{ color: "var(--color-text-tertiary)" }}>
+                  This is not investment advice. Always do your own research.
+                </p>
+              </div>
+            )}
+
+            {featuredData.risk_factors && (
+              <div
+                className="rounded-xl p-5"
+                style={{
+                  background: "var(--color-bg-secondary)",
+                  border: "1px solid var(--color-border-subtle)",
+                }}
+              >
+                <h2
+                  className="text-[11px] font-semibold uppercase tracking-wider mb-3"
+                  style={{ color: "var(--color-text-tertiary)" }}
+                >
+                  Risk Factors
+                </h2>
+                <div className="text-[13px] leading-relaxed space-y-2" style={{ color: "var(--color-text-secondary)" }}>
+                  {featuredData.risk_factors.split("\n").filter(l => l.trim()).map((line, i) => (
+                    <p key={i}>{line.replace(/^[-*]\s*/, "").trim()}</p>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* ─── MAIN CONTENT GRID ─── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left column (2/3) */}
@@ -500,6 +725,104 @@ export function ProductPageClient({
                 ` Target conditions include ${product.conditions.slice(0, 3).join(", ")}.`}
             </p>
           </div>
+
+          {/* Historical Context */}
+          {historicalContext && historicalContext.similar.length > 0 && (
+            <div
+              className="rounded-xl p-5"
+              style={{
+                background: "var(--color-bg-secondary)",
+                border: "1px solid var(--color-border-subtle)",
+              }}
+            >
+              <h2
+                className="text-[14px] font-bold mb-1"
+                style={{ color: "var(--color-text-primary)" }}
+              >
+                What happened to similar drugs?
+              </h2>
+              <p className="text-[12px] mb-4" style={{ color: "var(--color-text-tertiary)" }}>
+                {historicalContext.approvedCount} of {historicalContext.totalCount} similar drugs in {product.indication || "this indication"} were approved
+              </p>
+
+              {/* Visual bar */}
+              <div className="flex items-center gap-1 mb-4 h-3 rounded-full overflow-hidden" style={{ background: "var(--color-bg-tertiary)" }}>
+                {historicalContext.totalCount > 0 && (
+                  <>
+                    <div
+                      className="h-full rounded-l-full"
+                      style={{
+                        width: `${(historicalContext.approvedCount / historicalContext.totalCount) * 100}%`,
+                        background: "#22c55e",
+                        minWidth: historicalContext.approvedCount > 0 ? 8 : 0,
+                      }}
+                    />
+                    <div
+                      className="h-full"
+                      style={{
+                        width: `${(historicalContext.terminatedCount / historicalContext.totalCount) * 100}%`,
+                        background: "#ef4444",
+                        minWidth: historicalContext.terminatedCount > 0 ? 8 : 0,
+                      }}
+                    />
+                    <div
+                      className="h-full rounded-r-full"
+                      style={{
+                        width: `${(historicalContext.activeCount / historicalContext.totalCount) * 100}%`,
+                        background: "#3b82f6",
+                        minWidth: historicalContext.activeCount > 0 ? 8 : 0,
+                      }}
+                    />
+                  </>
+                )}
+              </div>
+
+              {/* Legend */}
+              <div className="flex items-center gap-4 mb-4 text-[11px]" style={{ color: "var(--color-text-tertiary)" }}>
+                <span className="inline-flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full" style={{ background: "#22c55e" }} /> Approved ({historicalContext.approvedCount})
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full" style={{ background: "#ef4444" }} /> Terminated ({historicalContext.terminatedCount})
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full" style={{ background: "#3b82f6" }} /> Active ({historicalContext.activeCount})
+                </span>
+              </div>
+
+              {/* Drug list */}
+              <div className="space-y-1.5">
+                {historicalContext.similar.map((drug, i) => (
+                  <div key={i} className="flex items-center gap-2 py-1">
+                    <span className="text-[13px] flex-shrink-0">
+                      {drug.outcome === "approved" ? "\u2705" : drug.outcome === "terminated" ? "\u274C" : "\uD83D\uDD04"}
+                    </span>
+                    {drug.slug ? (
+                      <Link
+                        href={`/product/${drug.slug}`}
+                        className="text-[13px] font-medium hover:underline"
+                        style={{ color: "var(--color-text-primary)" }}
+                      >
+                        {drug.product_name}
+                      </Link>
+                    ) : (
+                      <span className="text-[13px] font-medium" style={{ color: "var(--color-text-primary)" }}>
+                        {drug.product_name}
+                      </span>
+                    )}
+                    <span className="text-[11px]" style={{ color: "var(--color-text-tertiary)" }}>
+                      {drug.company_name}
+                    </span>
+                    {drug.stage && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium" style={getStageBadgeStyle(drug.stage)}>
+                        {drug.stage}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Score Breakdown */}
           {productScore && (

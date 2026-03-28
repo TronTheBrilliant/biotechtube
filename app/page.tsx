@@ -24,6 +24,8 @@ import FundingChart from "@/components/home/FundingChart";
 import BiotechIndexChart from "@/components/home/BiotechIndexChart";
 import HotPipelines from "@/components/home/HotPipelines";
 import PipelinesToWatch from "@/components/home/PipelinesToWatch";
+import SmallCapWatch from "@/components/home/SmallCapWatch";
+import NextFDADecision from "@/components/home/NextFDADecision";
 // import HotProducts from "@/components/home/HotProducts";
 import TrendingNews from "@/components/home/TrendingNews";
 import SciencePapers from "@/components/home/SciencePapers";
@@ -394,7 +396,65 @@ async function getIndexHistory() {
 
 async function getHotPipelines() {
   const supabase = getSupabase();
-  // Get diverse Phase 3 recruiting drugs with hype scores, one per company
+
+  // Try to get from featured_pipelines first
+  const { data: latestMonth } = await supabase
+    .from("featured_pipelines")
+    .select("featured_month")
+    .order("featured_month", { ascending: false })
+    .limit(1);
+
+  if (latestMonth && latestMonth.length > 0) {
+    const month = latestMonth[0].featured_month;
+    const { data: featured } = await supabase
+      .from("featured_pipelines")
+      .select("pipeline_id, rank, reason")
+      .eq("featured_month", month)
+      .order("rank", { ascending: true })
+      .limit(10);
+
+    if (featured && featured.length > 0) {
+      const pipelineIds = featured.map(f => f.pipeline_id);
+      const { data: pipelines } = await supabase
+        .from("pipelines")
+        .select("id, product_name, indication, stage, company_name, company_id, slug")
+        .in("id", pipelineIds);
+
+      if (pipelines && pipelines.length > 0) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const pMap = new Map<string, any>();
+        for (const p of pipelines) pMap.set(p.id, p);
+
+        const companyIds = [...new Set(pipelines.map(p => p.company_id).filter(Boolean))];
+        const { data: companies } = await supabase
+          .from("companies")
+          .select("id, slug")
+          .in("id", companyIds.slice(0, 50));
+        const companySlugMap = new Map<string, string>();
+        if (companies) {
+          for (const c of companies) companySlugMap.set(c.id, c.slug);
+        }
+
+        return featured
+          .map(f => {
+            const p = pMap.get(f.pipeline_id);
+            if (!p) return null;
+            return {
+              product_name: p.product_name,
+              indication: p.indication,
+              stage: p.stage,
+              company_name: p.company_name || "Unknown",
+              company_slug: companySlugMap.get(p.company_id) || "",
+              slug: p.slug,
+              hype_score: 80,
+            };
+          })
+          .filter((x): x is NonNullable<typeof x> => x !== null);
+      }
+    }
+  }
+
+  // Fallback: original Phase 3 recruiting query
   const { data } = await supabase
     .from("pipelines")
     .select("product_name, indication, stage, company_name, trial_status, company_id, slug")
@@ -405,7 +465,6 @@ async function getHotPipelines() {
     .limit(100);
   if (!data) return [];
 
-  // Get company slugs for linking
   const companyIds = [...new Set(data.map(r => r.company_id).filter(Boolean))];
   const { data: companies } = await supabase
     .from("companies")
@@ -416,20 +475,13 @@ async function getHotPipelines() {
     for (const c of companies) companySlugMap.set(c.id, c.slug);
   }
 
-  // Get hype scores
-  const slugs = data.map(r => r.slug).filter(Boolean).slice(0, 50);
-  const { data: scores } = await supabase
-    .from("product_scores")
-    .select("pipeline_id, hype_score")
-    .in("pipeline_id", data.map(r => (r as any).id || "").filter(Boolean).slice(0, 50));
-
-  // Deduplicate by company_name — one drug per company for diversity
   const seenCompanies = new Set<string>();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const result: any[] = [];
   for (const row of data) {
     const cn = row.company_name || "Unknown";
     if (seenCompanies.has(cn)) continue;
-    if ((row.product_name || "").length > 40) continue; // skip combo drugs with long names
+    if ((row.product_name || "").length > 40) continue;
     seenCompanies.add(cn);
     result.push({
       product_name: row.product_name,
@@ -438,7 +490,7 @@ async function getHotPipelines() {
       company_name: cn,
       company_slug: companySlugMap.get(row.company_id) || "",
       slug: row.slug,
-      hype_score: 70, // default — will be refined by scoring system
+      hype_score: 70,
     });
     if (result.length >= 10) break;
   }
@@ -485,15 +537,127 @@ async function getUpcomingEvents() {
   }));
 }
 
+async function getSmallCapWatchItems() {
+  const supabase = getSupabase();
+
+  // Find the small-cap watchlist
+  const { data: watchlist } = await supabase
+    .from("curated_watchlists")
+    .select("id")
+    .eq("slug", "small-cap-pipeline")
+    .single();
+
+  if (!watchlist) return [];
+
+  // Get items with rank ordering
+  const { data: items } = await supabase
+    .from("curated_watchlist_items")
+    .select("pipeline_id, rank")
+    .eq("watchlist_id", watchlist.id)
+    .order("rank", { ascending: true })
+    .limit(5);
+
+  if (!items || items.length === 0) return [];
+
+  const pipelineIds = items.map((i) => i.pipeline_id);
+  const { data: pipelines } = await supabase
+    .from("pipelines")
+    .select("id, product_name, company_name, company_id, indication, stage, slug")
+    .in("id", pipelineIds);
+
+  if (!pipelines) return [];
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const pMap = new Map<string, any>();
+  for (const p of pipelines) pMap.set(p.id, p);
+
+  const companyIds = [...new Set(pipelines.map((p) => p.company_id).filter(Boolean))];
+  const companyMap = new Map<string, { slug: string; logo_url: string | null; website: string | null }>();
+
+  if (companyIds.length > 0) {
+    const { data: companies } = await supabase
+      .from("companies")
+      .select("id, slug, logo_url, website")
+      .in("id", companyIds);
+    if (companies) {
+      for (const c of companies) companyMap.set(c.id, { slug: c.slug, logo_url: c.logo_url, website: c.website });
+    }
+  }
+
+  return items
+    .map((item) => {
+      const p = pMap.get(item.pipeline_id);
+      if (!p) return null;
+      const company = companyMap.get(p.company_id);
+      return {
+        rank: item.rank || 0,
+        product_name: p.product_name,
+        company_name: p.company_name || "Unknown",
+        indication: p.indication,
+        stage: p.stage,
+        slug: p.slug,
+        company_slug: company?.slug || null,
+        company_logo_url: company?.logo_url || null,
+        company_website: company?.website || null,
+      };
+    })
+    .filter((x): x is NonNullable<typeof x> => x !== null);
+}
+
+async function getNextFDADecisions() {
+  const supabase = getSupabase();
+  const today = new Date().toISOString().split("T")[0];
+
+  const { data } = await supabase
+    .from("fda_calendar")
+    .select("drug_name, company_name, company_id, pipeline_id, decision_date, decision_type, indication")
+    .gte("decision_date", today)
+    .order("decision_date", { ascending: true })
+    .limit(3);
+
+  if (!data || data.length === 0) return [];
+
+  const pipelineIds = data.map((d) => d.pipeline_id).filter(Boolean);
+  const companyIds = [...new Set(data.map((d) => d.company_id).filter(Boolean))];
+
+  const slugMap = new Map<string, string>();
+  const companyMap = new Map<string, { slug: string; logo_url: string | null }>();
+
+  if (pipelineIds.length > 0) {
+    const { data: pipelines } = await supabase.from("pipelines").select("id, slug").in("id", pipelineIds);
+    if (pipelines) for (const p of pipelines) if (p.slug) slugMap.set(p.id, p.slug);
+  }
+
+  if (companyIds.length > 0) {
+    const { data: companies } = await supabase.from("companies").select("id, slug, logo_url").in("id", companyIds as string[]);
+    if (companies) for (const c of companies) companyMap.set(c.id, { slug: c.slug, logo_url: c.logo_url });
+  }
+
+  return data.map((d) => {
+    const company = d.company_id ? companyMap.get(d.company_id) : null;
+    return {
+      drug_name: d.drug_name,
+      company_name: d.company_name,
+      decision_date: d.decision_date,
+      decision_type: d.decision_type,
+      indication: d.indication,
+      slug: d.pipeline_id ? slugMap.get(d.pipeline_id) || null : null,
+      company_slug: company?.slug || null,
+      company_logo_url: company?.logo_url || null,
+    };
+  });
+}
+
 // ── Page ──
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function safeFetch<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
   try { return await fn(); } catch (err: any) { console.error("Homepage fetch error:", err?.message || err); return fallback; }
 }
 
 export default async function HomePage() {
 
-  const [companies, snapshot, trending, sectors, countries, investorsData, peopleData, fundingAnnualData, indexHistory, hotPipelines, recentFunding, events] =
+  const [companies, snapshot, trending, sectors, countries, investorsData, peopleData, fundingAnnualData, indexHistory, hotPipelines, recentFunding, events, smallCapItems, nextFDADecisions] =
     await Promise.all([
       safeFetch(getTopCompanies, []),
       safeFetch(getLatestSnapshot, null),
@@ -507,6 +671,8 @@ export default async function HomePage() {
       safeFetch(getHotPipelines, []),
       safeFetch(getRecentFunding, []),
       safeFetch(getUpcomingEvents, []),
+      safeFetch(getSmallCapWatchItems, []),
+      safeFetch(getNextFDADecisions, []),
     ]);
 
   // Prepare top 5 companies for display
@@ -651,12 +817,27 @@ export default async function HomePage() {
           </HomeSection>
         )}
 
-        {/* Pipelines to Watch — full width */}
-        {hotPipelines.length > 0 && (
-          <HomeSection icon="🧪" title="Pipelines to Watch" viewAllHref="/pipelines" viewAllLabel="Browse all">
-            <PipelinesToWatch pipelines={hotPipelines} />
-          </HomeSection>
-        )}
+        {/* Pipeline Intelligence — Small-Cap Watch + FDA Calendar */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {smallCapItems.length > 0 ? (
+            <HomeSection icon="🔬" title="Small-Cap Pipeline Watch" viewAllHref="/pipelines" viewAllLabel="View all curated lists">
+              <SmallCapWatch items={smallCapItems} />
+            </HomeSection>
+          ) : hotPipelines.length > 0 ? (
+            <HomeSection icon="🧪" title="Pipelines to Watch" viewAllHref="/pipelines" viewAllLabel="Browse all">
+              <PipelinesToWatch pipelines={hotPipelines} />
+            </HomeSection>
+          ) : null}
+          {nextFDADecisions.length > 0 ? (
+            <HomeSection icon="📅" title="Next FDA Decisions" viewAllHref="/pipelines" viewAllLabel="View FDA calendar">
+              <NextFDADecision decisions={nextFDADecisions} />
+            </HomeSection>
+          ) : hotPipelines.length > 0 && smallCapItems.length > 0 ? (
+            <HomeSection icon="🧪" title="Pipelines to Watch" viewAllHref="/pipelines" viewAllLabel="Browse all">
+              <PipelinesToWatch pipelines={hotPipelines} />
+            </HomeSection>
+          ) : null}
+        </div>
 
         {/* Row 2: Sectors + Countries */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

@@ -130,6 +130,81 @@ async function getWatchlistCount(pipelineId: string): Promise<number> {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function getFeaturedData(pipelineId: string): Promise<any | null> {
+  const supabase = getSupabase();
+  const { data } = await supabase
+    .from("featured_pipelines")
+    .select("reason, ai_summary, key_facts, competitive_landscape, investment_thesis, risk_factors, featured_month, rank")
+    .eq("pipeline_id", pipelineId)
+    .order("featured_month", { ascending: false })
+    .limit(1)
+    .single();
+  return data || null;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function getCuratedWatchlistInfo(pipelineId: string): Promise<any | null> {
+  const supabase = getSupabase();
+  const { data: items } = await supabase
+    .from("curated_watchlist_items")
+    .select("watchlist_id")
+    .eq("pipeline_id", pipelineId)
+    .limit(1);
+
+  if (!items || items.length === 0) return null;
+
+  const { data: watchlist } = await supabase
+    .from("curated_watchlists")
+    .select("name, slug, icon")
+    .eq("id", items[0].watchlist_id)
+    .single();
+
+  return watchlist || null;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function getHistoricalContext(indication: string | null, pipelineId: string): Promise<any> {
+  if (!indication) return { similar: [], approvedCount: 0, totalCount: 0 };
+  const supabase = getSupabase();
+
+  // Find drugs with the same indication that are Phase 3 or later
+  const words = indication.split(/[\s,;]+/).filter((w) => w.length > 3);
+  const searchTerm = words[0] || indication;
+
+  const { data } = await supabase
+    .from("pipelines")
+    .select("id, slug, product_name, company_name, indication, stage, trial_status")
+    .ilike("indication", `%${searchTerm}%`)
+    .neq("id", pipelineId)
+    .in("stage", ["Phase 3", "Approved"])
+    .limit(20);
+
+  if (!data || data.length === 0) return { similar: [], approvedCount: 0, totalCount: 0 };
+
+  const approved = data.filter((d) => d.stage === "Approved");
+  const terminated = data.filter((d) => d.trial_status === "Terminated" || d.trial_status === "Withdrawn");
+  const active = data.filter((d) => d.stage !== "Approved" && d.trial_status !== "Terminated" && d.trial_status !== "Withdrawn");
+
+  // Take top 7 for display
+  const similar = data.slice(0, 7).map((d) => ({
+    product_name: d.product_name,
+    company_name: d.company_name,
+    stage: d.stage,
+    trial_status: d.trial_status,
+    slug: d.slug,
+    outcome: d.stage === "Approved" ? "approved" : (d.trial_status === "Terminated" || d.trial_status === "Withdrawn") ? "terminated" : "active",
+  }));
+
+  return {
+    similar,
+    approvedCount: approved.length,
+    terminatedCount: terminated.length,
+    activeCount: active.length,
+    totalCount: data.length,
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function getCompanyTopProducts(companyId: string, excludeId: string): Promise<any[]> {
   const supabase = getSupabase();
   const { data: scores } = await supabase
@@ -206,6 +281,9 @@ export default async function ProductPage({
     watchlistCount,
     marketCap,
     companyTopProducts,
+    featuredData,
+    curatedWatchlistInfo,
+    historicalContext,
   ] = await Promise.all([
     product.company_id ? getCompany(product.company_id) : Promise.resolve(null),
     getProductScore(product.id),
@@ -215,6 +293,9 @@ export default async function ProductPage({
     getWatchlistCount(product.id),
     product.company_id ? getLatestMarketCap(product.company_id) : Promise.resolve(null),
     product.company_id ? getCompanyTopProducts(product.company_id, product.id) : Promise.resolve([]),
+    getFeaturedData(product.id),
+    getCuratedWatchlistInfo(product.id),
+    getHistoricalContext(product.indication, product.id),
   ]);
 
   // JSON-LD structured data
@@ -253,6 +334,9 @@ export default async function ProductPage({
           watchlistCount={watchlistCount}
           marketCap={marketCap}
           companyTopProducts={companyTopProducts}
+          featuredData={featuredData}
+          curatedWatchlistInfo={curatedWatchlistInfo}
+          historicalContext={historicalContext}
         />
         <Footer />
       </div>
