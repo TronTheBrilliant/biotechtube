@@ -68,6 +68,19 @@ function categoryLabel(cat: string) {
   return found ? found.label : cat.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+// Category emoji overlay for card thumbnails
+function categoryEmoji(cat: string): string {
+  switch (cat) {
+    case "weekly-recap": return "📊";
+    case "market-analysis": return "📈";
+    case "company-spotlights": return "🔬";
+    case "sector-reports": return "🧬";
+    case "funding": return "💰";
+    case "guides": return "📖";
+    default: return "📰";
+  }
+}
+
 // Category gradient colors for card thumbnails
 function categoryGradient(cat: string) {
   const gradients: Record<string, string> = {
@@ -174,8 +187,11 @@ export default async function BlogPage({
               >
                 {/* Gradient thumbnail area */}
                 <div
-                  className={`h-36 bg-gradient-to-br ${categoryGradient(post.category)} flex items-end p-4`}
+                  className={`relative overflow-hidden h-36 bg-gradient-to-br ${categoryGradient(post.category)} flex items-end p-4`}
                 >
+                  <div className="absolute inset-0 flex items-center justify-center text-4xl opacity-20">
+                    {categoryEmoji(post.category)}
+                  </div>
                   <span className="text-white/80 text-11 font-medium uppercase tracking-wider bg-black/20 rounded px-2 py-0.5">
                     {categoryLabel(post.category)}
                   </span>

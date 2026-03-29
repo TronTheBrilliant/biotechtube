@@ -877,6 +877,39 @@ export function CompanyPageClient({
         </div>
       </header>
 
+      {/* ─── Claim Banner ─── */}
+      {!isClaimed && (
+        <div
+          className="max-w-[1200px] mx-auto px-4 md:px-6 mb-4"
+        >
+          <div
+            className="flex items-center justify-between rounded-lg px-4 py-3"
+            style={{
+              background: "var(--color-bg-secondary)",
+              border: "1px solid var(--color-border-subtle)",
+            }}
+          >
+            <div className="flex items-center gap-3">
+              <ShieldCheck size={16} style={{ color: "var(--color-text-tertiary)" }} />
+              <span className="text-[13px]" style={{ color: "var(--color-text-secondary)" }}>
+                Is this your company? Claim your profile to update info and connect with investors.
+              </span>
+            </div>
+            <Link
+              href={`/claim/${company.slug}`}
+              className="text-[12px] font-medium px-4 py-1.5 rounded-md whitespace-nowrap"
+              style={{
+                background: "var(--color-text-primary)",
+                color: "var(--color-bg-primary)",
+                textDecoration: "none",
+              }}
+            >
+              Claim profile
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* ─── Tab Navigation ─── */}
       <div
         className="sticky top-0 z-20 border-b"

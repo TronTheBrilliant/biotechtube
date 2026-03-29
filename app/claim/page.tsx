@@ -245,8 +245,44 @@ export default function ClaimPage() {
               Get Started
               <ArrowRight size={16} />
             </Link>
+            <p className="text-[13px] mt-3" style={{ color: "var(--color-text-tertiary)" }}>
+              Plans from $299/mo. Free basic listing included for all companies.
+            </p>
           </div>
         </section>
+
+        {/* ── How it works ── */}
+        <div className="max-w-3xl mx-auto px-4 py-12 text-center">
+          <h2 className="text-[18px] font-semibold mb-8" style={{ color: "var(--color-text-primary)" }}>
+            How it works
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { step: "1", title: "Sign up", desc: "Create your account with a company email" },
+              { step: "2", title: "Verify ownership", desc: "Confirm you represent the company" },
+              { step: "3", title: "Manage your profile", desc: "Update info, add pipeline data, track analytics" },
+            ].map((s) => (
+              <div key={s.step}>
+                <div
+                  className="w-8 h-8 rounded-full mx-auto mb-3 flex items-center justify-center text-[13px] font-semibold"
+                  style={{
+                    background: "var(--color-bg-secondary)",
+                    color: "var(--color-text-secondary)",
+                    border: "1px solid var(--color-border-subtle)",
+                  }}
+                >
+                  {s.step}
+                </div>
+                <div className="text-[14px] font-medium mb-1" style={{ color: "var(--color-text-primary)" }}>
+                  {s.title}
+                </div>
+                <div className="text-[12px]" style={{ color: "var(--color-text-tertiary)" }}>
+                  {s.desc}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
         {/* ── What You Get ── */}
         <section className="max-w-5xl mx-auto px-4 py-16">
