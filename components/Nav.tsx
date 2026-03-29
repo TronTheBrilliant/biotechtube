@@ -217,6 +217,17 @@ export function Nav() {
           {/* Centre: Nav menu */}
           <div className="flex-1 flex justify-center">
             <nav className="flex items-center gap-1">
+              {/* Feed top-level link */}
+              <Link
+                href="/feed"
+                className="flex items-center px-3 py-1.5 rounded-md text-[14px] font-semibold transition-colors duration-150"
+                style={{
+                  color: pathname === "/feed" ? "var(--color-text-primary)" : "var(--color-text-secondary)",
+                  background: pathname === "/feed" ? "var(--color-bg-secondary)" : "transparent",
+                }}
+              >
+                Feed
+              </Link>
               {MENUS.map((menu) => {
                 const isOpen = openMenu === menu.label;
                 return (
@@ -511,6 +522,18 @@ export function Nav() {
                 <Search size={14} />
                 Search companies, drugs, people...
               </button>
+
+              {/* Feed top-level link */}
+              <div style={{ borderBottom: "1px solid var(--color-border-subtle)" }}>
+                <Link
+                  href="/feed"
+                  className="flex items-center w-full py-3.5 px-1 text-[15px] font-medium"
+                  style={{ color: pathname === "/feed" ? "var(--color-accent)" : "var(--color-text-primary)" }}
+                  onClick={() => setMobileOpen(false)}
+                >
+                  Feed
+                </Link>
+              </div>
 
               {/* Accordion sections */}
               {MENUS.map((menu) => {
