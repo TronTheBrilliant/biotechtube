@@ -193,6 +193,16 @@ async function getPatents(companyId: string): Promise<any[]> {
   return data || [];
 }
 
+async function getFollowerCount(companyId: string): Promise<number> {
+  const supabase = getSupabase();
+  const { count } = await supabase
+    .from('follows')
+    .select('*', { count: 'exact', head: true })
+    .eq('following_id', companyId)
+    .eq('following_type', 'company');
+  return count || 0;
+}
+
 async function getCompanyClaim(companyId: string) {
   const supabase = getSupabase();
   const { data } = await supabase
@@ -480,6 +490,7 @@ export default async function CompanyPage({
     companyClaim,
     companyTeam,
     companyNews,
+    followerCount,
   ] = await Promise.all([
     Promise.resolve(funding.filter((f) => f.companySlug === company.slug)),
     getSimilarCompanies(company),
@@ -494,6 +505,7 @@ export default async function CompanyPage({
     getCompanyClaim(companyId),
     getCompanyTeam(companyId),
     getCompanyNews(companyId),
+    getFollowerCount(companyId),
   ]);
 
   // Count data sections for tier detection
@@ -588,6 +600,7 @@ export default async function CompanyPage({
         sectorRankings={sectorRankings}
         competitors={competitors}
         timelineEvents={timelineEvents}
+        followerCount={followerCount}
       />
     </article>
   );

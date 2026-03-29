@@ -61,6 +61,72 @@ export async function GET(
   return NextResponse.json({ post: { ...post, comments: comments || [] } })
 }
 
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { postId: string } }
+) {
+  const { postId } = params
+  const supabase = createServerClient()
+
+  let body: { user_id: string; body?: string; title?: string }
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+  }
+
+  const { user_id, body: newBody, title: newTitle } = body
+
+  if (!user_id) {
+    return NextResponse.json({ error: 'Unauthorized: user_id required' }, { status: 401 })
+  }
+
+  // Verify ownership
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: post, error: fetchError } = await (supabase as any)
+    .from('posts')
+    .select('id, author_id')
+    .eq('id', postId)
+    .single()
+
+  if (fetchError) {
+    if (fetchError.code === 'PGRST116') {
+      return NextResponse.json({ error: 'Post not found' }, { status: 404 })
+    }
+    return NextResponse.json({ error: fetchError.message }, { status: 500 })
+  }
+
+  if (post.author_id !== user_id) {
+    return NextResponse.json({ error: 'Forbidden: you are not the author' }, { status: 403 })
+  }
+
+  // Build update object
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const updates: any = { updated_at: new Date().toISOString() }
+  if (newBody !== undefined) updates.body = newBody
+  if (newTitle !== undefined) updates.title = newTitle
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: updated, error: updateError } = await (supabase as any)
+    .from('posts')
+    .update(updates)
+    .eq('id', postId)
+    .select(
+      `
+      *,
+      author:profiles!posts_author_id_fkey(id, full_name, avatar_url),
+      company:companies!posts_company_id_fkey(id, name, slug, logo_url)
+    `
+    )
+    .single()
+
+  if (updateError) {
+    return NextResponse.json({ error: updateError.message }, { status: 500 })
+  }
+
+  return NextResponse.json({ post: updated })
+}
+
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { postId: string } }

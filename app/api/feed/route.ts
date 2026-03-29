@@ -10,12 +10,13 @@ export async function GET(request: NextRequest) {
   const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100)
   const offset = (page - 1) * limit
   const userId = searchParams.get('user_id')
+  const filter = searchParams.get('filter')
 
   const supabase = createServerClient()
 
   // Fetch posts with author profile and company info
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: posts, error, count } = await (supabase as any)
+  let query = (supabase as any)
     .from('posts')
     .select(
       `
@@ -35,6 +36,17 @@ export async function GET(request: NextRequest) {
     `,
       { count: 'exact' }
     )
+
+  // Apply filter
+  if (filter === 'companies') {
+    query = query.not('company_id', 'is', null)
+  } else if (filter === 'people') {
+    query = query.is('company_id', null)
+  } else if (filter === 'articles') {
+    query = query.eq('post_type', 'article')
+  }
+
+  const { data: posts, error, count } = await query
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1)
 
@@ -42,19 +54,30 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  // If user is authenticated, check which posts they have liked
+  // If user is authenticated, check which posts they have liked and bookmarked
   let likedPostIds: Set<string> = new Set()
+  let bookmarkedPostIds: Set<string> = new Set()
   if (userId && posts && posts.length > 0) {
     const postIds = posts.map((p: { id: string }) => p.id)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: likes } = await (supabase as any)
-      .from('post_likes')
-      .select('post_id')
-      .eq('user_id', userId)
-      .in('post_id', postIds)
+    const [likesResult, bookmarksResult] = await Promise.all([
+      (supabase as any)
+        .from('post_likes')
+        .select('post_id')
+        .eq('user_id', userId)
+        .in('post_id', postIds),
+      (supabase as any)
+        .from('post_bookmarks')
+        .select('post_id')
+        .eq('user_id', userId)
+        .in('post_id', postIds),
+    ])
 
-    if (likes) {
-      likedPostIds = new Set(likes.map((l: { post_id: string }) => l.post_id))
+    if (likesResult.data) {
+      likedPostIds = new Set(likesResult.data.map((l: { post_id: string }) => l.post_id))
+    }
+    if (bookmarksResult.data) {
+      bookmarkedPostIds = new Set(bookmarksResult.data.map((b: { post_id: string }) => b.post_id))
     }
   }
 
@@ -62,6 +85,7 @@ export async function GET(request: NextRequest) {
   const enrichedPosts = (posts || []).map((post: any) => ({
     ...post,
     liked_by_user: likedPostIds.has(post.id as string),
+    bookmarked_by_user: bookmarkedPostIds.has(post.id as string),
   }))
 
   return NextResponse.json({

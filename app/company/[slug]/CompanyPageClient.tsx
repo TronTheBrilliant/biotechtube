@@ -23,6 +23,7 @@ import { WatchlistButton } from "@/components/WatchlistButton";
 import { createBrowserClient } from "@/lib/supabase";
 import { PipelineWatchButton } from "@/components/PipelineWatchButton";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { FollowButton } from "@/components/feed/FollowButton";
 import { useUser } from "@/lib/auth";
 
 /* ─── Types for enriched data ─── */
@@ -506,6 +507,7 @@ interface CompanyPageProps {
   sectorRankings?: SectorRanking[];
   competitors?: CompetitorEntry[];
   timelineEvents?: TimelineEvent[];
+  followerCount?: number;
 }
 
 /* ═══════════════════════════════════════════════
@@ -533,6 +535,7 @@ export function CompanyPageClient({
   sectorRankings = [],
   competitors = [],
   timelineEvents = [],
+  followerCount = 0,
 }: CompanyPageProps) {
   const { user } = useUser();
   const isOwner = !!(isClaimed && claimUserId && user?.id === claimUserId);
@@ -880,6 +883,18 @@ export function CompanyPageClient({
           <div className="flex items-center gap-3 mt-3">
             {/* Follow/Watchlist button — prominent */}
             {companyId && <WatchlistButton companyId={companyId} showLabel />}
+            {user && companyId && (
+              <FollowButton
+                followingId={companyId}
+                followingType="company"
+                userId={user.id}
+              />
+            )}
+            {followerCount > 0 && (
+              <span style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>
+                {followerCount} {followerCount === 1 ? "follower" : "followers"}
+              </span>
+            )}
             {company.website && (
               <a
                 href={company.website.startsWith("http") ? company.website : `https://${company.website}`}

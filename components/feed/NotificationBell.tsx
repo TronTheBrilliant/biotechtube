@@ -225,8 +225,20 @@ export function NotificationBell({ userId }: NotificationBellProps) {
               Loading...
             </div>
           ) : notifications.length === 0 ? (
-            <div style={{ padding: "20px 14px", textAlign: "center", fontSize: 12, color: "var(--color-text-tertiary)" }}>
-              No notifications yet
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 24,
+                textAlign: "center",
+              }}
+            >
+              <Bell size={20} style={{ color: "var(--color-text-tertiary)", opacity: 0.3 }} />
+              <p style={{ fontSize: 12, color: "var(--color-text-tertiary)", margin: "8px 0 0" }}>
+                No notifications yet
+              </p>
             </div>
           ) : (
             notifications.map((notif) => (

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { MessageSquare } from "lucide-react";
 import { createBrowserClient } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
 import { PostComposer } from "@/components/feed/PostComposer";
@@ -14,6 +15,13 @@ const supabase = createBrowserClient();
 
 const PAGE_SIZE = 20;
 
+const FEED_TABS = [
+  { label: "All", value: "all" },
+  { label: "Companies", value: "companies" },
+  { label: "People", value: "people" },
+  { label: "Articles", value: "articles" },
+];
+
 export default function FeedClient() {
   const { user, loading: authLoading } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
@@ -22,9 +30,10 @@ export default function FeedClient() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeFilter, setActiveFilter] = useState("all");
 
   const fetchPosts = useCallback(
-    async (pageNum: number, append = false) => {
+    async (pageNum: number, append = false, filter?: string) => {
       if (append) {
         setLoadingMore(true);
       } else {
@@ -38,6 +47,10 @@ export default function FeedClient() {
           limit: String(PAGE_SIZE),
         });
         if (user?.id) params.set("user_id", user.id);
+        const currentFilter = filter ?? activeFilter;
+        if (currentFilter && currentFilter !== "all") {
+          params.set("filter", currentFilter);
+        }
 
         const res = await fetch(`/api/feed?${params}`);
         if (!res.ok) throw new Error("Failed to load feed");
@@ -56,7 +69,7 @@ export default function FeedClient() {
         setLoadingMore(false);
       }
     },
-    [user?.id]
+    [user?.id, activeFilter]
   );
 
   useEffect(() => {
@@ -64,6 +77,12 @@ export default function FeedClient() {
       fetchPosts(1);
     }
   }, [authLoading, fetchPosts]);
+
+  function handleFilterChange(value: string) {
+    setActiveFilter(value);
+    setPage(1);
+    fetchPosts(1, false, value);
+  }
 
   function handlePostCreated() {
     // Refresh the feed from page 1
@@ -87,6 +106,16 @@ export default function FeedClient() {
               liked_by_user: !p.liked_by_user,
               like_count: (p.like_count || 0) + (p.liked_by_user ? -1 : 1),
             }
+          : p
+      )
+    );
+  }
+
+  function handleBookmarkToggled(postId: string) {
+    setPosts((prev) =>
+      prev.map((p) =>
+        p.id === postId
+          ? { ...p, bookmarked_by_user: !p.bookmarked_by_user }
           : p
       )
     );
@@ -175,6 +204,43 @@ export default function FeedClient() {
                 />
               )}
 
+              {/* Filter tabs */}
+              <nav
+                style={{
+                  display: "flex",
+                  gap: 0,
+                  borderBottom: "0.5px solid var(--color-border-subtle)",
+                  marginBottom: 16,
+                }}
+              >
+                {FEED_TABS.map((tab) => {
+                  const isActive = activeFilter === tab.value;
+                  return (
+                    <button
+                      key={tab.value}
+                      onClick={() => handleFilterChange(tab.value)}
+                      style={{
+                        padding: "8px 14px",
+                        fontSize: 13,
+                        color: isActive
+                          ? "var(--color-text-primary)"
+                          : "var(--color-text-tertiary)",
+                        background: "transparent",
+                        border: "none",
+                        borderBottom: isActive
+                          ? "0.5px solid var(--color-accent)"
+                          : "0.5px solid transparent",
+                        fontWeight: isActive ? 500 : 400,
+                        cursor: "pointer",
+                        transition: "color 0.15s, border-color 0.15s",
+                      }}
+                    >
+                      {tab.label}
+                    </button>
+                  );
+                })}
+              </nav>
+
               {/* Feed */}
               {loading ? (
                 <div style={{ padding: "40px 0", textAlign: "center" }}>
@@ -217,15 +283,36 @@ export default function FeedClient() {
               ) : posts.length === 0 ? (
                 <div
                   style={{
-                    background: "var(--color-bg-secondary)",
-                    border: "0.5px solid var(--color-border-subtle)",
-                    borderRadius: 10,
-                    padding: "40px 20px",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: 48,
                     textAlign: "center",
                   }}
                 >
-                  <p style={{ fontSize: 13, color: "var(--color-text-tertiary)", margin: 0 }}>
-                    No posts yet. Be the first to share an update!
+                  <MessageSquare
+                    size={32}
+                    style={{ color: "var(--color-text-tertiary)", opacity: 0.3 }}
+                  />
+                  <h3
+                    style={{
+                      fontSize: 16,
+                      fontWeight: 500,
+                      color: "var(--color-text-primary)",
+                      margin: "12px 0 0",
+                    }}
+                  >
+                    No posts yet
+                  </h3>
+                  <p
+                    style={{
+                      fontSize: 13,
+                      color: "var(--color-text-tertiary)",
+                      margin: "4px 0 0",
+                    }}
+                  >
+                    Be the first to share an insight with the biotech community.
                   </p>
                 </div>
               ) : (
@@ -236,6 +323,7 @@ export default function FeedClient() {
                       post={post}
                       currentUserId={user?.id}
                       onLike={() => handlePostLiked(post.id)}
+                      onBookmark={() => handleBookmarkToggled(post.id)}
                     />
                   ))}
 

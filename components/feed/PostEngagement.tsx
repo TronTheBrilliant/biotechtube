@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Heart, MessageSquare, Share2 } from "lucide-react";
+import { Heart, MessageSquare, Share2, Bookmark } from "lucide-react";
 
 interface PostEngagementProps {
   postId: string;
@@ -10,9 +10,11 @@ interface PostEngagementProps {
   commentCount: number;
   shareCount: number;
   liked: boolean;
+  bookmarked?: boolean;
   onLike: () => void;
   onComment: () => void;
   onShare: () => void;
+  onBookmark?: () => void;
 }
 
 export function PostEngagement({
@@ -22,13 +24,17 @@ export function PostEngagement({
   commentCount,
   shareCount,
   liked,
+  bookmarked = false,
   onLike,
   onComment,
   onShare,
+  onBookmark,
 }: PostEngagementProps) {
   const [optimisticLiked, setOptimisticLiked] = useState(liked);
   const [optimisticCount, setOptimisticCount] = useState(likeCount);
   const [liking, setLiking] = useState(false);
+  const [optimisticBookmarked, setOptimisticBookmarked] = useState(bookmarked);
+  const [bookmarking, setBookmarking] = useState(false);
 
   async function handleLike() {
     if (!userId) {
@@ -64,6 +70,32 @@ export function PostEngagement({
       setOptimisticCount((c) => (wasLiked ? c + 1 : Math.max(0, c - 1)));
     } finally {
       setLiking(false);
+    }
+  }
+
+  async function handleBookmark() {
+    if (!userId || bookmarking) return;
+    setBookmarking(true);
+
+    const wasBookmarked = optimisticBookmarked;
+    setOptimisticBookmarked(!wasBookmarked);
+
+    try {
+      const res = await fetch(`/api/feed/${postId}/bookmark`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userId }),
+      });
+
+      if (!res.ok) {
+        setOptimisticBookmarked(wasBookmarked);
+      } else {
+        onBookmark?.();
+      }
+    } catch {
+      setOptimisticBookmarked(wasBookmarked);
+    } finally {
+      setBookmarking(false);
     }
   }
 
@@ -110,6 +142,22 @@ export function PostEngagement({
         <span style={{ color: "var(--color-text-tertiary)", fontSize: 12 }}>
           {shareCount > 0 ? shareCount : ""}
         </span>
+      </button>
+
+      {/* Bookmark — pushed to right */}
+      <button
+        style={{ ...btnStyle, marginLeft: "auto" }}
+        onClick={handleBookmark}
+        aria-label="Bookmark post"
+      >
+        <Bookmark
+          size={14}
+          style={{
+            color: optimisticBookmarked ? "var(--color-accent)" : "var(--color-text-tertiary)",
+            fill: optimisticBookmarked ? "var(--color-accent)" : "none",
+            transition: "all 0.15s ease",
+          }}
+        />
       </button>
     </div>
   );
