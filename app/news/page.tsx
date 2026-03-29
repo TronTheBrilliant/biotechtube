@@ -1,136 +1,79 @@
 import { Metadata } from "next";
-import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
+import { createServerClient } from "@/lib/supabase";
+import { NewsClient } from "./NewsClient";
 
 export const metadata: Metadata = {
   title: "News — BiotechTube",
   description:
-    "AI-curated biotech news, breakthrough alerts, funding radar, and pipeline updates. Coming soon to BiotechTube.",
+    "AI-curated biotech news: FDA decisions, funding rounds, acquisitions, and pipeline updates.",
 };
 
-const features = [
-  {
-    emoji: "\uD83D\uDD2C",
-    title: "Breakthrough alerts",
-    description:
-      "Get notified the moment a company publishes pivotal clinical data, receives regulatory approval, or announces a key partnership.",
-  },
-  {
-    emoji: "\uD83D\uDCB0",
-    title: "Funding radar",
-    description:
-      "Track every funding round as it happens. Filter by stage, therapeutic area, and geography to spot trends before the market catches on.",
-  },
-  {
-    emoji: "\uD83D\uDCCA",
-    title: "Pipeline updates",
-    description:
-      "Monitor clinical trial progressions, FDA decisions, and pipeline milestones across your watchlist and the broader biotech landscape.",
-  },
-];
+export default async function NewsPage() {
+  const supabase = createServerClient();
 
-export default function NewsPage() {
+  const { data: items, error } = await supabase
+    .from("news_items")
+    .select(
+      "id, title, source_name, source_url, published_date, summary, companies_mentioned, category, scraped_at"
+    )
+    .order("scraped_at", { ascending: false });
+
+  if (error) {
+    console.error("Failed to fetch news_items:", error.message);
+  }
+
   return (
-    <div className="page-content" style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
+    <div
+      className="page-content"
+      style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}
+    >
       <Nav />
 
       <main className="max-w-3xl mx-auto px-4 py-10">
-        <div className="text-center mb-10">
+        {/* Page header */}
+        <div style={{ marginBottom: 32 }}>
           <span
-            className="text-11 font-medium uppercase tracking-wider"
-            style={{ color: "var(--color-accent)" }}
+            style={{
+              fontSize: 11,
+              fontWeight: 500,
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              color: "var(--color-accent)",
+              display: "block",
+              marginBottom: 8,
+            }}
           >
             News
           </span>
           <h1
-            className="text-[32px] font-medium mt-2 mb-3 tracking-tight"
-            style={{ color: "var(--color-text-primary)", letterSpacing: "-0.5px" }}
+            style={{
+              fontSize: 28,
+              fontWeight: 500,
+              letterSpacing: "-0.5px",
+              color: "var(--color-text-primary)",
+              margin: 0,
+              lineHeight: 1.2,
+            }}
           >
-            AI-curated biotech intelligence
+            Biotech intelligence feed
           </h1>
           <p
-            className="text-13 leading-relaxed max-w-lg mx-auto"
-            style={{ color: "var(--color-text-secondary)" }}
+            style={{
+              fontSize: 14,
+              color: "var(--color-text-secondary)",
+              marginTop: 8,
+              lineHeight: 1.5,
+            }}
           >
-            Your personalized biotech news feed is almost here. We are building
-            an AI-powered engine that surfaces the stories, data points, and
-            signals that matter most to your portfolio and research interests.
+            {items?.length ?? 0} stories — FDA decisions, funding rounds, acquisitions, and
+            pipeline updates.
           </p>
         </div>
 
-        {/* Feature cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
-          {features.map((f) => (
-            <div
-              key={f.title}
-              className="rounded-lg p-5"
-              style={{
-                background: "var(--color-bg-secondary)",
-                border: "0.5px solid var(--color-border-subtle)",
-              }}
-            >
-              <div className="text-xl mb-3">{f.emoji}</div>
-              <h3
-                className="text-13 font-medium mb-2"
-                style={{ color: "var(--color-text-primary)" }}
-              >
-                {f.title}
-              </h3>
-              <p
-                className="text-12 leading-relaxed"
-                style={{ color: "var(--color-text-secondary)" }}
-              >
-                {f.description}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        {/* Email signup */}
-        <div
-          className="rounded-lg p-6 text-center"
-          style={{
-            background: "var(--color-bg-secondary)",
-            border: "0.5px solid var(--color-border-subtle)",
-          }}
-        >
-          <p
-            className="text-13 font-medium mb-4"
-            style={{ color: "var(--color-text-primary)" }}
-          >
-            Get notified when we launch
-          </p>
-          <div className="flex gap-2 max-w-sm mx-auto">
-            <input
-              type="email"
-              className="flex-1 text-13 px-3 py-2 rounded border outline-none"
-              style={{
-                borderColor: "var(--color-border-medium)",
-                background: "var(--color-bg-primary)",
-                color: "var(--color-text-primary)",
-              }}
-              placeholder="you@company.com"
-            />
-            <button
-              className="text-13 font-medium px-4 py-2 rounded text-white shrink-0"
-              style={{ background: "var(--color-accent)" }}
-            >
-              Notify me
-            </button>
-          </div>
-        </div>
-
-        {/* Browse link */}
-        <div className="text-center mt-8">
-          <Link
-            href="/companies"
-            className="text-13 font-medium"
-            style={{ color: "var(--color-accent)" }}
-          >
-            Browse companies while you wait &rarr;
-          </Link>
-        </div>
+        {/* News feed with filter tabs */}
+        <NewsClient items={items ?? []} />
       </main>
 
       <Footer />
