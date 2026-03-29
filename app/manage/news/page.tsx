@@ -6,6 +6,8 @@ import { createBrowserClient } from "@/lib/supabase";
 import { useDashboard } from "@/app/manage/layout";
 import { useAuth } from "@/lib/auth";
 
+const supabase = createBrowserClient();
+
 interface NewsItem {
   id: string;
   title: string;
@@ -37,7 +39,6 @@ const labelStyle: React.CSSProperties = {
 export default function NewsPage() {
   const { company } = useDashboard();
   const { user } = useAuth();
-  const supabase = createBrowserClient();
 
   const [items, setItems] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,7 +56,7 @@ export default function NewsPage() {
       .order("published_at", { ascending: false });
     setItems(data || []);
     setLoading(false);
-  }, [company.id, supabase]);
+  }, [company.id]);
 
   useEffect(() => {
     loadNews();

@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { createBrowserClient } from "@/lib/supabase";
 import { useDashboard } from "@/app/manage/layout";
+
+const supabase = createBrowserClient();
 import { PremiumGate } from "@/components/dashboard/PremiumGate";
 import { MessageSquare, Loader2 } from "lucide-react";
 
@@ -23,7 +25,6 @@ interface InquiryRow {
 
 function InquiriesContent() {
   const { company } = useDashboard();
-  const supabase = createBrowserClient();
 
   const [inquiries, setInquiries] = useState<InquiryRow[]>([]);
   const [loading, setLoading] = useState(true);

@@ -6,6 +6,8 @@ import Link from "next/link";
 import { createBrowserClient } from "@/lib/supabase";
 import { useDashboard } from "@/app/manage/layout";
 
+const supabase = createBrowserClient();
+
 /* ─── Shared input/label styles (matching other manage pages) ─── */
 const inputStyle: React.CSSProperties = {
   background: "var(--color-bg-secondary)",
@@ -36,7 +38,6 @@ const PLAN_LABELS: Record<string, string> = {
 
 export default function SettingsPage() {
   const { claim, company } = useDashboard();
-  const supabase = createBrowserClient();
 
   const [contactEmail, setContactEmail] = useState("");
   const [saving, setSaving] = useState(false);
@@ -54,7 +55,7 @@ export default function SettingsPage() {
     if (data) {
       setContactEmail(data.contact_email || "");
     }
-  }, [claim.id, supabase]);
+  }, [claim.id]);
 
   useEffect(() => {
     loadSettings();

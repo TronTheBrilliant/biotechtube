@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { createBrowserClient } from "@/lib/supabase";
 import { useDashboard } from "@/app/manage/layout";
+
+const supabase = createBrowserClient();
 import { PremiumGate } from "@/components/dashboard/PremiumGate";
 import { Save, Loader2, Check } from "lucide-react";
 
@@ -10,7 +12,6 @@ import { Save, Loader2, Check } from "lucide-react";
 
 function BrandingContent() {
   const { company, claim, refreshClaim } = useDashboard();
-  const supabase = createBrowserClient();
 
   const [brandColor, setBrandColor] = useState(claim.brand_color || "#1a7a5e");
   const [heroTagline, setHeroTagline] = useState(claim.hero_tagline || "");

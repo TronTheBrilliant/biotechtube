@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { createBrowserClient } from "@/lib/supabase";
 import { useDashboard } from "@/app/manage/layout";
+
+const supabase = createBrowserClient();
 import { PremiumGate } from "@/components/dashboard/PremiumGate";
 import {
   Plus,
@@ -54,7 +56,6 @@ const inputStyle: React.CSSProperties = {
 
 function JobsContent() {
   const { company, claim } = useDashboard();
-  const supabase = createBrowserClient();
 
   const [jobs, setJobs] = useState<JobRow[]>([]);
   const [loading, setLoading] = useState(true);

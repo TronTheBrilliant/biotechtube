@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { createBrowserClient } from "@/lib/supabase";
 import { useDashboard } from "@/app/manage/layout";
+
+const supabase = createBrowserClient();
 import { PremiumGate } from "@/components/dashboard/PremiumGate";
 import {
   Plus,
@@ -20,7 +22,6 @@ import {
 
 function SectionsContent() {
   const { claim, company, refreshClaim } = useDashboard();
-  const supabase = createBrowserClient();
 
   const [sections, setSections] = useState<{ title: string; content: string }[]>(
     Array.isArray(claim.custom_sections) ? claim.custom_sections : []

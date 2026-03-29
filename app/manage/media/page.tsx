@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { createBrowserClient } from "@/lib/supabase";
 import { useDashboard } from "@/app/manage/layout";
+
+const supabase = createBrowserClient();
 import { PremiumGate } from "@/components/dashboard/PremiumGate";
 import { Save, Loader2, Check, ExternalLink } from "lucide-react";
 
@@ -33,7 +35,6 @@ function getEmbedUrl(url: string): string | null {
 
 function MediaContent() {
   const { claim, company, refreshClaim } = useDashboard();
-  const supabase = createBrowserClient();
 
   const [videoUrl, setVideoUrl] = useState(claim.video_url || "");
   const [investorDeckUrl, setInvestorDeckUrl] = useState(claim.investor_deck_url || "");

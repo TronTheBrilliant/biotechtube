@@ -5,6 +5,8 @@ import { Eye, Loader2 } from "lucide-react";
 import { createBrowserClient } from "@/lib/supabase";
 import { useDashboard } from "@/app/manage/layout";
 
+const supabase = createBrowserClient();
+
 interface ViewStat {
   date: string;
   count: number;
@@ -76,7 +78,6 @@ function AreaChart({ data, height = 100 }: { data: ViewStat[]; height?: number }
 
 export default function AnalyticsPage() {
   const { company } = useDashboard();
-  const supabase = createBrowserClient();
 
   const [viewStats, setViewStats] = useState<ViewStat[]>([]);
   const [sourceCounts, setSourceCounts] = useState<SourceCount[]>([]);
@@ -135,7 +136,7 @@ export default function AnalyticsPage() {
     }
 
     setLoading(false);
-  }, [company.id, supabase]);
+  }, [company.id]);
 
   useEffect(() => {
     loadAnalytics();

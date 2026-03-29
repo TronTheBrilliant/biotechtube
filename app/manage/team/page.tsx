@@ -5,6 +5,8 @@ import { Plus, Pencil, Trash2, Save, Loader2, Users, X } from "lucide-react";
 import { createBrowserClient } from "@/lib/supabase";
 import { useDashboard } from "@/app/manage/layout";
 
+const supabase = createBrowserClient();
+
 interface TeamMember {
   id: string;
   name: string;
@@ -40,7 +42,6 @@ const labelStyle: React.CSSProperties = {
 
 export default function TeamPage() {
   const { company, claim } = useDashboard();
-  const supabase = createBrowserClient();
 
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,7 +64,7 @@ export default function TeamPage() {
       .order("display_order");
     setMembers(data || []);
     setLoading(false);
-  }, [company.id, supabase]);
+  }, [company.id]);
 
   useEffect(() => {
     loadMembers();

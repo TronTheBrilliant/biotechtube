@@ -5,6 +5,8 @@ import { Save, Check, Loader2 } from "lucide-react";
 import { createBrowserClient } from "@/lib/supabase";
 import { useDashboard } from "@/app/manage/layout";
 
+const supabase = createBrowserClient();
+
 /* ─── Shared input style ─── */
 const inputStyle: React.CSSProperties = {
   background: "var(--color-bg-secondary)",
@@ -29,7 +31,6 @@ const labelStyle: React.CSSProperties = {
 
 export default function ProfilePage() {
   const { company } = useDashboard();
-  const supabase = createBrowserClient();
 
   const [description, setDescription] = useState("");
   const [website, setWebsite] = useState("");
@@ -53,7 +54,7 @@ export default function ProfilePage() {
       setCity(data.city || "");
       setCountry(data.country || "");
     }
-  }, [company.id, supabase]);
+  }, [company.id]);
 
   useEffect(() => {
     loadProfile();

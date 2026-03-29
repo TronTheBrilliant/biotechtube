@@ -5,6 +5,8 @@ import { FlaskConical, Loader2 } from "lucide-react";
 import { createBrowserClient } from "@/lib/supabase";
 import { useDashboard } from "@/app/manage/layout";
 
+const supabase = createBrowserClient();
+
 interface PipelineProduct {
   id: string;
   product_name: string;
@@ -37,7 +39,6 @@ function stageBadgeStyle(stage: string | null): React.CSSProperties {
 
 export default function PipelinePage() {
   const { company } = useDashboard();
-  const supabase = createBrowserClient();
 
   const [products, setProducts] = useState<PipelineProduct[]>([]);
   const [loading, setLoading] = useState(true);
@@ -51,7 +52,7 @@ export default function PipelinePage() {
       .order("stage");
     setProducts(data || []);
     setLoading(false);
-  }, [company.id, supabase]);
+  }, [company.id]);
 
   useEffect(() => {
     loadPipeline();
