@@ -135,7 +135,9 @@ export default function ManageLayout({ children }: { children: ReactNode }) {
       return;
     }
     fetchData(user.id);
-  }, [user, authLoading, router]);
+    // Only run when auth finishes loading — user reference is stable after that
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authLoading]);
 
   /* Loading state */
   if (authLoading || dataLoading) {
