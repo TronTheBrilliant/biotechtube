@@ -197,7 +197,7 @@ async function getCompanyClaim(companyId: string) {
   const supabase = getSupabase();
   const { data } = await supabase
     .from('company_claims')
-    .select('id, status, plan, verified_at')
+    .select('id, status, plan, verified_at, user_id')
     .eq('company_id', companyId)
     .eq('status', 'verified')
     .single();
@@ -581,6 +581,7 @@ export default async function CompanyPage({
         priceHistory={priceHistory}
         isClaimed={!!companyClaim}
         claimPlan={companyClaim?.plan || null}
+        claimUserId={companyClaim?.user_id || null}
         teamMembers={companyTeam}
         companyNews={companyNews}
         tier={tier}

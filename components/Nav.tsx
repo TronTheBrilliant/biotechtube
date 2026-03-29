@@ -380,14 +380,14 @@ export function Nav() {
                     </div>
                     <div className="py-1">
                       <Link
-                        href="/dashboard"
+                        href="/manage"
                         className="flex items-center gap-2 px-3 py-2 text-[13px] transition-colors"
                         style={{ color: "var(--color-text-secondary)" }}
                         onMouseEnter={(e) => { e.currentTarget.style.background = "var(--color-bg-secondary)"; }}
                         onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
                         onClick={() => setUserMenuOpen(false)}
                       >
-                        <LayoutDashboard size={14} /> Dashboard
+                        <LayoutDashboard size={14} /> Manage
                       </Link>
                       <Link
                         href="/dashboard"
@@ -604,12 +604,12 @@ export function Nav() {
                       </div>
                     </div>
                     <Link
-                      href="/dashboard"
+                      href="/manage"
                       className="flex items-center gap-2 px-1 py-2.5 text-[14px]"
                       style={{ color: "var(--color-text-secondary)" }}
                       onClick={() => setMobileOpen(false)}
                     >
-                      <LayoutDashboard size={16} /> Dashboard
+                      <LayoutDashboard size={16} /> Manage
                     </Link>
                     <Link
                       href="/dashboard"

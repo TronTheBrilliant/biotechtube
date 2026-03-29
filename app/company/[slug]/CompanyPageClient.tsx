@@ -15,7 +15,7 @@ import {
   Target, ShieldAlert, Swords, Sparkles, BookOpen, Beaker,
   ChevronRight, ChevronDown, Award, Zap, CircleDot, FileText, Shield,
   ScrollText, TestTubes, Pill, ShieldCheck, Newspaper, Hash, DollarSign,
-  Flag, X
+  Flag, X, LayoutDashboard
 } from "lucide-react";
 import { TvStockChart } from "@/components/charts/TvStockChart";
 import { TvAreaChart } from "@/components/charts/TvAreaChart";
@@ -23,6 +23,7 @@ import { WatchlistButton } from "@/components/WatchlistButton";
 import { createBrowserClient } from "@/lib/supabase";
 import { PipelineWatchButton } from "@/components/PipelineWatchButton";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { useUser } from "@/lib/auth";
 
 /* ─── Types for enriched data ─── */
 interface PipelineRow {
@@ -498,6 +499,7 @@ interface CompanyPageProps {
   priceHistory: PricePoint[];
   isClaimed?: boolean;
   claimPlan?: string | null;
+  claimUserId?: string | null;
   teamMembers?: ClaimedTeamMember[];
   companyNews?: ClaimedNewsItem[];
   tier?: 'basic' | 'enhanced' | 'premium';
@@ -524,6 +526,7 @@ export function CompanyPageClient({
   priceHistory,
   isClaimed = false,
   claimPlan,
+  claimUserId = null,
   teamMembers = [],
   companyNews = [],
   tier = 'basic',
@@ -531,6 +534,9 @@ export function CompanyPageClient({
   competitors = [],
   timelineEvents = [],
 }: CompanyPageProps) {
+  const { user } = useUser();
+  const isOwner = !!(isClaimed && claimUserId && user?.id === claimUserId);
+
   const [activeTab, setActiveTab] = useState<Tab>("Overview");
   const [priceTimescale, setPriceTimescale] = useState<PriceTimescale>("1Y");
   const [showAllPipeline, setShowAllPipeline] = useState(false);
@@ -809,6 +815,20 @@ export function CompanyPageClient({
                     <ShieldCheck size={9} />
                     Verified
                   </span>
+                )}
+                {isOwner && (
+                  <Link
+                    href="/manage"
+                    className="flex-shrink-0 flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full"
+                    style={{
+                      border: "0.5px solid var(--color-accent)",
+                      color: "var(--color-accent)",
+                      textDecoration: "none",
+                    }}
+                  >
+                    <LayoutDashboard size={9} />
+                    Manage
+                  </Link>
                 )}
               </div>
 

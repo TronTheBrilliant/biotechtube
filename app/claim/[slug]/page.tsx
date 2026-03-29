@@ -420,12 +420,12 @@ export default function ClaimFlowPage({
                   </p>
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                     <Link
-                      href={`/company/${company.slug}/admin`}
+                      href="/manage"
                       className="inline-flex items-center gap-2 text-14 font-medium px-6 py-3 rounded-lg text-white"
                       style={{ background: "var(--color-accent)" }}
                     >
                       <Building2 size={16} />
-                      Go to Admin Dashboard
+                      Go to Dashboard
                     </Link>
                     <Link
                       href={`/company/${company.slug}`}
