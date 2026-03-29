@@ -169,7 +169,7 @@ export function CompaniesPageClient() {
         <div className="flex items-center justify-center gap-2 mt-4">
           <Shield size={14} style={{ color: "var(--color-accent)" }} />
           <Link href="/claim/oncoinvent" className="text-13 font-medium" style={{ color: "var(--color-accent)" }}>
-            Is your company listed? Claim your profile for free →
+            Is your company listed? Is your company listed? Claim your profile →
           </Link>
         </div>
       </div>

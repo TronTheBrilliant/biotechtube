@@ -34,6 +34,14 @@ export function TvStockChart({ data, isPositive, logScale, currency, height = 38
       scaleMargins: { top: 0.05, bottom: 0.25 },
       mode: logScale ? PriceScaleMode.Logarithmic : PriceScaleMode.Normal,
     },
+    localization: {
+      priceFormatter: (price: number) => {
+        if (price >= 1e6) return `$${(price / 1e6).toFixed(1)}M`;
+        if (price >= 1e4) return `$${(price / 1e3).toFixed(0)}K`;
+        if (price >= 1e3) return `$${price.toFixed(0)}`;
+        return `$${price.toFixed(2)}`;
+      },
+    },
   });
 
   // Create series once

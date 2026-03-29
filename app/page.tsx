@@ -760,7 +760,7 @@ export default async function HomePage() {
             {snapshot ? formatMarketCap(snapshot.total_market_cap) : "$7.0T"}+
           </span>{" "}
           in biotech market cap across {" "}
-          <span style={{ fontWeight: 600, color: "var(--color-text-primary)" }}>1,039</span> public companies,{" "}
+          <span style={{ fontWeight: 600, color: "var(--color-text-primary)" }}>{snapshot?.public_companies_count?.toLocaleString() || "1,000"}</span> public companies,{" "}
           <span style={{ fontWeight: 600, color: "var(--color-text-primary)" }}>20</span> sectors, and{" "}
           <span style={{ fontWeight: 600, color: "var(--color-text-primary)" }}>30+</span> countries.
         </p>
