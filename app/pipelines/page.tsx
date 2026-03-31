@@ -153,7 +153,7 @@ async function getPipelineRows(): Promise<PipelineRow[]> {
   const allData: Record<string, unknown>[] = [];
   const PAGE_SIZE = 1000;
 
-  for (let page = 0; page < 5; page++) {
+  for (let page = 0; page < 2; page++) { // Was 5 (5000 rows) — reduced to 2 (2000 rows) to cut serverless execution time
     const { data, error } = await supabase
       .from("pipelines")
       .select(

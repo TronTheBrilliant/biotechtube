@@ -4,7 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { ProductsPageClient } from "./ProductsPageClient";
 import type { Metadata } from "next";
 
-export const revalidate = 300;
+export const revalidate = 3600; // 1 hour (was 5 min)
 
 export const metadata: Metadata = {
   robots: "noindex, nofollow",

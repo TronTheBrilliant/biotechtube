@@ -5,7 +5,7 @@ import CountryDetailClient from "./CountryDetailClient";
 import countriesJson from "@/data/countries.json";
 import { formatMarketCap } from "@/lib/market-utils";
 
-export const revalidate = 300;
+export const revalidate = 3600; // 1 hour (was 5 min)
 
 interface CountryMeta {
   slug: string;

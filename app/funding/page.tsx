@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { getAllFundingData } from "@/lib/funding-queries";
 import FundingPageClient from "./FundingPageClient";
 
-export const revalidate = 300;
+export const revalidate = 3600; // 1 hour (was 5 min)
 
 const ogImageUrl = "https://biotechtube.io/api/og?title=Biotech%20Funding%20Tracker&subtitle=%24473B%2B%20tracked%20%C2%B7%2017%2C000%2B%20rounds&type=funding";
 

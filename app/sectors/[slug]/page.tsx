@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import SectorDetailClient from "./SectorDetailClient";
 import { formatMarketCap } from "@/lib/market-utils";
 
-export const revalidate = 300;
+export const revalidate = 3600; // 1 hour (was 5 min)
 
 interface SectorRow {
   id: string;

@@ -8,7 +8,7 @@ import { formatMarketCap } from "@/lib/market-utils";
 
 import fundingData from "@/data/funding.json";
 
-export const revalidate = 300;
+export const revalidate = 7200; // 2 hours — was 5 min, causing 307% Vercel overage
 
 /* ─── Tier detection ─── */
 interface SectorRanking {
@@ -382,24 +382,19 @@ function buildTimelineEvents(company: ReturnType<typeof dbRowToCompany>, funding
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function getPriceHistory(companyId: string): Promise<any[]> {
   const supabase = getSupabase();
-  // Paginate to get ALL price history (some stocks have 10K+ rows going back decades)
-  const allRows: any[] = [];
-  const pageSize = 1000;
-  let offset = 0;
-  while (true) {
-    const { data } = await supabase
-      .from('company_price_history')
-      .select('date, close, adj_close, volume, market_cap_usd, currency')
-      .eq('company_id', companyId)
-      .order('date', { ascending: true })
-      .range(offset, offset + pageSize - 1);
-    if (!data || data.length === 0) break;
-    allRows.push(...data);
-    if (data.length < pageSize) break;
-    offset += pageSize;
-    if (offset > 20000) break; // safety cap
-  }
-  return allRows;
+  // Fetch last 2 years of price history (max ~500 rows) — sufficient for charts
+  const twoYearsAgo = new Date();
+  twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+  const cutoff = twoYearsAgo.toISOString().split('T')[0];
+
+  const { data } = await supabase
+    .from('company_price_history')
+    .select('date, close, adj_close, volume, market_cap_usd, currency')
+    .eq('company_id', companyId)
+    .gte('date', cutoff)
+    .order('date', { ascending: true })
+    .limit(1000);
+  return data || [];
 }
 
 export async function generateMetadata({

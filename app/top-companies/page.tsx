@@ -7,7 +7,7 @@ import { createClient } from "@supabase/supabase-js";
 import { TopCompaniesClient } from "./TopCompaniesClient";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 
-export const revalidate = 300;
+export const revalidate = 3600; // 1 hour (was 5 min)
 
 const ogImageUrl = "https://biotechtube.io/api/og?title=Top%20Biotech%20Companies&subtitle=Ranked%20by%20Market%20Cap%20%C2%B7%20Updated%20Daily&type=default";
 

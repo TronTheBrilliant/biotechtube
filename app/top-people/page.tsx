@@ -7,7 +7,7 @@ import {
 } from "@/lib/seo-utils";
 import Link from "next/link";
 
-export const revalidate = 300;
+export const revalidate = 3600; // 1 hour (was 5 min)
 
 interface RankedPerson {
   name: string;

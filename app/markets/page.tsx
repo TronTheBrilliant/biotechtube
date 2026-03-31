@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { createClient } from "@supabase/supabase-js";
 import MarketsPageClient from "./MarketsPageClient";
 
-export const revalidate = 300;
+export const revalidate = 7200; // 2 hours
 
 const ogImageUrl = "https://biotechtube.io/api/og?title=Biotech%20Market%20Overview&subtitle=Index%2C%20Sectors%20%26%20Country%20Rankings&type=default";
 
@@ -136,34 +136,17 @@ export default async function MarketPage() {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
-  // Fetch all available market snapshots (no date cutoff) so every
-  // timescale tab (1Y, 3Y, 5Y, 10Y, Max) can be served from SSR data
-  // without a client-side API call.
-  const snapshotsRaw = await fetchAllPages(
-    supabase,
-    "market_snapshots",
-    "snapshot_date, total_market_cap, public_companies_count, total_volume, change_1d_pct, change_7d_pct, change_30d_pct, change_ytd_pct, top_gainer_id, top_gainer_pct, top_loser_id, top_loser_pct",
-    null,
-    "snapshot_date",
-    false
-  ) as unknown as MarketSnapshot[];
+  // Fetch latest snapshot for KPIs, and last 1000 snapshots for chart
+  // (was previously fetching ALL 9,000+ rows in a pagination loop — caused Vercel overage)
+  const { data: snapshotsRaw } = await supabase
+    .from("market_snapshots")
+    .select("snapshot_date, total_market_cap, public_companies_count, total_volume, change_1d_pct, change_7d_pct, change_30d_pct, change_ytd_pct, top_gainer_id, top_gainer_pct, top_loser_id, top_loser_pct")
+    .order("snapshot_date", { ascending: false })
+    .limit(1000);
 
-  const latestSnapshot = snapshotsRaw.length > 0 ? snapshotsRaw[0] : null;
-  // Reverse to chronological order for chart, then thin to max 1000 points
-  const fullHistory = [...snapshotsRaw].reverse();
-  let history: MarketSnapshot[];
-  if (fullHistory.length > 1000) {
-    const step = Math.ceil(fullHistory.length / 1000);
-    history = [];
-    for (let i = 0; i < fullHistory.length; i += step) {
-      history.push(fullHistory[i]);
-    }
-    if (history[history.length - 1] !== fullHistory[fullHistory.length - 1]) {
-      history.push(fullHistory[fullHistory.length - 1]);
-    }
-  } else {
-    history = fullHistory;
-  }
+  const typedSnapshots = (snapshotsRaw || []) as unknown as MarketSnapshot[];
+  const latestSnapshot = typedSnapshots.length > 0 ? typedSnapshots[0] : null;
+  const history = [...typedSnapshots].reverse();
 
   // Fetch sector data
   const { data: latestSectorDate } = await supabase

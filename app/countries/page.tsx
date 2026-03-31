@@ -5,7 +5,7 @@ import { formatMarketCap, formatPercent, pctColor, capPercent } from "@/lib/mark
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 
-export const revalidate = 300;
+export const revalidate = 3600; // 1 hour (was 5 min)
 
 export const metadata: Metadata = {
   title: "Biotech Market by Country — Global Rankings | BiotechTube",

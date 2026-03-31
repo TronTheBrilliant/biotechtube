@@ -3,7 +3,7 @@ import { Footer } from "@/components/Footer";
 import { getAllInvestors } from "@/lib/seo-utils";
 import Link from "next/link";
 
-export const revalidate = 300;
+export const revalidate = 3600; // 1 hour (was 5 min)
 
 export default async function TopInvestorsPage() {
   const allInvestors = await getAllInvestors();

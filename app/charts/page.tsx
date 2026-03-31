@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   },
 };
 
-export const revalidate = 3600; // ISR: revalidate every hour
+export const revalidate = 14400; // 4 hours (19 heavy queries — minimize rebuilds)
 
 export default async function ChartsPage() {
   // Fetch all chart data in parallel

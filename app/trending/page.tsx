@@ -5,7 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import TrendingClient, { TrendingCompanyRow } from "./TrendingClient";
 
-export const revalidate = 300;
+export const revalidate = 3600; // 1 hour (was 5 min)
 
 const ogImageUrl =
   "https://biotechtube.io/api/og?title=Trending%20Biotech%20Stocks&subtitle=Top%20Performers%20%26%20Losers&type=default";

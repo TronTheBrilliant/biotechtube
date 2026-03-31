@@ -129,26 +129,20 @@ export async function getFundingStats(): Promise<FundingStats> {
 
 export async function getFundingRounds(): Promise<FundingRoundRow[]> {
   const supabase = getSupabase();
+  // Fetch last 2000 rounds (was fetching ALL 17K+ via pagination loop — caused Vercel overage)
+  // Page only displays 100 at a time, 2000 is plenty for filters
   const allRows: FundingRoundRow[] = [];
-  const pageSize = 1000;
-  let offset = 0;
-  let hasMore = true;
-
-  while (hasMore) {
+  for (let page = 0; page < 2; page++) {
     const { data: rows } = await supabase
       .from("funding_rounds")
       .select("company_name, round_type, amount_usd, lead_investor, announced_date, country, sector, confidence, source_name")
       .gt("amount_usd", 0)
       .order("announced_date", { ascending: false })
-      .range(offset, offset + pageSize - 1);
+      .range(page * 1000, (page + 1) * 1000 - 1);
 
-    if (!rows || rows.length === 0) {
-      hasMore = false;
-    } else {
-      allRows.push(...(rows as FundingRoundRow[]));
-      offset += pageSize;
-      if (rows.length < pageSize) hasMore = false;
-    }
+    if (!rows || rows.length === 0) break;
+    allRows.push(...(rows as FundingRoundRow[]));
+    if (rows.length < 1000) break;
   }
 
   return allRows;

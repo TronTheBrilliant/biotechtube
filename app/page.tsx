@@ -34,7 +34,7 @@ import { NewsletterSignup } from "@/components/home/NewsletterSignup";
 
 import { getFundingAnnualForHomepage } from "@/lib/funding-queries";
 
-export const revalidate = 600;
+export const revalidate = 3600; // 1 hour (was 10 min)
 
 export const metadata: Metadata = {
   title: "BiotechTube — Track the Global Biotech Market in Real Time",
@@ -368,27 +368,15 @@ async function getTopPeopleData() {
 
 async function getIndexHistory() {
   const supabase = getSupabase();
-  const PAGE_SIZE = 1000;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let all: any[] = [];
-  let from = 0;
-  let hasMore = true;
+  // Fetch last 1000 snapshots (was looping through ALL 9K+ — caused Vercel overage)
+  const { data } = await supabase
+    .from("market_snapshots")
+    .select("snapshot_date, total_market_cap")
+    .not("total_market_cap", "is", null)
+    .order("snapshot_date", { ascending: false })
+    .limit(1000);
 
-  while (hasMore) {
-    const { data } = await supabase
-      .from("market_snapshots")
-      .select("snapshot_date, total_market_cap")
-      .not("total_market_cap", "is", null)
-      .order("snapshot_date", { ascending: true })
-      .range(from, from + PAGE_SIZE - 1);
-
-    const page = data ?? [];
-    all = all.concat(page);
-    hasMore = page.length >= PAGE_SIZE;
-    from += PAGE_SIZE;
-  }
-
-  return all.map((row: { snapshot_date: string; total_market_cap: string | number }) => ({
+  return (data ?? []).reverse().map((row: { snapshot_date: string; total_market_cap: string | number }) => ({
     snapshot_date: row.snapshot_date,
     total_market_cap: Number(row.total_market_cap),
   }));
