@@ -37,6 +37,8 @@ export interface FundingRoundRow {
   announced_date: string;
   country: string | null;
   sector: string | null;
+  confidence: string | null;
+  source_name: string | null;
 }
 
 export interface FundingStats {
@@ -135,7 +137,7 @@ export async function getFundingRounds(): Promise<FundingRoundRow[]> {
   while (hasMore) {
     const { data: rows } = await supabase
       .from("funding_rounds")
-      .select("company_name, round_type, amount_usd, lead_investor, announced_date, country, sector")
+      .select("company_name, round_type, amount_usd, lead_investor, announced_date, country, sector, confidence, source_name")
       .gt("amount_usd", 0)
       .order("announced_date", { ascending: false })
       .range(offset, offset + pageSize - 1);

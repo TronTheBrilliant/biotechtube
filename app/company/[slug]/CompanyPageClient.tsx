@@ -24,6 +24,7 @@ import { createBrowserClient } from "@/lib/supabase";
 import { PipelineWatchButton } from "@/components/PipelineWatchButton";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { FollowButton } from "@/components/feed/FollowButton";
+import { ConfidenceBadge } from "@/components/ConfidenceBadge";
 import { useUser } from "@/lib/auth";
 
 /* ─── Types for enriched data ─── */
@@ -47,6 +48,7 @@ interface DbFundingRound {
   lead_investor: string | null;
   announced_date: string | null;
   source_name: string | null;
+  confidence: string | null;
 }
 
 interface FdaApproval {
@@ -1485,6 +1487,7 @@ export function CompanyPageClient({
                         <th className="text-left px-3 py-3 font-semibold text-[10px] uppercase tracking-[0.6px]" style={{ color: "var(--color-text-secondary)" }}>Round</th>
                         <th className="text-left px-3 py-3 font-semibold text-[10px] uppercase tracking-[0.6px]" style={{ color: "var(--color-text-secondary)" }}>Amount</th>
                         <th className="text-left px-3 py-3 font-semibold text-[10px] uppercase tracking-[0.6px]" style={{ color: "var(--color-text-secondary)" }}>Lead Investor</th>
+                        <th className="text-left px-3 py-3 font-semibold text-[10px] uppercase tracking-[0.6px] hidden sm:table-cell" style={{ color: "var(--color-text-secondary)" }}>Source</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1502,6 +1505,7 @@ export function CompanyPageClient({
                             {r.amount_usd ? formatCurrency(r.amount_usd) : "Undisclosed"}
                           </td>
                           <td className="px-3 py-3" style={{ color: "var(--color-text-secondary)" }}>{r.lead_investor || "\u2014"}</td>
+                          <td className="px-3 py-3 hidden sm:table-cell"><ConfidenceBadge confidence={r.confidence} sourceName={r.source_name} /></td>
                         </tr>
                       ))}
                     </tbody>

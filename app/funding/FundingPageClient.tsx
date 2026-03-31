@@ -6,6 +6,7 @@ import { Footer } from "@/components/Footer";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PaywallCard } from "@/components/PaywallCard";
 import { FundingInteractiveChart } from "@/components/charts/FundingInteractiveChart";
+import { ConfidenceBadge } from "@/components/ConfidenceBadge";
 import type {
   FundingAnnualRow,
   FundingQuarterlyRow,
@@ -1093,6 +1094,7 @@ export default function FundingPageClient({
               <style>{`
                 .funding-row { grid-template-columns: 2fr 1fr 1fr 0.8fr; }
                 @media (min-width: 480px) { .funding-row { grid-template-columns: 2fr 1fr 1fr 1.5fr 1fr 0.8fr; } }
+                @media (min-width: 640px) { .funding-row { grid-template-columns: 2fr 1fr 1fr 1.5fr 1fr 0.7fr 0.8fr; } }
               `}</style>
               <div
                 className="funding-row grid px-4 py-2.5"
@@ -1105,6 +1107,7 @@ export default function FundingPageClient({
                 <span className="text-10 uppercase tracking-[0.5px] font-medium" style={{ color: "var(--color-text-tertiary)" }}>Amount</span>
                 <span className="text-10 uppercase tracking-[0.5px] font-medium hidden min-[480px]:block" style={{ color: "var(--color-text-tertiary)" }}>Lead Investor</span>
                 <span className="text-10 uppercase tracking-[0.5px] font-medium hidden min-[480px]:block" style={{ color: "var(--color-text-tertiary)" }}>Date</span>
+                <span className="text-10 uppercase tracking-[0.5px] font-medium hidden min-[640px]:block" style={{ color: "var(--color-text-tertiary)" }}>Source</span>
                 <span className="text-10 uppercase tracking-[0.5px] font-medium" style={{ color: "var(--color-text-tertiary)" }}>Country</span>
               </div>
 
@@ -1150,6 +1153,9 @@ export default function FundingPageClient({
                       </span>
                       <span className="text-12 hidden min-[480px]:block" style={{ color: "var(--color-text-tertiary)" }}>
                         {row.announced_date ? formatDate(row.announced_date) : "N/A"}
+                      </span>
+                      <span className="hidden min-[640px]:block">
+                        <ConfidenceBadge confidence={row.confidence} sourceName={row.source_name} />
                       </span>
                       <span className="text-12" style={{ color: "var(--color-text-tertiary)" }}>
                         {row.country || "\u2014"}
