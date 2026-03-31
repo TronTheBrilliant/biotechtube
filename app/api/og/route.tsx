@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
           flexDirection: 'column',
           justifyContent: 'space-between',
           padding: '60px 70px',
-          background: 'linear-gradient(135deg, #0f2a1f 0%, #1a7a5e 50%, #145a47 100%)',
+          background: 'linear-gradient(135deg, #0f2a1f 0%, #059669 50%, #145a47 100%)',
           fontFamily: 'system-ui, -apple-system, sans-serif',
         }}
       >

@@ -24,7 +24,7 @@ const roundBadgeColors: Record<string, { bg: string; text: string }> = {
   "Series B": { bg: "#f5f3ff", text: "#5b21b6" },
   "Series C": { bg: "#fef3e2", text: "#b45309" },
   "Series D": { bg: "#fef3e2", text: "#92400e" },
-  Grant: { bg: "#e8f5f0", text: "#0a3d2e" },
+  Grant: { bg: "#ecfdf5", text: "#064e3b" },
   Public: { bg: "var(--color-bg-secondary)", text: "var(--color-text-secondary)" },
   "Public Offering": { bg: "var(--color-bg-secondary)", text: "var(--color-text-secondary)" },
   "Follow-on": { bg: "var(--color-bg-secondary)", text: "var(--color-text-secondary)" },

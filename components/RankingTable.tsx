@@ -10,7 +10,7 @@ import { CompanyAvatar } from "@/components/CompanyAvatar";
 /* ── Constants ──────────────────────────────────────────────── */
 
 const stageColors: Record<string, { bg: string; text: string; border: string }> = {
-  Approved: { bg: "#e8f5f0", text: "#0a3d2e", border: "#5DCAA5" },
+  Approved: { bg: "#ecfdf5", text: "#064e3b", border: "#34d399" },
   "Phase 3": { bg: "#eff6ff", text: "#1d4ed8", border: "#93c5fd" },
   "Phase 2": { bg: "#eff6ff", text: "#1d4ed8", border: "#93c5fd" },
   "Phase 1/2": { bg: "#f5f3ff", text: "#5b21b6", border: "#c4b5fd" },
@@ -23,7 +23,7 @@ const roundBadgeColors: Record<string, { bg: string; text: string }> = {
   "Series A": { bg: "#eff6ff", text: "#1d4ed8" },
   "Series B": { bg: "#f5f3ff", text: "#5b21b6" },
   "Series C": { bg: "#fef3e2", text: "#b45309" },
-  Grant: { bg: "#e8f5f0", text: "#0a3d2e" },
+  Grant: { bg: "#ecfdf5", text: "#064e3b" },
 };
 
 const roundEmoji: Record<string, string> = {
@@ -261,7 +261,7 @@ export function RankingTable({ companies, mode = "top", funding = [], startRank 
                     {stock?.change30d != null ? (
                       <span
                         className="text-[12px] md:text-[13px] font-semibold tabular-nums"
-                        style={{ color: stock.change30d >= 0 ? "#1a7a5e" : "#c0392b" }}
+                        style={{ color: stock.change30d >= 0 ? "#059669" : "#c0392b" }}
                       >
                         {stock.change30d >= 0 ? "+" : ""}{stock.change30d.toFixed(1)}%
                       </span>

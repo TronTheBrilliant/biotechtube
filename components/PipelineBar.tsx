@@ -65,7 +65,7 @@ export function PipelineBar({
           className="h-full rounded-sm"
           style={{
             width: `${percent}%`,
-            background: "linear-gradient(90deg, #0a3d2e, #1a7a5e)",
+            background: "linear-gradient(90deg, #064e3b, #059669)",
             opacity: isLead ? 1 : 0.7,
           }}
         />
@@ -78,7 +78,7 @@ export function PipelineBar({
             width: 12,
             height: 12,
             borderRadius: "50%",
-            background: percent > 10 ? "#1a7a5e" : "var(--color-text-tertiary)",
+            background: percent > 10 ? "#059669" : "var(--color-text-tertiary)",
             border: "2px solid var(--color-bg-primary)",
             zIndex: 2,
           }}

@@ -196,7 +196,7 @@ export default function CompanyAdminPage({
   const [pipelines, setPipelines] = useState<{ id: string; product_name: string; indication: string; stage: string }[]>([]);
 
   // Premium state
-  const [brandColor, setBrandColor] = useState("#1a7a5e");
+  const [brandColor, setBrandColor] = useState("#059669");
   const [heroTagline, setHeroTagline] = useState("");
   const [videoUrl, setVideoUrl] = useState("");
   const [investorDeckUrl, setInvestorDeckUrl] = useState("");
@@ -298,7 +298,7 @@ export default function CompanyAdminPage({
 
     // Load premium fields from claim
     if (claimData) {
-      setBrandColor(claimData.brand_color || "#1a7a5e");
+      setBrandColor(claimData.brand_color || "#059669");
       setHeroTagline(claimData.hero_tagline || "");
       setVideoUrl(claimData.video_url || "");
       setInvestorDeckUrl(claimData.investor_deck_url || "");
@@ -1296,7 +1296,7 @@ export default function CompanyAdminPage({
                       type="text"
                       value={brandColor}
                       onChange={(e) => setBrandColor(e.target.value)}
-                      placeholder="#1a7a5e"
+                      placeholder="#059669"
                       className="w-32 text-13 px-3 py-2 rounded-lg border outline-none font-mono"
                       style={{
                         borderColor: "var(--color-border-medium)",

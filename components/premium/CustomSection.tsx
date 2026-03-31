@@ -27,7 +27,7 @@ function renderMarkdown(md: string): string {
     .replace(/\n/g, "<br/>");
 }
 
-export function CustomSection({ title, content, brandColor = "#1a7a5e" }: CustomSectionProps) {
+export function CustomSection({ title, content, brandColor = "#059669" }: CustomSectionProps) {
   if (!content || !content.trim()) return null;
 
   const html = renderMarkdown(content);

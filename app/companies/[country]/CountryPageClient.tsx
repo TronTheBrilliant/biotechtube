@@ -33,7 +33,7 @@ interface CountryPageClientProps {
 }
 
 const stageBadgeColors: Record<string, { bg: string; text: string; border: string }> = {
-  Approved: { bg: "#e8f5f0", text: "#0a3d2e", border: "#5DCAA5" },
+  Approved: { bg: "#ecfdf5", text: "#064e3b", border: "#34d399" },
   "Phase 3": { bg: "#eff6ff", text: "#1d4ed8", border: "#93c5fd" },
   "Phase 2": { bg: "#eff6ff", text: "#1d4ed8", border: "#93c5fd" },
   "Phase 1/2": { bg: "#f5f3ff", text: "#5b21b6", border: "#c4b5fd" },
@@ -490,20 +490,20 @@ export function CountryPageClient({ country, nearbyCountries }: CountryPageClien
             {/* ═══ CLAIM CTA ═══ */}
             <div
               className="rounded-xl px-6 py-6 mt-6 md:flex md:items-center md:justify-between"
-              style={{ background: "var(--color-accent-dark, #0a3d2e)", color: "white" }}
+              style={{ background: "var(--color-accent-dark, #064e3b)", color: "white" }}
             >
               <div className="mb-4 md:mb-0">
                 <div className="text-[18px] font-medium mb-1">
                   Are you a {country.name} biotech?
                 </div>
-                <div className="text-14" style={{ color: "#5DCAA5" }}>
+                <div className="text-14" style={{ color: "#34d399" }}>
                   Claim your profile for free — control your company page, post updates, and connect with investors.
                 </div>
               </div>
               <Link
                 href="/claim/oncoinvent"
                 className="inline-flex items-center gap-2 text-14 font-medium px-5 py-2.5 rounded-lg flex-shrink-0"
-                style={{ background: "var(--color-bg-primary)", color: "var(--color-accent-dark, #0a3d2e)" }}
+                style={{ background: "var(--color-bg-primary)", color: "var(--color-accent-dark, #064e3b)" }}
               >
                 <Shield size={14} />
                 Claim your profile

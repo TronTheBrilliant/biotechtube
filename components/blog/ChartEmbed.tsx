@@ -22,7 +22,7 @@ export function ChartEmbed({ type, title, data, height = 280 }: ChartEmbedProps)
     const isDark = document.documentElement.classList.contains("dark");
     const bgColor = isDark ? "#1c1c1c" : "#ffffff";
     const textColor = isDark ? "#9e9e96" : "#6b6b65";
-    const lineColor = type === "funding" ? "#f59e0b" : "#1a7a5e";
+    const lineColor = type === "funding" ? "#f59e0b" : "#059669";
     const areaTop = type === "funding" ? "rgba(245,158,11,0.15)" : "rgba(26,122,94,0.15)";
     const areaBottom = type === "funding" ? "rgba(245,158,11,0.02)" : "rgba(26,122,94,0.02)";
 

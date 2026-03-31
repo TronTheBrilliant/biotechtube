@@ -26,7 +26,7 @@ const typeBadgeColor: Record<string, { bg: string; text: string }> = {
   "Remote": { bg: "#e0e7ff", text: "#3730a3" },
 };
 
-export function JobListings({ jobs, brandColor = "#1a7a5e" }: JobListingsProps) {
+export function JobListings({ jobs, brandColor = "#059669" }: JobListingsProps) {
   const [expanded, setExpanded] = useState(false);
 
   if (jobs.length === 0) return null;

@@ -40,7 +40,7 @@ export function HomeSection({
         </div>
         <Link
           href={viewAllHref}
-          className="flex items-center gap-1 text-12 font-semibold px-2.5 py-1 rounded-md transition-all duration-150 hover:bg-[var(--color-accent-subtle,#e8f5f0)]"
+          className="flex items-center gap-1 text-12 font-semibold px-2.5 py-1 rounded-md transition-all duration-150 hover:bg-[var(--color-accent-subtle,#ecfdf5)]"
           style={{ color: "var(--color-accent)" }}
         >
           {viewAllLabel}

@@ -35,7 +35,7 @@ type TimeValue = { time: string; value: number };
 type Timeframe = "Monthly" | "Quarterly" | "Annual";
 const TIMEFRAMES: Timeframe[] = ["Monthly", "Quarterly", "Annual"];
 
-const GREEN = "#1a7a5e";
+const GREEN = "#059669";
 const COLORS: Record<Timeframe, string> = {
   Monthly: `${GREEN}bb`,
   Quarterly: `${GREEN}cc`,

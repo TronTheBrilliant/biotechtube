@@ -46,9 +46,9 @@ const tiers = [
     name: "Partner",
     price: "$1,500",
     period: "/month",
-    headerBg: "#0a3d2e",
-    headerText: "#5DCAA5",
-    priceText: "#5DCAA5",
+    headerBg: "#064e3b",
+    headerText: "#34d399",
+    priceText: "#34d399",
     borderAccent: true,
     ctaBg: "var(--color-accent)",
     ctaText: "white",
@@ -272,8 +272,8 @@ export default function SponsorsPage() {
                   <div
                     className="w-6 h-6 rounded-md flex items-center justify-center text-[8px] font-medium"
                     style={{
-                      background: s.type === "Partner" ? "#0a3d2e" : "var(--color-bg-tertiary)",
-                      color: s.type === "Partner" ? "#5DCAA5" : "var(--color-text-secondary)",
+                      background: s.type === "Partner" ? "#064e3b" : "var(--color-bg-tertiary)",
+                      color: s.type === "Partner" ? "#34d399" : "var(--color-text-secondary)",
                     }}
                   >
                     {s.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}

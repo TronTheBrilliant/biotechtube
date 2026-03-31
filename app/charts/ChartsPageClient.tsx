@@ -11,7 +11,7 @@ import { formatMarketCap, formatVolume, formatPercent } from "@/lib/market-utils
 
 /* ─── Color palette for multi-series charts ─── */
 const SECTOR_COLORS = [
-  "#1a7a5e", "#2563eb", "#d97706", "#dc2626",
+  "#059669", "#2563eb", "#d97706", "#dc2626",
   "#7c3aed", "#0891b2", "#be185d", "#65a30d",
 ];
 
@@ -30,7 +30,7 @@ const FUNDING_COLORS: Record<string, string> = {
 const PHASE_COLORS: Record<string, string> = {
   "Phase 1": "#7c3aed",
   "Phase 2": "#2563eb",
-  "Phase 3": "#1a7a5e",
+  "Phase 3": "#059669",
 };
 
 /* ─── TOC categories ─── */
@@ -87,7 +87,7 @@ const STAGE_COLORS: Record<string, string> = {
   "Phase 1/2": "#6366f1",
   "Phase 2": "#2563eb",
   "Phase 2/3": "#0891b2",
-  "Phase 3": "#1a7a5e",
+  "Phase 3": "#059669",
   Approved: "#16a34a",
 };
 
@@ -161,7 +161,7 @@ export function ChartsPageClient(props: Props) {
   const roundSizeSeries = useMemo(
     () => [
       { name: "Average", color: "#2563eb", data: props.averageRoundSize.average },
-      { name: "Median", color: "#1a7a5e", data: props.averageRoundSize.median },
+      { name: "Median", color: "#059669", data: props.averageRoundSize.median },
     ],
     [props.averageRoundSize]
   );
@@ -180,7 +180,7 @@ export function ChartsPageClient(props: Props) {
   const exTop50Series = useMemo(
     () => [
       { name: "Top 50", color: "#2563eb", data: props.exTop50MarketCap.top50 },
-      { name: "Ex-Top-50 (Small/Mid Cap)", color: "#1a7a5e", data: props.exTop50MarketCap.exTop50 },
+      { name: "Ex-Top-50 (Small/Mid Cap)", color: "#059669", data: props.exTop50MarketCap.exTop50 },
     ],
     [props.exTop50MarketCap]
   );
@@ -585,7 +585,7 @@ export function ChartsPageClient(props: Props) {
                           className="h-5 rounded-sm"
                           style={{
                             width: `${Math.min(100, (Math.abs(d.change30d || 0) / maxSectorPct) * 50)}%`,
-                            background: (d.change30d || 0) >= 0 ? "#1a7a5eaa" : "#dc2626aa",
+                            background: (d.change30d || 0) >= 0 ? "#059669aa" : "#dc2626aa",
                             marginLeft: (d.change30d || 0) >= 0 ? "50%" : `${50 - (Math.abs(d.change30d || 0) / maxSectorPct) * 50}%`,
                           }}
                         />

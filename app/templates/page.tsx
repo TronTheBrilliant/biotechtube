@@ -16,7 +16,7 @@ const templates = [
     price: "$399",
     stack: ["Next.js", "Sanity CMS"],
     includes: ["Code", "Figma", "Manual"],
-    gradient: "linear-gradient(135deg, #0a1a14 0%, #0a3d2e 50%, #1a7a5e 100%)",
+    gradient: "linear-gradient(135deg, #0a1a14 0%, #064e3b 50%, #059669 100%)",
   },
   {
     name: "Catalyst",
@@ -24,7 +24,7 @@ const templates = [
     price: "$299",
     stack: ["Next.js", "Tailwind"],
     includes: ["Code", "Figma", "Manual"],
-    gradient: "linear-gradient(135deg, #f7f7f6 0%, #e8f5f0 50%, #5DCAA5 100%)",
+    gradient: "linear-gradient(135deg, #f7f7f6 0%, #ecfdf5 50%, #34d399 100%)",
   },
   {
     name: "Atlas",
@@ -146,8 +146,8 @@ export default function TemplatesPage() {
                           className="text-10 px-2 py-[3px] rounded-sm border"
                           style={{
                             background: "var(--color-accent-subtle)",
-                            color: "#0a3d2e",
-                            borderColor: "#5DCAA5",
+                            color: "#064e3b",
+                            borderColor: "#34d399",
                             borderWidth: "0.5px",
                           }}
                         >
@@ -229,13 +229,13 @@ export default function TemplatesPage() {
             className="rounded-xl overflow-hidden border"
             style={{ borderColor: "var(--color-border-subtle)" }}
           >
-            <div className="px-5 py-4" style={{ background: "#0a3d2e" }}>
-              <div className="text-[18px] font-medium tracking-tight" style={{ color: "#5DCAA5", letterSpacing: "-0.3px" }}>
+            <div className="px-5 py-4" style={{ background: "#064e3b" }}>
+              <div className="text-[18px] font-medium tracking-tight" style={{ color: "#34d399", letterSpacing: "-0.3px" }}>
                 Want us to build it for you?
               </div>
               <div className="mt-1">
                 <span className="text-11" style={{ color: "rgba(93,202,165,0.7)" }}>From </span>
-                <span className="text-[22px] font-medium tracking-tight" style={{ color: "#5DCAA5", letterSpacing: "-0.5px" }}>
+                <span className="text-[22px] font-medium tracking-tight" style={{ color: "#34d399", letterSpacing: "-0.5px" }}>
                   $2,500
                 </span>
               </div>

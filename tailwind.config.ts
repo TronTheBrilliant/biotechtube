@@ -10,11 +10,11 @@ const config: Config = {
     extend: {
       colors: {
         accent: {
-          DEFAULT: "#1a7a5e",
-          dark: "#0a3d2e",
-          light: "#5DCAA5",
-          hover: "#158a6a",
-          subtle: "#e8f5f0",
+          DEFAULT: "#059669",
+          dark: "#064e3b",
+          light: "#34d399",
+          hover: "#047857",
+          subtle: "#ecfdf5",
         },
       },
       fontFamily: {

@@ -17,7 +17,7 @@ interface Props {
 const STAGE_COLORS: Record<string, string> = {
   "Phase 3": "#dbeafe",
   "Phase 2": "#ede9fe",
-  "Phase 1": "#e8f5f0",
+  "Phase 1": "#ecfdf5",
 };
 
 export default function HotPipelines({ pipelines }: Props) {

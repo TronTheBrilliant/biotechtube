@@ -19,7 +19,7 @@ interface Props {
   height?: number;
 }
 
-const GREEN = "#1a7a5e";
+const GREEN = "#059669";
 const RED = "#c0392b";
 
 export function TvStockChart({ data, isPositive, logScale, currency, height = 380 }: Props) {

@@ -21,7 +21,7 @@ interface Props {
 export function TvHistogramChart({
   data,
   height = 300,
-  color = "#1a7a5ecc",
+  color = "#059669cc",
   formatValue = (v) => `$${v.toLocaleString()}`,
   tooltipTitle = "Value",
   className,

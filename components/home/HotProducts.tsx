@@ -30,7 +30,7 @@ const STAGE_COLORS: Record<string, string> = {
   "Phase 2/3": "#dbeafe",
   "Phase 2": "#ede9fe",
   "Phase 1/2": "#ede9fe",
-  "Phase 1": "#e8f5f0",
+  "Phase 1": "#ecfdf5",
   "Pre-clinical": "#f3f4f6",
   Approved: "#d1fae5",
   "AI/ML": "#fef3c7",

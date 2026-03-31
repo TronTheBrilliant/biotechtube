@@ -175,7 +175,7 @@ export function WatchlistButton({
           padding: showLabel ? "7px 14px" : "6px",
           background: isWatched
             ? "var(--color-accent)"
-            : "var(--color-accent-subtle, #e8f5f0)",
+            : "var(--color-accent-subtle, #ecfdf5)",
           border: `1px solid ${isWatched ? "var(--color-accent)" : "var(--color-accent)"}`,
           color: isWatched ? "white" : "var(--color-accent)",
           opacity: loading ? 0.6 : 1,
@@ -191,7 +191,7 @@ export function WatchlistButton({
         }}
         onMouseLeave={(e) => {
           if (!isWatched) {
-            e.currentTarget.style.background = "var(--color-accent-subtle, #e8f5f0)";
+            e.currentTarget.style.background = "var(--color-accent-subtle, #ecfdf5)";
             e.currentTarget.style.color = "var(--color-accent)";
           }
         }}

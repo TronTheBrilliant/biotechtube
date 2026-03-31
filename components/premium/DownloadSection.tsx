@@ -7,7 +7,7 @@ interface DownloadSectionProps {
   brandColor?: string;
 }
 
-export function DownloadSection({ investorDeckUrl, brandColor = "#1a7a5e" }: DownloadSectionProps) {
+export function DownloadSection({ investorDeckUrl, brandColor = "#059669" }: DownloadSectionProps) {
   if (!investorDeckUrl) return null;
 
   return (

@@ -17,7 +17,7 @@ import fundingData from "@/data/funding.json";
 const funding = fundingData as FundingRound[];
 
 const stageBadgeColors: Record<string, { bg: string; text: string; border: string }> = {
-  Approved: { bg: "#e8f5f0", text: "#0a3d2e", border: "#5DCAA5" },
+  Approved: { bg: "#ecfdf5", text: "#064e3b", border: "#34d399" },
   "Phase 3": { bg: "#eff6ff", text: "#1d4ed8", border: "#93c5fd" },
   "Phase 2": { bg: "#eff6ff", text: "#1d4ed8", border: "#93c5fd" },
   "Phase 1/2": { bg: "#f5f3ff", text: "#5b21b6", border: "#c4b5fd" },
@@ -45,17 +45,17 @@ const categories = [
   { name: "Immunotherapy", emoji: "🛡️", color: "#f5f3ff" },
   { name: "Gene Therapy", emoji: "🧬", color: "#eff6ff" },
   { name: "Cell Therapy", emoji: "🦠", color: "#f5f3ff" },
-  { name: "Vaccines", emoji: "💉", color: "#e8f5f0" },
+  { name: "Vaccines", emoji: "💉", color: "#ecfdf5" },
   { name: "Small Molecule", emoji: "💊", color: "#fff0f0" },
   { name: "Biologics", emoji: "🧪", color: "#eff6ff" },
   { name: "Biosimilars", emoji: "🔄", color: "var(--color-bg-secondary)" },
   { name: "Radiopharmaceuticals", emoji: "☢️", color: "#fef3e2" },
   // Technology
-  { name: "AI / Digital Health", emoji: "🤖", color: "#e8f5f0" },
-  { name: "Diagnostics", emoji: "🔬", color: "#e8f5f0" },
+  { name: "AI / Digital Health", emoji: "🤖", color: "#ecfdf5" },
+  { name: "Diagnostics", emoji: "🔬", color: "#ecfdf5" },
   { name: "Drug Delivery", emoji: "💉", color: "#fef3e2" },
   { name: "Nanotechnology", emoji: "🔮", color: "#f5f3ff" },
-  { name: "Microbiome", emoji: "🦠", color: "#e8f5f0" },
+  { name: "Microbiome", emoji: "🦠", color: "#ecfdf5" },
   { name: "Genetics & Genomics", emoji: "🧬", color: "#eff6ff" },
   // Services & Other
   { name: "Contract Manufacturing", emoji: "🏭", color: "var(--color-bg-secondary)" },
@@ -377,18 +377,18 @@ export function CompaniesPageClient() {
           {/* Claim CTA Card */}
           <div
             className="rounded-xl px-6 py-6 md:flex md:items-center md:justify-between"
-            style={{ background: "var(--color-accent-dark, #0a3d2e)", color: "white" }}
+            style={{ background: "var(--color-accent-dark, #064e3b)", color: "white" }}
           >
             <div className="mb-4 md:mb-0">
               <div className="text-[20px] font-medium mb-1">Is your company on BiotechTube?</div>
-              <div className="text-14" style={{ color: "#5DCAA5" }}>
+              <div className="text-14" style={{ color: "#34d399" }}>
                 Claim your profile to control your company page, post updates, and connect with investors — completely free.
               </div>
             </div>
             <Link
               href="/claim/oncoinvent"
               className="inline-flex items-center gap-2 text-14 font-medium px-5 py-2.5 rounded-lg flex-shrink-0"
-              style={{ background: "var(--color-bg-primary)", color: "var(--color-accent-dark, #0a3d2e)" }}
+              style={{ background: "var(--color-bg-primary)", color: "var(--color-accent-dark, #064e3b)" }}
             >
               <Shield size={14} />
               Claim your profile

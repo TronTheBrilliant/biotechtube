@@ -22,11 +22,11 @@ export function PaywallCard() {
         borderColor: "var(--color-border-subtle)",
       }}
     >
-      <div className="px-3.5 py-3" style={{ background: "#0a3d2e" }}>
-        <div className="text-13 font-medium" style={{ color: "#5DCAA5" }}>
+      <div className="px-3.5 py-3" style={{ background: "#064e3b" }}>
+        <div className="text-13 font-medium" style={{ color: "#34d399" }}>
           Unlock Full Access
         </div>
-        <div className="text-11" style={{ color: "#5DCAA5" }}>
+        <div className="text-11" style={{ color: "#34d399" }}>
           See every company. Track every deal.
         </div>
       </div>

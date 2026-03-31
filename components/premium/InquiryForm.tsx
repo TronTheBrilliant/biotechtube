@@ -10,7 +10,7 @@ interface InquiryFormProps {
   brandColor?: string;
 }
 
-export function InquiryForm({ companyId, companyName, brandColor = "#1a7a5e" }: InquiryFormProps) {
+export function InquiryForm({ companyId, companyName, brandColor = "#059669" }: InquiryFormProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [senderCompany, setSenderCompany] = useState("");

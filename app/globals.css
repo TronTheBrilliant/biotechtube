@@ -32,11 +32,11 @@ table[style*="height: 48px"] #tv-attr-logo {
 }
 
 :root {
-  --color-accent: #1a7a5e;
-  --color-accent-dark: #0a3d2e;
-  --color-accent-light: #5DCAA5;
-  --color-accent-hover: #158a6a;
-  --color-accent-subtle: #e8f5f0;
+  --color-accent: #059669;
+  --color-accent-dark: #064e3b;
+  --color-accent-light: #34d399;
+  --color-accent-hover: #047857;
+  --color-accent-subtle: #ecfdf5;
 
   --color-bg-primary: #ffffff;
   --color-bg-secondary: #f7f7f6;
@@ -49,7 +49,7 @@ table[style*="height: 48px"] #tv-attr-logo {
   --color-text-primary: #1a1a18;
   --color-text-secondary: #6b6b65;
   --color-text-tertiary: #9e9e96;
-  --color-text-accent: #1a7a5e;
+  --color-text-accent: #059669;
   --color-border: var(--color-border-subtle);
 }
 
@@ -65,10 +65,10 @@ table[style*="height: 48px"] #tv-attr-logo {
   --color-text-primary: #e8e8e4;
   --color-text-secondary: #9e9e96;
   --color-text-tertiary: #6b6b65;
-  --color-text-accent: #5DCAA5;
+  --color-text-accent: #34d399;
 
-  --color-accent-subtle: rgba(93, 202, 165, 0.12);
-  --color-accent-dark: #5DCAA5;
+  --color-accent-subtle: rgba(52, 211, 153, 0.12);
+  --color-accent-dark: #34d399;
   --color-border: var(--color-border-subtle);
 }
 

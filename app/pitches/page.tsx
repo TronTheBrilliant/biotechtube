@@ -25,7 +25,7 @@ const videoPitches = [
     description: "Alpha-emitting microparticle therapy for peritoneal cancers — Phase 2 update and investor overview.",
     tag: "Radiopharmaceuticals",
     tagColor: { bg: "#fef3e2", text: "#b45309", border: "#fcd34d" },
-    gradient: "linear-gradient(135deg, #0a3d2e 0%, #1a7a5e 100%)",
+    gradient: "linear-gradient(135deg, #064e3b 0%, #059669 100%)",
     duration: "12:34",
     views: 1420,
   },
@@ -55,7 +55,7 @@ const videoPitches = [
     description: "TCR-engineered T-cell therapy platform targeting solid tumours — preclinical data review.",
     tag: "Cell Therapy",
     tagColor: { bg: "#f5f3ff", text: "#5b21b6", border: "#c4b5fd" },
-    gradient: "linear-gradient(135deg, #0a3d2e 0%, #065f46 100%)",
+    gradient: "linear-gradient(135deg, #064e3b 0%, #065f46 100%)",
     duration: "6:22",
     views: 412,
   },
@@ -80,7 +80,7 @@ const editorialPosts = [
     date: "Mar 5, 2026",
     readTime: "5 min read",
     views: 214,
-    gradient: "linear-gradient(135deg, #1a7a5e 0%, #5DCAA5 100%)",
+    gradient: "linear-gradient(135deg, #059669 0%, #34d399 100%)",
   },
 ];
 

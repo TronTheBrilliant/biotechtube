@@ -201,7 +201,7 @@ export default function TeamPage() {
         <div
           style={{
             background: "var(--color-bg-secondary)",
-            border: "0.5px solid #1a7a5e",
+            border: "0.5px solid #059669",
             borderRadius: 8,
             padding: "16px 20px",
             marginBottom: 16,

@@ -5,7 +5,7 @@ import { HistogramSeries, type Time, type ISeriesApi } from "lightweight-charts"
 import { useTvChart } from "@/components/charts/useTvChart";
 import fundingNarrative from "@/data/funding-narrative.json";
 
-const GREEN = "#1a7a5e";
+const GREEN = "#059669";
 
 const ERA_COLORS: Record<string, string> = {
   "1990-1999": "#6366f1",

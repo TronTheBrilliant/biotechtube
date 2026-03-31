@@ -46,7 +46,7 @@ export function FundingBarChart({ data, height = 180 }: Props) {
               style={{
                 height: `${barPct}%`,
                 minHeight: 4,
-                background: hoveredIndex === i ? "#1a7a5e" : "#1a7a5eCC",
+                background: hoveredIndex === i ? "#059669" : "#059669CC",
                 borderRadius: "4px 4px 0 0",
               }}
             />

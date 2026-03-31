@@ -18,7 +18,7 @@ interface PipelineProduct {
 function stageBadgeStyle(stage: string | null): React.CSSProperties {
   const s = (stage || "").toLowerCase();
   if (s.includes("approved")) {
-    return { background: "#e8f5f0", color: "#0a3d2e", border: "0.5px solid #5DCAA5" };
+    return { background: "#ecfdf5", color: "#064e3b", border: "0.5px solid #34d399" };
   }
   if (s.includes("phase 3")) {
     return { background: "#eff6ff", color: "#1d4ed8", border: "0.5px solid #93c5fd" };

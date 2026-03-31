@@ -13,7 +13,7 @@ import { Save, Loader2, Check } from "lucide-react";
 function BrandingContent() {
   const { company, claim, refreshClaim } = useDashboard();
 
-  const [brandColor, setBrandColor] = useState(claim.brand_color || "#1a7a5e");
+  const [brandColor, setBrandColor] = useState(claim.brand_color || "#059669");
   const [heroTagline, setHeroTagline] = useState(claim.hero_tagline || "");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -119,7 +119,7 @@ function BrandingContent() {
               type="text"
               value={brandColor}
               onChange={(e) => setBrandColor(e.target.value)}
-              placeholder="#1a7a5e"
+              placeholder="#059669"
               style={{
                 background: "var(--color-bg-secondary)",
                 border: "0.5px solid var(--color-border-subtle)",

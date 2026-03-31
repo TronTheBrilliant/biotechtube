@@ -22,7 +22,7 @@ function extractVideoId(url: string): { provider: "youtube" | "vimeo" | null; id
   return { provider: null, id: null };
 }
 
-export function VideoEmbed({ url, title = "Company Overview", brandColor = "#1a7a5e" }: VideoEmbedProps) {
+export function VideoEmbed({ url, title = "Company Overview", brandColor = "#059669" }: VideoEmbedProps) {
   const { provider, id } = extractVideoId(url);
 
   if (!provider || !id) {

@@ -23,7 +23,7 @@ interface Props {
   className?: string;
 }
 
-const GREEN = "#1a7a5e";
+const GREEN = "#059669";
 const RED = "#c0392b";
 
 export function TvAreaChart({

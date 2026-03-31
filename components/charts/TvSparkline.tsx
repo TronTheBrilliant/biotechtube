@@ -9,7 +9,7 @@ interface Props {
   color?: string;
 }
 
-export function TvSparkline({ data, width = 80, height = 48, color = "#1a7a5e" }: Props) {
+export function TvSparkline({ data, width = 80, height = 48, color = "#059669" }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

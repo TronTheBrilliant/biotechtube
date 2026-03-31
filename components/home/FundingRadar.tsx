@@ -12,8 +12,8 @@ interface FundingRadarProps {
 }
 
 const ROUND_COLORS: Record<string, string> = {
-  Seed: "#e8f5f0",
-  "Pre-Seed": "#e8f5f0",
+  Seed: "#ecfdf5",
+  "Pre-Seed": "#ecfdf5",
   "Series A": "#dbeafe",
   "Series B": "#ede9fe",
   "Series C": "#fef3c7",

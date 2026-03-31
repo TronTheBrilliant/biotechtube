@@ -10,7 +10,7 @@ const roundColors: Record<string, { bg: string; text: string }> = {
   "Series C": { bg: "#eff6ff", text: "#1d4ed8" },
   "Series B": { bg: "#eff6ff", text: "#1d4ed8" },
   "Series A": { bg: "#f5f3ff", text: "#5b21b6" },
-  Seed: { bg: "#e8f5f0", text: "#0a3d2e" },
+  Seed: { bg: "#ecfdf5", text: "#064e3b" },
   Grant: { bg: "#fef3e2", text: "#b45309" },
   Public: { bg: "var(--color-bg-secondary)", text: "var(--color-text-secondary)" },
   "Follow-on": { bg: "var(--color-bg-secondary)", text: "var(--color-text-secondary)" },

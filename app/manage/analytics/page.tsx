@@ -63,12 +63,12 @@ function AreaChart({ data, height = 100 }: { data: ViewStat[]; height?: number }
       style={{ width: "100%", height }}
     >
       {/* Fill */}
-      <path d={areaPath} fill="#1a7a5e" fillOpacity={0.08} />
+      <path d={areaPath} fill="#059669" fillOpacity={0.08} />
       {/* Stroke */}
       <path
         d={linePath}
         fill="none"
-        stroke="#1a7a5e"
+        stroke="#059669"
         strokeWidth={1.5}
         vectorEffect="non-scaling-stroke"
       />
@@ -342,7 +342,7 @@ export default function AnalyticsPage() {
                       style={{
                         height: "100%",
                         borderRadius: 2,
-                        background: "#1a7a5e",
+                        background: "#059669",
                         width: `${Math.max(
                           (s.count / (sourceCounts[0]?.count || 1)) * 100,
                           5

@@ -5,7 +5,7 @@ import { formatCurrency } from "@/lib/formatting";
 import { CompanyAvatar } from "@/components/CompanyAvatar";
 
 const stageColors: Record<string, { bg: string; text: string; border: string }> = {
-  Approved: { bg: "#e8f5f0", text: "#0a3d2e", border: "#5DCAA5" },
+  Approved: { bg: "#ecfdf5", text: "#064e3b", border: "#34d399" },
   "Phase 3": { bg: "#eff6ff", text: "#1d4ed8", border: "#93c5fd" },
   "Phase 2": { bg: "#eff6ff", text: "#1d4ed8", border: "#93c5fd" },
   "Phase 1/2": { bg: "#f5f3ff", text: "#5b21b6", border: "#c4b5fd" },
@@ -16,7 +16,7 @@ const stageColors: Record<string, { bg: string; text: string; border: string }> 
 const focusColors: Record<string, { bg: string; text: string; border: string }> = {
   Oncology: { bg: "#fff0f0", text: "#a32d2d", border: "#f09595" },
   Immunotherapy: { bg: "#f5f3ff", text: "#5b21b6", border: "#c4b5fd" },
-  Diagnostics: { bg: "#e8f5f0", text: "#0a3d2e", border: "#5DCAA5" },
+  Diagnostics: { bg: "#ecfdf5", text: "#064e3b", border: "#34d399" },
   "Drug Delivery": { bg: "#fef3e2", text: "#b45309", border: "#fcd34d" },
   Radiopharmaceuticals: { bg: "#fef3e2", text: "#b45309", border: "#fcd34d" },
   "DNA Vaccine": { bg: "#eff6ff", text: "#1d4ed8", border: "#93c5fd" },
@@ -24,7 +24,7 @@ const focusColors: Record<string, { bg: string; text: string; border: string }> 
   "Bladder Cancer": { bg: "#fff0f0", text: "#a32d2d", border: "#f09595" },
   "Oncolytic Peptide": { bg: "#f5f3ff", text: "#5b21b6", border: "#c4b5fd" },
   "Monoclonal Antibodies": { bg: "#eff6ff", text: "#1d4ed8", border: "#93c5fd" },
-  "AI Diagnostics": { bg: "#e8f5f0", text: "#0a3d2e", border: "#5DCAA5" },
+  "AI Diagnostics": { bg: "#ecfdf5", text: "#064e3b", border: "#34d399" },
   "TCR Cell Therapy": { bg: "#f5f3ff", text: "#5b21b6", border: "#c4b5fd" },
 };
 

@@ -18,9 +18,9 @@ export function TeamGrid({ members }: TeamGridProps) {
         >
           <div
             className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
-            style={{ background: "#0a3d2e" }}
+            style={{ background: "#064e3b" }}
           >
-            <span className="text-10 font-medium" style={{ color: "#5DCAA5" }}>
+            <span className="text-10 font-medium" style={{ color: "#34d399" }}>
               {member.initials}
             </span>
           </div>
