@@ -40,6 +40,7 @@ const MENUS: MenuCategory[] = [
       { href: "/markets", emoji: "📊", title: "Markets", subtitle: "Stock data", iconBg: "#fce7f3" },
       { href: "/sectors", emoji: "🏷️", title: "Sectors", subtitle: "20 biotech sectors", iconBg: "#f5f3ff" },
       { href: "/pipelines", emoji: "🧬", title: "Pipeline", subtitle: "Drug programs", iconBg: "#ecfdf5" },
+      { href: "/charts", emoji: "📈", title: "Charts", subtitle: "20 market insights", iconBg: "#e0f2fe" },
     ],
     featured: {
       heading: "Top Countries",
@@ -217,17 +218,7 @@ export function Nav() {
           {/* Centre: Nav menu */}
           <div className="flex-1 flex justify-center">
             <nav className="flex items-center gap-1">
-              {/* Feed top-level link */}
-              <Link
-                href="/feed"
-                className="flex items-center px-3 py-1.5 rounded-md text-[14px] font-semibold transition-colors duration-150"
-                style={{
-                  color: pathname === "/feed" ? "var(--color-text-primary)" : "var(--color-text-secondary)",
-                  background: pathname === "/feed" ? "var(--color-bg-secondary)" : "transparent",
-                }}
-              >
-                Feed
-              </Link>
+              {/* Feed top-level link — hidden until feature is ready */}
               {MENUS.map((menu) => {
                 const isOpen = openMenu === menu.label;
                 return (
@@ -523,17 +514,7 @@ export function Nav() {
                 Search companies, drugs, people...
               </button>
 
-              {/* Feed top-level link */}
-              <div style={{ borderBottom: "1px solid var(--color-border-subtle)" }}>
-                <Link
-                  href="/feed"
-                  className="flex items-center w-full py-3.5 px-1 text-[15px] font-medium"
-                  style={{ color: pathname === "/feed" ? "var(--color-accent)" : "var(--color-text-primary)" }}
-                  onClick={() => setMobileOpen(false)}
-                >
-                  Feed
-                </Link>
-              </div>
+              {/* Feed top-level link — hidden until feature is ready */}
 
               {/* Accordion sections */}
               {MENUS.map((menu) => {

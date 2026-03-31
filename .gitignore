@@ -37,3 +37,7 @@ next-env.d.ts
 .firecrawl/
 .superpowers/
 .cache/
+
+# enrichment pipeline state
+scripts/.enrichment-progress.json
+scripts/.enrichment-failures.json

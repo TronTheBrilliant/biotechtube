@@ -53,6 +53,7 @@ export function useTvChart(
       "rgba(0,0,0,0.08)";
 
     const c = createChart(el, {
+      autoSize: true,
       width: el.clientWidth,
       height: el.clientHeight || 380,
       layout: {

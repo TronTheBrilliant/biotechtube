@@ -19,6 +19,7 @@ import { resolve } from "path";
 config({ path: resolve(__dirname, "../.env.local"), override: true });
 
 import { createClient } from "@supabase/supabase-js";
+import { calculateScore as sharedCalculateScore } from "./lib/scoring";
 
 // ── Configuration ──────────────────────────────────────────────────────────
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
@@ -280,69 +281,17 @@ function calculateScore(
   research: ResearchResults,
   _verification: Verification
 ): ScoreResult {
-  let score = 0;
-  const issues: string[] = [];
-
-  // Description quality (0-3)
-  if (company.description && company.description.length > 200) {
-    score += 2;
-  } else if (company.description && company.description.length > 50) {
-    score += 1;
-    issues.push("short_description");
-  } else {
-    issues.push("missing_description");
-  }
-  if (company.description && company.description.length > 500) score += 1;
-
-  // Website (0-1.5)
-  if (company.website) {
-    score += 0.5;
-  } else {
-    issues.push("missing_website");
-  }
-  if (research.websiteReachable) {
-    score += 1;
-  } else if (company.website) {
-    issues.push("dead_website");
-  }
-
-  // Logo (0-0.5)
-  if (company.logo_url) {
-    score += 0.5;
-  } else {
-    issues.push("missing_logo");
-  }
-
-  // Location (0-1)
-  if (company.country) {
-    score += 0.5;
-  } else {
-    issues.push("missing_country");
-  }
-  if (company.city) {
-    score += 0.5;
-  } else {
-    issues.push("missing_city");
-  }
-
-  // Founded (0-0.5)
-  if (company.founded) {
-    score += 0.5;
-  } else {
-    issues.push("missing_founded");
-  }
-
-  // Categories (0-0.5)
-  if (company.categories && company.categories.length > 0) {
-    score += 0.5;
-  } else {
-    issues.push("missing_categories");
-  }
-
-  // Financial data (0-0.5)
-  if (company.ticker) score += 0.5;
-
-  return { score: Math.min(score, 10), issues };
+  return sharedCalculateScore({
+    description: company.description,
+    website: company.website,
+    logo_url: company.logo_url,
+    country: company.country,
+    city: company.city,
+    founded: company.founded,
+    categories: company.categories,
+    ticker: company.ticker,
+    websiteReachable: research.websiteReachable,
+  });
 }
 
 // ── Step 5: Update profile ─────────────────────────────────────────────────

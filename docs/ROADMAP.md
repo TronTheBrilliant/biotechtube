@@ -1,4 +1,4 @@
-# BiotechTube Platform Roadmap
+# BiotechTube Product Roadmap
 
 > The Bloomberg Terminal for Biotech — financial data + professional network + market intelligence.
 
@@ -8,299 +8,171 @@
 
 ---
 
-## Phase 1: Data Foundation (Tier 1 Enrichment)
-**Status: NEXT UP**
-**Effort: 1-2 hours (DeepSeek batch scripts)**
+## Completed
 
-Enrich all 10,995 companies with basic data:
+### Core Platform
+- [x] 11,000+ biotech company profiles across 30+ countries
+- [x] 1,039 public companies with daily stock price updates (Yahoo Finance)
+- [x] TradingView financial charts (markets, sectors, countries, companies)
+- [x] Homepage with 14+ data-driven sections
+- [x] Global search overlay with trending + sponsored
+- [x] 20 therapeutic sector pages with market data
+- [x] 30+ country pages with market data
+- [x] Trending companies, top companies, top investors pages
+- [x] Mobile-optimized across all pages
+- [x] Dark mode support
 
-- [ ] **Categories/therapeutic areas** — 5,356 companies missing (51% gap)
-- [ ] **Descriptions** — 1,580 companies missing (14% gap)
-- [ ] **City/HQ location** — 10,761 companies missing (98% gap)
-- [ ] **Founded year** — 9,802 companies missing (89% gap)
-- [ ] **Stage** (Pre-clinical → Approved) — estimate from pipeline data
-- [ ] **Company type** (Public/Private) — verify and fill gaps
-- [ ] **Employee range** — estimate for well-known companies
+### Pipeline Intelligence
+- [x] 54,699 pipeline drugs from ClinicalTrials.gov
+- [x] 4,753 FDA-approved drugs
+- [x] Individual product pages at `/product/[slug]`
+- [x] FDA decision calendar with PDUFA dates
+- [x] Curated watchlists with AI analysis ("BiotechTube 100")
+- [x] Interest/hype scoring engine
+- [x] Rich pipeline filtering (stage, region, therapeutic area)
 
-### Scripts needed:
-- `scripts/enrich-tier1-deepseek.ts` — batch enrich categories, description, city, founded
-- Process in batches of 10 companies per API call
-- ~1,100 API calls for 10,995 companies
+### Funding Ecosystem
+- [x] 26,379 funding rounds in database
+- [x] Funding tracker with interactive charts (annual, quarterly, monthly)
+- [x] Top investors ranking
+- [x] Round type distribution visualization
+- [x] Funding radar on homepage
 
----
+### Research Data
+- [x] 19,171 patents (USPTO)
+- [x] 7,552 publications (PubMed)
+- [x] 5,328 NIH grants
+- [x] Company-linked research data
 
-## Phase 2: Pipeline Data (Biggest Differentiator)
-**Status: PLANNED**
-**Effort: 3-5 hours**
+### Content & SEO
+- [x] 32+ blog articles (AI-generated, fact-checked)
+- [x] Full SEO: meta tags, JSON-LD, sitemap, canonical URLs, OG images
+- [x] News feed from database
+- [x] TradingView chart embeds in articles
 
-Create a comprehensive drug/product pipeline database.
+### User Features
+- [x] Authentication (Supabase Auth)
+- [x] User dashboard with auth guard
+- [x] Company claim/verification flow
+- [x] Company management dashboard (jobs, branding, media, pipeline, team)
+- [x] Watchlists (save companies and products)
+- [x] Tiered company profiles (basic → enhanced → premium)
+- [x] Social feed (posts, comments, likes, follows, notifications)
 
-### Database schema:
-```sql
-CREATE TABLE pipelines (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  company_id UUID REFERENCES companies(id),
-  product_name TEXT NOT NULL,
-  indication TEXT,                    -- e.g. "Non-small cell lung cancer"
-  therapeutic_area TEXT,              -- e.g. "Oncology"
-  stage TEXT,                         -- "Discovery", "Pre-clinical", "Phase 1", "Phase 1/2", "Phase 2", "Phase 3", "Filed", "Approved"
-  mechanism_of_action TEXT,           -- e.g. "PD-1 inhibitor"
-  molecule_type TEXT,                 -- e.g. "Small molecule", "Antibody", "Cell therapy"
-  partner TEXT,                       -- collaboration partner if any
-  start_date TEXT,                    -- when this stage started
-  expected_completion TEXT,           -- estimated completion
-  description TEXT,
-  source TEXT,                        -- "DeepSeek estimate", "Public data", etc.
-  created_at TIMESTAMPTZ DEFAULT now()
-);
-```
+### Admin & Automation
+- [x] 6 AI agents (profiles, financial, pipeline, content, SEO, UX)
+- [x] Command Center admin dashboard
+- [x] Data quality monitoring
+- [x] CIA system (Continuous Improvement Agent)
+- [x] Daily cron jobs for market data + agent execution
 
-### Data sourcing:
-- [ ] DeepSeek enrichment for 861 public companies (known pipelines)
-- [ ] Extend to top 2,000 private companies with known products
-- [ ] Cross-reference with existing `/pipeline` page data
-- [ ] Build pipeline detail pages at `/drugs/[slug]`
-
-### UI:
-- [ ] Company page pipeline section (table of products + stages)
-- [ ] Global pipeline tracker at `/pipeline` (filterable by stage, indication, company)
-- [ ] Pipeline statistics on homepage
-- [ ] "Pipeline alerts" feature (Phase 6)
-
----
-
-## Phase 3: Funding History (Investor Intelligence)
-**Status: PLANNED**
-**Effort: 3-4 hours**
-
-Move funding data from JSON files into a proper database table.
-
-### Database schema:
-```sql
-CREATE TABLE funding_rounds (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  company_id UUID REFERENCES companies(id),
-  round_type TEXT NOT NULL,           -- "Seed", "Series A", "Series B", etc.
-  amount BIGINT,                      -- in USD
-  currency TEXT DEFAULT 'USD',
-  date TEXT,                          -- YYYY-MM-DD
-  lead_investor TEXT,
-  co_investors TEXT[],                -- array of investor names
-  pre_money_valuation BIGINT,
-  post_money_valuation BIGINT,
-  source TEXT,
-  created_at TIMESTAMPTZ DEFAULT now()
-);
-
-CREATE TABLE investors (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name TEXT NOT NULL,
-  slug TEXT UNIQUE NOT NULL,
-  type TEXT,                          -- "VC", "PE", "Corporate", "Government", "Angel"
-  website TEXT,
-  description TEXT,
-  aum BIGINT,                         -- assets under management
-  focus_areas TEXT[],
-  notable_investments TEXT[],
-  created_at TIMESTAMPTZ DEFAULT now()
-);
-```
-
-### Data sourcing:
-- [ ] Import existing 246 rounds from `funding-historical.json`
-- [ ] DeepSeek enrichment for public companies' IPO/funding history
-- [ ] Enrich top 1,000 private companies with known funding rounds
-- [ ] Calculate `total_raised` per company from rounds
-- [ ] Build investor profiles from round data
-
-### UI:
-- [ ] Company page funding timeline
-- [ ] Investor detail pages with portfolio breakdown
-- [ ] Funding analytics dashboard
-- [ ] Quarterly funding trend charts (already built, will use real DB data)
+### Monetization (Partially)
+- [x] Pricing page with tier descriptions
+- [x] Stripe checkout flow (stubbed)
+- [x] Pitches, sponsors, templates pages
+- [x] Company profile upgrade tiers ($150-300/mo)
 
 ---
 
-## Phase 4: Private Company Valuations
-**Status: PLANNED**
-**Effort: 2-3 hours**
+## In Progress
 
-Estimate valuations for private companies.
+### Data Enrichment (March 2026)
+- [x] Two-pass enrichment pipeline designed (DeepSeek + Claude)
+- [ ] **Running:** Fill categories, descriptions, city, founded for all companies
+- [ ] Verify enrichment quality and fix failures
 
-### Methodology:
-1. **Post-money from last round** — if we know the last funding round amount and type, estimate post-money:
-   - Seed: amount × 5-8x
-   - Series A: amount × 3-5x
-   - Series B: amount × 2-3x
-   - Series C+: amount × 1.5-2x
-2. **Revenue multiple** — for companies with known revenue (rare for pre-revenue biotech)
-3. **Comparable analysis** — compare to similar public companies by stage/indication
-4. **Total raised proxy** — total_raised × 3-5x as rough estimate
+### Database Coverage Targets
+| Field | Current | Target |
+|-------|---------|--------|
+| Website/Logo | 100% | 100% |
+| Description | 86% | 99%+ |
+| Categories | 51% | 95%+ |
+| Founded year | 11% | 80%+ |
+| City/HQ | 2% | 80%+ |
 
-### Implementation:
-- [ ] Script to calculate estimated valuations from funding_rounds
+---
+
+## Next Up
+
+### Data Infrastructure
+- [ ] **Normalize investors** — create proper `investors` table from TEXT[] arrays
+- [ ] **Pipeline schema enrichment** — add molecule_type, therapeutic_area, partner columns
+- [ ] **Sync total_raised** — calculate from funding_rounds → companies table
+- [ ] **Stripe webhooks** — real webhook verification + plan change handling
+
+### Private Company Valuations
+- [ ] Estimate valuations from funding data (post-money multiples)
 - [ ] Flag all estimates with `is_estimated: true`
 - [ ] Show "Est." badge on estimated valuations in UI
-- [ ] Recalculate when new funding data is added
 
 ---
 
-## Phase 5: User System & Authentication
-**Status: PLANNED**
-**Effort: 4-6 hours**
-
-Build user accounts using Supabase Auth.
-
-### Features:
-- [ ] **Sign up / Sign in** — email + password, Google OAuth, LinkedIn OAuth
-- [ ] **User profiles** — name, role, company, bio
-- [ ] **Watchlists** — save companies to personal watchlists
-  - Multiple named watchlists ("My Portfolio", "Competitors", "Pipeline Watch")
-  - Email alerts when watched companies have news/funding/pipeline updates
-- [ ] **Premium tiers**:
-  - Free: basic access, limited company views, no API
-  - Pro ($29/mo): unlimited access, watchlists, pipeline alerts, export
-  - Enterprise ($199/mo): API access, custom reports, team features
-
-### Database schema:
-```sql
--- Extend existing profiles table
-ALTER TABLE profiles ADD COLUMN role TEXT;
-ALTER TABLE profiles ADD COLUMN company TEXT;
-ALTER TABLE profiles ADD COLUMN bio TEXT;
-ALTER TABLE profiles ADD COLUMN tier TEXT DEFAULT 'free'; -- 'free', 'pro', 'enterprise'
-ALTER TABLE profiles ADD COLUMN stripe_customer_id TEXT;
-
-CREATE TABLE watchlists (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES profiles(id),
-  name TEXT NOT NULL DEFAULT 'My Watchlist',
-  created_at TIMESTAMPTZ DEFAULT now()
-);
-
-CREATE TABLE watchlist_items (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  watchlist_id UUID REFERENCES watchlists(id) ON DELETE CASCADE,
-  company_id UUID REFERENCES companies(id),
-  added_at TIMESTAMPTZ DEFAULT now(),
-  UNIQUE(watchlist_id, company_id)
-);
-```
-
-### Payment:
-- [ ] Stripe integration for subscriptions
-- [ ] Pricing page (exists, needs real payment flow)
-- [ ] Trial period (14 days free Pro)
-
----
-
-## Phase 6: Advanced Features
-**Status: FUTURE**
+## Planned Features
 
 ### Company Comparison Tool
 - [ ] Side-by-side comparison of 2-3 companies
 - [ ] Compare: valuation, pipeline, funding, team size, stage
 - [ ] Shareable comparison URLs
 
-### Pipeline Tracker Alerts
+### Pipeline Alerts
 - [ ] "Notify me when Company X advances to Phase 3"
-- [ ] Email digest: weekly pipeline updates for watched companies
+- [ ] Weekly pipeline update digest for watched companies
 - [ ] Push notifications (web)
 
-### Sector Reports (AI-Generated)
-- [ ] Weekly AI-generated sector summaries using DeepSeek
+### AI Sector Reports
+- [ ] Weekly AI-generated sector summaries
 - [ ] Market trends, notable moves, funding highlights
 - [ ] Delivered via email to Pro subscribers
-- [ ] Published on `/news` page
 
 ### API Access (Enterprise)
-- [ ] RESTful API for programmatic data access
-- [ ] API keys management
-- [ ] Rate limiting (100 req/min free, 10,000 req/min enterprise)
-- [ ] Endpoints: companies, pipelines, funding, market data
+- [ ] RESTful API with company, pipeline, funding endpoints
+- [ ] API key management + rate limiting
 - [ ] OpenAPI/Swagger documentation
 
-### News Aggregation
-- [ ] Aggregate biotech news from RSS feeds (BioPharma Dive, STAT News, FierceBiotech)
-- [ ] AI-powered ranking and summarization via DeepSeek
-- [ ] Trending news on homepage
-- [ ] Company-specific news on company pages
-
-### Events System
-- [ ] Real events data from conference APIs (BIO, ASCO, AACR, JPM Healthcare)
-- [ ] Event detail pages with agenda, speakers, exhibitors
-- [ ] "Attending" feature for users
-- [ ] Calendar integration (Google Calendar, iCal export)
+### Newsletter Automation
+- [ ] Weekly digest: top funding rounds, pipeline updates, new companies
+- [ ] AI-curated with real data
+- [ ] Signup in nav and sidebar
 
 ### Job Board
-- [ ] Companies can post jobs
-- [ ] Users can set job alerts by role type, location, therapeutic area
-- [ ] Integration with LinkedIn job posts
-- [ ] Revenue stream: sponsored job listings
+- [ ] Companies post jobs
+- [ ] Job alerts by role, location, therapeutic area
+- [ ] Revenue stream: sponsored listings
 
-### Science Papers Ranking
-- [ ] PubMed API integration for citation data
-- [ ] Semantic Scholar API for impact metrics
-- [ ] Top 100 all-time papers ranking
-- [ ] Company-linked research (papers by company researchers)
+### Events System
+- [ ] Real conference data (BIO, ASCO, AACR, JPM)
+- [ ] "Attending" feature for users
+- [ ] Calendar integration
 
 ---
 
-## Phase 7: Growth & Monetization
-**Status: FUTURE**
+## Growth & Monetization
 
 ### Sponsor System
-- [ ] Self-serve sponsor dashboard
-- [ ] Sponsor placements: search overlay, sector pages, country pages, homepage
-- [ ] Analytics: impressions, clicks, CTR
-- [ ] Pricing tiers: $500/mo (basic), $2,000/mo (premium), $5,000/mo (enterprise)
+- [ ] Self-serve sponsor dashboard with analytics
+- [ ] Placements: search overlay, sector pages, country pages, homepage
+- [ ] Tiers: $500/mo (basic), $2,000/mo (premium), $5,000/mo (enterprise)
 
-### SEO
-- [ ] Proper meta descriptions for all pages
-- [ ] Open Graph images (auto-generated per page)
-- [ ] Structured data (JSON-LD) for companies, people, events
-- [ ] Sitemap optimization
-- [ ] Blog/content marketing for organic traffic
-
-### Analytics
-- [ ] Track page views, search queries, popular companies
-- [ ] User behavior analytics (what do investors look at?)
-- [ ] A/B testing framework
-- [ ] Monthly growth reports
+### Revenue Targets
+| Stream | Price | Status |
+|--------|-------|--------|
+| User subscriptions | $49/mo | Pricing page live, Stripe pending |
+| Company profile upgrades | $150-300/mo | Claim flow live, payment pending |
+| Pitches | $800-2,500 | Page live, payment pending |
+| Sponsorships | $500-4,000/mo | Page live, inquiries open |
+| Website templates | $2,500-5,000 | Page live, inquiries open |
+| API access | $200-500/mo | Planned |
 
 ---
 
-## Current Status (March 2026)
+## Technical Debt
 
-### Completed:
-- [x] Core platform with 10,995 companies
-- [x] Market data pipeline (daily updates from Yahoo Finance)
-- [x] TradingView charts (markets, sectors, countries, companies)
-- [x] Homepage redesign with 14 list-driven sections
-- [x] Dedicated ranking pages (trending, top companies, sectors, countries, investors, people)
-- [x] Country detail pages with market cap charts
-- [x] Sector detail pages with charts and descriptions
-- [x] Search overlay with trending + sponsored sections
-- [x] Company website enrichment (100% coverage)
-- [x] Funding ecosystem (246 rounds, quarterly chart)
-- [x] ISR caching for performance
-- [x] Mobile optimization
-- [x] Global padding consistency
+- [ ] Fix TypeScript build errors (currently ignored)
+- [ ] Stripe webhook implementation (stubbed)
+- [ ] Remove JSON file fallbacks (fully rely on Supabase)
+- [ ] Optimize ISR revalidation intervals
+- [ ] Clean up duplicate investor data model (TEXT[] vs table)
 
-### Database Coverage:
-| Field | Coverage |
-|-------|----------|
-| Website/Logo/Domain | 100% |
-| Description | 86% |
-| Categories | 51% |
-| Founded | 11% |
-| City | 2% |
-| Employees | 1% |
-| Total Raised | 0% |
-| Pipeline Products | 0% |
+---
 
-### Next Up:
-1. Phase 1: Tier 1 enrichment (categories, descriptions, city, founded)
-2. Phase 2: Pipeline data
-3. Phase 3: Funding history in DB
-4. Phase 5: User system + watchlists
+*Last updated: March 31, 2026*

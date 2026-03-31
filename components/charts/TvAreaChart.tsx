@@ -134,8 +134,8 @@ export function TvAreaChart({
   );
 
   return (
-    <div className={`relative ${className || ""}`} style={{ height }}>
-      <div ref={containerRef} style={{ width: "100%", height: "100%" }} />
+    <div className={`relative ${className || ""}`} style={{ height, overflow: "hidden" }}>
+      <div ref={containerRef} style={{ width: "100%", height: "100%", minWidth: 0 }} />
       <ChartTooltip chart={chart} formatData={formatTooltipData} />
     </div>
   );
