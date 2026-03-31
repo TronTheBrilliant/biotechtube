@@ -276,28 +276,76 @@ function recordFailure(
   saveFailures(failures);
 }
 
-// ── JSON Parsing (with fallback chain) ────────────────────────────────────
+// ── JSON Parsing (with robust fallback chain) ────────────────────────────
+
+function cleanJsonString(text: string): string {
+  // Remove common AI response artifacts that break JSON parsing
+  return text
+    // Remove control characters except newline/tab
+    .replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g, "")
+    // Fix trailing commas before } or ]
+    .replace(/,\s*([}\]])/g, "$1")
+    // Fix unescaped newlines inside JSON string values
+    .replace(/(?<=: "(?:[^"\\]|\\.)*)(?:\r?\n)(?=(?:[^"\\]|\\.)*")/g, "\\n");
+}
 
 function parseAIResponse(text: string): ReportJSON {
+  // Pre-clean the text
+  const cleaned = cleanJsonString(text.trim());
+
   // Try 1: Direct JSON parse
   try {
-    return JSON.parse(text);
+    return JSON.parse(cleaned);
   } catch { /* continue */ }
 
-  // Try 2: Extract from markdown code fence
-  const fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (fenceMatch) {
-    try {
-      return JSON.parse(fenceMatch[1].trim());
-    } catch { /* continue */ }
+  // Try 2: Extract from markdown code fence (greedy — handle nested fences)
+  const fencePatterns = [
+    /```json\s*([\s\S]*?)```/,
+    /```\s*([\s\S]*?)```/,
+  ];
+  for (const pattern of fencePatterns) {
+    const match = cleaned.match(pattern);
+    if (match) {
+      try {
+        return JSON.parse(cleanJsonString(match[1].trim()));
+      } catch { /* continue */ }
+    }
   }
 
-  // Try 3: Find JSON object boundaries
-  const start = text.indexOf("{");
-  const end = text.lastIndexOf("}");
+  // Try 3: Find outermost JSON object boundaries
+  const start = cleaned.indexOf("{");
+  const end = cleaned.lastIndexOf("}");
   if (start !== -1 && end !== -1 && end > start) {
+    const jsonCandidate = cleaned.slice(start, end + 1);
     try {
-      return JSON.parse(text.slice(start, end + 1));
+      return JSON.parse(jsonCandidate);
+    } catch { /* continue */ }
+
+    // Try 3b: Clean the extracted JSON more aggressively
+    try {
+      return JSON.parse(cleanJsonString(jsonCandidate));
+    } catch { /* continue */ }
+
+    // Try 3c: Attempt to fix truncated JSON by closing open braces/brackets
+    try {
+      let fixed = jsonCandidate;
+      // Count unmatched braces/brackets
+      let braces = 0, brackets = 0;
+      let inString = false, escape = false;
+      for (const ch of fixed) {
+        if (escape) { escape = false; continue; }
+        if (ch === "\\") { escape = true; continue; }
+        if (ch === '"') { inString = !inString; continue; }
+        if (inString) continue;
+        if (ch === "{") braces++;
+        else if (ch === "}") braces--;
+        else if (ch === "[") brackets++;
+        else if (ch === "]") brackets--;
+      }
+      // Close any unclosed structures
+      while (brackets > 0) { fixed += "]"; brackets--; }
+      while (braces > 0) { fixed += "}"; braces--; }
+      return JSON.parse(fixed);
     } catch { /* continue */ }
   }
 
@@ -408,6 +456,9 @@ async function scrapeWebsiteFetch(
 async function scrapeWithSpider(url: string): Promise<string> {
   if (!SPIDER_API_KEY) throw new Error("Missing SPIDER_API_KEY");
 
+  // Ensure URL has protocol
+  const fullUrl = url.startsWith("http") ? url : `https://${url}`;
+
   const response = await fetch("https://api.spider.cloud/crawl", {
     method: "POST",
     headers: {
@@ -415,11 +466,12 @@ async function scrapeWithSpider(url: string): Promise<string> {
       "Authorization": `Bearer ${SPIDER_API_KEY}`,
     },
     body: JSON.stringify({
-      url,
+      url: fullUrl,
       limit: 5,
       return_format: "markdown",
       request_timeout: 15,
     }),
+    signal: AbortSignal.timeout(30000),
   });
 
   if (!response.ok) {
@@ -734,7 +786,8 @@ async function callHaiku(prompt: string, retries: number = 3): Promise<{ text: s
     try {
       const message = await client.messages.create({
         model: "claude-haiku-4-5-20251001",
-        max_tokens: 4096,
+        max_tokens: 6144,
+        system: "You are a JSON API. You MUST respond with ONLY a valid JSON object. No markdown fences, no commentary, no text before or after the JSON. Start your response with { and end with }.",
         messages: [{ role: "user", content: prompt }],
       });
       const text = message.content[0].type === "text" ? message.content[0].text : "";
@@ -943,13 +996,31 @@ async function processCompanyPass2(company: CompanyRow): Promise<{ costUSD: numb
     }
   }
 
-  // 5. Build prompt and call Haiku
+  // 5. Build prompt and call Haiku (with JSON parse retry)
   const prompt = buildPass2Prompt(company, spiderContent, priceCtx, existingReport, sectorRank);
-  const { text, inputTokens, outputTokens } = await callHaiku(prompt);
+  let totalInputTokens = 0;
+  let totalOutputTokens = 0;
+  let report: ReportJSON | null = null;
 
-  // 6. Parse and validate
-  const report = parseAIResponse(text);
-  if (!report.summary && !report.deep_report) {
+  for (let jsonAttempt = 1; jsonAttempt <= 2; jsonAttempt++) {
+    const { text, inputTokens, outputTokens } = await callHaiku(prompt);
+    totalInputTokens += inputTokens;
+    totalOutputTokens += outputTokens;
+
+    try {
+      report = parseAIResponse(text);
+      break;
+    } catch {
+      if (jsonAttempt === 2) {
+        throw new Error("Failed to parse AI response as JSON after 2 attempts");
+      }
+      console.log(`    JSON parse failed, retrying Haiku call...`);
+      await sleep(500);
+    }
+  }
+
+  // 6. Validate
+  if (!report || (!report.summary && !report.deep_report)) {
     throw new Error("AI response missing both summary and deep_report");
   }
 
@@ -958,8 +1029,8 @@ async function processCompanyPass2(company: CompanyRow): Promise<{ costUSD: numb
 
   // 8. Calculate cost
   const costUSD =
-    (inputTokens / 1_000_000) * HAIKU_INPUT_COST_PER_M +
-    (outputTokens / 1_000_000) * HAIKU_OUTPUT_COST_PER_M;
+    (totalInputTokens / 1_000_000) * HAIKU_INPUT_COST_PER_M +
+    (totalOutputTokens / 1_000_000) * HAIKU_OUTPUT_COST_PER_M;
 
   return { costUSD };
 }
