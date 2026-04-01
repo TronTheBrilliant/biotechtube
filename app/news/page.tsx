@@ -18,7 +18,8 @@ export default async function NewsPage() {
     .select(
       "id, title, source_name, source_url, published_date, summary, companies_mentioned, category, scraped_at"
     )
-    .order("scraped_at", { ascending: false });
+    .order("scraped_at", { ascending: false })
+    .limit(100);
 
   if (error) {
     console.error("Failed to fetch news_items:", error.message);

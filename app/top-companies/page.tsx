@@ -58,7 +58,7 @@ async function getTopCompanies(): Promise<RankedCompany[]> {
   const supabase = getSupabase();
   const { data } = await supabase
     .from("companies")
-    .select("*")
+    .select("id, slug, name, ticker, country, valuation, logo_url, website, domain, categories, stage, description")
     .order("valuation", { ascending: false, nullsFirst: false })
     .limit(1000);
   if (!data) return [];

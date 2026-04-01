@@ -341,7 +341,8 @@ async function getFDACalendar(): Promise<{ upcoming: FDACalendarEntry[]; recent:
     .from("fda_calendar")
     .select("id, drug_name, company_name, company_id, pipeline_id, decision_date, decision_type, indication, status")
     .gte("decision_date", today)
-    .order("decision_date", { ascending: true });
+    .order("decision_date", { ascending: true })
+    .limit(100);
 
   // Recent decisions (last 30 days)
   const { data: recent } = await supabase
@@ -349,7 +350,8 @@ async function getFDACalendar(): Promise<{ upcoming: FDACalendarEntry[]; recent:
     .select("id, drug_name, company_name, company_id, pipeline_id, decision_date, decision_type, indication, status")
     .lt("decision_date", today)
     .gte("decision_date", thirtyDaysAgo)
-    .order("decision_date", { ascending: false });
+    .order("decision_date", { ascending: false })
+    .limit(100);
 
   const allEntries = [...(upcoming || []), ...(recent || [])];
 

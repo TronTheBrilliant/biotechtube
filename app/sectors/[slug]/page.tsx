@@ -196,12 +196,23 @@ export default async function SectorDetailPage({
   // Fetch top 20 companies in this sector by USD market cap
   // We use market_cap_usd from company_price_history (latest date) instead of
   // companies.valuation which stores local currency values (INR, JPY, KRW, etc.)
-  const { data: companySectorRows } = await supabase
-    .from("company_sectors")
-    .select("company_id, is_primary, confidence")
-    .eq("sector_id", sector.id);
+  // Paginate company_sectors (up to 3 pages of 1000 for large sectors)
+  const allCompanySectorRows: CompanySectorRow[] = [];
+  const CS_PAGE_SIZE = 1000;
+  const CS_MAX_PAGES = 3;
+  for (let page = 0; page < CS_MAX_PAGES; page++) {
+    const offset = page * CS_PAGE_SIZE;
+    const { data } = await supabase
+      .from("company_sectors")
+      .select("company_id, is_primary, confidence")
+      .eq("sector_id", sector.id)
+      .range(offset, offset + CS_PAGE_SIZE - 1);
+    if (!data || data.length === 0) break;
+    allCompanySectorRows.push(...(data as CompanySectorRow[]));
+    if (data.length < CS_PAGE_SIZE) break;
+  }
 
-  const companyIds = ((companySectorRows ?? []) as CompanySectorRow[]).map(
+  const companyIds = allCompanySectorRows.map(
     (cs) => cs.company_id
   );
 

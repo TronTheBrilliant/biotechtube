@@ -47,7 +47,8 @@ export default async function TherapeuticAreasIndex() {
   const { data: reports } = await supabase
     .from("company_reports")
     .select("therapeutic_areas")
-    .not("therapeutic_areas", "is", null);
+    .not("therapeutic_areas", "is", null)
+    .limit(5000);
 
   const areaCounts: Record<string, number> = {};
   for (const r of reports || []) {

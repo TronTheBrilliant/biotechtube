@@ -74,7 +74,8 @@ async function getEvents(): Promise<EventItem[]> {
     .from("biotech_events")
     .select("*")
     .gte("start_date", thirtyDaysAgo.toISOString().split("T")[0])
-    .order("start_date", { ascending: true });
+    .order("start_date", { ascending: true })
+    .limit(200);
 
   if (error || !data) {
     console.error("Error fetching events:", error);

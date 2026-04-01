@@ -51,13 +51,23 @@ async function findIndicationBySlug(
 }> } | null> {
   const supabase = getSupabase();
 
-  // Get all products with indications, we'll match by slug
-  const { data: pipelines } = await supabase
-    .from("pipelines")
-    .select("id, slug, product_name, company_name, company_id, indication, stage, trial_status, nct_id")
-    .not("indication", "is", null);
+  // Get all products with indications, we'll match by slug (paginated, up to 5000 rows)
+  const pipelines: any[] = [];
+  const PAGE_SIZE = 1000;
+  const MAX_PAGES = 5;
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const offset = page * PAGE_SIZE;
+    const { data } = await supabase
+      .from("pipelines")
+      .select("id, slug, product_name, company_name, company_id, indication, stage, trial_status, nct_id")
+      .not("indication", "is", null)
+      .range(offset, offset + PAGE_SIZE - 1);
+    if (!data || data.length === 0) break;
+    pipelines.push(...data);
+    if (data.length < PAGE_SIZE) break;
+  }
 
-  if (!pipelines || pipelines.length === 0) return null;
+  if (pipelines.length === 0) return null;
 
   // Find matching indication
   const matchingProducts = pipelines.filter(

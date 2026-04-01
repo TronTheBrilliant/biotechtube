@@ -104,7 +104,7 @@ async function getSimilarCompanies(company: Company) {
     const primarySector = companyCategories[0];
     const { data } = await supabase
       .from('companies')
-      .select('*')
+      .select('id, slug, name, ticker, country, valuation, logo_url, website, domain, categories, stage, description')
       .contains('categories', [primarySector])
       .neq('slug', company.slug)
       .not('valuation', 'is', null)
@@ -124,7 +124,7 @@ async function getSimilarCompanies(company: Company) {
   // Fallback: same country, ordered by valuation
   const { data } = await supabase
     .from('companies')
-    .select('*')
+    .select('id, slug, name, ticker, country, valuation, logo_url, website, domain, categories, stage, description')
     .eq('country', company.country)
     .neq('slug', company.slug)
     .not('valuation', 'is', null)
@@ -143,7 +143,8 @@ async function getPipelines(companyId: string): Promise<any[]> {
     .from('pipelines')
     .select('*')
     .eq('company_id', companyId)
-    .order('stage', { ascending: false });
+    .order('stage', { ascending: false })
+    .limit(100);
   return data || [];
 }
 
@@ -154,7 +155,8 @@ async function getFundingRounds(companyId: string): Promise<any[]> {
     .from('funding_rounds')
     .select('*')
     .eq('company_id', companyId)
-    .order('announced_date', { ascending: false });
+    .order('announced_date', { ascending: false })
+    .limit(100);
   return data || [];
 }
 
@@ -165,7 +167,8 @@ async function getFdaApprovals(companyId: string): Promise<any[]> {
     .from('fda_approvals')
     .select('*')
     .eq('company_id', companyId)
-    .order('approval_date', { ascending: false });
+    .order('approval_date', { ascending: false })
+    .limit(50);
   return data || [];
 }
 

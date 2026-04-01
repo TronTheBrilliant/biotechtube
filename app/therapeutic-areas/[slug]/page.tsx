@@ -86,7 +86,8 @@ export default async function TherapeuticAreaPage({ params }: AreaPageProps) {
   const { data: reports } = await supabase
     .from("company_reports")
     .select("report_slug, therapeutic_areas, summary, stage, pipeline_programs, key_people")
-    .not("therapeutic_areas", "is", null);
+    .not("therapeutic_areas", "is", null)
+    .limit(5000);
 
   const matchingReportSlugs: string[] = [];
   for (const r of reports || []) {
