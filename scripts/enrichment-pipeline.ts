@@ -156,6 +156,7 @@ interface CLIOptions {
   pass2: boolean;
   retryFailures: boolean;
   dryRun: boolean;
+  useDeepseek: boolean;
   limit: number;
   budget: number;
 }
@@ -167,6 +168,7 @@ function parseCLI(): CLIOptions {
     pass2: false,
     retryFailures: false,
     dryRun: false,
+    useDeepseek: false,
     limit: 0,
     budget: 0,
   };
@@ -177,6 +179,7 @@ function parseCLI(): CLIOptions {
       case "--pass2": opts.pass2 = true; break;
       case "--retry-failures": opts.retryFailures = true; break;
       case "--dry-run": opts.dryRun = true; break;
+      case "--use-deepseek": opts.useDeepseek = true; break;
       case "--limit":
         opts.limit = parseInt(args[++i], 10) || 0;
         break;
@@ -187,7 +190,7 @@ function parseCLI(): CLIOptions {
   }
 
   if (!opts.pass1 && !opts.pass2 && !opts.retryFailures) {
-    console.error("Usage: npx tsx scripts/enrichment-pipeline.ts --pass1|--pass2|--retry-failures [--limit N] [--budget N] [--dry-run]");
+    console.error("Usage: npx tsx scripts/enrichment-pipeline.ts --pass1|--pass2|--retry-failures [--limit N] [--budget N] [--dry-run] [--use-deepseek]");
     process.exit(1);
   }
 
@@ -944,20 +947,27 @@ async function processCompanyPass1(company: CompanyRow): Promise<{ costUSD: numb
   return { costUSD };
 }
 
-async function processCompanyPass2(company: CompanyRow): Promise<{ costUSD: number }> {
-  // 1. Scrape with Spider (fall back to fetch)
+async function processCompanyPass2(company: CompanyRow, useDeepseek: boolean = false): Promise<{ costUSD: number }> {
+  // 1. Scrape with Spider (fall back to fetch), or skip Spider if using DeepSeek
   let spiderContent = "";
   let pagesScraped: string[] = [];
 
   if (company.website) {
-    try {
-      spiderContent = await scrapeWithSpider(company.website);
-      pagesScraped = [company.website];
-    } catch (err: unknown) {
-      console.log(`    Spider failed, falling back to fetch: ${(err as Error).message}`);
+    if (useDeepseek) {
+      // Skip Spider entirely — use fetch (faster, no timeouts)
       const result = await scrapeWebsiteFetch(company.website, PASS2_CONTENT_CAP);
       spiderContent = result.content;
       pagesScraped = result.pagesScraped;
+    } else {
+      try {
+        spiderContent = await scrapeWithSpider(company.website);
+        pagesScraped = [company.website];
+      } catch (err: unknown) {
+        console.log(`    Spider failed, falling back to fetch: ${(err as Error).message}`);
+        const result = await scrapeWebsiteFetch(company.website, PASS2_CONTENT_CAP);
+        spiderContent = result.content;
+        pagesScraped = result.pagesScraped;
+      }
     }
   }
 
@@ -996,14 +1006,17 @@ async function processCompanyPass2(company: CompanyRow): Promise<{ costUSD: numb
     }
   }
 
-  // 5. Build prompt and call Haiku (with JSON parse retry)
+  // 5. Build prompt and call AI (Haiku or DeepSeek)
   const prompt = buildPass2Prompt(company, spiderContent, priceCtx, existingReport, sectorRank);
   let totalInputTokens = 0;
   let totalOutputTokens = 0;
   let report: ReportJSON | null = null;
+  const aiSource = useDeepseek ? "deepseek" : "haiku";
 
   for (let jsonAttempt = 1; jsonAttempt <= 2; jsonAttempt++) {
-    const { text, inputTokens, outputTokens } = await callHaiku(prompt);
+    const { text, inputTokens, outputTokens } = useDeepseek
+      ? await callDeepSeek(prompt)
+      : await callHaiku(prompt);
     totalInputTokens += inputTokens;
     totalOutputTokens += outputTokens;
 
@@ -1014,7 +1027,7 @@ async function processCompanyPass2(company: CompanyRow): Promise<{ costUSD: numb
       if (jsonAttempt === 2) {
         throw new Error("Failed to parse AI response as JSON after 2 attempts");
       }
-      console.log(`    JSON parse failed, retrying Haiku call...`);
+      console.log(`    JSON parse failed, retrying ${aiSource} call...`);
       await sleep(500);
     }
   }
@@ -1025,12 +1038,15 @@ async function processCompanyPass2(company: CompanyRow): Promise<{ costUSD: numb
   }
 
   // 7. Write to DB (overwrites Pass 1 report)
-  await writeReport(company, report, pagesScraped, "source:pass2_haiku");
+  const sourceTag = useDeepseek ? "source:pass2_deepseek" : "source:pass2_haiku";
+  await writeReport(company, report, pagesScraped, sourceTag);
 
   // 8. Calculate cost
+  const inputCostPerM = useDeepseek ? DEEPSEEK_INPUT_COST_PER_M : HAIKU_INPUT_COST_PER_M;
+  const outputCostPerM = useDeepseek ? DEEPSEEK_OUTPUT_COST_PER_M : HAIKU_OUTPUT_COST_PER_M;
   const costUSD =
-    (totalInputTokens / 1_000_000) * HAIKU_INPUT_COST_PER_M +
-    (totalOutputTokens / 1_000_000) * HAIKU_OUTPUT_COST_PER_M;
+    (totalInputTokens / 1_000_000) * inputCostPerM +
+    (totalOutputTokens / 1_000_000) * outputCostPerM;
 
   return { costUSD };
 }
@@ -1047,7 +1063,9 @@ async function runWorker(
   totalCount: number,
   delayMs: number
 ): Promise<void> {
-  const processFn = pass === "pass1" ? processCompanyPass1 : processCompanyPass2;
+  const processFn = pass === "pass1"
+    ? (c: CompanyRow) => processCompanyPass1(c)
+    : (c: CompanyRow) => processCompanyPass2(c, opts.useDeepseek);
 
   for (const company of companies) {
     // Check budget
@@ -1096,9 +1114,11 @@ async function runPass(pass: "pass1" | "pass2", opts: CLIOptions): Promise<void>
   const numWorkers = pass === "pass1" ? PASS1_WORKERS : PASS2_WORKERS;
   const delayMs = pass === "pass1" ? PASS1_DELAY_MS : PASS2_DELAY_MS;
 
-  console.log(`\nEnrichment Pipeline — ${pass.toUpperCase()}`);
+  const aiLabel = pass === "pass2" && opts.useDeepseek ? " (DeepSeek mode)" : "";
+  console.log(`\nEnrichment Pipeline — ${pass.toUpperCase()}${aiLabel}`);
   console.log("=".repeat(60));
   console.log(`Workers: ${numWorkers} | Delay: ${delayMs}ms | Budget: ${opts.budget > 0 ? formatCost(opts.budget) : "unlimited"}`);
+  if (opts.useDeepseek && pass === "pass2") console.log("Using DeepSeek instead of Haiku (--use-deepseek)");
   if (opts.dryRun) console.log("*** DRY RUN — no API calls or DB writes ***");
 
   // Fetch companies

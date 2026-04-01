@@ -60,9 +60,9 @@ async function getTopCompanies() {
   const supabase = getSupabase();
   const { data } = await supabase
     .from("companies")
-    .select("*")
+    .select("id, slug, name, ticker, country, valuation, logo_url, website, domain, categories, stage, description")
     .order("valuation", { ascending: false, nullsFirst: false })
-    .limit(1000);
+    .limit(200); // Was 1000 with select('*') = 2.9MB, caused cache failures
   if (!data) return [];
 
   const companies = dbRowsToCompanies(data);
@@ -141,7 +141,7 @@ async function getTrendingCompanies() {
       .select("date")
       .not("market_cap_usd", "is", null)
       .order("date", { ascending: false })
-      .limit(5000);
+      .limit(2000);
     if (!recentDates) return [];
     const countByDate = new Map<string, number>();
     for (const r of recentDates) {
@@ -169,7 +169,8 @@ async function getTrendingCompanies() {
     .select("company_id, market_cap_usd, adj_close, date")
     .gte("date", fiveDaysAgoStr)
     .not("market_cap_usd", "is", null)
-    .order("date", { ascending: false });
+    .order("date", { ascending: false })
+    .limit(5000); // ~1000 companies × 5 days
 
   // Get old prices (~30 days ago range) — use adj_close for price-based comparison
   const { data: oldPrices } = await supabase
@@ -178,7 +179,8 @@ async function getTrendingCompanies() {
     .gte("date", oldCutoff)
     .lte("date", oldEndStr)
     .not("adj_close", "is", null)
-    .order("date", { ascending: false });
+    .order("date", { ascending: false })
+    .limit(5000);
 
   if (!currentPrices || !oldPrices) return [];
 
