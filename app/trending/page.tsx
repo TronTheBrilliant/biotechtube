@@ -99,32 +99,54 @@ async function getTrendingData(): Promise<TrendingCompanyRow[]> {
   const thirtyDaysAgoEndStr = thirtyDaysAgoEnd.toISOString().split("T")[0];
 
   // Fetch current prices (last 5 days) — include adj_close for price-based trending
-  const { data: currentPrices } = await supabase
-    .from("company_price_history")
-    .select("company_id, market_cap_usd, adj_close, change_pct, date")
-    .gte("date", fiveDaysAgoStr)
-    .not("market_cap_usd", "is", null)
-    .order("date", { ascending: false });
+  // Must paginate: ~1000 companies × 5 days = ~5000 rows, exceeds Supabase default 1000 limit
+  let currentPrices: { company_id: string; market_cap_usd: number; adj_close: number | null; change_pct: number | null; date: string }[] = [];
+  for (let page = 0; page < 5; page++) {
+    const { data } = await supabase
+      .from("company_price_history")
+      .select("company_id, market_cap_usd, adj_close, change_pct, date")
+      .gte("date", fiveDaysAgoStr)
+      .not("market_cap_usd", "is", null)
+      .order("date", { ascending: false })
+      .range(page * 1000, (page + 1) * 1000 - 1);
+    if (!data || data.length === 0) break;
+    currentPrices.push(...data);
+    if (data.length < 1000) break;
+  }
 
-  // Fetch 7-day-ago prices — use adj_close for price-based comparison
-  const { data: sevenDayPrices } = await supabase
-    .from("company_price_history")
-    .select("company_id, market_cap_usd, adj_close, date")
-    .gte("date", sevenDaysAgoStartStr)
-    .lte("date", sevenDaysAgoEndStr)
-    .not("adj_close", "is", null)
-    .order("date", { ascending: false });
+  // Fetch 7-day-ago prices
+  let sevenDayPrices: { company_id: string; market_cap_usd: number; adj_close: number | null; date: string }[] = [];
+  for (let page = 0; page < 5; page++) {
+    const { data } = await supabase
+      .from("company_price_history")
+      .select("company_id, market_cap_usd, adj_close, date")
+      .gte("date", sevenDaysAgoStartStr)
+      .lte("date", sevenDaysAgoEndStr)
+      .not("adj_close", "is", null)
+      .order("date", { ascending: false })
+      .range(page * 1000, (page + 1) * 1000 - 1);
+    if (!data || data.length === 0) break;
+    sevenDayPrices.push(...data);
+    if (data.length < 1000) break;
+  }
 
-  // Fetch 30-day-ago prices — use adj_close for price-based comparison
-  const { data: thirtyDayPrices } = await supabase
-    .from("company_price_history")
-    .select("company_id, market_cap_usd, adj_close, date")
-    .gte("date", thirtyDaysAgoStartStr)
-    .lte("date", thirtyDaysAgoEndStr)
-    .not("adj_close", "is", null)
-    .order("date", { ascending: false });
+  // Fetch 30-day-ago prices
+  let thirtyDayPrices: { company_id: string; market_cap_usd: number; adj_close: number | null; date: string }[] = [];
+  for (let page = 0; page < 5; page++) {
+    const { data } = await supabase
+      .from("company_price_history")
+      .select("company_id, market_cap_usd, adj_close, date")
+      .gte("date", thirtyDaysAgoStartStr)
+      .lte("date", thirtyDaysAgoEndStr)
+      .not("adj_close", "is", null)
+      .order("date", { ascending: false })
+      .range(page * 1000, (page + 1) * 1000 - 1);
+    if (!data || data.length === 0) break;
+    thirtyDayPrices.push(...data);
+    if (data.length < 1000) break;
+  }
 
-  if (!currentPrices) return [];
+  if (currentPrices.length === 0) return [];
 
   // Build maps: company_id -> { marketCap, adjClose, changePct }
   const currentMap = new Map<
@@ -142,7 +164,7 @@ async function getTrendingData(): Promise<TrendingCompanyRow[]> {
   }
 
   const sevenDayMap = new Map<string, { adjClose: number | null }>();
-  if (sevenDayPrices) {
+  if (sevenDayPrices.length > 0) {
     for (const r of sevenDayPrices) {
       if (!sevenDayMap.has(r.company_id)) {
         sevenDayMap.set(r.company_id, {
@@ -153,7 +175,7 @@ async function getTrendingData(): Promise<TrendingCompanyRow[]> {
   }
 
   const thirtyDayMap = new Map<string, { adjClose: number | null }>();
-  if (thirtyDayPrices) {
+  if (thirtyDayPrices.length > 0) {
     for (const r of thirtyDayPrices) {
       if (!thirtyDayMap.has(r.company_id)) {
         thirtyDayMap.set(r.company_id, {
