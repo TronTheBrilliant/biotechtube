@@ -143,7 +143,7 @@ export default function SponsorInquiryPage() {
             className="text-11 mt-4 text-center"
             style={{ color: "var(--color-text-tertiary)" }}
           >
-            Questions? Email hello@biotechtube.com
+            Questions? Email hello@biotechtube.io
           </p>
         </div>
       </main>

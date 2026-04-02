@@ -9,7 +9,7 @@ import {
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "trond.skattum@gmail.com";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "trond@biotechtube.io";
 
 async function verifyAdmin(req: NextRequest): Promise<boolean> {
   const authHeader = req.headers.get("authorization");

@@ -114,7 +114,7 @@ const plans = [
       "Custom reporting",
     ],
     cta: "Contact Sales",
-    ctaHref: "mailto:hello@biotechtube.com",
+    ctaHref: "mailto:hello@biotechtube.io",
     highlighted: false,
   },
 ];
@@ -538,7 +538,7 @@ export default function ClaimPage() {
               <ArrowRight size={16} />
             </Link>
             <Link
-              href="mailto:hello@biotechtube.com"
+              href="mailto:hello@biotechtube.io"
               className="inline-flex items-center gap-2 px-7 py-3 rounded-lg text-[14px] font-medium transition-opacity duration-150 hover:opacity-90"
               style={{
                 color: "var(--color-text-primary)",

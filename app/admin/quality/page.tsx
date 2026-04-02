@@ -93,7 +93,7 @@ interface FreshnessRow {
    CONSTANTS
    ================================================================ */
 
-const ADMIN_EMAIL = "trond.skattum@gmail.com";
+const ADMIN_EMAIL = "trond@biotechtube.io";
 
 const ACTION_DEFS = [
   { id: "cia", icon: <Zap size={15} />, label: "Run CIA (50)", apiAction: "run-cia" },

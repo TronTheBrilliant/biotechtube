@@ -5,7 +5,7 @@ import {
 
 // ─── Constants ───
 
-export const ADMIN_EMAIL = "trond.skattum@gmail.com";
+export const ADMIN_EMAIL = "trond@biotechtube.io";
 
 export const AGENT_IDS = ["profiles", "financial", "pipeline", "content", "seo", "ux"] as const;
 export type AgentId = (typeof AGENT_IDS)[number];

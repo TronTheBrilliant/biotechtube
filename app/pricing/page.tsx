@@ -68,7 +68,7 @@ const tiers = [
       "Priority support",
     ],
     cta: "Contact Us",
-    ctaHref: "mailto:hello@biotechtube.com",
+    ctaHref: "mailto:hello@biotechtube.io",
     highlighted: false,
   },
 ];

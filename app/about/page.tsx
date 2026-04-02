@@ -272,21 +272,21 @@ export default function AboutPage() {
             style={{ color: "var(--color-text-secondary)" }}
           >
             General inquiries:{" "}
-            <span style={{ color: "var(--color-accent)" }}>hello@biotechtube.com</span>
+            <span style={{ color: "var(--color-accent)" }}>hello@biotechtube.io</span>
           </p>
           <p
             className="text-[13px] mb-1"
             style={{ color: "var(--color-text-secondary)" }}
           >
             Press:{" "}
-            <span style={{ color: "var(--color-accent)" }}>press@biotechtube.com</span>
+            <span style={{ color: "var(--color-accent)" }}>press@biotechtube.io</span>
           </p>
           <p
             className="text-[13px]"
             style={{ color: "var(--color-text-secondary)" }}
           >
             Partnerships:{" "}
-            <span style={{ color: "var(--color-accent)" }}>partners@biotechtube.com</span>
+            <span style={{ color: "var(--color-accent)" }}>partners@biotechtube.io</span>
           </p>
         </div>
 

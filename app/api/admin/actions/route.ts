@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase";
 
-const ADMIN_EMAIL = "trond.skattum@gmail.com";
+const ADMIN_EMAIL = "trond@biotechtube.io";
 
 const BASE_DIR = "/Users/trondmariusbrilskattum/Desktop/Biotechtube/biotechtube";
 

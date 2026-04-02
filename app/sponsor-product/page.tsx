@@ -226,7 +226,7 @@ export default function SponsorProductPage() {
               </ul>
 
               <Link
-                href="mailto:hello@biotechtube.com?subject=Product Sponsorship Inquiry"
+                href="mailto:hello@biotechtube.io?subject=Product Sponsorship Inquiry"
                 className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-[13px] font-medium transition-opacity"
                 style={{
                   background: plan.highlighted ? "#6366f1" : "var(--color-bg-secondary)",
@@ -304,7 +304,7 @@ export default function SponsorProductPage() {
             Contact us to get started. We will help you choose the right plan and set up your listing.
           </p>
           <Link
-            href="mailto:hello@biotechtube.com?subject=Product Sponsorship Inquiry"
+            href="mailto:hello@biotechtube.io?subject=Product Sponsorship Inquiry"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-[14px] font-medium text-white transition-opacity"
             style={{ background: "#6366f1" }}
           >
