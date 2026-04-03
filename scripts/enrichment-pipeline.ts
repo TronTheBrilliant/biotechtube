@@ -877,9 +877,8 @@ async function writeReport(
   if (report.founded && !company.founded) {
     companyUpdate.founded = report.founded;
   }
-  if (report.ticker && !company.ticker) {
-    companyUpdate.ticker = report.ticker;
-  }
+  // NOTE: Do NOT backfill ticker — AI hallucinated tickers caused duplicate
+  // ticker assignments to subsidiaries, inflating market cap indices.
 
   if (Object.keys(companyUpdate).length > 0) {
     await supabase.from("companies").update(companyUpdate).eq("id", company.id);
