@@ -5,7 +5,6 @@ interface Props {
   companyName: string;
   tagline: string | null;
   logoUrl: string | null;
-  domain: string | null;
   ticker: string | null;
   marketCap: number | null;
   founded: number | null;
@@ -13,13 +12,15 @@ interface Props {
   city: string | null;
   sectors: string[];
   brandColor: string;
+  pipelineCount: number;
+  publicationCount: number;
+  patentCount: number;
 }
 
 export function TemplateHero({
   companyName,
   tagline,
   logoUrl,
-  domain,
   ticker,
   marketCap,
   founded,
@@ -27,68 +28,73 @@ export function TemplateHero({
   city,
   sectors,
   brandColor,
+  pipelineCount,
+  publicationCount,
+  patentCount,
 }: Props) {
-  const imgSrc = logoUrl || (domain ? `https://img.logo.dev/${domain}?token=pk_FNHUWoZORpiR_7j_vzFnmQ&size=200` : null);
   const location = [city, country].filter(Boolean).join(", ");
 
   return (
     <section
-      className="relative min-h-[85vh] flex items-center justify-center overflow-hidden"
+      className="relative overflow-hidden"
       style={{
-        background: `linear-gradient(135deg, ${brandColor}08 0%, ${brandColor}15 50%, ${brandColor}05 100%)`,
+        background: `linear-gradient(170deg, ${brandColor}06 0%, ${brandColor}12 40%, ${brandColor}04 100%)`,
+        minHeight: "90vh",
+        display: "flex",
+        alignItems: "center",
       }}
     >
-      {/* Subtle grid pattern */}
+      {/* Subtle ambient glow */}
       <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `radial-gradient(circle, ${brandColor} 1px, transparent 1px)`,
-          backgroundSize: "32px 32px",
-        }}
+        className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-[0.07] blur-[120px]"
+        style={{ background: brandColor }}
       />
 
-      <div className="relative z-10 text-center max-w-3xl mx-auto px-6 py-32">
+      <div className="relative z-10 w-full max-w-4xl mx-auto px-6 py-24 sm:py-32 text-center">
         {/* Logo */}
-        {imgSrc && (
-          <div className="mb-8 animate-fadeIn">
+        {logoUrl && (
+          <div className="mb-10">
             <img
-              src={imgSrc}
+              src={logoUrl}
               alt={companyName}
-              width={80}
-              height={80}
+              width={72}
+              height={72}
               className="mx-auto rounded-2xl"
-              style={{ boxShadow: `0 8px 40px ${brandColor}20` }}
+              style={{
+                boxShadow: `0 12px 48px ${brandColor}18`,
+                background: "var(--color-bg-primary)",
+                padding: 8,
+              }}
             />
           </div>
         )}
 
-        {/* Ticker badge */}
+        {/* Ticker */}
         {ticker && (
-          <div
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full mb-6 animate-fadeIn"
-            style={{
-              background: "var(--t-brand-subtle)",
-              color: "var(--t-brand)",
-              fontSize: 13,
-              fontWeight: 500,
-              animationDelay: "0.1s",
-            }}
-          >
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--t-brand)" }} />
-            {ticker}
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <span
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full"
+              style={{
+                background: `${brandColor}12`,
+                color: brandColor,
+                fontSize: 13,
+                fontWeight: 500,
+              }}
+            >
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: brandColor }} />
+              {ticker}
+            </span>
           </div>
         )}
 
-        {/* Company name */}
+        {/* Name */}
         <h1
-          className="animate-fadeIn"
           style={{
-            fontSize: "clamp(36px, 5vw, 56px)",
+            fontSize: "clamp(40px, 6vw, 64px)",
             fontWeight: 300,
-            color: "var(--t-text)",
-            letterSpacing: "-0.02em",
-            lineHeight: 1.1,
-            animationDelay: "0.15s",
+            color: "var(--color-text-primary)",
+            letterSpacing: "-0.03em",
+            lineHeight: 1.05,
           }}
         >
           {companyName}
@@ -97,32 +103,31 @@ export function TemplateHero({
         {/* Tagline */}
         {tagline && (
           <p
-            className="mt-6 animate-fadeIn"
+            className="mt-6 mx-auto"
             style={{
               fontSize: "clamp(16px, 2vw, 20px)",
-              color: "var(--t-text-secondary)",
+              color: "var(--color-text-secondary)",
               lineHeight: 1.6,
               fontWeight: 300,
-              maxWidth: 560,
-              margin: "24px auto 0",
-              animationDelay: "0.25s",
+              maxWidth: 540,
             }}
           >
             {tagline}
           </p>
         )}
 
-        {/* Sector badges */}
+        {/* Sectors */}
         {sectors.length > 0 && (
-          <div className="flex flex-wrap justify-center gap-2 mt-8 animate-fadeIn" style={{ animationDelay: "0.3s" }}>
+          <div className="flex flex-wrap justify-center gap-2 mt-8">
             {sectors.map((s) => (
               <span
                 key={s}
                 className="px-3 py-1 rounded-full"
                 style={{
                   fontSize: 12,
-                  color: "var(--t-text-secondary)",
-                  border: "0.5px solid var(--t-border-medium)",
+                  color: "var(--color-text-secondary)",
+                  border: "0.5px solid var(--color-border-medium)",
+                  background: "var(--color-bg-primary)",
                 }}
               >
                 {s}
@@ -131,25 +136,22 @@ export function TemplateHero({
           </div>
         )}
 
-        {/* Key metrics */}
-        <div
-          className="flex flex-wrap justify-center gap-8 sm:gap-12 mt-12 animate-fadeIn"
-          style={{ animationDelay: "0.4s" }}
-        >
+        {/* Key metrics grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 mt-14 max-w-3xl mx-auto">
           {marketCap && marketCap > 0 && (
-            <Metric label="Market Cap" value={formatMarketCap(marketCap)} />
+            <MetricPill label="Market Cap" value={formatMarketCap(marketCap)} />
           )}
-          {founded && <Metric label="Founded" value={String(founded)} />}
-          {location && <Metric label="Headquarters" value={location} />}
+          {founded && <MetricPill label="Founded" value={String(founded)} />}
+          {location && <MetricPill label="HQ" value={location} />}
+          {pipelineCount > 0 && <MetricPill label="Pipeline" value={`${pipelineCount} programs`} />}
+          {publicationCount > 0 && <MetricPill label="Publications" value={String(publicationCount)} />}
+          {patentCount > 0 && <MetricPill label="Patents" value={String(patentCount)} />}
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce"
-        style={{ color: "var(--t-text-tertiary)" }}
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+      {/* Scroll cue */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce" style={{ color: "var(--color-text-tertiary)" }}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
           <path d="M12 5v14M19 12l-7 7-7-7" />
         </svg>
       </div>
@@ -157,13 +159,19 @@ export function TemplateHero({
   );
 }
 
-function Metric({ label, value }: { label: string; value: string }) {
+function MetricPill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="text-center">
-      <div style={{ fontSize: 13, color: "var(--t-text-tertiary)", letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 4 }}>
+    <div
+      className="rounded-xl px-3 py-3 text-center"
+      style={{
+        background: "var(--color-bg-primary)",
+        border: "0.5px solid var(--color-border-subtle)",
+      }}
+    >
+      <div style={{ fontSize: 10, color: "var(--color-text-tertiary)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
         {label}
       </div>
-      <div style={{ fontSize: 22, fontWeight: 400, color: "var(--t-text)" }}>
+      <div className="mt-1" style={{ fontSize: 15, fontWeight: 400, color: "var(--color-text-primary)" }}>
         {value}
       </div>
     </div>
