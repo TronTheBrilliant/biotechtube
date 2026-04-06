@@ -1,56 +1,109 @@
 "use client";
+import { ExternalLink, MapPin, Globe } from "lucide-react";
 
 interface Props {
   companyName: string;
   website: string | null;
   country: string | null;
   city: string | null;
+  ticker: string | null;
+  founded: number | null;
+  sectors: string[];
+  brandColor: string;
 }
 
-export function TemplateFooter({ companyName, website, country, city }: Props) {
+export function TemplateFooter({ companyName, website, country, city, ticker, founded, sectors, brandColor }: Props) {
   const location = [city, country].filter(Boolean).join(", ");
+  const websiteUrl = website && (website.startsWith("http") ? website : `https://${website}`);
+  const domain = website?.replace(/^https?:\/\//, "").replace(/\/$/, "");
 
   return (
     <footer
       id="contact"
       className="py-20 sm:py-28"
-      style={{ background: "var(--t-bg-secondary)", borderTop: "0.5px solid var(--t-border)" }}
+      style={{ background: "var(--color-bg-secondary)", borderTop: "0.5px solid var(--color-border-subtle)" }}
     >
-      <div className="max-w-[1200px] mx-auto px-6 text-center">
-        <div style={{ fontSize: 11, fontWeight: 500, color: "var(--t-brand)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
-          Contact
-        </div>
-        <h2 className="mt-3" style={{ fontSize: "clamp(24px, 4vw, 36px)", fontWeight: 300, color: "var(--t-text)" }}>
-          Get in Touch
-        </h2>
+      <div className="max-w-[1200px] mx-auto px-6">
+        <div className="grid md:grid-cols-2 gap-12">
+          {/* Left: company info */}
+          <div>
+            <span style={{ fontSize: 11, fontWeight: 500, color: brandColor, textTransform: "uppercase", letterSpacing: "0.1em" }}>
+              Contact
+            </span>
+            <h2 className="mt-3" style={{ fontSize: "clamp(24px, 4vw, 36px)", fontWeight: 300, color: "var(--color-text-primary)" }}>
+              Get in Touch with {companyName}
+            </h2>
+            <div className="flex flex-col gap-3 mt-8">
+              {websiteUrl && (
+                <a
+                  href={websiteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 transition-opacity hover:opacity-70"
+                  style={{ fontSize: 14, color: brandColor }}
+                >
+                  <Globe size={14} />
+                  {domain}
+                  <ExternalLink size={12} />
+                </a>
+              )}
+              {location && (
+                <div className="flex items-center gap-2" style={{ fontSize: 14, color: "var(--color-text-secondary)" }}>
+                  <MapPin size={14} />
+                  {location}
+                </div>
+              )}
+            </div>
 
-        <div className="flex flex-wrap justify-center gap-6 mt-8">
-          {website && (
-            <a
-              href={website.startsWith("http") ? website : `https://${website}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-6 py-3 rounded-lg transition-opacity hover:opacity-80"
-              style={{
-                background: "var(--t-brand)",
-                color: "white",
-                fontSize: 14,
-                fontWeight: 500,
-              }}
-            >
-              Visit Website
-            </a>
-          )}
-        </div>
+            {websiteUrl && (
+              <a
+                href={websiteUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block mt-8 px-6 py-3 rounded-lg transition-opacity hover:opacity-90"
+                style={{ background: brandColor, color: "white", fontSize: 14, fontWeight: 500 }}
+              >
+                Visit Official Website
+              </a>
+            )}
+          </div>
 
-        {location && (
-          <p className="mt-6" style={{ fontSize: 14, color: "var(--t-text-tertiary)" }}>
-            {location}
-          </p>
-        )}
+          {/* Right: quick facts */}
+          <div>
+            <h3 style={{ fontSize: 14, fontWeight: 500, color: "var(--color-text-primary)", marginBottom: 16 }}>
+              Quick Facts
+            </h3>
+            <div className="flex flex-col gap-3">
+              {ticker && (
+                <div className="flex justify-between py-2" style={{ borderBottom: "0.5px solid var(--color-border-subtle)" }}>
+                  <span style={{ fontSize: 13, color: "var(--color-text-tertiary)" }}>Ticker</span>
+                  <span style={{ fontSize: 13, fontWeight: 500, color: "var(--color-text-primary)" }}>{ticker}</span>
+                </div>
+              )}
+              {founded && (
+                <div className="flex justify-between py-2" style={{ borderBottom: "0.5px solid var(--color-border-subtle)" }}>
+                  <span style={{ fontSize: 13, color: "var(--color-text-tertiary)" }}>Founded</span>
+                  <span style={{ fontSize: 13, fontWeight: 500, color: "var(--color-text-primary)" }}>{founded}</span>
+                </div>
+              )}
+              {location && (
+                <div className="flex justify-between py-2" style={{ borderBottom: "0.5px solid var(--color-border-subtle)" }}>
+                  <span style={{ fontSize: 13, color: "var(--color-text-tertiary)" }}>Headquarters</span>
+                  <span style={{ fontSize: 13, fontWeight: 500, color: "var(--color-text-primary)" }}>{location}</span>
+                </div>
+              )}
+              {sectors.length > 0 && (
+                <div className="flex justify-between py-2" style={{ borderBottom: "0.5px solid var(--color-border-subtle)" }}>
+                  <span style={{ fontSize: 13, color: "var(--color-text-tertiary)" }}>Sector</span>
+                  <span style={{ fontSize: 13, fontWeight: 500, color: "var(--color-text-primary)" }}>{sectors.join(", ")}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
 
         {/* Powered by badge */}
-        <div className="mt-16 pt-8" style={{ borderTop: "0.5px solid var(--t-border)" }}>
+        <div className="mt-16 pt-8 flex items-center justify-between" style={{ borderTop: "0.5px solid var(--color-border-subtle)" }}>
           <a
             href="https://biotechtube.io"
             target="_blank"
@@ -58,8 +111,8 @@ export function TemplateFooter({ companyName, website, country, city }: Props) {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full transition-opacity hover:opacity-80"
             style={{
               fontSize: 11,
-              color: "var(--t-text-tertiary)",
-              border: "0.5px solid var(--t-border)",
+              color: "var(--color-text-tertiary)",
+              border: "0.5px solid var(--color-border-subtle)",
             }}
           >
             <svg width={14} height={14} viewBox="0 0 129.82 123.26" fill="currentColor">
@@ -68,6 +121,9 @@ export function TemplateFooter({ companyName, website, country, city }: Props) {
             </svg>
             Powered by BiotechTube
           </a>
+          <span style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>
+            Data updated daily
+          </span>
         </div>
       </div>
     </footer>

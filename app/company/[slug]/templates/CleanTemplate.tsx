@@ -27,6 +27,7 @@ const ALL_SECTIONS = [
 const TEMPLATE_STYLES = `
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  html { scroll-behavior: smooth; }
 `;
 
 export function CleanTemplate(props: TemplateProps) {
@@ -160,18 +161,48 @@ export function CleanTemplate(props: TemplateProps) {
                 {props.company.ticker || "Market"} Price History
               </h2>
 
-              {latestPrice && (
-                <div className="flex items-baseline gap-3 mt-4">
-                  <span style={{ fontSize: 28, fontWeight: 300, color: "var(--color-text-primary)" }}>
-                    {currency} {latestPrice.price.toFixed(2)}
-                  </span>
-                  {marketCap && (
-                    <span style={{ fontSize: 14, color: "var(--color-text-tertiary)" }}>
-                      {formatMarketCap(marketCap)} market cap
-                    </span>
-                  )}
-                </div>
-              )}
+              {latestPrice && (() => {
+                const prices = chartData.map(d => d.price).filter(p => p > 0);
+                const high52w = Math.max(...prices);
+                const low52w = Math.min(...prices);
+                const yearAgoPrice = chartData.length > 250 ? chartData[chartData.length - 250].price : chartData[0].price;
+                const ytdChange = yearAgoPrice > 0 ? ((latestPrice.price - yearAgoPrice) / yearAgoPrice * 100) : 0;
+
+                return (
+                  <>
+                    <div className="flex items-baseline gap-3 mt-4">
+                      <span style={{ fontSize: 28, fontWeight: 300, color: "var(--color-text-primary)" }}>
+                        {currency} {latestPrice.price.toFixed(2)}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: 14,
+                          fontWeight: 500,
+                          color: ytdChange >= 0 ? "#059669" : "#dc2626",
+                        }}
+                      >
+                        {ytdChange >= 0 ? "+" : ""}{ytdChange.toFixed(1)}% YTD
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-6 mt-4">
+                      {marketCap && (
+                        <div>
+                          <span style={{ fontSize: 11, color: "var(--color-text-tertiary)", textTransform: "uppercase" }}>Market Cap</span>
+                          <div style={{ fontSize: 14, color: "var(--color-text-primary)", marginTop: 2 }}>{formatMarketCap(marketCap)}</div>
+                        </div>
+                      )}
+                      <div>
+                        <span style={{ fontSize: 11, color: "var(--color-text-tertiary)", textTransform: "uppercase" }}>52W High</span>
+                        <div style={{ fontSize: 14, color: "var(--color-text-primary)", marginTop: 2 }}>{currency} {high52w.toFixed(2)}</div>
+                      </div>
+                      <div>
+                        <span style={{ fontSize: 11, color: "var(--color-text-tertiary)", textTransform: "uppercase" }}>52W Low</span>
+                        <div style={{ fontSize: 14, color: "var(--color-text-primary)", marginTop: 2 }}>{currency} {low52w.toFixed(2)}</div>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
 
               <div className="mt-8 rounded-xl overflow-hidden" style={{ border: "0.5px solid var(--color-border-subtle)" }}>
                 <TvStockChart
@@ -234,6 +265,10 @@ export function CleanTemplate(props: TemplateProps) {
           website={props.company.website || null}
           country={props.company.country || null}
           city={null}
+          ticker={props.company.ticker || null}
+          founded={props.company.founded || null}
+          sectors={sectorNames}
+          brandColor={brandColor}
         />
       </div>
     </>
