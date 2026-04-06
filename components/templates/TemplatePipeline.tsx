@@ -1,7 +1,7 @@
 "use client";
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { FlaskConical, ChevronRight } from "lucide-react";
+import { FlaskConical, ChevronRight, Search } from "lucide-react";
 import type { PipelineRow } from "@/lib/template-types";
 
 interface Props {
@@ -32,6 +32,7 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
 export function TemplatePipeline({ pipelines, brandColor }: Props) {
   const [selectedStage, setSelectedStage] = useState<string | null>(null);
   const [expandedDrug, setExpandedDrug] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   if (pipelines.length === 0) return null;
 
@@ -50,9 +51,22 @@ export function TemplatePipeline({ pipelines, brandColor }: Props) {
 
   // Filtered drugs
   const displayedDrugs = useMemo(() => {
-    if (!selectedStage) return pipelines.filter((p) => p.trial_status === "Recruiting" || p.trial_status === "Active").slice(0, 12);
-    return byStage.get(selectedStage) || [];
-  }, [selectedStage, pipelines, byStage]);
+    let drugs: PipelineRow[];
+    if (!selectedStage) {
+      drugs = pipelines.filter((p) => p.trial_status === "Recruiting" || p.trial_status === "Active");
+    } else {
+      drugs = byStage.get(selectedStage) || [];
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      drugs = drugs.filter((d) =>
+        d.product_name.toLowerCase().includes(q) ||
+        (d.indication && d.indication.toLowerCase().includes(q)) ||
+        (d.conditions && String(d.conditions).toLowerCase().includes(q))
+      );
+    }
+    return drugs.slice(0, 24);
+  }, [selectedStage, pipelines, byStage, searchQuery]);
 
   // Active trials count
   const activeCount = pipelines.filter((p) => p.trial_status === "Recruiting" || p.trial_status === "Active").length;
@@ -67,6 +81,24 @@ export function TemplatePipeline({ pipelines, brandColor }: Props) {
         <p className="mt-3" style={{ fontSize: 16, color: "var(--color-text-secondary)", lineHeight: 1.6 }}>
           {pipelines.length} programs across {stagesWithData.length} stages. {activeCount} actively recruiting.
         </p>
+
+        {/* Search */}
+        <div className="relative mt-8">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--color-text-tertiary)" }} />
+          <input
+            type="text"
+            placeholder="Search drugs, indications, conditions..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-9 pr-4 py-2.5 rounded-lg outline-none transition-colors"
+            style={{
+              fontSize: 13,
+              background: "var(--color-bg-secondary)",
+              border: "0.5px solid var(--color-border-subtle)",
+              color: "var(--color-text-primary)",
+            }}
+          />
+        </div>
 
         {/* Stage progress bar — visual overview */}
         <div className="mt-10 flex gap-1 h-10 rounded-xl overflow-hidden" style={{ background: "var(--color-bg-secondary)" }}>
@@ -148,11 +180,12 @@ export function TemplatePipeline({ pipelines, brandColor }: Props) {
             return (
               <div
                 key={drug.id}
-                className="rounded-xl transition-all cursor-pointer"
+                className="rounded-xl transition-all cursor-pointer hover:scale-[1.01]"
                 style={{
                   background: "var(--color-bg-primary)",
                   border: `0.5px solid ${isExpanded ? config.color : "var(--color-border-subtle)"}`,
-                  boxShadow: isExpanded ? `0 4px 20px ${config.color}15` : "none",
+                  boxShadow: isExpanded ? `0 4px 20px ${config.color}15` : "0 1px 3px rgba(0,0,0,0.04)",
+                  transition: "all 0.2s ease",
                 }}
                 onClick={() => setExpandedDrug(isExpanded ? null : drug.id)}
               >
