@@ -136,15 +136,24 @@ export default async function MarketPage() {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
-  // Fetch latest snapshot for KPIs, and last 1000 snapshots for chart
-  // (was previously fetching ALL 9,000+ rows in a pagination loop — caused Vercel overage)
-  const { data: snapshotsRaw } = await supabase
-    .from("market_snapshots")
-    .select("snapshot_date, total_market_cap, public_companies_count, total_volume, change_1d_pct, change_7d_pct, change_30d_pct, change_ytd_pct, top_gainer_id, top_gainer_pct, top_loser_id, top_loser_pct")
-    .order("snapshot_date", { ascending: false })
-    .limit(1000);
+  // Paginate to fetch all ~9K snapshots (Supabase caps each query at 1000 rows).
+  // With revalidate=7200 this runs at most once/2hrs, not on every request.
+  const allSnapshots: MarketSnapshot[] = [];
+  const PAGE = 1000;
+  let offset = 0;
+  while (true) {
+    const { data } = await supabase
+      .from("market_snapshots")
+      .select("snapshot_date, total_market_cap, public_companies_count, total_volume, change_1d_pct, change_7d_pct, change_30d_pct, change_ytd_pct, top_gainer_id, top_gainer_pct, top_loser_id, top_loser_pct")
+      .order("snapshot_date", { ascending: false })
+      .range(offset, offset + PAGE - 1);
+    if (!data || data.length === 0) break;
+    allSnapshots.push(...(data as unknown as MarketSnapshot[]));
+    if (data.length < PAGE) break;
+    offset += PAGE;
+  }
 
-  const typedSnapshots = (snapshotsRaw || []) as unknown as MarketSnapshot[];
+  const typedSnapshots = allSnapshots;
   const latestSnapshot = typedSnapshots.length > 0 ? typedSnapshots[0] : null;
   const history = [...typedSnapshots].reverse();
 

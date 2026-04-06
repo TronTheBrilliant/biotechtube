@@ -153,11 +153,11 @@ async function getTrendingCompanies() {
     }
     if (!latestDate) return [];
   }
-  const thirtyDaysAgo = new Date(latestDate);
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 35);
-  const oldCutoff = thirtyDaysAgo.toISOString().split("T")[0];
+  const sevenDaysAgo = new Date(latestDate);
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 10);
+  const oldCutoff = sevenDaysAgo.toISOString().split("T")[0];
   const oldEnd = new Date(latestDate);
-  oldEnd.setDate(oldEnd.getDate() - 25);
+  oldEnd.setDate(oldEnd.getDate() - 5);
   const oldEndStr = oldEnd.toISOString().split("T")[0];
 
   // Get current prices (last 5 trading days to catch all markets) — use adj_close for price-based trending
@@ -172,7 +172,7 @@ async function getTrendingCompanies() {
     .order("date", { ascending: false })
     .limit(5000); // ~1000 companies × 5 days
 
-  // Get old prices (~30 days ago range) — use adj_close for price-based comparison
+  // Get old prices (~7 days ago range) — use adj_close for price-based comparison
   const { data: oldPrices } = await supabase
     .from("company_price_history")
     .select("company_id, market_cap_usd, adj_close, date")
@@ -198,19 +198,19 @@ async function getTrendingCompanies() {
     }
   }
 
-  // Compute 30d change from adj_close price — currency-neutral, no shares_outstanding artifacts
-  const changes: { companyId: string; change30d: number; marketCap: number }[] = [];
+  // Compute 7d change from adj_close price — currency-neutral, no shares_outstanding artifacts
+  const changes: { companyId: string; change7d: number; marketCap: number }[] = [];
   currentMap.forEach((current, companyId) => {
     const oldAdjClose = oldMap.get(companyId);
     if (oldAdjClose && oldAdjClose > 0 && current.adjClose > 0 && current.marketCap > 100_000_000) {
       const pct = ((current.adjClose - oldAdjClose) / oldAdjClose) * 100;
       if (Math.abs(pct) <= 80) {
-        changes.push({ companyId, change30d: Math.round(pct * 100) / 100, marketCap: current.marketCap });
+        changes.push({ companyId, change7d: Math.round(pct * 100) / 100, marketCap: current.marketCap });
       }
     }
   });
 
-  changes.sort((a, b) => b.change30d - a.change30d);
+  changes.sort((a, b) => b.change7d - a.change7d);
   const top5Ids = changes.slice(0, 5).map((c) => c.companyId);
 
   // Fetch company details
@@ -233,7 +233,7 @@ async function getTrendingCompanies() {
       country: c?.country || null,
       logo_url: c?.logo_url || null,
       website: c?.website || null,
-      change30d: ch.change30d,
+      change7d: ch.change7d,
       marketCap: ch.marketCap,
     };
   }).filter((c) => c.slug);
@@ -370,18 +370,43 @@ async function getTopPeopleData() {
 
 async function getIndexHistory() {
   const supabase = getSupabase();
-  // Fetch last 1000 snapshots (was looping through ALL 9K+ — caused Vercel overage)
-  const { data } = await supabase
-    .from("market_snapshots")
-    .select("snapshot_date, total_market_cap")
-    .not("total_market_cap", "is", null)
-    .order("snapshot_date", { ascending: false })
-    .limit(1000);
+  // Paginate all ~9K snapshots (Supabase caps each query at 1000 rows).
+  // ISR revalidate=3600 ensures this only runs once per hour.
+  const allRows: { snapshot_date: string; total_market_cap: string | number }[] = [];
+  const PAGE = 1000;
+  let offset = 0;
+  while (true) {
+    const { data } = await supabase
+      .from("market_snapshots")
+      .select("snapshot_date, total_market_cap")
+      .not("total_market_cap", "is", null)
+      .order("snapshot_date", { ascending: true })
+      .range(offset, offset + PAGE - 1);
+    if (!data || data.length === 0) break;
+    allRows.push(...data);
+    if (data.length < PAGE) break;
+    offset += PAGE;
+  }
 
-  return (data ?? []).reverse().map((row: { snapshot_date: string; total_market_cap: string | number }) => ({
-    snapshot_date: row.snapshot_date,
-    total_market_cap: Number(row.total_market_cap),
-  }));
+  if (allRows.length === 0) return [];
+
+  // Simple uniform thinning: target ~600 points for the chart.
+  // Client-side BiotechIndexChart can further downsample if needed.
+  const target = 600;
+  const step = allRows.length > target ? Math.floor(allRows.length / target) : 1;
+  const result: { snapshot_date: string; total_market_cap: number }[] = [];
+  for (let i = 0; i < allRows.length; i += step) {
+    result.push({
+      snapshot_date: allRows[i].snapshot_date,
+      total_market_cap: Number(allRows[i].total_market_cap),
+    });
+  }
+  // Always include the very last point
+  const last = allRows[allRows.length - 1];
+  if (result[result.length - 1].snapshot_date !== last.snapshot_date) {
+    result.push({ snapshot_date: last.snapshot_date, total_market_cap: Number(last.total_market_cap) });
+  }
+  return result;
 }
 
 async function getHotPipelines() {

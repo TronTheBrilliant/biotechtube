@@ -385,19 +385,25 @@ function buildTimelineEvents(company: ReturnType<typeof dbRowToCompany>, funding
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function getPriceHistory(companyId: string): Promise<any[]> {
   const supabase = getSupabase();
-  // Fetch last 2 years of price history (max ~500 rows) — sufficient for charts
-  const twoYearsAgo = new Date();
-  twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
-  const cutoff = twoYearsAgo.toISOString().split('T')[0];
-
-  const { data } = await supabase
-    .from('company_price_history')
-    .select('date, close, adj_close, volume, market_cap_usd, currency')
-    .eq('company_id', companyId)
-    .gte('date', cutoff)
-    .order('date', { ascending: true })
-    .limit(1000);
-  return data || [];
+  // Fetch ALL price history — paginate since Supabase caps at 1000 rows per query.
+  // Some companies (e.g. LLY) have 9K+ rows going back to 1990.
+  const PAGE = 1000;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const allRows: any[] = [];
+  let offset = 0;
+  while (true) {
+    const { data } = await supabase
+      .from('company_price_history')
+      .select('date, close, adj_close, volume, market_cap_usd, currency')
+      .eq('company_id', companyId)
+      .order('date', { ascending: true })
+      .range(offset, offset + PAGE - 1);
+    if (!data || data.length === 0) break;
+    allRows.push(...data);
+    if (data.length < PAGE) break;
+    offset += PAGE;
+  }
+  return allRows;
 }
 
 export async function generateMetadata({

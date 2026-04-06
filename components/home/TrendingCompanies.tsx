@@ -9,7 +9,7 @@ interface TrendingCompany {
   country: string | null;
   logo_url: string | null;
   website?: string | null;
-  change30d: number;
+  change7d: number;
   marketCap: number;
 }
 
@@ -69,12 +69,12 @@ export function TrendingCompanies({ companies }: TrendingCompaniesProps) {
           {/* Spacer */}
           <div className="flex-1" />
 
-          {/* 30D change */}
+          {/* 7D change */}
           <span
             className="text-13 font-semibold flex-shrink-0"
-            style={{ color: pctColor(company.change30d) }}
+            style={{ color: pctColor(company.change7d) }}
           >
-            {formatChange(company.change30d)}
+            {formatChange(company.change7d)}
           </span>
 
           {/* Market cap */}

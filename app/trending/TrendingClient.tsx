@@ -196,7 +196,8 @@ function CompanyTable({
 }
 
 export default function TrendingClient({ companies }: Props) {
-  const [period, setPeriod] = useState<Period>("30d");
+  const [period, setPeriod] = useState<Period>("7d");
+  const [showLosers, setShowLosers] = useState(false);
 
   const periods: Period[] = ["24h", "7d", "30d"];
 
@@ -272,26 +273,39 @@ export default function TrendingClient({ companies }: Props) {
         )}
       </div>
 
-      {/* Top Gainers */}
-      <div className="mb-8">
-        <h2
-          className="text-[20px] md:text-[24px] font-bold tracking-tight mb-3"
-          style={{ color: "var(--color-text-primary)", letterSpacing: "-0.5px" }}
-        >
-          Top Gainers
-        </h2>
-        <CompanyTable companies={companies} period={period} isLosers={false} />
-      </div>
-
-      {/* Top Losers */}
+      {/* Gainers / Losers toggle + table */}
       <div>
-        <h2
-          className="text-[20px] md:text-[24px] font-bold tracking-tight mb-3"
-          style={{ color: "var(--color-text-primary)", letterSpacing: "-0.5px" }}
-        >
-          Top Losers
-        </h2>
-        <CompanyTable companies={companies} period={period} isLosers={true} />
+        <div className="flex items-center gap-4 mb-3">
+          <button
+            onClick={() => setShowLosers(false)}
+            className="text-[20px] md:text-[24px] font-bold tracking-tight transition-colors duration-150"
+            style={{
+              color: !showLosers ? "var(--color-text-primary)" : "var(--color-text-tertiary)",
+              letterSpacing: "-0.5px",
+              background: "none",
+              border: "none",
+              padding: 0,
+              cursor: "pointer",
+            }}
+          >
+            Top Gainers
+          </button>
+          <button
+            onClick={() => setShowLosers(true)}
+            className="text-[20px] md:text-[24px] font-bold tracking-tight transition-colors duration-150"
+            style={{
+              color: showLosers ? "var(--color-text-primary)" : "var(--color-text-tertiary)",
+              letterSpacing: "-0.5px",
+              background: "none",
+              border: "none",
+              padding: 0,
+              cursor: "pointer",
+            }}
+          >
+            Top Losers
+          </button>
+        </div>
+        <CompanyTable companies={companies} period={period} isLosers={showLosers} />
       </div>
     </>
   );
