@@ -210,7 +210,7 @@ async function getCompanyClaim(companyId: string) {
   const supabase = getSupabase();
   const { data } = await supabase
     .from('company_claims')
-    .select('id, status, plan, verified_at, user_id')
+    .select('id, status, plan, verified_at, user_id, template, brand_color, hero_tagline')
     .eq('company_id', companyId)
     .eq('status', 'verified')
     .single();
@@ -575,6 +575,43 @@ export default async function CompanyPage({
 
   // Remove undefined values
   const cleanJsonLd = JSON.parse(JSON.stringify(jsonLd));
+
+  // ─── Premium Template Routing ───
+  // If company has a template set in their claim, render the template instead
+  const templateId = companyClaim?.template || null;
+  const brandColor = companyClaim?.brand_color || '#059669';
+  const heroTagline = companyClaim?.hero_tagline || null;
+
+  if (templateId === 'clean') {
+    const { CleanTemplate } = await import('./templates/CleanTemplate');
+    return (
+      <article>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(cleanJsonLd) }}
+        />
+        <CleanTemplate
+          company={company}
+          companyId={companyId}
+          companyFunding={companyFunding}
+          similar={similar}
+          report={report}
+          sectors={sectors}
+          pipelines={pipelines}
+          dbFundingRounds={dbFundingRounds}
+          fdaApprovals={fdaApprovals}
+          publications={publications}
+          patents={patents}
+          priceHistory={priceHistory}
+          teamMembers={companyTeam}
+          timelineEvents={timelineEvents}
+          followerCount={followerCount}
+          brandColor={brandColor}
+          heroTagline={heroTagline}
+        />
+      </article>
+    );
+  }
 
   return (
     <article>

@@ -3,9 +3,9 @@
   "configurations": [
     {
       "name": "biotechtube-dev",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
-      "port": 3000
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH && cd /Users/trondmariusbrilskattum/Desktop/Biotechtube/biotechtube && npx next dev -p 3002"],
+      "port": 3002
     }
   ]
 }
