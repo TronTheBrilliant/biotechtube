@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { useTheme } from "next-themes";
 import type { TemplateProps } from "@/lib/template-types";
 import { generatePalette, getThemeVars } from "@/lib/template-colors";
 import { formatMarketCap } from "@/lib/market-utils";
@@ -41,10 +42,20 @@ const TEMPLATE_STYLES = `
     opacity: 1;
     transform: translateY(0);
   }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 `;
 
 export function CleanTemplate(props: TemplateProps) {
-  const [isDark, setIsDark] = useState(false);
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const isDark = mounted ? resolvedTheme === "dark" : false;
+
+  const toggleTheme = useCallback(() => {
+    setTheme(isDark ? "light" : "dark");
+  }, [isDark, setTheme]);
 
   const palette = useMemo(() => generatePalette(props.brandColor), [props.brandColor]);
   const themeVars = useMemo(() => getThemeVars(palette, isDark ? "dark" : "light"), [palette, isDark]);
@@ -98,6 +109,7 @@ export function CleanTemplate(props: TemplateProps) {
           background: "var(--t-bg)",
           color: "var(--t-text)",
           minHeight: "100vh",
+          paddingBottom: 60, // space for fixed bottom nav
           fontFamily: "'Geist', -apple-system, sans-serif",
         } as React.CSSProperties}
       >
@@ -107,7 +119,7 @@ export function CleanTemplate(props: TemplateProps) {
           logoUrl={props.company.logoUrl || null}
           domain={props.company.website || null}
           isDark={isDark}
-          onToggleTheme={() => setIsDark(!isDark)}
+          onToggleTheme={toggleTheme}
           sections={activeSections}
         />
 
