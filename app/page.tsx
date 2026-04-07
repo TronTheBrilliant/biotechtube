@@ -749,13 +749,16 @@ export default async function HomePage() {
           <FundingChart data={fundingAnnualData} />
         </HomeSection>
 
-        {/* Pipeline Intelligence — removed Small-Cap Watch + FDA Calendar for cleaner homepage */}
+        {/* Pipeline Intelligence — hidden for now, can be re-enabled later
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {hotPipelines.length > 0 && (
             <HomeSection icon="🧪" title="Pipelines to Watch" viewAllHref="/pipelines" viewAllLabel="Browse all">
               <PipelinesToWatch pipelines={hotPipelines} />
             </HomeSection>
           )}
+        </div>
+        */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         </div>
 
         {/* Funding Radar */}
