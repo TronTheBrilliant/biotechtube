@@ -129,137 +129,24 @@ async function getLatestSnapshot() {
 async function getTrendingCompanies() {
   const supabase = getSupabase();
 
-  // Find the most recent date that has at least 100 companies with market_cap_usd data
-  const { data: dateCounts } = await supabase.rpc("get_recent_price_date_counts" as never);
-  // Fallback: query recent dates manually
-  let latestDate: string | null = null;
-  if (dateCounts && Array.isArray(dateCounts)) {
-    for (const row of dateCounts as { date: string; cnt: number }[]) {
-      if (row.cnt >= 100) { latestDate = row.date; break; }
-    }
-  }
-  if (!latestDate) {
-    // Manual fallback: paginate to find a date with 100+ entries
-    let recentDates: { date: string }[] = [];
-    for (let page = 0; page < 3; page++) {
-      const { data } = await supabase
-        .from("company_price_history")
-        .select("date")
-        .not("market_cap_usd", "is", null)
-        .order("date", { ascending: false })
-        .range(page * 1000, (page + 1) * 1000 - 1);
-      if (!data || data.length === 0) break;
-      recentDates.push(...data);
-      if (data.length < 1000) break;
-    }
-    if (recentDates.length === 0) return [];
-    const countByDate = new Map<string, number>();
-    for (const r of recentDates) {
-      countByDate.set(r.date, (countByDate.get(r.date) || 0) + 1);
-    }
-    const sortedDates = [...countByDate.entries()].sort((a, b) => b[0].localeCompare(a[0]));
-    for (const [d, cnt] of sortedDates) {
-      if (cnt >= 100) { latestDate = d; break; }
-    }
-    if (!latestDate) return [];
-  }
-  const sevenDaysAgo = new Date(latestDate);
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 10);
-  const oldCutoff = sevenDaysAgo.toISOString().split("T")[0];
-  const oldEnd = new Date(latestDate);
-  oldEnd.setDate(oldEnd.getDate() - 5);
-  const oldEndStr = oldEnd.toISOString().split("T")[0];
+  // Use the database RPC — single query instead of 13+ paginated queries
+  const { data: trendingData, error } = await supabase.rpc("get_trending_companies" as never, { limit_count: 5 });
 
-  // Get current prices (last 5 trading days to catch all markets) — use adj_close for price-based trending
-  // Must paginate: ~1000 companies × 5 days = ~5000 rows, exceeds Supabase default 1000 limit
-  const fiveDaysAgo = new Date(latestDate);
-  fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
-  const fiveDaysAgoStr = fiveDaysAgo.toISOString().split("T")[0];
-  let currentPrices: { company_id: string; market_cap_usd: number; adj_close: number | null; date: string }[] = [];
-  for (let page = 0; page < 5; page++) {
-    const { data } = await supabase
-      .from("company_price_history")
-      .select("company_id, market_cap_usd, adj_close, date")
-      .gte("date", fiveDaysAgoStr)
-      .not("market_cap_usd", "is", null)
-      .order("date", { ascending: false })
-      .range(page * 1000, (page + 1) * 1000 - 1);
-    if (!data || data.length === 0) break;
-    currentPrices.push(...data);
-    if (data.length < 1000) break;
-  }
+  if (error) throw new Error(`Trending RPC failed: ${error.message}`);
+  if (!trendingData || !Array.isArray(trendingData) || trendingData.length === 0) return [];
 
-  // Get old prices (~7 days ago range) — use adj_close for price-based comparison
-  let oldPrices: { company_id: string; market_cap_usd: number; adj_close: number | null; date: string }[] = [];
-  for (let page = 0; page < 5; page++) {
-    const { data } = await supabase
-      .from("company_price_history")
-      .select("company_id, market_cap_usd, adj_close, date")
-      .gte("date", oldCutoff)
-      .lte("date", oldEndStr)
-      .not("adj_close", "is", null)
-      .order("date", { ascending: false })
-      .range(page * 1000, (page + 1) * 1000 - 1);
-    if (!data || data.length === 0) break;
-    oldPrices.push(...data);
-    if (data.length < 1000) break;
-  }
-
-  if (currentPrices.length === 0 || oldPrices.length === 0) return [];
-
-  // Build maps — use adj_close for price-based trending (avoids shares_outstanding artifacts)
-  const currentMap = new Map<string, { marketCap: number; adjClose: number }>();
-  for (const r of currentPrices) {
-    if (!currentMap.has(r.company_id) && r.adj_close != null) {
-      currentMap.set(r.company_id, { marketCap: Number(r.market_cap_usd), adjClose: Number(r.adj_close) });
-    }
-  }
-  const oldMap = new Map<string, number>();
-  for (const r of oldPrices) {
-    if (!oldMap.has(r.company_id) && r.adj_close != null) {
-      oldMap.set(r.company_id, Number(r.adj_close));
-    }
-  }
-
-  // Compute 7d change from adj_close price — currency-neutral, no shares_outstanding artifacts
-  const changes: { companyId: string; change7d: number; marketCap: number }[] = [];
-  currentMap.forEach((current, companyId) => {
-    const oldAdjClose = oldMap.get(companyId);
-    if (oldAdjClose && oldAdjClose > 0 && current.adjClose > 0 && current.marketCap > 100_000_000) {
-      const pct = ((current.adjClose - oldAdjClose) / oldAdjClose) * 100;
-      if (Math.abs(pct) <= 80) {
-        changes.push({ companyId, change7d: Math.round(pct * 100) / 100, marketCap: current.marketCap });
-      }
-    }
-  });
-
-  changes.sort((a, b) => b.change7d - a.change7d);
-  const top5Ids = changes.slice(0, 5).map((c) => c.companyId);
-
-  // Fetch company details
-  const { data: companyRows } = await supabase
-    .from("companies")
-    .select("id, slug, name, ticker, country, logo_url, website")
-    .in("id", top5Ids);
-
-  if (!companyRows) return [];
-
-  const companyMap = new Map<string, (typeof companyRows)[0]>();
-  for (const c of companyRows) companyMap.set(c.id, c);
-
-  return changes.slice(0, 5).map((ch) => {
-    const c = companyMap.get(ch.companyId);
-    return {
-      slug: c?.slug || "",
-      name: c?.name || "",
-      ticker: c?.ticker || null,
-      country: c?.country || null,
-      logo_url: c?.logo_url || null,
-      website: c?.website || null,
-      change7d: ch.change7d,
-      marketCap: ch.marketCap,
-    };
-  }).filter((c) => c.slug);
+  // Map RPC results to the expected format
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (trendingData as any[]).map((r) => ({
+    slug: r.company_slug || "",
+    name: r.company_name || "",
+    ticker: r.ticker || null,
+    country: r.country || null,
+    logo_url: r.logo_url || null,
+    website: r.website || null,
+    change7d: Number(r.price_change_pct) || 0,
+    marketCap: Number(r.current_market_cap) || 0,
+  })).filter((c) => c.slug);
 }
 
 async function getTopSectors() {
@@ -688,30 +575,54 @@ async function getNextFDADecisions() {
 
 // ── Page ──
 
+/**
+ * Safe fetch wrapper that distinguishes errors from empty data.
+ * On error: logs and returns fallback, but marks the fetch as failed.
+ * This prevents ISR from caching a page where critical sections are broken.
+ */
+const fetchErrors: string[] = [];
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function safeFetch<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
-  try { return await fn(); } catch (err: any) { console.error("Homepage fetch error:", err?.message || err); return fallback; }
+async function safeFetch<T>(name: string, fn: () => Promise<T>, fallback: T): Promise<T> {
+  try {
+    return await fn();
+  } catch (err: any) {
+    console.error(`Homepage fetch error [${name}]:`, err?.message || err);
+    fetchErrors.push(name);
+    return fallback;
+  }
 }
 
 export default async function HomePage() {
+  // Clear errors for this render
+  fetchErrors.length = 0;
 
   const [companies, snapshot, trending, sectors, countries, investorsData, peopleData, fundingAnnualData, indexHistory, hotPipelines, recentFunding, events, smallCapItems, nextFDADecisions] =
     await Promise.all([
-      safeFetch(getTopCompanies, []),
-      safeFetch(getLatestSnapshot, null),
-      safeFetch(getTrendingCompanies, []),
-      safeFetch(getTopSectors, []),
-      safeFetch(getTopCountries, []),
-      safeFetch(getTopInvestorsData, []),
-      safeFetch(getTopPeopleData, []),
-      safeFetch(getFundingAnnualForHomepage, []),
-      safeFetch(getIndexHistory, []),
-      safeFetch(getHotPipelines, []),
-      safeFetch(getRecentFunding, []),
-      safeFetch(getUpcomingEvents, []),
-      safeFetch(getSmallCapWatchItems, []),
-      safeFetch(getNextFDADecisions, []),
+      safeFetch("topCompanies", getTopCompanies, []),
+      safeFetch("snapshot", getLatestSnapshot, null),
+      safeFetch("trending", getTrendingCompanies, []),
+      safeFetch("sectors", getTopSectors, []),
+      safeFetch("countries", getTopCountries, []),
+      safeFetch("investors", getTopInvestorsData, []),
+      safeFetch("people", getTopPeopleData, []),
+      safeFetch("fundingAnnual", getFundingAnnualForHomepage, []),
+      safeFetch("indexHistory", getIndexHistory, []),
+      safeFetch("hotPipelines", getHotPipelines, []),
+      safeFetch("recentFunding", getRecentFunding, []),
+      safeFetch("events", getUpcomingEvents, []),
+      safeFetch("smallCap", getSmallCapWatchItems, []),
+      safeFetch("fdaDecisions", getNextFDADecisions, []),
     ]);
+
+  // If critical sections failed (error, not just empty), throw to prevent
+  // ISR from caching a broken page. Next.js will serve the stale cached version instead.
+  const criticalSections = ["topCompanies", "trending", "sectors", "countries"];
+  const criticalFailures = fetchErrors.filter((e) => criticalSections.includes(e));
+  if (criticalFailures.length > 0) {
+    console.error(`Homepage: ${criticalFailures.length} critical sections failed: ${criticalFailures.join(", ")}. Throwing to prevent caching broken page.`);
+    throw new Error(`Homepage data fetch failed: ${criticalFailures.join(", ")}`);
+  }
 
   // Prepare top 5 companies for display
   const top5Companies = companies.slice(0, 5).map((c) => ({
@@ -850,16 +761,24 @@ export default async function HomePage() {
 
         {/* Sectors + Countries */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {sectors.length > 0 && (
-            <HomeSection icon="🧬" title="Top Sectors" viewAllHref="/top-sectors" viewAllLabel="View all 20">
+          <HomeSection icon="🧬" title="Top Sectors" viewAllHref="/top-sectors" viewAllLabel="View all 20">
+            {sectors.length > 0 ? (
               <TopSectors sectors={sectors} />
-            </HomeSection>
-          )}
-          {countries.length > 0 && (
-            <HomeSection icon="🌍" title="Market by Country" viewAllHref="/countries" viewAllLabel="View all 30+">
+            ) : (
+              <div className="px-4 py-8 text-center">
+                <p className="text-13" style={{ color: "var(--color-text-tertiary)" }}>Loading sector data...</p>
+              </div>
+            )}
+          </HomeSection>
+          <HomeSection icon="🌍" title="Market by Country" viewAllHref="/countries" viewAllLabel="View all 30+">
+            {countries.length > 0 ? (
               <MarketByCountry countries={countries} />
-            </HomeSection>
-          )}
+            ) : (
+              <div className="px-4 py-8 text-center">
+                <p className="text-13" style={{ color: "var(--color-text-tertiary)" }}>Loading country data...</p>
+              </div>
+            )}
+          </HomeSection>
         </div>
 
         {/* Biotech Market Index — full width */}
