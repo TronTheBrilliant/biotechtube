@@ -7,7 +7,7 @@ import { Footer } from "@/components/Footer";
 import { formatMarketCap } from "@/lib/market-utils";
 import {
   DollarSign, TrendingUp, Calendar, Building2, Filter,
-  ChevronRight, ArrowUpRight, Zap, Globe, Tag,
+  ArrowUpRight, Zap, Globe, Tag,
 } from "lucide-react";
 
 interface Article {
@@ -72,7 +72,27 @@ export function FundingNewsClient({ articles, stats }: Props) {
     return articles.filter((a) => a.round_type === roundFilter);
   }, [articles, roundFilter]);
 
-  const featured = articles.filter((a) => a.is_featured).slice(0, 3);
+  // Pick top 3 featured: prioritize largest deals, diversify by round type
+  const featured = useMemo(() => {
+    const candidates = articles.filter((a) => a.is_featured && a.amount_usd && a.amount_usd > 0);
+    candidates.sort((a, b) => (b.amount_usd || 0) - (a.amount_usd || 0));
+    // Try to diversify by round type
+    const picked: Article[] = [];
+    const seenTypes = new Set<string>();
+    for (const c of candidates) {
+      if (picked.length >= 3) break;
+      if (!seenTypes.has(c.round_type || "")) {
+        picked.push(c);
+        seenTypes.add(c.round_type || "");
+      }
+    }
+    // Fill remaining slots with largest
+    for (const c of candidates) {
+      if (picked.length >= 3) break;
+      if (!picked.includes(c)) picked.push(c);
+    }
+    return picked;
+  }, [articles]);
 
   return (
     <div>
@@ -96,12 +116,12 @@ export function FundingNewsClient({ articles, stats }: Props) {
 
             {/* Dashboard strip */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-8">
-              <StatCard label="This Month" value={formatMarketCap(stats.monthTotal)} sub={`${stats.monthCount} rounds`} icon={<Calendar size={14} />} />
-              <StatCard label="This Quarter" value={formatMarketCap(stats.quarterTotal)} icon={<TrendingUp size={14} />} />
+              <StatCard label="Last 30 Days" value={formatMarketCap(stats.monthTotal)} sub={`${stats.monthCount} rounds`} icon={<Calendar size={14} />} />
+              <StatCard label="Last 90 Days" value={formatMarketCap(stats.quarterTotal)} icon={<TrendingUp size={14} />} />
               <StatCard label="Year to Date" value={formatMarketCap(stats.yearTotal)} icon={<DollarSign size={14} />} />
               {stats.largestThisWeek && (
                 <StatCard
-                  label="Largest This Week"
+                  label="Top Deal"
                   value={formatMarketCap(stats.largestThisWeek.amount_usd)}
                   sub={stats.largestThisWeek.company_name}
                   icon={<Zap size={14} />}
@@ -135,23 +155,27 @@ export function FundingNewsClient({ articles, stats }: Props) {
               )}
 
               {/* Filter tabs */}
-              <div className="flex gap-2 mb-6 overflow-x-auto no-scrollbar pb-1">
-                {ROUND_FILTERS.map((filter) => (
-                  <button
-                    key={filter}
-                    onClick={() => setRoundFilter(filter)}
-                    className="px-3 py-1.5 rounded-full transition-all shrink-0"
-                    style={{
-                      fontSize: 12,
-                      fontWeight: roundFilter === filter ? 500 : 400,
-                      color: roundFilter === filter ? "white" : "var(--color-text-secondary)",
-                      background: roundFilter === filter ? "var(--color-accent)" : "var(--color-bg-primary)",
-                      border: roundFilter === filter ? "none" : "0.5px solid var(--color-border-subtle)",
-                    }}
-                  >
-                    {filter}
-                  </button>
-                ))}
+              <div className="flex items-center gap-2 mb-6 overflow-x-auto no-scrollbar pb-1">
+                <Filter size={14} style={{ color: "var(--color-text-tertiary)", flexShrink: 0 }} />
+                {ROUND_FILTERS.map((filter) => {
+                  const count = filter === "All" ? articles.length : articles.filter(a => a.round_type === filter).length;
+                  return (
+                    <button
+                      key={filter}
+                      onClick={() => setRoundFilter(filter)}
+                      className="px-3 py-1.5 rounded-full transition-all shrink-0"
+                      style={{
+                        fontSize: 12,
+                        fontWeight: roundFilter === filter ? 500 : 400,
+                        color: roundFilter === filter ? "white" : "var(--color-text-secondary)",
+                        background: roundFilter === filter ? "var(--color-accent)" : "var(--color-bg-primary)",
+                        border: roundFilter === filter ? "none" : "0.5px solid var(--color-border-subtle)",
+                      }}
+                    >
+                      {filter} <span style={{ opacity: 0.7 }}>({count})</span>
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Article feed */}
@@ -161,10 +185,11 @@ export function FundingNewsClient({ articles, stats }: Props) {
                     No articles for this filter yet.
                   </div>
                 )}
-                {filtered.map((article) => {
+                {filtered.map((article, idx) => {
                   const roundColor = ROUND_COLORS[article.round_type || ""] || "var(--color-accent)";
                   const date = article.round_date ? new Date(article.round_date) : null;
-                  const excerpt = article.body.split("\n\n")[0]?.substring(0, 160) + "...";
+                  const excerpt = article.body.split("\n\n")[0]?.substring(0, 180) + "...";
+                  const isRecent = date && (Date.now() - date.getTime()) < 14 * 24 * 60 * 60 * 1000;
 
                   return (
                     <Link
@@ -182,13 +207,18 @@ export function FundingNewsClient({ articles, stats }: Props) {
                       <div className="p-5">
                         {/* Meta line */}
                         <div className="flex items-center gap-2 flex-wrap mb-3">
+                          {isRecent && (
+                            <span className="px-1.5 py-0.5 rounded" style={{ fontSize: 9, fontWeight: 600, color: "white", background: "var(--color-accent)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                              New
+                            </span>
+                          )}
                           {article.round_type && (
                             <span className="px-2 py-0.5 rounded-full" style={{ fontSize: 10, fontWeight: 500, color: roundColor, background: `${roundColor}12` }}>
                               {article.round_type}
                             </span>
                           )}
                           {article.amount_usd && article.amount_usd > 0 && (
-                            <span style={{ fontSize: 12, fontWeight: 500, color: "var(--color-text-primary)" }}>
+                            <span style={{ fontSize: 13, fontWeight: 600, color: "var(--color-text-primary)" }}>
                               {formatMarketCap(article.amount_usd)}
                             </span>
                           )}
@@ -199,6 +229,9 @@ export function FundingNewsClient({ articles, stats }: Props) {
                           )}
                           {article.sector && (
                             <span style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>· {article.sector}</span>
+                          )}
+                          {article.country && (
+                            <span style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>· {article.country}</span>
                           )}
                         </div>
 
@@ -212,7 +245,7 @@ export function FundingNewsClient({ articles, stats }: Props) {
 
                         {/* Subtitle */}
                         {article.subtitle && (
-                          <p className="mt-1.5" style={{ fontSize: 14, color: "var(--color-text-secondary)" }}>
+                          <p className="mt-1.5" style={{ fontSize: 14, color: "var(--color-text-secondary)", lineHeight: 1.5 }}>
                             {article.subtitle}
                           </p>
                         )}
@@ -223,7 +256,7 @@ export function FundingNewsClient({ articles, stats }: Props) {
                         </p>
 
                         {/* Company + investor + read more */}
-                        <div className="flex items-center justify-between mt-3">
+                        <div className="flex items-center justify-between mt-4 pt-3" style={{ borderTop: "0.5px solid var(--color-border-subtle)" }}>
                           <div className="flex items-center gap-3">
                             <span style={{ fontSize: 12, color: "var(--color-text-secondary)", fontWeight: 500 }}>
                               {article.company_name}
@@ -234,8 +267,8 @@ export function FundingNewsClient({ articles, stats }: Props) {
                               </span>
                             )}
                           </div>
-                          <span className="flex items-center gap-1" style={{ fontSize: 12, color: "var(--color-accent)", fontWeight: 500 }}>
-                            Read <ChevronRight size={12} />
+                          <span className="flex items-center gap-1 group-hover:gap-2 transition-all" style={{ fontSize: 12, color: "var(--color-accent)", fontWeight: 500 }}>
+                            Read <ArrowUpRight size={12} />
                           </span>
                         </div>
                       </div>
@@ -307,30 +340,55 @@ function StatCard({ label, value, sub, icon }: { label: string; value: string; s
 
 function FeaturedCard({ article }: { article: Article }) {
   const roundColor = ROUND_COLORS[article.round_type || ""] || "var(--color-accent)";
+  const date = article.round_date ? new Date(article.round_date) : null;
+  const excerpt = article.body.split("\n\n")[0]?.substring(0, 120) + "...";
   return (
-    <div className="rounded-xl overflow-hidden" style={{ background: "var(--color-bg-primary)", border: "0.5px solid var(--color-border-subtle)" }}>
+    <Link
+      href={`/news/funding/${article.slug}`}
+      className="group rounded-xl overflow-hidden transition-all hover:shadow-md block"
+      style={{ background: "var(--color-bg-primary)", border: "0.5px solid var(--color-border-subtle)" }}
+    >
       <div className="h-1" style={{ background: `linear-gradient(90deg, ${roundColor}, ${roundColor}60)` }} />
       <div className="p-4">
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-center gap-2 mb-2 flex-wrap">
           {article.round_type && (
             <span className="px-2 py-0.5 rounded-full" style={{ fontSize: 9, fontWeight: 500, color: roundColor, background: `${roundColor}12` }}>
               {article.round_type}
             </span>
           )}
-          {article.amount_usd && (
-            <span style={{ fontSize: 13, fontWeight: 500, color: "var(--color-text-primary)" }}>
+          {article.amount_usd && article.amount_usd > 0 && (
+            <span style={{ fontSize: 13, fontWeight: 600, color: "var(--color-text-primary)" }}>
               {formatMarketCap(article.amount_usd)}
             </span>
           )}
+          {date && (
+            <span style={{ fontSize: 10, color: "var(--color-text-tertiary)" }}>
+              {date.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+            </span>
+          )}
         </div>
-        <h3 style={{ fontSize: 14, fontWeight: 500, color: "var(--color-text-primary)", lineHeight: 1.35 }}>
+        <h3
+          className="group-hover:underline"
+          style={{ fontSize: 15, fontWeight: 500, color: "var(--color-text-primary)", lineHeight: 1.35 }}
+        >
           {article.headline}
         </h3>
-        <div className="mt-2" style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>
-          {article.company_name}
+        <p className="mt-2" style={{ fontSize: 12, color: "var(--color-text-tertiary)", lineHeight: 1.5 }}>
+          {excerpt}
+        </p>
+        <div className="flex items-center justify-between mt-3 pt-3" style={{ borderTop: "0.5px solid var(--color-border-subtle)" }}>
+          <div className="flex items-center gap-2">
+            <span style={{ fontSize: 12, color: "var(--color-text-secondary)", fontWeight: 500 }}>
+              {article.company_name}
+            </span>
+            {article.sector && (
+              <span style={{ fontSize: 10, color: "var(--color-text-tertiary)" }}>· {article.sector}</span>
+            )}
+          </div>
+          <ArrowUpRight size={12} style={{ color: "var(--color-accent)" }} />
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 

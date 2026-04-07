@@ -30,36 +30,38 @@ export default async function FundingNewsPage() {
     .order("round_date", { ascending: false, nullsFirst: false })
     .limit(100);
 
-  // Dashboard stats
+  // Dashboard stats — use rolling windows so stats are never empty
   const now = new Date();
-  const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
-  const thisQuarter = `${now.getFullYear()}-${String(Math.floor(now.getMonth() / 3) * 3 + 1).padStart(2, "0")}-01`;
+  const days30 = new Date(now); days30.setDate(days30.getDate() - 30);
+  const days90 = new Date(now); days90.setDate(days90.getDate() - 90);
   const thisYear = `${now.getFullYear()}-01-01`;
-  const lastWeek = new Date(now); lastWeek.setDate(lastWeek.getDate() - 7);
-  const lastWeekStr = lastWeek.toISOString().split("T")[0];
+  const days14 = new Date(now); days14.setDate(days14.getDate() - 14);
+  const days30Str = days30.toISOString().split("T")[0];
+  const days90Str = days90.toISOString().split("T")[0];
+  const days14Str = days14.toISOString().split("T")[0];
 
-  // This month's funding
+  // Last 30 days funding
   const { data: monthRounds } = await supabase
     .from("funding_rounds")
     .select("amount_usd")
-    .gte("announced_date", thisMonth)
+    .gte("announced_date", days30Str)
     .gt("amount_usd", 0)
     .neq("confidence", "filing_only");
 
   const monthTotal = (monthRounds || []).reduce((s, r) => s + Number(r.amount_usd || 0), 0);
   const monthCount = monthRounds?.length || 0;
 
-  // This quarter
+  // Last 90 days
   const { data: quarterRounds } = await supabase
     .from("funding_rounds")
     .select("amount_usd")
-    .gte("announced_date", thisQuarter)
+    .gte("announced_date", days90Str)
     .gt("amount_usd", 0)
     .neq("confidence", "filing_only");
 
   const quarterTotal = (quarterRounds || []).reduce((s, r) => s + Number(r.amount_usd || 0), 0);
 
-  // This year
+  // Year to date
   const { data: yearRounds } = await supabase
     .from("funding_rounds")
     .select("amount_usd")
@@ -69,20 +71,20 @@ export default async function FundingNewsPage() {
 
   const yearTotal = (yearRounds || []).reduce((s, r) => s + Number(r.amount_usd || 0), 0);
 
-  // Largest round this week
+  // Largest round last 14 days
   const { data: weekLargest } = await supabase
     .from("funding_rounds")
     .select("company_name, amount_usd, round_type")
-    .gte("announced_date", lastWeekStr)
+    .gte("announced_date", days14Str)
     .gt("amount_usd", 0)
     .order("amount_usd", { ascending: false })
     .limit(1);
 
-  // Most active sectors this month
+  // Most active sectors last 30 days
   const { data: sectorActivity } = await supabase
     .from("funding_rounds")
     .select("sector")
-    .gte("announced_date", thisMonth)
+    .gte("announced_date", days30Str)
     .gt("amount_usd", 0)
     .not("sector", "is", null);
 
@@ -90,7 +92,7 @@ export default async function FundingNewsPage() {
   for (const r of sectorActivity || []) {
     if (r.sector) sectorCounts.set(r.sector, (sectorCounts.get(r.sector) || 0) + 1);
   }
-  const topSector = [...sectorCounts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+  const topSector = Array.from(sectorCounts.entries()).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
 
   const dashboardStats = {
     monthTotal,
