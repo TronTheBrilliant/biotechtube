@@ -11,6 +11,7 @@ import { TemplatePipelineViz } from "@/components/templates/TemplatePipelineViz"
 import { TemplatePipeline } from "@/components/templates/TemplatePipeline";
 import { TemplateFunding } from "@/components/templates/TemplateFunding";
 import { TemplateNews } from "@/components/templates/TemplateNews";
+import { TemplateProducts } from "@/components/templates/TemplateProducts";
 import { TemplateResearch } from "@/components/templates/TemplateResearch";
 import { TemplateFooter } from "@/components/templates/TemplateFooter";
 import { TvStockChart } from "@/components/charts/TvStockChart";
@@ -18,6 +19,7 @@ import { TrendingUp, Users, Shield, Target, Lightbulb, Building2, Newspaper } fr
 
 const ALL_SECTIONS = [
   { id: "about", label: "About" },
+  { id: "products", label: "Products" },
   { id: "technology", label: "Technology" },
   { id: "pipeline", label: "Pipeline" },
   { id: "team", label: "Team" },
@@ -95,6 +97,7 @@ export function CleanTemplate(props: TemplateProps) {
 
   // Filter sections with data
   const activeSections = ALL_SECTIONS.filter((s) => {
+    if (s.id === "products" && props.commercialProducts.length === 0) return false;
     if (s.id === "technology" && !technologyText && !reportSections["Technology Platform"]) return false;
     if (s.id === "pipeline" && props.pipelines.length === 0 && curatedPipeline.length === 0) return false;
     if (s.id === "team" && keyPeople.length === 0 && props.teamMembers.length === 0) return false;
@@ -197,6 +200,9 @@ export function CleanTemplate(props: TemplateProps) {
             </div>
           </div>
         </section>
+
+        {/* ═══════════ COMMERCIAL PRODUCTS ═══════════ */}
+        <TemplateProducts products={props.commercialProducts} brandColor={brandColor} />
 
         {/* ═══════════ TECHNOLOGY PLATFORM (Interactive Explainer) ═══════════ */}
         {(technologyText || reportSections["Technology Platform"]) && (

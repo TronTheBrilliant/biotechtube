@@ -85,6 +85,32 @@ export interface TimelineEvent {
   type: "founded" | "funding" | "ipo" | "fda";
 }
 
+export interface CommercialProduct {
+  id: string;
+  slug: string;
+  brand_name: string;
+  generic_name: string | null;
+  active_ingredient: string | null;
+  company_id: string | null;
+  company_name: string;
+  product_type: string;
+  molecule_type: string | null;
+  therapeutic_area: string | null;
+  indication_primary: string | null;
+  indications: string[] | null;
+  mechanism_of_action: string | null;
+  dosage_form: string | null;
+  route: string | null;
+  commercial_status: string;
+  launch_date: string | null;
+  first_approval_date: string | null;
+  patent_expiry_date: string | null;
+  has_biosimilar_competition: boolean;
+  has_generic_competition: boolean;
+  description: string | null;
+  confidence: string;
+}
+
 export interface TemplateNewsItem {
   id: string;
   title: string;
@@ -113,4 +139,5 @@ export interface TemplateProps {
   brandColor: string;
   heroTagline: string | null;
   news: TemplateNewsItem[];
+  commercialProducts: CommercialProduct[];
 }

@@ -238,6 +238,17 @@ async function getCompanyNews(companyId: string) {
   return data || [];
 }
 
+async function getCommercialProducts(companyId: string) {
+  const supabase = getSupabase();
+  const { data } = await supabase
+    .from('commercial_products')
+    .select('id, slug, brand_name, generic_name, active_ingredient, company_id, company_name, product_type, molecule_type, therapeutic_area, indication_primary, indications, mechanism_of_action, dosage_form, route, commercial_status, launch_date, first_approval_date, patent_expiry_date, has_biosimilar_competition, has_generic_competition, description, confidence')
+    .eq('company_id', companyId)
+    .order('first_approval_date', { ascending: false })
+    .limit(50);
+  return data || [];
+}
+
 async function getTemplateNews(companyId: string, companyName: string) {
   const supabase = getSupabase();
   // Try company_news first (custom news from claimed companies)
@@ -616,7 +627,10 @@ export default async function CompanyPage({
 
   if (templateId === 'clean') {
     const { CleanTemplate } = await import('./templates/CleanTemplate');
-    const templateNews = await getTemplateNews(companyId, company.name);
+    const [templateNews, commercialProducts] = await Promise.all([
+      getTemplateNews(companyId, company.name),
+      getCommercialProducts(companyId),
+    ]);
     return (
       <article>
         <script
@@ -642,6 +656,7 @@ export default async function CompanyPage({
           brandColor={brandColor}
           heroTagline={heroTagline}
           news={templateNews}
+          commercialProducts={commercialProducts}
         />
       </article>
     );
