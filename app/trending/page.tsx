@@ -53,29 +53,41 @@ async function getTrendingData(): Promise<TrendingCompanyRow[]> {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
-  // Find the most recent date with enough data
+  // Find the most recent date with enough data — try efficient RPC first
   let latestDate: string | null = null;
-  const { data: recentDates } = await supabase
-    .from("company_price_history")
-    .select("date")
-    .not("market_cap_usd", "is", null)
-    .order("date", { ascending: false })
-    .limit(5000);
-  if (!recentDates) return [];
-  const countByDate = new Map<string, number>();
-  for (const r of recentDates) {
-    countByDate.set(r.date, (countByDate.get(r.date) || 0) + 1);
-  }
-  const sortedDates = [...countByDate.entries()].sort((a, b) =>
-    b[0].localeCompare(a[0])
-  );
-  for (const [d, cnt] of sortedDates) {
-    if (cnt >= 100) {
-      latestDate = d;
-      break;
+  const { data: dateCounts } = await supabase.rpc("get_recent_price_date_counts" as never);
+  if (dateCounts && Array.isArray(dateCounts)) {
+    for (const row of dateCounts as { date: string; cnt: number }[]) {
+      if (row.cnt >= 100) { latestDate = row.date; break; }
     }
   }
-  if (!latestDate) return [];
+  if (!latestDate) {
+    // Fallback: paginate to find a date with 100+ entries
+    let recentDates: { date: string }[] = [];
+    for (let page = 0; page < 3; page++) {
+      const { data } = await supabase
+        .from("company_price_history")
+        .select("date")
+        .not("market_cap_usd", "is", null)
+        .order("date", { ascending: false })
+        .range(page * 1000, (page + 1) * 1000 - 1);
+      if (!data || data.length === 0) break;
+      recentDates.push(...data);
+      if (data.length < 1000) break;
+    }
+    if (recentDates.length === 0) return [];
+    const countByDate = new Map<string, number>();
+    for (const r of recentDates) {
+      countByDate.set(r.date, (countByDate.get(r.date) || 0) + 1);
+    }
+    const sortedDates = [...countByDate.entries()].sort((a, b) =>
+      b[0].localeCompare(a[0])
+    );
+    for (const [d, cnt] of sortedDates) {
+      if (cnt >= 100) { latestDate = d; break; }
+    }
+    if (!latestDate) return [];
+  }
 
   // Date ranges
   const fiveDaysAgo = new Date(latestDate);
@@ -156,9 +168,9 @@ async function getTrendingData(): Promise<TrendingCompanyRow[]> {
   for (const r of currentPrices) {
     if (!currentMap.has(r.company_id)) {
       currentMap.set(r.company_id, {
-        marketCap: r.market_cap_usd,
+        marketCap: Number(r.market_cap_usd),
         adjClose: r.adj_close != null ? Number(r.adj_close) : null,
-        changePct: r.change_pct,
+        changePct: r.change_pct != null ? Number(r.change_pct) : null,
       });
     }
   }

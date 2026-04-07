@@ -74,22 +74,26 @@ async function getTopCompanies() {
   cutoff.setDate(cutoff.getDate() - 5);
   const cutoffStr = cutoff.toISOString().split("T")[0];
 
-  const BATCH_SIZE = 200;
+  // Paginate price history: ~200 companies × 5 days = ~1000 rows, can exceed Supabase 1000-row default
+  const BATCH_SIZE = 50; // Smaller batches to stay well within 1000-row limit per query
   for (let i = 0; i < companyIds.length; i += BATCH_SIZE) {
     const batch = companyIds.slice(i, i + BATCH_SIZE);
-    const { data: priceRows } = await supabase
-      .from("company_price_history")
-      .select("company_id, market_cap_usd, date")
-      .in("company_id", batch)
-      .gte("date", cutoffStr)
-      .not("market_cap_usd", "is", null)
-      .order("date", { ascending: false });
-    if (priceRows) {
+    for (let page = 0; page < 3; page++) {
+      const { data: priceRows } = await supabase
+        .from("company_price_history")
+        .select("company_id, market_cap_usd, date")
+        .in("company_id", batch)
+        .gte("date", cutoffStr)
+        .not("market_cap_usd", "is", null)
+        .order("date", { ascending: false })
+        .range(page * 1000, (page + 1) * 1000 - 1);
+      if (!priceRows || priceRows.length === 0) break;
       for (const row of priceRows) {
         if (row.market_cap_usd != null && !marketCapMap.has(row.company_id)) {
-          marketCapMap.set(row.company_id, row.market_cap_usd);
+          marketCapMap.set(row.company_id, Number(row.market_cap_usd));
         }
       }
+      if (priceRows.length < 1000) break;
     }
   }
 
@@ -135,14 +139,20 @@ async function getTrendingCompanies() {
     }
   }
   if (!latestDate) {
-    // Manual fallback: check last 10 dates
-    const { data: recentDates } = await supabase
-      .from("company_price_history")
-      .select("date")
-      .not("market_cap_usd", "is", null)
-      .order("date", { ascending: false })
-      .limit(2000);
-    if (!recentDates) return [];
+    // Manual fallback: paginate to find a date with 100+ entries
+    let recentDates: { date: string }[] = [];
+    for (let page = 0; page < 3; page++) {
+      const { data } = await supabase
+        .from("company_price_history")
+        .select("date")
+        .not("market_cap_usd", "is", null)
+        .order("date", { ascending: false })
+        .range(page * 1000, (page + 1) * 1000 - 1);
+      if (!data || data.length === 0) break;
+      recentDates.push(...data);
+      if (data.length < 1000) break;
+    }
+    if (recentDates.length === 0) return [];
     const countByDate = new Map<string, number>();
     for (const r of recentDates) {
       countByDate.set(r.date, (countByDate.get(r.date) || 0) + 1);
@@ -161,34 +171,47 @@ async function getTrendingCompanies() {
   const oldEndStr = oldEnd.toISOString().split("T")[0];
 
   // Get current prices (last 5 trading days to catch all markets) — use adj_close for price-based trending
+  // Must paginate: ~1000 companies × 5 days = ~5000 rows, exceeds Supabase default 1000 limit
   const fiveDaysAgo = new Date(latestDate);
   fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
   const fiveDaysAgoStr = fiveDaysAgo.toISOString().split("T")[0];
-  const { data: currentPrices } = await supabase
-    .from("company_price_history")
-    .select("company_id, market_cap_usd, adj_close, date")
-    .gte("date", fiveDaysAgoStr)
-    .not("market_cap_usd", "is", null)
-    .order("date", { ascending: false })
-    .limit(5000); // ~1000 companies × 5 days
+  let currentPrices: { company_id: string; market_cap_usd: number; adj_close: number | null; date: string }[] = [];
+  for (let page = 0; page < 5; page++) {
+    const { data } = await supabase
+      .from("company_price_history")
+      .select("company_id, market_cap_usd, adj_close, date")
+      .gte("date", fiveDaysAgoStr)
+      .not("market_cap_usd", "is", null)
+      .order("date", { ascending: false })
+      .range(page * 1000, (page + 1) * 1000 - 1);
+    if (!data || data.length === 0) break;
+    currentPrices.push(...data);
+    if (data.length < 1000) break;
+  }
 
   // Get old prices (~7 days ago range) — use adj_close for price-based comparison
-  const { data: oldPrices } = await supabase
-    .from("company_price_history")
-    .select("company_id, market_cap_usd, adj_close, date")
-    .gte("date", oldCutoff)
-    .lte("date", oldEndStr)
-    .not("adj_close", "is", null)
-    .order("date", { ascending: false })
-    .limit(5000);
+  let oldPrices: { company_id: string; market_cap_usd: number; adj_close: number | null; date: string }[] = [];
+  for (let page = 0; page < 5; page++) {
+    const { data } = await supabase
+      .from("company_price_history")
+      .select("company_id, market_cap_usd, adj_close, date")
+      .gte("date", oldCutoff)
+      .lte("date", oldEndStr)
+      .not("adj_close", "is", null)
+      .order("date", { ascending: false })
+      .range(page * 1000, (page + 1) * 1000 - 1);
+    if (!data || data.length === 0) break;
+    oldPrices.push(...data);
+    if (data.length < 1000) break;
+  }
 
-  if (!currentPrices || !oldPrices) return [];
+  if (currentPrices.length === 0 || oldPrices.length === 0) return [];
 
   // Build maps — use adj_close for price-based trending (avoids shares_outstanding artifacts)
   const currentMap = new Map<string, { marketCap: number; adjClose: number }>();
   for (const r of currentPrices) {
     if (!currentMap.has(r.company_id) && r.adj_close != null) {
-      currentMap.set(r.company_id, { marketCap: r.market_cap_usd, adjClose: Number(r.adj_close) });
+      currentMap.set(r.company_id, { marketCap: Number(r.market_cap_usd), adjClose: Number(r.adj_close) });
     }
   }
   const oldMap = new Map<string, number>();
