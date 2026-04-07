@@ -24,8 +24,6 @@ import FundingChart from "@/components/home/FundingChart";
 import BiotechIndexChart from "@/components/home/BiotechIndexChart";
 import HotPipelines from "@/components/home/HotPipelines";
 import PipelinesToWatch from "@/components/home/PipelinesToWatch";
-import SmallCapWatch from "@/components/home/SmallCapWatch";
-import NextFDADecision from "@/components/home/NextFDADecision";
 // import HotProducts from "@/components/home/HotProducts";
 import TrendingNews from "@/components/home/TrendingNews";
 import SciencePapers from "@/components/home/SciencePapers";
@@ -559,7 +557,7 @@ export default async function HomePage() {
   // Clear errors for this render
   fetchErrors.length = 0;
 
-  const [companies, snapshot, trending, sectors, countries, investorsData, peopleData, fundingAnnualData, indexHistory, hotPipelines, recentFunding, events, smallCapItems, nextFDADecisions] =
+  const [companies, snapshot, trending, sectors, countries, investorsData, peopleData, fundingAnnualData, indexHistory, hotPipelines, recentFunding, events] =
     await Promise.all([
       safeFetch("topCompanies", getTopCompanies, []),
       safeFetch("snapshot", getLatestSnapshot, null),
@@ -573,8 +571,6 @@ export default async function HomePage() {
       safeFetch("hotPipelines", getHotPipelines, []),
       safeFetch("recentFunding", getRecentFunding, []),
       safeFetch("events", getUpcomingEvents, []),
-      safeFetch("smallCap", getSmallCapWatchItems, []),
-      safeFetch("fdaDecisions", getNextFDADecisions, []),
     ]);
 
   // Log critical section failures (but don't throw — on fresh deploys there's no stale cache to serve)
@@ -753,26 +749,13 @@ export default async function HomePage() {
           <FundingChart data={fundingAnnualData} />
         </HomeSection>
 
-        {/* Pipeline Intelligence — Small-Cap Watch + FDA Calendar */}
+        {/* Pipeline Intelligence — removed Small-Cap Watch + FDA Calendar for cleaner homepage */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {smallCapItems.length > 0 ? (
-            <HomeSection icon="🔬" title="Small-Cap Pipeline Watch" viewAllHref="/pipelines" viewAllLabel="View all curated lists">
-              <SmallCapWatch items={smallCapItems} />
-            </HomeSection>
-          ) : hotPipelines.length > 0 ? (
+          {hotPipelines.length > 0 && (
             <HomeSection icon="🧪" title="Pipelines to Watch" viewAllHref="/pipelines" viewAllLabel="Browse all">
               <PipelinesToWatch pipelines={hotPipelines} />
             </HomeSection>
-          ) : null}
-          {nextFDADecisions.length > 0 ? (
-            <HomeSection icon="📅" title="Next FDA Decisions" viewAllHref="/pipelines" viewAllLabel="View FDA calendar">
-              <NextFDADecision decisions={nextFDADecisions} />
-            </HomeSection>
-          ) : hotPipelines.length > 0 && smallCapItems.length > 0 ? (
-            <HomeSection icon="🧪" title="Pipelines to Watch" viewAllHref="/pipelines" viewAllLabel="Browse all">
-              <PipelinesToWatch pipelines={hotPipelines} />
-            </HomeSection>
-          ) : null}
+          )}
         </div>
 
         {/* Funding Radar */}
