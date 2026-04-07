@@ -615,13 +615,9 @@ export default async function HomePage() {
       safeFetch("fdaDecisions", getNextFDADecisions, []),
     ]);
 
-  // If critical sections failed (error, not just empty), throw to prevent
-  // ISR from caching a broken page. Next.js will serve the stale cached version instead.
-  const criticalSections = ["topCompanies", "trending", "sectors", "countries"];
-  const criticalFailures = fetchErrors.filter((e) => criticalSections.includes(e));
-  if (criticalFailures.length > 0) {
-    console.error(`Homepage: ${criticalFailures.length} critical sections failed: ${criticalFailures.join(", ")}. Throwing to prevent caching broken page.`);
-    throw new Error(`Homepage data fetch failed: ${criticalFailures.join(", ")}`);
+  // Log critical section failures (but don't throw — on fresh deploys there's no stale cache to serve)
+  if (fetchErrors.length > 0) {
+    console.error(`Homepage: ${fetchErrors.length} section(s) failed: ${fetchErrors.join(", ")}. Page will render with placeholders.`);
   }
 
   // Prepare top 5 companies for display
