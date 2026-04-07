@@ -838,3 +838,4 @@ export default async function HomePage() {
     </div>
   );
 }
+// revalidate trigger
