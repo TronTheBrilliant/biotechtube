@@ -116,19 +116,20 @@ export function TemplateTechExplainer({ technologyText, competitiveLandscape, br
           A step-by-step look at the technology platform powering the pipeline.
         </p>
 
-        {/* Visual step flow */}
+        {/* Visual step flow — horizontal scrollable gallery */}
         {steps.length >= 2 && (
-          <div
-            className="grid gap-6 mt-12"
-            style={{
-              gridTemplateColumns: steps.length <= 4
-                ? `repeat(${steps.length}, 1fr)`
-                : "repeat(2, 1fr)",
-            }}
-          >
-            {steps.map((step, i) => (
-              <StepCard key={i} step={step} index={i} total={steps.length} brandColor={brandColor} />
-            ))}
+          <div className="mt-12 overflow-x-auto no-scrollbar pb-4 -mx-6 px-6">
+            <div className="flex gap-5" style={{ minWidth: steps.length * 300 }}>
+              {steps.map((step, i) => (
+                <div key={i} style={{ width: 280, flexShrink: 0 }}>
+                  <StepCard step={step} index={i} total={steps.length} brandColor={brandColor} />
+                </div>
+              ))}
+            </div>
+            {/* Scroll hint on mobile */}
+            <div className="sm:hidden text-center mt-3">
+              <span style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>Swipe to explore →</span>
+            </div>
           </div>
         )}
 
