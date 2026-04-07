@@ -127,6 +127,7 @@ export function CleanTemplate(props: TemplateProps) {
           pipelineCount={props.pipelines.length || curatedPipeline.length}
           publicationCount={props.publications.length}
           patentCount={props.patents.length}
+          employeeCount={employeeEstimate ? String(employeeEstimate) : null}
         />
 
         {/* ═══════════ ABOUT / MISSION ═══════════ */}
@@ -258,7 +259,62 @@ export function CleanTemplate(props: TemplateProps) {
           </section>
         )}
 
-        {/* ═══════════ PIPELINE ═══════════ */}
+        {/* ═══════════ PIPELINE HIGHLIGHTS (from curated report) ═══════════ */}
+        {curatedPipeline.length > 0 && (
+          <section className="py-20 sm:py-28" style={{ background: "var(--color-bg-secondary)" }}>
+            <div className="max-w-[1100px] mx-auto px-6">
+              <SectionLabel icon={<Target size={14} />} color={brandColor}>Key Programs</SectionLabel>
+              <h2 className="mt-3 mb-8" style={{ fontSize: "clamp(28px, 4vw, 42px)", fontWeight: 300, color: "var(--color-text-primary)", letterSpacing: "-0.02em", lineHeight: 1.15 }}>
+                Pipeline Highlights
+              </h2>
+              <div className="overflow-x-auto no-scrollbar">
+                <table className="w-full" style={{ borderCollapse: "collapse", minWidth: 700 }}>
+                  <thead>
+                    <tr style={{ borderBottom: `2px solid ${brandColor}30` }}>
+                      <th className="text-left py-3 pr-4" style={{ fontSize: 11, fontWeight: 500, color: "var(--color-text-tertiary)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Program</th>
+                      <th className="text-left py-3 pr-4" style={{ fontSize: 11, fontWeight: 500, color: "var(--color-text-tertiary)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Indication</th>
+                      <th className="text-left py-3 pr-4" style={{ fontSize: 11, fontWeight: 500, color: "var(--color-text-tertiary)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Phase</th>
+                      <th className="text-left py-3" style={{ fontSize: 11, fontWeight: 500, color: "var(--color-text-tertiary)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {curatedPipeline.map((prog, i) => (
+                      <tr
+                        key={i}
+                        style={{ borderBottom: "0.5px solid var(--color-border-subtle)" }}
+                      >
+                        <td className="py-3.5 pr-4">
+                          <div style={{ fontSize: 14, fontWeight: 500, color: "var(--color-text-primary)" }}>{prog.name}</div>
+                        </td>
+                        <td className="py-3.5 pr-4">
+                          <div style={{ fontSize: 13, color: "var(--color-text-secondary)" }}>{prog.indication}</div>
+                        </td>
+                        <td className="py-3.5 pr-4">
+                          <span
+                            className="inline-block px-2 py-0.5 rounded-full"
+                            style={{
+                              fontSize: 11,
+                              fontWeight: 500,
+                              color: prog.phase === "Approved" ? "#16a34a" : brandColor,
+                              background: prog.phase === "Approved" ? "#f0fdf4" : `${brandColor}10`,
+                            }}
+                          >
+                            {prog.phase}
+                          </span>
+                        </td>
+                        <td className="py-3.5">
+                          <span style={{ fontSize: 12, color: "var(--color-text-tertiary)" }}>{prog.status}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ═══════════ FULL PIPELINE (ClinicalTrials.gov) ═══════════ */}
         <TemplatePipeline pipelines={props.pipelines} brandColor={brandColor} />
 
         {/* ═══════════ TEAM ═══════════ */}
@@ -350,6 +406,82 @@ export function CleanTemplate(props: TemplateProps) {
                   </p>
                 </div>
               )}
+            </div>
+          </section>
+        )}
+
+        {/* ═══════════ MARKET OPPORTUNITY ═══════════ */}
+        {reportSections["Market Opportunity"] && (
+          <section className="py-20 sm:py-28" style={{ background: "var(--color-bg-secondary)" }}>
+            <div className="max-w-[1100px] mx-auto px-6">
+              <SectionLabel icon={<Target size={14} />} color={brandColor}>Market</SectionLabel>
+              <h2 className="mt-3 mb-8" style={{ fontSize: "clamp(28px, 4vw, 42px)", fontWeight: 300, color: "var(--color-text-primary)", letterSpacing: "-0.02em", lineHeight: 1.15 }}>
+                Market Opportunity
+              </h2>
+              <div className="max-w-3xl">
+                {reportSections["Market Opportunity"].split("\n\n").map((p, i) => {
+                  const clean = p.replace(/\*\*/g, "").trim();
+                  if (!clean) return null;
+                  return (
+                    <p key={i} className="mb-5" style={{ fontSize: 16, lineHeight: 1.85, color: "var(--color-text-secondary)" }}>
+                      {clean}
+                    </p>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ═══════════ RISKS ═══════════ */}
+        {reportSections["Key Risks"] && (
+          <section className="py-20 sm:py-28">
+            <div className="max-w-[1100px] mx-auto px-6">
+              <SectionLabel icon={<Shield size={14} />} color={brandColor}>Risk Factors</SectionLabel>
+              <h2 className="mt-3 mb-8" style={{ fontSize: "clamp(28px, 4vw, 42px)", fontWeight: 300, color: "var(--color-text-primary)", letterSpacing: "-0.02em", lineHeight: 1.15 }}>
+                Key Considerations
+              </h2>
+              <div className="grid sm:grid-cols-2 gap-4">
+                {reportSections["Key Risks"].split("\n").filter(l => l.trim().startsWith("*")).map((line, i) => {
+                  const text = line.replace(/^\*\s*/, "").replace(/\*\*/g, "");
+                  const [title, ...desc] = text.split(":");
+                  return (
+                    <div key={i} className="p-5 rounded-xl" style={{ background: "var(--color-bg-secondary)", border: "0.5px solid var(--color-border-subtle)" }}>
+                      {desc.length > 0 ? (
+                        <>
+                          <div style={{ fontSize: 14, fontWeight: 500, color: "var(--color-text-primary)", marginBottom: 4 }}>{title.trim()}</div>
+                          <div style={{ fontSize: 13, lineHeight: 1.7, color: "var(--color-text-secondary)" }}>{desc.join(":").trim()}</div>
+                        </>
+                      ) : (
+                        <div style={{ fontSize: 13, lineHeight: 1.7, color: "var(--color-text-secondary)" }}>{title.trim()}</div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ═══════════ OUTLOOK ═══════════ */}
+        {reportSections["Outlook"] && (
+          <section className="py-20 sm:py-28" style={{ background: "var(--color-bg-secondary)" }}>
+            <div className="max-w-[1100px] mx-auto px-6">
+              <SectionLabel icon={<Lightbulb size={14} />} color={brandColor}>Outlook</SectionLabel>
+              <h2 className="mt-3 mb-8" style={{ fontSize: "clamp(28px, 4vw, 42px)", fontWeight: 300, color: "var(--color-text-primary)", letterSpacing: "-0.02em", lineHeight: 1.15 }}>
+                Forward Looking
+              </h2>
+              <div className="max-w-3xl">
+                {reportSections["Outlook"].split("\n\n").map((p, i) => {
+                  const clean = p.replace(/\*\*/g, "").trim();
+                  if (!clean) return null;
+                  return (
+                    <p key={i} className="mb-5" style={{ fontSize: 16, lineHeight: 1.85, color: "var(--color-text-secondary)" }}>
+                      {clean}
+                    </p>
+                  );
+                })}
+              </div>
             </div>
           </section>
         )}

@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import { formatMarketCap } from "@/lib/market-utils";
 
 interface Props {
@@ -15,6 +16,7 @@ interface Props {
   pipelineCount: number;
   publicationCount: number;
   patentCount: number;
+  employeeCount: string | null;
 }
 
 export function TemplateHero({
@@ -31,70 +33,60 @@ export function TemplateHero({
   pipelineCount,
   publicationCount,
   patentCount,
+  employeeCount,
 }: Props) {
+  const [logoError, setLogoError] = useState(false);
   const location = [city, country].filter(Boolean).join(", ");
 
   return (
-    <section
-      className="relative overflow-hidden"
-      style={{
-        background: `linear-gradient(170deg, ${brandColor}06 0%, ${brandColor}12 40%, ${brandColor}04 100%)`,
-        minHeight: "90vh",
-        display: "flex",
-        alignItems: "center",
-      }}
-    >
-      {/* Subtle ambient glow */}
+    <section className="relative overflow-hidden" style={{ minHeight: "100vh" }}>
+      {/* Background gradient */}
       <div
-        className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-[0.07] blur-[120px]"
-        style={{ background: brandColor }}
+        className="absolute inset-0"
+        style={{
+          background: `
+            radial-gradient(ellipse 80% 60% at 50% 0%, ${brandColor}12 0%, transparent 70%),
+            radial-gradient(ellipse 60% 40% at 80% 100%, ${brandColor}08 0%, transparent 60%),
+            var(--color-bg-primary)
+          `,
+        }}
       />
 
-      <div className="relative z-10 w-full max-w-4xl mx-auto px-6 py-24 sm:py-32 text-center">
-        {/* Logo */}
-        {logoUrl && (
-          <div className="mb-10">
+      {/* Content */}
+      <div className="relative z-10 max-w-[1100px] mx-auto px-6 pt-28 sm:pt-36 pb-20">
+        {/* Top bar: logo + ticker */}
+        <div className="flex items-center gap-4 mb-10">
+          {logoUrl && !logoError && (
             <img
               src={logoUrl}
               alt={companyName}
-              width={72}
-              height={72}
-              className="mx-auto rounded-2xl"
-              style={{
-                boxShadow: `0 12px 48px ${brandColor}18`,
-                background: "var(--color-bg-primary)",
-                padding: 8,
-              }}
+              width={48}
+              height={48}
+              className="rounded-xl"
+              style={{ background: "var(--color-bg-secondary)", padding: 4 }}
+              onError={() => setLogoError(true)}
             />
-          </div>
-        )}
-
-        {/* Ticker */}
-        {ticker && (
-          <div className="flex items-center justify-center gap-2 mb-6">
+          )}
+          {ticker && (
             <span
               className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full"
-              style={{
-                background: `${brandColor}12`,
-                color: brandColor,
-                fontSize: 13,
-                fontWeight: 500,
-              }}
+              style={{ background: `${brandColor}10`, color: brandColor, fontSize: 13, fontWeight: 500 }}
             >
-              <span className="w-1.5 h-1.5 rounded-full" style={{ background: brandColor }} />
+              <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: brandColor }} />
               {ticker}
             </span>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* Name */}
+        {/* Company name — massive */}
         <h1
           style={{
-            fontSize: "clamp(40px, 6vw, 64px)",
-            fontWeight: 300,
+            fontSize: "clamp(48px, 8vw, 88px)",
+            fontWeight: 250,
             color: "var(--color-text-primary)",
-            letterSpacing: "-0.03em",
-            lineHeight: 1.05,
+            letterSpacing: "-0.04em",
+            lineHeight: 1,
+            maxWidth: 900,
           }}
         >
           {companyName}
@@ -103,28 +95,28 @@ export function TemplateHero({
         {/* Tagline */}
         {tagline && (
           <p
-            className="mt-6 mx-auto"
+            className="mt-6"
             style={{
-              fontSize: "clamp(16px, 2vw, 20px)",
+              fontSize: "clamp(18px, 2.5vw, 24px)",
               color: "var(--color-text-secondary)",
-              lineHeight: 1.6,
+              lineHeight: 1.5,
               fontWeight: 300,
-              maxWidth: 540,
+              maxWidth: 640,
             }}
           >
             {tagline}
           </p>
         )}
 
-        {/* Sectors */}
+        {/* Sector badges */}
         {sectors.length > 0 && (
-          <div className="flex flex-wrap justify-center gap-2 mt-8">
+          <div className="flex flex-wrap gap-2 mt-8">
             {sectors.map((s) => (
               <span
                 key={s}
-                className="px-3 py-1 rounded-full"
+                className="px-3 py-1.5 rounded-full"
                 style={{
-                  fontSize: 12,
+                  fontSize: 13,
                   color: "var(--color-text-secondary)",
                   border: "0.5px solid var(--color-border-medium)",
                   background: "var(--color-bg-primary)",
@@ -136,42 +128,36 @@ export function TemplateHero({
           </div>
         )}
 
-        {/* Key metrics grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 mt-14 max-w-3xl mx-auto">
-          {marketCap && marketCap > 0 && (
-            <MetricPill label="Market Cap" value={formatMarketCap(marketCap)} />
-          )}
-          {founded && <MetricPill label="Founded" value={String(founded)} />}
-          {location && <MetricPill label="HQ" value={location} />}
-          {pipelineCount > 0 && <MetricPill label="Pipeline" value={`${pipelineCount} programs`} />}
-          {publicationCount > 0 && <MetricPill label="Publications" value={String(publicationCount)} />}
-          {patentCount > 0 && <MetricPill label="Patents" value={String(patentCount)} />}
+        {/* Stats row — horizontal, clean */}
+        <div className="flex flex-wrap gap-x-10 gap-y-4 mt-14">
+          {marketCap && marketCap > 0 && <HeroStat label="Market Cap" value={formatMarketCap(marketCap)} />}
+          {founded && <HeroStat label="Founded" value={String(founded)} />}
+          {location && <HeroStat label="Headquarters" value={location} />}
+          {employeeCount && <HeroStat label="Employees" value={employeeCount} />}
+          {pipelineCount > 0 && <HeroStat label="Pipeline" value={`${pipelineCount} programs`} />}
+          {publicationCount > 0 && <HeroStat label="Publications" value={String(publicationCount)} />}
+          {patentCount > 0 && <HeroStat label="Patents" value={String(patentCount)} />}
         </div>
       </div>
 
-      {/* Scroll cue */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce" style={{ color: "var(--color-text-tertiary)" }}>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <path d="M12 5v14M19 12l-7 7-7-7" />
-        </svg>
-      </div>
+      {/* Bottom fade */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-24"
+        style={{
+          background: `linear-gradient(transparent, var(--color-bg-secondary))`,
+        }}
+      />
     </section>
   );
 }
 
-function MetricPill({ label, value }: { label: string; value: string }) {
+function HeroStat({ label, value }: { label: string; value: string }) {
   return (
-    <div
-      className="rounded-xl px-3 py-3 text-center"
-      style={{
-        background: "var(--color-bg-primary)",
-        border: "0.5px solid var(--color-border-subtle)",
-      }}
-    >
-      <div style={{ fontSize: 10, color: "var(--color-text-tertiary)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+    <div>
+      <div style={{ fontSize: 11, color: "var(--color-text-tertiary)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>
         {label}
       </div>
-      <div className="mt-1" style={{ fontSize: 15, fontWeight: 400, color: "var(--color-text-primary)" }}>
+      <div style={{ fontSize: 18, fontWeight: 400, color: "var(--color-text-primary)" }}>
         {value}
       </div>
     </div>
