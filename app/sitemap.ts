@@ -66,6 +66,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/about`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.5 },
     { url: `${BASE_URL}/pricing`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.5 },
     { url: `${BASE_URL}/blog`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
+    { url: `${BASE_URL}/news/funding`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
   ];
 
   // Company pages
@@ -158,6 +159,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  // Funding article pages
+  const { data: fundingArticleRows } = await supabase
+    .from("funding_articles")
+    .select("slug, published_at");
+  const fundingArticlePages: MetadataRoute.Sitemap = (fundingArticleRows || []).map((a: { slug: string; published_at: string }) => ({
+    url: `${BASE_URL}/news/funding/${a.slug}`,
+    lastModified: new Date(a.published_at),
+    changeFrequency: "weekly" as const,
+    priority: 0.7,
+  }));
+
   // Featured product pages (curated watchlists + featured pipelines only — NOT all 54K)
   const productPages: MetadataRoute.Sitemap = [];
   const seenProductSlugs = new Set<string>();
@@ -211,6 +223,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...peoplePages,
     ...investorPages,
     ...blogPages,
+    ...fundingArticlePages,
     ...productPages,
   ];
 }

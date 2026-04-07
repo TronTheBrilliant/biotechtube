@@ -43,7 +43,7 @@ interface RoundWithCompany {
   company_categories: string[] | null;
 }
 
-async function generateArticle(round: RoundWithCompany): Promise<{ headline: string; subtitle: string; body: string } | null> {
+async function generateArticle(round: RoundWithCompany): Promise<{ headline: string; subtitle: string; body: string; sector?: string } | null> {
   const amountStr = round.amount_usd >= 1e9
     ? `$${(round.amount_usd / 1e9).toFixed(1)}B`
     : `$${(round.amount_usd / 1e6).toFixed(0)}M`;
@@ -69,9 +69,10 @@ Be factual, concise, and insightful. Write like a senior biotech analyst at a to
 Also provide:
 - A compelling headline (max 80 chars)
 - A subtitle (max 120 chars, captures the key angle)
+- A sector classification (one of: Oncology, Immunology, Neuroscience, Gene Therapy, Cell Therapy, Rare Diseases, Infectious Diseases, Vaccines, Cardiovascular, Metabolic, Respiratory, Ophthalmology, Dermatology, Diagnostics, Drug Delivery, Digital Health, Small Molecules, Antibodies, RNA Therapeutics, Radiopharmaceuticals, or "Biotech" as fallback)
 
 Return as JSON:
-{"headline": "...", "subtitle": "...", "body": "..."}
+{"headline": "...", "subtitle": "...", "body": "...", "sector": "..."}
 
 No markdown fences. Just the JSON object.`;
 
@@ -187,7 +188,7 @@ async function main() {
       amount_usd: round.amount_usd,
       lead_investor: round.lead_investor,
       round_date: round.announced_date,
-      sector: round.sector || company?.categories?.[0] || null,
+      sector: round.sector || article.sector || company?.categories?.[0] || null,
       country: round.country,
       deal_size_category: dealSizeCategory(round.amount_usd),
       article_type: "funding_round",
