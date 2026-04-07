@@ -62,13 +62,13 @@ export async function callDeepSeek(options: DeepSeekOptions): Promise<string | n
  * Parse JSON from a DeepSeek response, handling common quirks.
  */
 export function parseDeepSeekJSON<T = unknown>(content: string): T | null {
-  try {
-    // Strip markdown code fences
-    let cleaned = content.trim();
-    if (cleaned.startsWith("```")) {
-      cleaned = cleaned.replace(/```json?\n?/g, "").replace(/```$/g, "").trim();
-    }
+  // Strip markdown code fences before try/catch so cleaned is in scope for fallback
+  let cleaned = content.trim();
+  if (cleaned.startsWith("```")) {
+    cleaned = cleaned.replace(/```json?\n?/g, "").replace(/```$/g, "").trim();
+  }
 
+  try {
     return JSON.parse(cleaned) as T;
   } catch {
     // Try to find JSON object or array in the string

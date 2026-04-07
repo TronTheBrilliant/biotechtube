@@ -117,34 +117,38 @@ export async function GET() {
     const { data: match } = await supabase.from("companies").select("id").ilike("name", round.company_name).limit(1).single();
     if (match) {
       companyId = match.id;
-    } else {
-      const { data: partial } = await supabase.from("companies").select("id").ilike("name", `%${round.company_name}%`).limit(1).single();
-      if (partial) {
-        companyId = partial.id;
+    } else if (round.company_name.length >= 5) {
+      // Only do partial matching for names >= 5 chars to avoid false positives
+      const { data: partial } = await supabase.from("companies").select("id, name").ilike("name", `%${round.company_name}%`).limit(5);
+      // Pick the best match — shortest name wins (closest to exact match)
+      const best = partial?.sort((a, b) => a.name.length - b.name.length)[0];
+      if (best) {
+        companyId = best.id;
+      }
+    }
+    if (!companyId) {
+      // Auto-create the company instead of skipping
+      const slug = round.company_name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 80);
+      const { data: slugCheck } = await supabase.from("companies").select("id").eq("slug", slug).limit(1);
+      const finalSlug = (slugCheck && slugCheck.length > 0) ? `${slug}-${Date.now() % 10000}` : slug;
+
+      const { data: newCo, error: createErr } = await supabase.from("companies").insert({
+        slug: finalSlug,
+        name: round.company_name,
+        country: "United States",
+        source: "news_scrape",
+        source_url: round.source_url || null,
+        is_estimated: true,
+        categories: [],
+      }).select("id").single();
+
+      if (!createErr && newCo) {
+        companyId = newCo.id;
+        newCompanyIds.push(newCo.id);
+        (results as Record<string, number>).companiesCreated = ((results as Record<string, number>).companiesCreated || 0) + 1;
       } else {
-        // Auto-create the company instead of skipping
-        const slug = round.company_name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 80);
-        const { data: slugCheck } = await supabase.from("companies").select("id").eq("slug", slug).limit(1);
-        const finalSlug = (slugCheck && slugCheck.length > 0) ? `${slug}-${Date.now() % 10000}` : slug;
-
-        const { data: newCo, error: createErr } = await supabase.from("companies").insert({
-          slug: finalSlug,
-          name: round.company_name,
-          country: "United States",
-          source: "news_scrape",
-          source_url: round.source_url || null,
-          is_estimated: true,
-          categories: [],
-        }).select("id").single();
-
-        if (!createErr && newCo) {
-          companyId = newCo.id;
-          newCompanyIds.push(newCo.id);
-          (results as Record<string, number>).companiesCreated = ((results as Record<string, number>).companiesCreated || 0) + 1;
-        } else {
-          results.noMatch++;
-          continue;
-        }
+        results.noMatch++;
+        continue;
       }
     }
 
