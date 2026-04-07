@@ -64,6 +64,7 @@ const MENUS: MenuCategory[] = [
     label: "News",
     items: [
       { href: "/news", emoji: "📰", title: "Latest News" },
+      { href: "/news/funding", emoji: "💰", title: "Funding News", subtitle: "Deal flow & analysis" },
       { href: "/blog", emoji: "📝", title: "Blog", subtitle: "Analysis & guides" },
     ],
   },
