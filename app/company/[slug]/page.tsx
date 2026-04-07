@@ -238,6 +238,38 @@ async function getCompanyNews(companyId: string) {
   return data || [];
 }
 
+async function getTemplateNews(companyId: string, companyName: string) {
+  const supabase = getSupabase();
+  // Try company_news first (custom news from claimed companies)
+  const { data: customNews } = await supabase
+    .from('company_news')
+    .select('id, title, content, published_at')
+    .eq('company_id', companyId)
+    .order('published_at', { ascending: false })
+    .limit(10);
+
+  if (customNews && customNews.length > 0) {
+    return customNews.map((n: { id: string; title: string; content: string | null; published_at: string }) => ({
+      id: n.id,
+      title: n.title,
+      source_name: null,
+      source_url: null,
+      summary: n.content,
+      published_date: n.published_at,
+    }));
+  }
+
+  // Fallback: news_items mentioning the company
+  const { data: scrapedNews } = await supabase
+    .from('news_items')
+    .select('id, title, source_name, source_url, summary, published_date')
+    .contains('companies_mentioned', [companyName])
+    .order('published_date', { ascending: false })
+    .limit(10);
+
+  return scrapedNews || [];
+}
+
 async function getQualityScore(companyId: string): Promise<number> {
   const supabase = getSupabase();
   const { data } = await supabase
@@ -584,6 +616,7 @@ export default async function CompanyPage({
 
   if (templateId === 'clean') {
     const { CleanTemplate } = await import('./templates/CleanTemplate');
+    const templateNews = await getTemplateNews(companyId, company.name);
     return (
       <article>
         <script
@@ -608,6 +641,7 @@ export default async function CompanyPage({
           followerCount={followerCount}
           brandColor={brandColor}
           heroTagline={heroTagline}
+          news={templateNews}
         />
       </article>
     );

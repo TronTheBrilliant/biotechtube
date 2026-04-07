@@ -85,6 +85,15 @@ export interface TimelineEvent {
   type: "founded" | "funding" | "ipo" | "fda";
 }
 
+export interface TemplateNewsItem {
+  id: string;
+  title: string;
+  source_name: string | null;
+  source_url: string | null;
+  summary: string | null;
+  published_date: string | null;
+}
+
 export interface TemplateProps {
   company: Company;
   companyId: string | null;
@@ -103,4 +112,5 @@ export interface TemplateProps {
   followerCount: number;
   brandColor: string;
   heroTagline: string | null;
+  news: TemplateNewsItem[];
 }

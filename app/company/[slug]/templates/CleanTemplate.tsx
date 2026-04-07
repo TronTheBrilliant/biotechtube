@@ -6,18 +6,22 @@ import { formatMarketCap } from "@/lib/market-utils";
 import { Nav } from "@/components/Nav";
 import { TemplateHeader } from "@/components/templates/TemplateHeader";
 import { TemplateHero } from "@/components/templates/TemplateHero";
+import { TemplateTechExplainer } from "@/components/templates/TemplateTechExplainer";
+import { TemplatePipelineViz } from "@/components/templates/TemplatePipelineViz";
 import { TemplatePipeline } from "@/components/templates/TemplatePipeline";
 import { TemplateFunding } from "@/components/templates/TemplateFunding";
+import { TemplateNews } from "@/components/templates/TemplateNews";
 import { TemplateResearch } from "@/components/templates/TemplateResearch";
 import { TemplateFooter } from "@/components/templates/TemplateFooter";
 import { TvStockChart } from "@/components/charts/TvStockChart";
-import { TrendingUp, Users, Shield, Target, Lightbulb, Building2 } from "lucide-react";
+import { TrendingUp, Users, Shield, Target, Lightbulb, Building2, Newspaper } from "lucide-react";
 
 const ALL_SECTIONS = [
   { id: "about", label: "About" },
   { id: "technology", label: "Technology" },
   { id: "pipeline", label: "Pipeline" },
   { id: "team", label: "Team" },
+  { id: "news", label: "News" },
   { id: "funding", label: "Funding" },
   { id: "stock", label: "Stock" },
   { id: "research", label: "Research" },
@@ -96,6 +100,7 @@ export function CleanTemplate(props: TemplateProps) {
     if (s.id === "team" && keyPeople.length === 0 && props.teamMembers.length === 0) return false;
     if (s.id === "funding" && props.dbFundingRounds.length === 0) return false;
     if (s.id === "stock" && chartData.length < 5) return false;
+    if (s.id === "news" && props.news.length === 0) return false;
     if (s.id === "research" && props.publications.length === 0 && props.patents.length === 0) return false;
     return true;
   });
@@ -190,73 +195,13 @@ export function CleanTemplate(props: TemplateProps) {
           </div>
         </section>
 
-        {/* ═══════════ TECHNOLOGY PLATFORM ═══════════ */}
+        {/* ═══════════ TECHNOLOGY PLATFORM (Interactive Explainer) ═══════════ */}
         {(technologyText || reportSections["Technology Platform"]) && (
-          <section id="technology" className="py-20 sm:py-28">
-            <div className="max-w-[1100px] mx-auto px-6">
-              <SectionLabel icon={<Lightbulb size={14} />} color={brandColor}>Technology</SectionLabel>
-              <h2 className="mt-3 mb-10" style={{ fontSize: "clamp(28px, 4vw, 42px)", fontWeight: 300, color: "var(--color-text-primary)", letterSpacing: "-0.02em", lineHeight: 1.15 }}>
-                Technology Platform
-              </h2>
-
-              {/* Full technology description from deep report */}
-              <div className="max-w-3xl">
-                {(reportSections["Technology Platform"] || technologyText || "").split("\n\n").map((paragraph, i) => {
-                  // Handle bullet points
-                  if (paragraph.trim().startsWith("*")) {
-                    const items = paragraph.split("\n").filter((l) => l.trim().startsWith("*"));
-                    return (
-                      <div key={i} className="my-6 flex flex-col gap-3">
-                        {items.map((item, j) => {
-                          const text = item.replace(/^\*\s*/, "").replace(/\*\*/g, "");
-                          const [title, ...desc] = text.split(":");
-                          return (
-                            <div key={j} className="flex gap-3 p-4 rounded-xl" style={{ background: "var(--color-bg-secondary)", border: "0.5px solid var(--color-border-subtle)" }}>
-                              <div className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center mt-0.5" style={{ background: `${brandColor}10`, color: brandColor }}>
-                                <span style={{ fontSize: 14, fontWeight: 500 }}>{j + 1}</span>
-                              </div>
-                              <div>
-                                {desc.length > 0 ? (
-                                  <>
-                                    <div style={{ fontSize: 14, fontWeight: 500, color: "var(--color-text-primary)" }}>{title.trim()}</div>
-                                    <div style={{ fontSize: 14, color: "var(--color-text-secondary)", lineHeight: 1.7, marginTop: 2 }}>{desc.join(":").trim()}</div>
-                                  </>
-                                ) : (
-                                  <div style={{ fontSize: 14, color: "var(--color-text-secondary)", lineHeight: 1.7 }}>{title.trim()}</div>
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    );
-                  }
-
-                  // Regular paragraphs (strip markdown bold)
-                  const cleanText = paragraph.replace(/\*\*/g, "").replace(/^\s+/gm, "").trim();
-                  if (!cleanText) return null;
-                  return (
-                    <p key={i} className="mb-5" style={{ fontSize: 16, lineHeight: 1.85, color: "var(--color-text-secondary)" }}>
-                      {cleanText}
-                    </p>
-                  );
-                })}
-              </div>
-
-              {/* Competitive landscape */}
-              {competitiveLandscape && (
-                <div className="mt-12 p-6 rounded-xl" style={{ background: "var(--color-bg-secondary)", border: "0.5px solid var(--color-border-subtle)" }}>
-                  <div className="flex items-center gap-2 mb-4">
-                    <Shield size={14} style={{ color: brandColor }} />
-                    <h4 style={{ fontSize: 14, fontWeight: 500, color: "var(--color-text-primary)" }}>Competitive Position</h4>
-                  </div>
-                  <p style={{ fontSize: 14, lineHeight: 1.75, color: "var(--color-text-secondary)" }}>
-                    {competitiveLandscape}
-                  </p>
-                </div>
-              )}
-            </div>
-          </section>
+          <TemplateTechExplainer
+            technologyText={reportSections["Technology Platform"] || technologyText || ""}
+            competitiveLandscape={competitiveLandscape}
+            brandColor={brandColor}
+          />
         )}
 
         {/* ═══════════ PIPELINE HIGHLIGHTS (from curated report) ═══════════ */}
@@ -314,6 +259,13 @@ export function CleanTemplate(props: TemplateProps) {
           </section>
         )}
 
+        {/* ═══════════ PIPELINE SUBWAY MAP ═══════════ */}
+        <TemplatePipelineViz
+          pipelines={props.pipelines}
+          therapeuticAreas={therapeuticAreas}
+          brandColor={brandColor}
+        />
+
         {/* ═══════════ FULL PIPELINE (ClinicalTrials.gov) ═══════════ */}
         <TemplatePipeline pipelines={props.pipelines} brandColor={brandColor} />
 
@@ -354,6 +306,9 @@ export function CleanTemplate(props: TemplateProps) {
             </div>
           </section>
         )}
+
+        {/* ═══════════ NEWS ═══════════ */}
+        <TemplateNews news={props.news} brandColor={brandColor} />
 
         {/* ═══════════ FUNDING ═══════════ */}
         <TemplateFunding rounds={props.dbFundingRounds} brandColor={brandColor} />

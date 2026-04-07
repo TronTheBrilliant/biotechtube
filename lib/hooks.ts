@@ -1,6 +1,38 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+
+/**
+ * One-shot IntersectionObserver hook for scroll-triggered animations.
+ * Sets `isVisible` to true when element enters viewport, then never resets.
+ */
+export function useScrollReveal(threshold = 0.15): {
+  ref: React.RefObject<HTMLDivElement | null>;
+  isVisible: boolean;
+} {
+  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(el);
+        }
+      },
+      { threshold, rootMargin: "0px 0px -50px 0px" }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [threshold]);
+
+  return { ref, isVisible };
+}
 
 interface CompaniesResponse {
   companies: Record<string, unknown>[]
