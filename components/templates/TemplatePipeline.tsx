@@ -100,8 +100,8 @@ export function TemplatePipeline({ pipelines, brandColor }: Props) {
           />
         </div>
 
-        {/* Stage progress bar — visual overview */}
-        <div className="mt-10 flex gap-1 h-10 rounded-xl overflow-hidden" style={{ background: "var(--color-bg-secondary)" }}>
+        {/* Stage progress bar — visual overview (hidden on very small screens) */}
+        <div className="mt-10 hidden sm:flex gap-1 h-10 rounded-xl overflow-hidden" style={{ background: "var(--color-bg-secondary)" }}>
           {stagesWithData.map((stage) => {
             const count = byStage.get(stage)!.length;
             const pct = (count / pipelines.length) * 100;
@@ -132,11 +132,11 @@ export function TemplatePipeline({ pipelines, brandColor }: Props) {
           })}
         </div>
 
-        {/* Stage filter pills */}
-        <div className="flex flex-wrap gap-2 mt-6">
+        {/* Stage filter pills — scrollable on mobile */}
+        <div className="flex gap-2 mt-6 overflow-x-auto no-scrollbar pb-1">
           <button
             onClick={() => setSelectedStage(null)}
-            className="px-3 py-1.5 rounded-full transition-all"
+            className="px-3 py-1.5 rounded-full transition-all shrink-0"
             style={{
               fontSize: 12,
               fontWeight: !selectedStage ? 500 : 400,
@@ -155,7 +155,7 @@ export function TemplatePipeline({ pipelines, brandColor }: Props) {
               <button
                 key={stage}
                 onClick={() => setSelectedStage(isSelected ? null : stage)}
-                className="px-3 py-1.5 rounded-full transition-all"
+                className="px-3 py-1.5 rounded-full transition-all shrink-0"
                 style={{
                   fontSize: 12,
                   fontWeight: isSelected ? 500 : 400,
@@ -171,7 +171,7 @@ export function TemplatePipeline({ pipelines, brandColor }: Props) {
         </div>
 
         {/* Drug cards */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-8">
+        <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-8">
           {displayedDrugs.map((drug) => {
             const config = STAGE_CONFIG[drug.stage] || STAGE_CONFIG["Pre-clinical"];
             const status = STATUS_LABELS[drug.trial_status || ""] || { label: drug.trial_status || "Unknown", color: "#6b7280" };
