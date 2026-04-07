@@ -242,13 +242,13 @@ async function getIndexHistory() {
   const supabase = getSupabase();
   // Paginate all ~9K snapshots (Supabase caps each query at 1000 rows).
   // ISR revalidate=3600 ensures this only runs once per hour.
-  const allRows: { snapshot_date: string; total_market_cap: string | number }[] = [];
+  const allRows: { snapshot_date: string; total_market_cap: string | number; public_companies_count: number | null }[] = [];
   const PAGE = 1000;
   let offset = 0;
   while (true) {
     const { data } = await supabase
       .from("market_snapshots")
-      .select("snapshot_date, total_market_cap")
+      .select("snapshot_date, total_market_cap, public_companies_count")
       .not("total_market_cap", "is", null)
       .order("snapshot_date", { ascending: true })
       .range(offset, offset + PAGE - 1);
@@ -260,21 +260,44 @@ async function getIndexHistory() {
 
   if (allRows.length === 0) return [];
 
+  // ── NORMALIZE INDEX ──
+  // When we add new companies (e.g., scraping Japanese/Chinese biotechs), the raw
+  // total_market_cap spikes artificially. Fix: normalize each snapshot to
+  // (avg_market_cap_per_company × baseline_count) so only real price moves show.
+  //
+  // Baseline: use the company count from Jan 2026 (~983) as the reference.
+  // This way adding 300 Asian companies doesn't create a fake $2T spike.
+  const BASELINE_COUNT = 983; // Stable count from early 2026 before bulk additions
+
   // Simple uniform thinning: target ~600 points for the chart.
-  // Client-side BiotechIndexChart can further downsample if needed.
   const target = 600;
   const step = allRows.length > target ? Math.floor(allRows.length / target) : 1;
   const result: { snapshot_date: string; total_market_cap: number }[] = [];
   for (let i = 0; i < allRows.length; i += step) {
+    const row = allRows[i];
+    const totalMcap = Number(row.total_market_cap);
+    const companyCount = row.public_companies_count || BASELINE_COUNT;
+
+    // Normalize: (total / actual_count) × baseline_count
+    // If actual count matches baseline, no change. If we added companies, it scales down.
+    const normalizedMcap = companyCount > BASELINE_COUNT
+      ? (totalMcap / companyCount) * BASELINE_COUNT
+      : totalMcap;
+
     result.push({
-      snapshot_date: allRows[i].snapshot_date,
-      total_market_cap: Number(allRows[i].total_market_cap),
+      snapshot_date: row.snapshot_date,
+      total_market_cap: normalizedMcap,
     });
   }
   // Always include the very last point
   const last = allRows[allRows.length - 1];
   if (result[result.length - 1].snapshot_date !== last.snapshot_date) {
-    result.push({ snapshot_date: last.snapshot_date, total_market_cap: Number(last.total_market_cap) });
+    const totalMcap = Number(last.total_market_cap);
+    const companyCount = last.public_companies_count || BASELINE_COUNT;
+    const normalizedMcap = companyCount > BASELINE_COUNT
+      ? (totalMcap / companyCount) * BASELINE_COUNT
+      : totalMcap;
+    result.push({ snapshot_date: last.snapshot_date, total_market_cap: normalizedMcap });
   }
   return result;
 }

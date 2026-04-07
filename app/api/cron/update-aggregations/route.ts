@@ -123,10 +123,22 @@ async function calculateMarketSnapshot(supabase: SupabaseClient): Promise<string
   const lastKnownMcap = await fetchCarryForwardMarketCaps(supabase, latestDate);
   if (lastKnownMcap.size === 0) return "No market cap data found";
 
+  // Only sum market caps for index constituent companies (prevents spike when new companies are added)
+  const { data: constituentRows } = await supabase
+    .from("index_constituents")
+    .select("company_id")
+    .eq("is_active", true);
+  const constituentIds = new Set((constituentRows || []).map((r: { company_id: string }) => r.company_id));
+
   let totalMarketCap = 0;
-  lastKnownMcap.forEach((mcap) => {
-    totalMarketCap += mcap;
+  let constituentCount = 0;
+  lastKnownMcap.forEach((mcap, companyId) => {
+    if (constituentIds.size === 0 || constituentIds.has(companyId)) {
+      totalMarketCap += mcap;
+      constituentCount++;
+    }
   });
+  console.log(`Index: ${constituentCount} constituents out of ${lastKnownMcap.size} total companies`);
 
   const todayPrices = await fetchPricesForDate(supabase, latestDate);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
