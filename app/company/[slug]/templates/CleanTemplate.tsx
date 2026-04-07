@@ -129,7 +129,10 @@ export function CleanTemplate(props: TemplateProps) {
           city={report?.headquarters_city || null}
           sectors={sectorNames}
           brandColor={brandColor}
-          pipelineCount={props.pipelines.length || curatedPipeline.length}
+          pipelineCount={
+            props.pipelines.filter(p => p.trial_status === "Recruiting" || p.trial_status === "Active").length
+            || curatedPipeline.length
+          }
           publicationCount={props.publications.length}
           patentCount={props.patents.length}
           employeeCount={employeeEstimate ? String(employeeEstimate) : null}

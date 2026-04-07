@@ -144,7 +144,7 @@ async function getPipelines(companyId: string): Promise<any[]> {
     .select('*')
     .eq('company_id', companyId)
     .order('stage', { ascending: false })
-    .limit(100);
+    .limit(200);
   return data || [];
 }
 
