@@ -133,7 +133,7 @@ export default function BiotechIndexChart({ data }: Props) {
       {/* Chart */}
       <TvAreaChart
         data={chartPoints}
-        height={320}
+        height={480}
         isPositive={isPositive}
         formatValue={(v) => formatMarketCap(v)}
         tooltipTitle="Market Cap"
