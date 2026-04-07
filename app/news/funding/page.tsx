@@ -27,7 +27,7 @@ export default async function FundingNewsPage() {
   const { data: articles } = await supabase
     .from("funding_articles")
     .select("id, slug, headline, subtitle, body, company_name, company_slug, round_type, amount_usd, lead_investor, round_date, sector, country, deal_size_category, article_type, is_featured, published_at")
-    .order("published_at", { ascending: false })
+    .order("round_date", { ascending: false, nullsFirst: false })
     .limit(100);
 
   // Dashboard stats

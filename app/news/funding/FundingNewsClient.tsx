@@ -66,7 +66,6 @@ const ROUND_COLORS: Record<string, string> = {
 
 export function FundingNewsClient({ articles, stats }: Props) {
   const [roundFilter, setRoundFilter] = useState("All");
-  const [expandedArticle, setExpandedArticle] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     if (roundFilter === "All") return articles;
@@ -163,14 +162,15 @@ export function FundingNewsClient({ articles, stats }: Props) {
                   </div>
                 )}
                 {filtered.map((article) => {
-                  const isExpanded = expandedArticle === article.id;
                   const roundColor = ROUND_COLORS[article.round_type || ""] || "var(--color-accent)";
                   const date = article.round_date ? new Date(article.round_date) : null;
+                  const excerpt = article.body.split("\n\n")[0]?.substring(0, 160) + "...";
 
                   return (
-                    <article
+                    <Link
                       key={article.id}
-                      className="rounded-xl overflow-hidden transition-all"
+                      href={`/news/funding/${article.slug}`}
+                      className="group rounded-xl overflow-hidden transition-all hover:shadow-md block"
                       style={{
                         background: "var(--color-bg-primary)",
                         border: "0.5px solid var(--color-border-subtle)",
@@ -183,10 +183,7 @@ export function FundingNewsClient({ articles, stats }: Props) {
                         {/* Meta line */}
                         <div className="flex items-center gap-2 flex-wrap mb-3">
                           {article.round_type && (
-                            <span
-                              className="px-2 py-0.5 rounded-full"
-                              style={{ fontSize: 10, fontWeight: 500, color: roundColor, background: `${roundColor}12` }}
-                            >
+                            <span className="px-2 py-0.5 rounded-full" style={{ fontSize: 10, fontWeight: 500, color: roundColor, background: `${roundColor}12` }}>
                               {article.round_type}
                             </span>
                           )}
@@ -201,16 +198,13 @@ export function FundingNewsClient({ articles, stats }: Props) {
                             </span>
                           )}
                           {article.sector && (
-                            <span style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>
-                              · {article.sector}
-                            </span>
+                            <span style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>· {article.sector}</span>
                           )}
                         </div>
 
                         {/* Headline */}
                         <h3
-                          className="cursor-pointer hover:underline"
-                          onClick={() => setExpandedArticle(isExpanded ? null : article.id)}
+                          className="group-hover:underline"
                           style={{ fontSize: 17, fontWeight: 500, color: "var(--color-text-primary)", lineHeight: 1.35 }}
                         >
                           {article.headline}
@@ -223,54 +217,29 @@ export function FundingNewsClient({ articles, stats }: Props) {
                           </p>
                         )}
 
-                        {/* Company + investor */}
-                        <div className="flex items-center gap-3 mt-3">
-                          {article.company_slug ? (
-                            <Link
-                              href={`/company/${article.company_slug}`}
-                              className="flex items-center gap-1 hover:underline"
-                              style={{ fontSize: 12, color: "var(--color-accent)", fontWeight: 500 }}
-                            >
-                              {article.company_name}
-                              <ArrowUpRight size={11} />
-                            </Link>
-                          ) : (
+                        {/* Excerpt */}
+                        <p className="mt-2" style={{ fontSize: 13, color: "var(--color-text-tertiary)", lineHeight: 1.6 }}>
+                          {excerpt}
+                        </p>
+
+                        {/* Company + investor + read more */}
+                        <div className="flex items-center justify-between mt-3">
+                          <div className="flex items-center gap-3">
                             <span style={{ fontSize: 12, color: "var(--color-text-secondary)", fontWeight: 500 }}>
                               {article.company_name}
                             </span>
-                          )}
-                          {article.lead_investor && article.lead_investor !== "Undisclosed" && (
-                            <span style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>
-                              Led by {article.lead_investor}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Expandable body */}
-                        {isExpanded && (
-                          <div
-                            className="mt-4 pt-4"
-                            style={{ borderTop: "0.5px solid var(--color-border-subtle)" }}
-                          >
-                            {article.body.split("\n\n").map((p, i) => (
-                              <p key={i} className="mb-3" style={{ fontSize: 14, lineHeight: 1.75, color: "var(--color-text-secondary)" }}>
-                                {p}
-                              </p>
-                            ))}
+                            {article.lead_investor && article.lead_investor !== "Undisclosed" && (
+                              <span style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>
+                                Led by {article.lead_investor}
+                              </span>
+                            )}
                           </div>
-                        )}
-
-                        {/* Read more toggle */}
-                        <button
-                          onClick={() => setExpandedArticle(isExpanded ? null : article.id)}
-                          className="mt-3 flex items-center gap-1 transition-opacity hover:opacity-70"
-                          style={{ fontSize: 12, color: "var(--color-accent)", fontWeight: 500, background: "none", border: "none", cursor: "pointer" }}
-                        >
-                          {isExpanded ? "Show less" : "Read analysis"}
-                          <ChevronRight size={12} style={{ transform: isExpanded ? "rotate(90deg)" : "none", transition: "transform 0.2s" }} />
-                        </button>
+                          <span className="flex items-center gap-1" style={{ fontSize: 12, color: "var(--color-accent)", fontWeight: 500 }}>
+                            Read <ChevronRight size={12} />
+                          </span>
+                        </div>
                       </div>
-                    </article>
+                    </Link>
                   );
                 })}
               </div>
