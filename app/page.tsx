@@ -535,6 +535,17 @@ async function getNextFDADecisions() {
 
 // ── Page ──
 
+async function getLatestFundingArticles() {
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from("funding_articles")
+    .select("slug, headline, company_name, amount_usd, round_type, round_date, sector")
+    .order("round_date", { ascending: false, nullsFirst: false })
+    .limit(4);
+  if (error) throw new Error(`Funding articles failed: ${error.message}`);
+  return data || [];
+}
+
 /**
  * Safe fetch wrapper that distinguishes errors from empty data.
  * On error: logs and returns fallback, but marks the fetch as failed.
@@ -557,7 +568,7 @@ export default async function HomePage() {
   // Clear errors for this render
   fetchErrors.length = 0;
 
-  const [companies, snapshot, trending, sectors, countries, investorsData, peopleData, fundingAnnualData, indexHistory, hotPipelines, recentFunding, events] =
+  const [companies, snapshot, trending, sectors, countries, investorsData, peopleData, fundingAnnualData, indexHistory, hotPipelines, recentFunding, events, latestArticles] =
     await Promise.all([
       safeFetch("topCompanies", getTopCompanies, []),
       safeFetch("snapshot", getLatestSnapshot, null),
@@ -571,6 +582,7 @@ export default async function HomePage() {
       safeFetch("hotPipelines", getHotPipelines, []),
       safeFetch("recentFunding", getRecentFunding, []),
       safeFetch("events", getUpcomingEvents, []),
+      safeFetch("latestArticles", getLatestFundingArticles, []),
     ]);
 
   // Log critical section failures (but don't throw — on fresh deploys there's no stale cache to serve)
@@ -758,14 +770,45 @@ export default async function HomePage() {
           )}
         </div>
         */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        </div>
 
-        {/* Funding Radar */}
+        {/* Funding Radar + Latest Funding News */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <HomeSection icon="📡" title="Funding Radar" viewAllHref="/funding" viewAllLabel="View all">
             <FundingRadar rounds={recentFunding} />
           </HomeSection>
+          {latestArticles.length > 0 && (
+            <HomeSection icon="📰" title="Funding Intelligence" viewAllHref="/news/funding" viewAllLabel="Read all">
+              <div>
+                {latestArticles.map((a: { slug: string; headline: string; company_name: string; amount_usd: number | null; round_type: string | null; round_date: string | null; sector: string | null }, i: number) => (
+                  <a
+                    key={a.slug}
+                    href={`/news/funding/${a.slug}`}
+                    className="px-4 py-3 flex flex-col gap-1 hover:bg-[var(--color-bg-secondary)] no-underline"
+                    style={i < latestArticles.length - 1 ? { borderBottom: "0.5px solid var(--color-border-subtle)" } : undefined}
+                  >
+                    <span className="text-13 font-medium" style={{ color: "var(--color-text-primary)", lineHeight: 1.35 }}>
+                      {a.headline}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      {a.round_type && (
+                        <span className="text-10 px-1.5 py-0.5 rounded-full font-medium" style={{ background: "var(--color-bg-secondary)", color: "var(--color-text-secondary)" }}>
+                          {a.round_type}
+                        </span>
+                      )}
+                      {a.amount_usd && a.amount_usd > 0 && (
+                        <span className="text-11 font-medium" style={{ color: "var(--color-text-primary)" }}>
+                          {a.amount_usd >= 1e9 ? `$${(a.amount_usd / 1e9).toFixed(1)}B` : `$${(a.amount_usd / 1e6).toFixed(0)}M`}
+                        </span>
+                      )}
+                      <span className="text-10" style={{ color: "var(--color-text-tertiary)" }}>
+                        {a.company_name}
+                      </span>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </HomeSection>
+          )}
         </div>
 
         {/* Row 4: Events + Investors */}
