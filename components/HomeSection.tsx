@@ -18,10 +18,12 @@ export function HomeSection({
 }: Props) {
   return (
     <div
-      className="rounded-lg overflow-hidden"
+      className="rounded-lg"
       style={{
         background: "var(--color-bg-primary)",
         boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 0 0 0.5px var(--color-border-subtle)",
+        minWidth: 0,
+        overflow: "hidden",
       }}
     >
       {/* Accent top bar - hidden for now */}

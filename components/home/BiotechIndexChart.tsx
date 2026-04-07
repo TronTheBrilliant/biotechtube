@@ -130,14 +130,27 @@ export default function BiotechIndexChart({ data }: Props) {
           ))}
         </div>
       </div>
-      {/* Chart */}
-      <TvAreaChart
-        data={chartPoints}
-        height={480}
-        isPositive={isPositive}
-        formatValue={(v) => formatMarketCap(v)}
-        tooltipTitle="Market Cap"
-      />
+      {/* Chart — responsive height */}
+      <div className="w-full" style={{ minWidth: 0, maxWidth: "100%" }}>
+        <div className="hidden md:block">
+          <TvAreaChart
+            data={chartPoints}
+            height={480}
+            isPositive={isPositive}
+            formatValue={(v) => formatMarketCap(v)}
+            tooltipTitle="Market Cap"
+          />
+        </div>
+        <div className="block md:hidden">
+          <TvAreaChart
+            data={chartPoints}
+            height={280}
+            isPositive={isPositive}
+            formatValue={(v) => formatMarketCap(v)}
+            tooltipTitle="Market Cap"
+          />
+        </div>
+      </div>
     </div>
   );
 }

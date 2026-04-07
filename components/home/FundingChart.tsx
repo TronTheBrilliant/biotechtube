@@ -99,8 +99,8 @@ export default function FundingChart({ data }: Props) {
       </p>
 
       {/* Histogram chart */}
-      <div className="px-2">
-        <div ref={containerRef} style={{ width: "100%", height: 250 }} />
+      <div className="px-2" style={{ minWidth: 0, maxWidth: "100%" }}>
+        <div ref={containerRef} className="h-[180px] md:h-[250px]" style={{ width: "100%", minWidth: 0 }} />
       </div>
 
       {/* Insight line */}
