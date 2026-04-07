@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { HistogramSeries, type Time, type ISeriesApi } from "lightweight-charts";
 import { useTvChart } from "@/components/charts/useTvChart";
 import fundingNarrative from "@/data/funding-narrative.json";
@@ -28,6 +29,7 @@ interface Props {
 export default function FundingChart({ data }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const seriesRef = useRef<ISeriesApi<"Histogram"> | null>(null);
+  const [showTimeline, setShowTimeline] = useState(false);
 
   const annualData = data || [];
   const totalB = annualData.reduce((s, d) => s + d.amount, 0) / 1000;
@@ -110,54 +112,61 @@ export default function FundingChart({ data }: Props) {
         in genomics, immunotherapy, and mRNA technology.
       </p>
 
-      {/* Era cards — mobile: timeline, desktop: 2x2 grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pb-3">
-        {fundingNarrative.map((era) => {
-          return (
-            <div
-              key={era.era}
-              className="rounded-lg p-3 text-left"
-              style={{
-                background: "var(--color-bg-secondary)",
-                border: "0.5px solid var(--color-border-subtle)",
-              }}
-            >
-              {/* Date pill */}
-              <span
-                className="inline-block text-10 font-semibold px-2 py-0.5 rounded-full mb-1.5"
+      {/* Toggle for era timeline */}
+      <button
+        onClick={() => setShowTimeline(!showTimeline)}
+        className="flex items-center gap-1.5 text-11 font-medium mb-3 transition-opacity hover:opacity-70"
+        style={{ color: "var(--color-text-tertiary)", background: "none", border: "none", cursor: "pointer" }}
+      >
+        {showTimeline ? "Hide" : "Show"} funding timeline
+        <ChevronDown size={13} style={{ transform: showTimeline ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
+      </button>
+
+      {/* Era cards — collapsible, closed by default */}
+      {showTimeline && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pb-3">
+          {fundingNarrative.map((era) => {
+            return (
+              <div
+                key={era.era}
+                className="rounded-lg p-3 text-left"
                 style={{
-                  background: "var(--color-bg-tertiary)",
-                  color: "var(--color-text-secondary)",
+                  background: "var(--color-bg-secondary)",
+                  border: "0.5px solid var(--color-border-subtle)",
                 }}
               >
-                {era.era}
-              </span>
-
-              {/* Title */}
-              <div
-                className="text-13 font-semibold mb-1 leading-snug"
-                style={{ color: "var(--color-text-primary)" }}
-              >
-                {era.title}
+                <span
+                  className="inline-block text-10 font-semibold px-2 py-0.5 rounded-full mb-1.5"
+                  style={{
+                    background: "var(--color-bg-tertiary)",
+                    color: "var(--color-text-secondary)",
+                  }}
+                >
+                  {era.era}
+                </span>
+                <div
+                  className="text-13 font-semibold mb-1 leading-snug"
+                  style={{ color: "var(--color-text-primary)" }}
+                >
+                  {era.title}
+                </div>
+                <div
+                  className="text-12 leading-relaxed"
+                  style={{
+                    color: "var(--color-text-secondary)",
+                    display: "-webkit-box",
+                    WebkitLineClamp: 3,
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
+                  }}
+                >
+                  {era.description}
+                </div>
               </div>
-
-              {/* Description — max 3 lines */}
-              <div
-                className="text-12 leading-relaxed"
-                style={{
-                  color: "var(--color-text-secondary)",
-                  display: "-webkit-box",
-                  WebkitLineClamp: 3,
-                  WebkitBoxOrient: "vertical",
-                  overflow: "hidden",
-                }}
-              >
-                {era.description}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

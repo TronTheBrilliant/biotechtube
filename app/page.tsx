@@ -869,6 +869,11 @@ export default async function HomePage() {
           </HomeSection>
         )}
 
+        {/* Funding Season Chart — right under Index */}
+        <HomeSection icon="💰" title="Funding Season" viewAllHref="/funding" viewAllLabel="View all">
+          <FundingChart data={fundingAnnualData} />
+        </HomeSection>
+
         {/* Pipeline Intelligence — Small-Cap Watch + FDA Calendar */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {smallCapItems.length > 0 ? (
@@ -891,12 +896,7 @@ export default async function HomePage() {
           ) : null}
         </div>
 
-        {/* Funding Season Chart — full width */}
-        <HomeSection icon="💰" title="Funding Season" viewAllHref="/funding" viewAllLabel="View all">
-          <FundingChart data={fundingAnnualData} />
-        </HomeSection>
-
-        {/* Row 3: Funding Radar */}
+        {/* Funding Radar */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <HomeSection icon="📡" title="Funding Radar" viewAllHref="/funding" viewAllLabel="View all">
             <FundingRadar rounds={recentFunding} />
