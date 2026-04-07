@@ -58,61 +58,23 @@ function getSupabase() {
 
 async function getTopCompanies() {
   const supabase = getSupabase();
-  const { data } = await supabase
-    .from("companies")
-    .select("id, slug, name, ticker, country, valuation, logo_url, website, domain, categories, stage, description")
-    .order("valuation", { ascending: false, nullsFirst: false })
-    .limit(200); // Was 1000 with select('*') = 2.9MB, caused cache failures
-  if (!data) return [];
 
-  const companies = dbRowsToCompanies(data);
+  // Single RPC — replaces 12+ paginated queries
+  const { data, error } = await supabase.rpc("get_top_companies" as never, { limit_count: 5 });
+  if (error) throw new Error(`Top companies RPC failed: ${error.message}`);
+  if (!data || !Array.isArray(data) || data.length === 0) return [];
 
-  // Override valuation with USD market cap from price history
-  const companyIds = data.map((row: { id: string }) => row.id);
-  const marketCapMap = new Map<string, number>();
-  const cutoff = new Date();
-  cutoff.setDate(cutoff.getDate() - 5);
-  const cutoffStr = cutoff.toISOString().split("T")[0];
-
-  // Paginate price history: ~200 companies × 5 days = ~1000 rows, can exceed Supabase 1000-row default
-  const BATCH_SIZE = 50; // Smaller batches to stay well within 1000-row limit per query
-  for (let i = 0; i < companyIds.length; i += BATCH_SIZE) {
-    const batch = companyIds.slice(i, i + BATCH_SIZE);
-    for (let page = 0; page < 3; page++) {
-      const { data: priceRows } = await supabase
-        .from("company_price_history")
-        .select("company_id, market_cap_usd, date")
-        .in("company_id", batch)
-        .gte("date", cutoffStr)
-        .not("market_cap_usd", "is", null)
-        .order("date", { ascending: false })
-        .range(page * 1000, (page + 1) * 1000 - 1);
-      if (!priceRows || priceRows.length === 0) break;
-      for (const row of priceRows) {
-        if (row.market_cap_usd != null && !marketCapMap.has(row.company_id)) {
-          marketCapMap.set(row.company_id, Number(row.market_cap_usd));
-        }
-      }
-      if (priceRows.length < 1000) break;
-    }
-  }
-
-  const slugToId = new Map<string, string>();
-  for (const row of data) slugToId.set(row.slug, row.id);
-
-  for (const company of companies) {
-    const id = slugToId.get(company.slug);
-    if (id) {
-      const usdMarketCap = marketCapMap.get(id);
-      if (usdMarketCap != null) {
-        company.valuation = usdMarketCap;
-      } else if (company.valuation && company.valuation > 0) {
-        company.valuation = undefined;
-      }
-    }
-  }
-  companies.sort((a, b) => (b.valuation || 0) - (a.valuation || 0));
-  return companies;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (data as any[]).map((r) => ({
+    slug: r.company_slug || "",
+    name: r.company_name || "",
+    ticker: r.ticker || null,
+    country: r.country || null,
+    valuation: Number(r.market_cap) || null,
+    logo_url: r.logo_url || null,
+    website: r.website || null,
+    dailyChange: r.daily_change_pct != null ? Number(r.daily_change_pct) : null,
+  }));
 }
 
 async function getLatestSnapshot() {
@@ -620,15 +582,17 @@ export default async function HomePage() {
     console.error(`Homepage: ${fetchErrors.length} section(s) failed: ${fetchErrors.join(", ")}. Page will render with placeholders.`);
   }
 
-  // Prepare top 5 companies for display
-  const top5Companies = companies.slice(0, 5).map((c) => ({
+  // Prepare top 5 companies for display (already limited from RPC)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const top5Companies = companies.slice(0, 5).map((c: any) => ({
     slug: c.slug,
     name: c.name,
     ticker: c.ticker || null,
     country: c.country || null,
     valuation: c.valuation || null,
-    logo_url: c.logoUrl || null,
+    logo_url: c.logo_url || c.logoUrl || null,
     website: c.website || null,
+    dailyChange: c.dailyChange ?? null,
   }));
 
   // JSON-LD structured data for homepage

@@ -10,6 +10,7 @@ interface Company {
   valuation: number | null;
   logo_url: string | null;
   website?: string | null;
+  dailyChange?: number | null;
 }
 
 export default function TopCompanies({ companies }: { companies: Company[] }) {
@@ -19,9 +20,7 @@ export default function TopCompanies({ companies }: { companies: Company[] }) {
         <Link
           key={c.slug}
           href={`/company/${c.slug}`}
-          className={`px-4 py-2.5 flex items-center gap-3 hover:bg-[var(--color-bg-secondary)] no-underline${
-            i < companies.length - 1 && i < 4 ? "" : ""
-          }`}
+          className="px-4 py-2.5 flex items-center gap-3 hover:bg-[var(--color-bg-secondary)] no-underline"
           style={
             i < 4 && i < companies.length - 1
               ? { borderBottom: "0.5px solid var(--color-border-subtle)" }
@@ -61,10 +60,24 @@ export default function TopCompanies({ companies }: { companies: Company[] }) {
           {/* Spacer */}
           <span className="flex-1" />
 
+          {/* Daily Change */}
+          {c.dailyChange != null && (
+            <span
+              className="font-medium text-right"
+              style={{
+                fontSize: 12,
+                color: c.dailyChange >= 0 ? "#16a34a" : "#dc2626",
+                minWidth: 50,
+              }}
+            >
+              {c.dailyChange >= 0 ? "+" : ""}{c.dailyChange.toFixed(1)}%
+            </span>
+          )}
+
           {/* Market Cap */}
           <span
             className="font-medium text-right"
-            style={{ fontSize: 13, color: "var(--color-text-primary)" }}
+            style={{ fontSize: 13, color: "var(--color-text-primary)", minWidth: 55 }}
           >
             {c.valuation != null ? formatMarketCap(c.valuation) : "—"}
           </span>
