@@ -848,6 +848,20 @@ export default async function HomePage() {
           )}
         </div>
 
+        {/* Sectors + Countries */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {sectors.length > 0 && (
+            <HomeSection icon="🧬" title="Top Sectors" viewAllHref="/top-sectors" viewAllLabel="View all 20">
+              <TopSectors sectors={sectors} />
+            </HomeSection>
+          )}
+          {countries.length > 0 && (
+            <HomeSection icon="🌍" title="Market by Country" viewAllHref="/countries" viewAllLabel="View all 30+">
+              <MarketByCountry countries={countries} />
+            </HomeSection>
+          )}
+        </div>
+
         {/* Biotech Market Index — full width */}
         {indexHistory.length > 0 && (
           <HomeSection icon="📈" title="Biotech Market Index" viewAllHref="/markets" viewAllLabel="Full markets">
@@ -875,20 +889,6 @@ export default async function HomePage() {
               <PipelinesToWatch pipelines={hotPipelines} />
             </HomeSection>
           ) : null}
-        </div>
-
-        {/* Row 2: Sectors + Countries */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {sectors.length > 0 && (
-            <HomeSection icon="🧬" title="Top Sectors" viewAllHref="/top-sectors" viewAllLabel="View all 20">
-              <TopSectors sectors={sectors} />
-            </HomeSection>
-          )}
-          {countries.length > 0 && (
-            <HomeSection icon="🌍" title="Market by Country" viewAllHref="/countries" viewAllLabel="View all 30+">
-              <MarketByCountry countries={countries} />
-            </HomeSection>
-          )}
         </div>
 
         {/* Funding Season Chart — full width */}
