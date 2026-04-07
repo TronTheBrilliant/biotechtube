@@ -35,6 +35,31 @@ export const COUNTRY_PAGES: { url: string; country: string; region: string }[] =
   { url: 'https://biopharmguy.com/links/company-by-location-south.php', country: 'United States', region: 'US' },
   { url: 'https://biopharmguy.com/links/company-by-location-carolinas.php', country: 'United States', region: 'US' },
   { url: 'https://biopharmguy.com/links/company-by-location-other.php', country: 'United States', region: 'US' },
+  // === Additional Locations (not yet scraped) ===
+  { url: 'https://biopharmguy.com/links/company-by-location-canada.php', country: 'Canada', region: 'Americas' },
+  { url: 'https://biopharmguy.com/links/province-all-geo.php', country: 'Canada', region: 'Americas' },
+  { url: 'https://biopharmguy.com/links/company-by-location-china.php', country: 'China', region: 'Asia' },
+  { url: 'https://biopharmguy.com/links/company-by-location-japan.php', country: 'Japan', region: 'Asia' },
+  { url: 'https://biopharmguy.com/links/company-by-location-india.php', country: 'India', region: 'Asia' },
+  { url: 'https://biopharmguy.com/links/company-by-location-australia.php', country: 'Australia', region: 'Oceania' },
+  { url: 'https://biopharmguy.com/links/company-by-location-taiwan.php', country: 'Taiwan', region: 'Asia' },
+  { url: 'https://biopharmguy.com/links/company-by-location-singapore.php', country: 'Singapore', region: 'Asia' },
+  { url: 'https://biopharmguy.com/links/company-by-location-asia.php', country: 'Asia - Other', region: 'Asia' },
+  { url: 'https://biopharmguy.com/links/company-by-location-middle-east.php', country: 'Israel', region: 'Middle East' },
+  { url: 'https://biopharmguy.com/links/company-by-location-brazil.php', country: 'Brazil', region: 'Americas' },
+  { url: 'https://biopharmguy.com/links/company-by-location-argentina.php', country: 'Argentina', region: 'Americas' },
+  { url: 'https://biopharmguy.com/links/company-by-location-mexico.php', country: 'Mexico', region: 'Americas' },
+  { url: 'https://biopharmguy.com/links/company-by-location-south-america.php', country: 'South America - Other', region: 'Americas' },
+  { url: 'https://biopharmguy.com/links/company-by-location-africa.php', country: 'Africa', region: 'Africa' },
+  { url: 'https://biopharmguy.com/links/company-by-location-south-africa.php', country: 'South Africa', region: 'Africa' },
+  { url: 'https://biopharmguy.com/links/company-by-location-new-zealand.php', country: 'New Zealand', region: 'Oceania' },
+  { url: 'https://biopharmguy.com/links/company-by-location-russia.php', country: 'Russia', region: 'Europe' },
+  // === Startups by Year (catches newest companies) ===
+  { url: 'https://biopharmguy.com/links/company-by-location-2025.php', country: 'United States', region: 'Startups' },
+  { url: 'https://biopharmguy.com/links/company-by-location-2024.php', country: 'United States', region: 'Startups' },
+  { url: 'https://biopharmguy.com/links/company-by-location-2023.php', country: 'United States', region: 'Startups' },
+  { url: 'https://biopharmguy.com/links/company-by-location-2022.php', country: 'United States', region: 'Startups' },
+  { url: 'https://biopharmguy.com/links/company-by-location-2021.php', country: 'United States', region: 'Startups' },
 ]
 
 // Category pages — we scrape these to tag companies with business categories
