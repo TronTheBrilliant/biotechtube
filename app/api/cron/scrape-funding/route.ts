@@ -108,20 +108,46 @@ export async function GET() {
   const rounds = await extractWithAI(fundingArticles);
   results.extracted = rounds.length;
 
-  // 4. Match and insert
+  // 4. Match and insert (auto-create companies if not found)
+  const newCompanyIds: string[] = [];
+
   for (const round of rounds) {
-    // Match company
+    // Match company — try exact, then partial
+    let companyId: string | null = null;
     const { data: match } = await supabase.from("companies").select("id").ilike("name", round.company_name).limit(1).single();
-    if (!match) {
-      const { data: partial } = await supabase.from("companies").select("id").ilike("name", `%${round.company_name}%`).limit(1).single();
-      if (!partial) { results.noMatch++; continue; }
-      round.company_name = round.company_name; // keep original name
-      Object.assign(round, { company_id: partial.id });
+    if (match) {
+      companyId = match.id;
     } else {
-      Object.assign(round, { company_id: match.id });
+      const { data: partial } = await supabase.from("companies").select("id").ilike("name", `%${round.company_name}%`).limit(1).single();
+      if (partial) {
+        companyId = partial.id;
+      } else {
+        // Auto-create the company instead of skipping
+        const slug = round.company_name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 80);
+        const { data: slugCheck } = await supabase.from("companies").select("id").eq("slug", slug).limit(1);
+        const finalSlug = (slugCheck && slugCheck.length > 0) ? `${slug}-${Date.now() % 10000}` : slug;
+
+        const { data: newCo, error: createErr } = await supabase.from("companies").insert({
+          slug: finalSlug,
+          name: round.company_name,
+          country: "United States",
+          source: "news_scrape",
+          source_url: round.source_url || null,
+          is_estimated: true,
+          categories: [],
+        }).select("id").single();
+
+        if (!createErr && newCo) {
+          companyId = newCo.id;
+          newCompanyIds.push(newCo.id);
+          (results as Record<string, number>).companiesCreated = ((results as Record<string, number>).companiesCreated || 0) + 1;
+        } else {
+          results.noMatch++;
+          continue;
+        }
+      }
     }
 
-    const companyId = (round as { company_id?: string }).company_id;
     if (!companyId) { results.noMatch++; continue; }
 
     // Dedup: same company + round type within 30 days
@@ -149,6 +175,48 @@ export async function GET() {
     });
 
     if (!error) results.inserted++;
+  }
+
+  // 5. Enrich newly created companies via DeepSeek (basic fields)
+  if (newCompanyIds.length > 0 && process.env.DEEPSEEK_API_KEY) {
+    const companyList = newCompanyIds.length <= 10 ? newCompanyIds : newCompanyIds.slice(0, 10);
+    const { data: newCos } = await supabase.from("companies").select("id, name").in("id", companyList);
+    if (newCos && newCos.length > 0) {
+      const names = newCos.map((c) => c.name).join("\n");
+      try {
+        const enrichRes = await fetch("https://api.deepseek.com/chat/completions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}` },
+          body: JSON.stringify({
+            model: "deepseek-chat",
+            messages: [
+              { role: "system", content: "Biotech company data enrichment. Return JSON keyed by company name." },
+              { role: "user", content: `For each biotech company, provide: description (1 sentence, max 30 words), categories (1-3 from: Oncology, Immunology, Neuroscience, Gene Therapy, Cell Therapy, etc.), country, city, founded (year).\n\nCompanies:\n${names}\n\nReturn JSON: {"Company Name": {"description":"...", "categories":[...], "country":"...", "city":"...", "founded":2020}}` },
+            ],
+            temperature: 0, max_tokens: 2000,
+          }),
+        });
+        if (enrichRes.ok) {
+          const enrichData = await enrichRes.json();
+          let content = enrichData.choices[0]?.message?.content || "";
+          if (content.startsWith("```")) content = content.replace(/```json?\n?/g, "").replace(/```$/g, "").trim();
+          const parsed = JSON.parse(content);
+          for (const co of newCos) {
+            const data = parsed[co.name];
+            if (!data) continue;
+            const updates: Record<string, unknown> = {};
+            if (data.description) updates.description = data.description;
+            if (data.categories) updates.categories = data.categories;
+            if (data.country) updates.country = data.country;
+            if (data.city) updates.city = data.city;
+            if (data.founded) updates.founded = data.founded;
+            updates.enriched_at = new Date().toISOString();
+            await supabase.from("companies").update(updates).eq("id", co.id);
+          }
+          (results as Record<string, number>).companiesEnriched = newCos.length;
+        }
+      } catch { /* enrichment is best-effort */ }
+    }
   }
 
   return NextResponse.json({ ok: true, ...results });
