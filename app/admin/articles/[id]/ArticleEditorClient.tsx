@@ -12,7 +12,7 @@ import { CompanyCard } from "@/lib/tiptap/extensions/company-card";
 import { ChartEmbed } from "@/lib/tiptap/extensions/chart-embed";
 import { PipelineTable } from "@/lib/tiptap/extensions/pipeline-table";
 import { DataCallout } from "@/lib/tiptap/extensions/data-callout";
-import { DividerBlock } from "@/lib/tiptap/extensions/divider-block";
+import { Divider } from "@/lib/tiptap/extensions/divider-block";
 import { SlashCommand } from "@/lib/tiptap/extensions/slash-command";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
@@ -124,7 +124,7 @@ export default function ArticleEditorClient({ id }: { id: string }) {
         ChartEmbed,
         PipelineTable,
         DataCallout,
-        DividerBlock,
+        Divider,
         SlashCommand,
       ],
       content: article?.body || { type: "doc", content: [] },
