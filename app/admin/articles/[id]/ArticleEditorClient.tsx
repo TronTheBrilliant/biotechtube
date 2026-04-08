@@ -19,7 +19,7 @@ import { Footer } from "@/components/Footer";
 import { AdminNav } from "@/components/admin/AdminNav";
 import BlockRenderer from "@/components/news/BlockRenderer";
 import { useAuth } from "@/lib/auth";
-import { ADMIN_EMAIL } from "@/lib/admin-utils";
+import { ADMIN_EMAIL, ConfirmDialog, SaveIndicator } from "@/lib/admin-utils";
 import { createBrowserClient } from "@/lib/supabase";
 import {
   Loader2,
@@ -31,6 +31,7 @@ import {
   Trash2,
   Copy,
   Upload,
+  RefreshCw,
 } from "lucide-react";
 
 import type { ArticleStatus, Source, TipTapDoc } from "@/lib/article-engine/types";
@@ -65,6 +66,23 @@ export default function ArticleEditorClient({ id }: { id: string }) {
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-save + unsaved changes tracking
+  const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "unsaved" | "error">("saved");
+  const hasUnsavedChanges = useRef(false);
+
+  // Confirmation dialog state
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState<ArticleStatus | null>(null);
+
+  // Regenerate state
+  const [regeneratingIndex, setRegeneratingIndex] = useState<number | null>(null);
+
+  // Mark unsaved helper
+  const markUnsaved = useCallback(() => {
+    hasUnsavedChanges.current = true;
+    setSaveStatus("unsaved");
+  }, []);
 
   // Toast auto-dismiss
   useEffect(() => {
@@ -146,10 +164,44 @@ export default function ArticleEditorClient({ id }: { id: string }) {
     }
   }, [editor, article]);
 
+  // Track editor content changes
+  useEffect(() => {
+    if (!editor) return;
+    const handler = () => {
+      if (initialContentSet.current) {
+        markUnsaved();
+      }
+    };
+    editor.on("update", handler);
+    return () => { editor.off("update", handler); };
+  }, [editor, markUnsaved]);
+
+  // Auto-save every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (hasUnsavedChanges.current) {
+        handleSaveRef.current();
+      }
+    }, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Warn before leaving with unsaved changes
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges.current) {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, []);
+
   // Save
   const handleSave = useCallback(async () => {
     if (!editor) return;
     setSaving(true);
+    setSaveStatus("saving");
     try {
       const body = editor.getJSON() as TipTapDoc;
       const res = await fetch(`/api/admin/articles/${id}`, {
@@ -171,15 +223,99 @@ export default function ArticleEditorClient({ id }: { id: string }) {
       const data = await res.json();
       if (data.error) {
         setToast({ message: `Save failed: ${data.error}`, type: "error" });
+        setSaveStatus("error");
       } else {
         setArticle(data.article);
         setToast({ message: "Article saved", type: "success" });
+        hasUnsavedChanges.current = false;
+        setSaveStatus("saved");
       }
     } catch (err: any) {
       setToast({ message: `Save failed: ${err.message}`, type: "error" });
+      setSaveStatus("error");
     }
     setSaving(false);
   }, [editor, id, headline, subtitle, summary, status, slug, seoTitle, seoDescription, sources, heroImageUrl]);
+
+  // Wrapper for auto-save (stable reference to avoid stale closures in interval)
+  const handleSaveRef = useRef(handleSave);
+  useEffect(() => { handleSaveRef.current = handleSave; }, [handleSave]);
+  // Status change with confirmation for publish/archive
+  const handleStatusChange = useCallback((newStatus: ArticleStatus) => {
+    if (newStatus === "published" || newStatus === "archived") {
+      setPendingStatus(newStatus);
+      setShowConfirmDialog(true);
+    } else {
+      setStatus(newStatus);
+      markUnsaved();
+    }
+  }, [markUnsaved]);
+
+  const confirmStatusChange = useCallback(() => {
+    if (pendingStatus) {
+      setStatus(pendingStatus);
+      markUnsaved();
+    }
+    setPendingStatus(null);
+    setShowConfirmDialog(false);
+  }, [pendingStatus, markUnsaved]);
+
+  const cancelStatusChange = useCallback(() => {
+    setPendingStatus(null);
+    setShowConfirmDialog(false);
+  }, []);
+
+  // Regenerate section at cursor
+  const handleRegenerate = useCallback(async () => {
+    if (!editor) return;
+
+    // Find which top-level block the cursor is in
+    const { from } = editor.state.selection;
+    const doc = editor.getJSON();
+    if (!doc.content) return;
+
+    let sectionIndex = -1;
+    let runningPos = 1; // TipTap doc starts at pos 1
+    for (let i = 0; i < doc.content.length; i++) {
+      const node = editor.state.doc.child(i);
+      const nodeEnd = runningPos + node.nodeSize;
+      if (from >= runningPos && from < nodeEnd) {
+        sectionIndex = i;
+        break;
+      }
+      runningPos = nodeEnd;
+    }
+
+    if (sectionIndex < 0) {
+      setToast({ message: "Place cursor in a block to regenerate", type: "error" });
+      return;
+    }
+
+    setRegeneratingIndex(sectionIndex);
+    try {
+      const res = await fetch(`/api/admin/articles/${id}/regenerate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sectionIndex }),
+      });
+      const data = await res.json();
+      if (data.error) {
+        setToast({ message: `Regenerate failed: ${data.error}`, type: "error" });
+      } else if (data.block) {
+        // Replace the block at sectionIndex in the editor
+        const currentDoc = editor.getJSON();
+        if (currentDoc.content) {
+          currentDoc.content[sectionIndex] = data.block;
+          editor.commands.setContent(currentDoc);
+          markUnsaved();
+          setToast({ message: "Section regenerated", type: "success" });
+        }
+      }
+    } catch (err: any) {
+      setToast({ message: `Regenerate failed: ${err.message}`, type: "error" });
+    }
+    setRegeneratingIndex(null);
+  }, [editor, id, markUnsaved]);
 
   // Cmd+S / Ctrl+S save shortcut
   useEffect(() => {
@@ -224,14 +360,17 @@ export default function ArticleEditorClient({ id }: { id: string }) {
   // Sources helpers
   const addSource = () => {
     setSources((prev) => [...prev, { name: "", url: "", date: "" }]);
+    markUnsaved();
   };
   const removeSource = (index: number) => {
     setSources((prev) => prev.filter((_, i) => i !== index));
+    markUnsaved();
   };
   const updateSource = (index: number, field: keyof Source, value: string) => {
     setSources((prev) =>
       prev.map((s, i) => (i === index ? { ...s, [field]: value } : s))
     );
+    markUnsaved();
   };
 
   // Loading state
@@ -342,7 +481,33 @@ export default function ArticleEditorClient({ id }: { id: string }) {
             <ArrowLeft size={14} />
             Back to Articles
           </Link>
-          <div style={{ display: "flex", gap: 10 }}>
+          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            <SaveIndicator status={saveStatus} />
+            <button
+              onClick={handleRegenerate}
+              disabled={regeneratingIndex !== null}
+              style={{
+                padding: "8px 16px",
+                background: "transparent",
+                border: "1px solid var(--color-border-subtle)",
+                borderRadius: 6,
+                color: "var(--color-text-secondary)",
+                fontSize: 13,
+                fontWeight: 500,
+                cursor: regeneratingIndex !== null ? "not-allowed" : "pointer",
+                opacity: regeneratingIndex !== null ? 0.5 : 1,
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              {regeneratingIndex !== null ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <RefreshCw size={14} />
+              )}
+              {regeneratingIndex !== null ? "Regenerating..." : "Regenerate"}
+            </button>
             <button
               onClick={() => setShowPreview(true)}
               style={{
@@ -405,7 +570,7 @@ export default function ArticleEditorClient({ id }: { id: string }) {
             <input
               type="text"
               value={headline}
-              onChange={(e) => setHeadline(e.target.value)}
+              onChange={(e) => { setHeadline(e.target.value); markUnsaved(); }}
               placeholder="Article headline..."
               style={{
                 width: "100%",
@@ -423,7 +588,7 @@ export default function ArticleEditorClient({ id }: { id: string }) {
             {/* Subtitle */}
             <textarea
               value={subtitle}
-              onChange={(e) => setSubtitle(e.target.value)}
+              onChange={(e) => { setSubtitle(e.target.value); markUnsaved(); }}
               placeholder="Subtitle..."
               rows={2}
               style={{
@@ -464,7 +629,7 @@ export default function ArticleEditorClient({ id }: { id: string }) {
                   return (
                     <button
                       key={opt.value}
-                      onClick={() => setStatus(opt.value)}
+                      onClick={() => handleStatusChange(opt.value)}
                       style={{
                         padding: "6px 12px",
                         fontSize: 12,
@@ -490,7 +655,7 @@ export default function ArticleEditorClient({ id }: { id: string }) {
                 <input
                   type="text"
                   value={seoTitle}
-                  onChange={(e) => setSeoTitle(e.target.value)}
+                  onChange={(e) => { setSeoTitle(e.target.value); markUnsaved(); }}
                   placeholder="SEO title..."
                   style={sidebarInputStyle}
                 />
@@ -498,7 +663,7 @@ export default function ArticleEditorClient({ id }: { id: string }) {
               <SidebarField label="Description">
                 <textarea
                   value={seoDescription}
-                  onChange={(e) => setSeoDescription(e.target.value)}
+                  onChange={(e) => { setSeoDescription(e.target.value); markUnsaved(); }}
                   placeholder="SEO description..."
                   rows={3}
                   style={{ ...sidebarInputStyle, resize: "vertical" }}
@@ -508,7 +673,7 @@ export default function ArticleEditorClient({ id }: { id: string }) {
                 <input
                   type="text"
                   value={slug}
-                  onChange={(e) => setSlug(e.target.value)}
+                  onChange={(e) => { setSlug(e.target.value); markUnsaved(); }}
                   placeholder="article-slug"
                   style={sidebarInputStyle}
                 />
@@ -519,7 +684,7 @@ export default function ArticleEditorClient({ id }: { id: string }) {
             <SidebarSection title="SUMMARY">
               <textarea
                 value={summary}
-                onChange={(e) => setSummary(e.target.value)}
+                onChange={(e) => { setSummary(e.target.value); markUnsaved(); }}
                 placeholder="Article summary..."
                 rows={3}
                 style={{ ...sidebarInputStyle, resize: "vertical" }}
@@ -808,6 +973,21 @@ export default function ArticleEditorClient({ id }: { id: string }) {
           {toast.message}
         </div>
       )}
+
+      {/* Confirm dialog for publish/archive */}
+      <ConfirmDialog
+        open={showConfirmDialog}
+        title={pendingStatus === "published" ? "Publish Article" : "Archive Article"}
+        message={
+          pendingStatus === "published"
+            ? "This article will be visible to all users on the site. Continue?"
+            : "This will remove the article from the public site. Continue?"
+        }
+        variant={pendingStatus === "archived" ? "danger" : "default"}
+        confirmLabel={pendingStatus === "published" ? "Publish" : "Archive"}
+        onConfirm={confirmStatusChange}
+        onCancel={cancelStatusChange}
+      />
 
       <Footer />
     </>
