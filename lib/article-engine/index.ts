@@ -7,8 +7,16 @@ import { BASE_SYSTEM_PROMPT } from './prompts/base-system'
 import { selectStyle, buildStylePrompt } from './prompts/styles'
 import { buildFundingPrompt } from './prompts/templates/funding'
 import { buildBreakingNewsPrompt } from './prompts/templates/breaking-news'
+import { buildClinicalTrialPrompt } from './prompts/templates/clinical-trial'
+import { buildMarketAnalysisPrompt } from './prompts/templates/market-analysis'
+import { buildCompanyProfilePrompt } from './prompts/templates/company-profile'
+import { buildRoundupPrompt } from './prompts/templates/roundup'
 import { gatherFundingContext } from './sources/funding'
 import { gatherBreakingNewsContext } from './sources/breaking-news'
+import { gatherClinicalTrialContext } from './sources/clinical-trial'
+import { gatherMarketAnalysisContext } from './sources/market-analysis'
+import { gatherCompanyProfileContext } from './sources/company-profile'
+import { gatherRoundupContext } from './sources/roundup'
 import { scoreConfidence, statusFromConfidence } from './confidence'
 import { convertToBlocks, estimateReadingTime } from './blocks'
 import { generateImagePrompt, getPlaceholderStyle } from './image-prompt'
@@ -93,7 +101,7 @@ export class ArticleEngine {
       sources: [...(aiOutput.sources || []), ...context.sources],
       company_id: companyId || null,
       company_ids: companyId ? [companyId] : [],
-      sector: context.fundingRound?.sector || null,
+      sector: context.fundingRound?.sector || (context as any).metadata?.sector_name || null,
       article_style: style,
       metadata: {
         source_type: this.sourceTypeKey(input.type),
@@ -136,8 +144,15 @@ export class ArticleEngine {
         return gatherFundingContext(input.source.funding_round_id)
       case 'breaking_news':
         return gatherBreakingNewsContext(input.source.rss_item_id)
+      case 'clinical_trial':
+        return gatherClinicalTrialContext({ companyId: input.source.company_id, pipelineId: input.source.pipeline_id })
+      case 'market_analysis':
+        return gatherMarketAnalysisContext({ sectorId: input.source.sector_id, period: input.source.period })
+      case 'company_deep_dive':
+        return gatherCompanyProfileContext({ companyId: input.source.company_id })
+      case 'weekly_roundup':
+        return gatherRoundupContext({ weekStart: input.source.week_start, weekEnd: input.source.week_end })
       default:
-        // For types without dedicated gatherers, return minimal context
         return {
           sources: [],
           companyInDB: false,
@@ -153,6 +168,14 @@ export class ArticleEngine {
         return buildFundingPrompt(context)
       case 'breaking_news':
         return buildBreakingNewsPrompt(context)
+      case 'clinical_trial':
+        return buildClinicalTrialPrompt(context)
+      case 'market_analysis':
+        return buildMarketAnalysisPrompt(context)
+      case 'company_deep_dive':
+        return buildCompanyProfilePrompt(context)
+      case 'weekly_roundup':
+        return buildRoundupPrompt(context)
       default:
         return `Write a biotech ${type.replace(/_/g, ' ')} article based on the following context:\n${JSON.stringify(context, null, 2)}`
     }
@@ -224,12 +247,16 @@ export class ArticleEngine {
     switch (type) {
       case 'funding_deal': return 'funding_round'
       case 'breaking_news': return 'rss_item'
+      case 'clinical_trial': return 'company'
+      case 'market_analysis': return 'sector'
+      case 'company_deep_dive': return 'company'
+      case 'weekly_roundup': return 'week'
       default: return type
     }
   }
 
   private extractSourceId(input: ArticleInput): string | undefined {
-    return input.source.funding_round_id || input.source.rss_item_id || input.source.id
+    return input.source.funding_round_id || input.source.rss_item_id || input.source.company_id || input.source.sector_id || input.source.week_start || input.source.id
   }
 }
 
