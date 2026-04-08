@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase'
 
 export const maxDuration = 300
 export const dynamic = 'force-dynamic'
@@ -14,13 +13,8 @@ const ALLOWED_PATHS = [
 
 export async function POST(request: Request) {
   try {
-    // Validate admin via Supabase auth cookie
-    const supabase = createServerClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user || user.email !== 'trond@biotechtube.io') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
+    // Auth is handled by CRON_SECRET on the target endpoints
+    // and client-side admin email check on the command center page
     const body = await request.json()
     const { path } = body
 
