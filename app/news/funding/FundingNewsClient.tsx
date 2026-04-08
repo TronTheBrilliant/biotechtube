@@ -308,8 +308,8 @@ function FeaturedCard({ article }: { article: Article }) {
       style={{
         background: "var(--color-bg-primary)",
         border: "0.5px solid var(--color-border-subtle)",
-        width: 340,
-        minHeight: 140,
+        width: 200,
+        minHeight: 220,
       }}
     >
       <div className="p-4 flex flex-col justify-between h-full">
