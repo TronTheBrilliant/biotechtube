@@ -200,16 +200,8 @@ export function FundingNewsClient({ articles, stats }: Props) {
                       }}
                     >
                       <div className="px-4 py-3">
-                        {/* Headline */}
-                        <h3
-                          className="group-hover:underline"
-                          style={{ fontSize: 15, fontWeight: 500, color: "var(--color-text-primary)", lineHeight: 1.35 }}
-                        >
-                          {article.headline}
-                        </h3>
-
-                        {/* Meta line */}
-                        <div className="flex items-center gap-2 flex-wrap mt-1.5">
+                        {/* Top meta: company + round + amount */}
+                        <div className="flex items-center gap-2 flex-wrap mb-1.5">
                           <span style={{ fontSize: 12, color: "var(--color-text-secondary)", fontWeight: 500 }}>
                             {article.company_name}
                           </span>
@@ -223,12 +215,22 @@ export function FundingNewsClient({ articles, stats }: Props) {
                               {formatMarketCap(article.amount_usd)}
                             </span>
                           )}
-                          {date && (
-                            <span style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>
-                              {date.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                            </span>
-                          )}
                         </div>
+
+                        {/* Headline */}
+                        <h3
+                          className="group-hover:underline"
+                          style={{ fontSize: 15, fontWeight: 500, color: "var(--color-text-primary)", lineHeight: 1.35 }}
+                        >
+                          {article.headline}
+                        </h3>
+
+                        {/* Date at bottom */}
+                        {date && (
+                          <span className="mt-1.5 block" style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>
+                            {date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                          </span>
+                        )}
                       </div>
                     </Link>
                   );
