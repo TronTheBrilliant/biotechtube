@@ -8,7 +8,7 @@ import { useAuth } from "@/lib/auth";
 import {
   Play, History, Loader2, X, Zap, FileText, Clock, Rss, Building2,
   ChevronDown, ChevronRight, Newspaper, RefreshCw, DollarSign, CheckCircle2,
-  XCircle, Minus, AlertCircle,
+  XCircle, AlertCircle,
 } from "lucide-react";
 import {
   ADMIN_EMAIL,
@@ -58,6 +58,12 @@ interface ProgressEntry {
   startedAt: number;
   elapsedSeconds: number;
   response: CronResponse | null;
+}
+
+interface TerminalLine {
+  time: string;
+  text: string;
+  type: "info" | "success" | "error" | "warning" | "dim" | "separator";
 }
 
 interface RecentArticle {
@@ -118,9 +124,17 @@ export default function CommandCenterClient() {
   const [confirmRunAll, setConfirmRunAll] = useState(false);
   const pollRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Progress feed
+  // Progress feed (kept for runAllAgents compatibility)
   const [progressEntries, setProgressEntries] = useState<ProgressEntry[]>([]);
   const progressTimersRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
+
+  // Terminal feed
+  const [terminalLines, setTerminalLines] = useState<TerminalLine[]>([]);
+  const [isTerminalRunning, setIsTerminalRunning] = useState(false);
+  const terminalIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Keyboard shortcuts
+  const [showShortcuts, setShowShortcuts] = useState(false);
 
   // Recent articles
   const [recentArticles, setRecentArticles] = useState<RecentArticle[]>([]);
@@ -222,8 +236,52 @@ export default function CommandCenterClient() {
   useEffect(() => {
     return () => {
       progressTimersRef.current.forEach((t) => clearInterval(t));
+      if (terminalIntervalRef.current) clearInterval(terminalIntervalRef.current);
     };
   }, []);
+
+  // ── Keyboard Shortcuts ──
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger if user is typing in an input or a dialog is open
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (confirmRunAll || showShortcuts || historyAgent) {
+        if (e.key === "Escape") {
+          setConfirmRunAll(false);
+          setShowShortcuts(false);
+          setHistoryAgent(null);
+        }
+        return;
+      }
+
+      switch (e.key.toLowerCase()) {
+        case "g":
+          if (!isTerminalRunning) triggerCron("Generate Articles", "/api/cron/generate-news");
+          break;
+        case "s":
+          if (!isTerminalRunning) triggerCron("Scrape News", "/api/cron/scrape-funding");
+          break;
+        case "p":
+          if (!isTerminalRunning) triggerCron("Update Prices", "/api/cron/update-prices");
+          break;
+        case "a":
+          setConfirmRunAll(true);
+          break;
+        case "escape":
+          // Clear terminal if not running
+          if (!isTerminalRunning && terminalLines.length > 0) {
+            setTerminalLines([]);
+          }
+          break;
+        case "?":
+          e.preventDefault();
+          setShowShortcuts(true);
+          break;
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [confirmRunAll, showShortcuts, historyAgent, isTerminalRunning, terminalLines.length]);
 
   // ── Agent Actions (existing) ──
 
@@ -371,33 +429,80 @@ export default function CommandCenterClient() {
     setHistoryLoading(false);
   };
 
-  // ── Cron Trigger ──
+  // ── Terminal Helpers ──
+
+  const nowTimestamp = () => {
+    const d = new Date();
+    return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}:${String(d.getSeconds()).padStart(2, "0")}`;
+  };
+
+  const addTerminalLine = useCallback((text: string, type: TerminalLine["type"] = "info") => {
+    setTerminalLines((prev) => [...prev, { time: nowTimestamp(), text, type }]);
+  }, []);
+
+  const addTerminalLineDelayed = useCallback(
+    (text: string, type: TerminalLine["type"], delayMs: number) =>
+      new Promise<void>((resolve) => {
+        setTimeout(() => {
+          addTerminalLine(text, type);
+          resolve();
+        }, delayMs);
+      }),
+    [addTerminalLine]
+  );
+
+  const formatElapsedCompact = (s: number) => {
+    if (s < 60) return `${s}s`;
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${m}m ${sec}s`;
+  };
+
+  // ── Cron Trigger (with terminal output) ──
 
   const triggerCron = async (label: string, cronPath: string) => {
-    const entryId = `${cronPath}-${Date.now()}`;
-    const entry: ProgressEntry = {
-      id: entryId,
-      label,
-      cronPath,
-      status: "running",
-      startedAt: Date.now(),
-      elapsedSeconds: 0,
-      response: null,
-    };
+    if (isTerminalRunning) return;
 
-    setProgressEntries((prev) => [entry, ...prev].slice(0, 10));
+    const startTime = Date.now();
+    setIsTerminalRunning(true);
 
-    // Tick elapsed time every second
-    const timer = setInterval(() => {
-      setProgressEntries((prev) =>
-        prev.map((e) =>
-          e.id === entryId && e.status === "running"
-            ? { ...e, elapsedSeconds: Math.round((Date.now() - e.startedAt) / 1000) }
-            : e
-        )
-      );
-    }, 1000);
-    progressTimersRef.current.set(entryId, timer);
+    // Determine the kind of job for appropriate messages
+    const isGenerateNews = cronPath.includes("generate-news");
+    const jobVerb = isGenerateNews
+      ? "article generation"
+      : cronPath.includes("scrape")
+        ? "news scrape"
+        : cronPath.includes("prices")
+          ? "price update"
+          : label.toLowerCase();
+
+    // Initial terminal lines
+    addTerminalLine(`Starting ${jobVerb}...`, "info");
+
+    if (isGenerateNews) {
+      await addTerminalLineDelayed("\u25CF Connecting to sources...", "info", 600);
+    } else {
+      const fetchLabel = cronPath.includes("scrape")
+        ? "\u25CF Fetching RSS feeds..."
+        : cronPath.includes("prices")
+          ? "\u25CF Fetching market data..."
+          : "\u25CF Processing...";
+      await addTerminalLineDelayed(fetchLabel, "info", 600);
+    }
+
+    // Periodic "processing" lines while waiting
+    let processingCount = 0;
+    const processingMessages = isGenerateNews
+      ? ["\u25CF Processing pipelines...", "\u25CF Evaluating candidates...", "\u25CF Generating content...", "\u25CF Running quality checks..."]
+      : ["\u25CF Processing...", "\u25CF Fetching data...", "\u25CF Updating records..."];
+
+    const progressInterval = setInterval(() => {
+      const msg = processingMessages[processingCount % processingMessages.length];
+      const elapsed = Math.round((Date.now() - startTime) / 1000);
+      addTerminalLine(`${msg} (${formatElapsedCompact(elapsed)} elapsed)`, "dim");
+      processingCount++;
+    }, isGenerateNews ? 4000 : 5000);
+    terminalIntervalRef.current = progressInterval;
 
     try {
       const res = await fetch("/api/admin/trigger-cron", {
@@ -407,52 +512,61 @@ export default function CommandCenterClient() {
       });
       const data: CronResponse = await res.json();
 
-      clearInterval(timer);
-      progressTimersRef.current.delete(entryId);
+      clearInterval(progressInterval);
+      terminalIntervalRef.current = null;
 
-      setProgressEntries((prev) =>
-        prev.map((e) =>
-          e.id === entryId
-            ? {
-                ...e,
-                status: data.error ? "error" : "completed",
-                elapsedSeconds: data.elapsed_seconds ?? Math.round((Date.now() - e.startedAt) / 1000),
-                response: data,
-              }
-            : e
-        )
-      );
+      const elapsed = data.elapsed_seconds ?? Math.round((Date.now() - startTime) / 1000);
 
-      // Refresh stats and articles after completion
+      if (data.error) {
+        await addTerminalLineDelayed(`\u2717 Error: ${data.error}`, "error", 100);
+      } else if (isGenerateNews && data.results) {
+        // Type out pipeline results with delay
+        let totalGenerated = 0;
+        let totalErrors = 0;
+        for (const [type, result] of Object.entries(data.results)) {
+          const pipelineLabel = PIPELINE_LABELS[type] || type;
+          if (result.generated > 0) {
+            totalGenerated += result.generated;
+            await addTerminalLineDelayed(`\u2713 ${pipelineLabel}: ${result.generated} article${result.generated > 1 ? "s" : ""} generated`, "success", 100);
+          } else if (result.errors.length > 0) {
+            totalErrors += result.errors.length;
+            await addTerminalLineDelayed(`\u2717 ${pipelineLabel}: ${result.errors[0]?.substring(0, 80)}`, "error", 100);
+          } else {
+            await addTerminalLineDelayed(`\u2014 ${pipelineLabel}: no candidates`, "dim", 80);
+          }
+        }
+        // Summary
+        await addTerminalLineDelayed("", "dim", 120);
+        await addTerminalLineDelayed("\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550", "separator", 60);
+        const summaryParts = [`${totalGenerated} article${totalGenerated !== 1 ? "s" : ""}`];
+        if (totalErrors > 0) summaryParts.push(`${totalErrors} error${totalErrors !== 1 ? "s" : ""}`);
+        await addTerminalLineDelayed(`\u2713 Complete: ${summaryParts.join(", ")} in ${formatElapsedCompact(elapsed)}`, "success", 60);
+        await addTerminalLineDelayed("\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550", "separator", 60);
+      } else {
+        // Simple cron result
+        const msg = data.message || data.summary || "Completed successfully";
+        const parts: string[] = [msg];
+        if (data.inserted !== undefined) parts.push(`${data.inserted} items processed`);
+        if (data.updated !== undefined) parts.push(`${data.updated} updated`);
+        await addTerminalLineDelayed(`\u2713 Complete: ${parts.join(" \u00B7 ")} in ${formatElapsedCompact(elapsed)}`, "success", 100);
+      }
+
+      // Refresh data
       fetchStats();
       fetchRecentArticles();
       fetchStatus();
     } catch (err: any) {
-      clearInterval(timer);
-      progressTimersRef.current.delete(entryId);
-
-      setProgressEntries((prev) =>
-        prev.map((e) =>
-          e.id === entryId
-            ? {
-                ...e,
-                status: "error",
-                elapsedSeconds: Math.round((Date.now() - e.startedAt) / 1000),
-                response: { error: err.message },
-              }
-            : e
-        )
-      );
+      clearInterval(progressInterval);
+      terminalIntervalRef.current = null;
+      addTerminalLine(`\u2717 Error: ${err.message}`, "error");
     }
-  };
 
-  const dismissProgress = (entryId: string) => {
-    setProgressEntries((prev) => prev.filter((e) => e.id !== entryId));
+    setIsTerminalRunning(false);
   };
 
   // ── Render Helpers ──
 
-  const isAnyCronRunning = progressEntries.some((e) => e.status === "running");
+  const isAnyCronRunning = isTerminalRunning || progressEntries.some((e) => e.status === "running");
 
   if (authLoading || loading) {
     return (
@@ -572,6 +686,7 @@ export default function CommandCenterClient() {
             accentColor="#3b82f6"
             disabled={isAnyCronRunning}
             onClick={() => triggerCron("Generate Articles", "/api/cron/generate-news")}
+            shortcutKey="G"
           />
           <ActionCard
             icon={<Rss size={20} />}
@@ -582,6 +697,7 @@ export default function CommandCenterClient() {
             accentColor="#10b981"
             disabled={isAnyCronRunning}
             onClick={() => triggerCron("Scrape News", "/api/cron/scrape-funding")}
+            shortcutKey="S"
           />
           <ActionCard
             icon={<DollarSign size={20} />}
@@ -592,6 +708,7 @@ export default function CommandCenterClient() {
             accentColor="#f59e0b"
             disabled={isAnyCronRunning}
             onClick={() => triggerCron("Update Prices", "/api/cron/update-prices")}
+            shortcutKey="P"
           />
           <ActionCard
             icon={<Play size={20} />}
@@ -602,33 +719,18 @@ export default function CommandCenterClient() {
             accentColor="#8b5cf6"
             disabled={runningAgents.size > 0}
             onClick={() => setConfirmRunAll(true)}
+            shortcutKey="A"
           />
         </div>
 
-        {/* ── Progress Feed ── */}
-        {progressEntries.length > 0 && (
-          <div style={{ marginBottom: 28, display: "flex", flexDirection: "column", gap: 12 }}>
-            {progressEntries.some((e) => e.status !== "running") && (
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <button
-                  onClick={() => setProgressEntries((prev) => prev.filter((e) => e.status === "running"))}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    color: "var(--color-text-tertiary)",
-                    fontSize: 12,
-                    cursor: "pointer",
-                    padding: "2px 0",
-                    textDecoration: "underline",
-                  }}
-                >
-                  Clear completed
-                </button>
-              </div>
-            )}
-            {progressEntries.map((entry) => (
-              <ProgressCard key={entry.id} entry={entry} onDismiss={() => dismissProgress(entry.id)} />
-            ))}
+        {/* ── Terminal Feed ── */}
+        {terminalLines.length > 0 && (
+          <div style={{ marginBottom: 28 }}>
+            <TerminalFeed
+              lines={terminalLines}
+              isRunning={isTerminalRunning}
+              onClear={() => setTerminalLines([])}
+            />
           </div>
         )}
 
@@ -1091,6 +1193,83 @@ export default function CommandCenterClient() {
         />
       )}
 
+      {/* Keyboard Shortcuts Help Overlay */}
+      {showShortcuts && (
+        <>
+          <div
+            onClick={() => setShowShortcuts(false)}
+            style={{
+              position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+              background: "rgba(0,0,0,0.5)",
+              zIndex: 2000,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                background: "#0a0a0a",
+                border: "1px solid #333",
+                borderRadius: 12,
+                padding: "28px 36px",
+                fontFamily: "'JetBrains Mono', 'Fira Code', 'SF Mono', 'Consolas', monospace",
+                color: "#e2e8f0",
+                minWidth: 320,
+              }}
+            >
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 20, color: "#4ade80" }}>
+                Keyboard Shortcuts
+              </div>
+              {[
+                ["G", "Generate Articles"],
+                ["S", "Scrape News"],
+                ["P", "Update Prices"],
+                ["A", "Run All Agents"],
+                ["?", "Show this help"],
+                ["Esc", "Close / Dismiss"],
+              ].map(([key, desc]) => (
+                <div key={key} style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 10 }}>
+                  <span style={{
+                    display: "inline-block",
+                    minWidth: 32,
+                    textAlign: "center",
+                    padding: "3px 8px",
+                    borderRadius: 4,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    background: "#1a1a1a",
+                    border: "1px solid #333",
+                    color: "#fbbf24",
+                  }}>
+                    {key}
+                  </span>
+                  <span style={{ fontSize: 13, color: "#94a3b8" }}>{desc}</span>
+                </div>
+              ))}
+              <div style={{ marginTop: 16, textAlign: "right" }}>
+                <button
+                  onClick={() => setShowShortcuts(false)}
+                  style={{
+                    background: "none",
+                    border: "1px solid #333",
+                    borderRadius: 6,
+                    padding: "6px 16px",
+                    color: "#64748b",
+                    fontSize: 12,
+                    fontFamily: "'JetBrains Mono', 'Fira Code', 'SF Mono', 'Consolas', monospace",
+                    cursor: "pointer",
+                  }}
+                >
+                  Close (Esc)
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
       {/* Toast */}
       {toast && (
         <div style={{
@@ -1177,6 +1356,7 @@ function ActionCard({
   accentColor,
   disabled,
   onClick,
+  shortcutKey,
 }: {
   icon: React.ReactNode;
   title: string;
@@ -1186,9 +1366,11 @@ function ActionCard({
   accentColor: string;
   disabled: boolean;
   onClick: () => void;
+  shortcutKey?: string;
 }) {
   return (
     <div style={{
+      position: "relative",
       background: "var(--color-bg-primary)",
       border: "1px solid var(--color-border-subtle)",
       borderRadius: 10,
@@ -1198,6 +1380,24 @@ function ActionCard({
       flexDirection: "column",
       justifyContent: "space-between",
     }}>
+      {shortcutKey && (
+        <span style={{
+          position: "absolute",
+          top: 8,
+          right: 8,
+          padding: "2px 6px",
+          borderRadius: 4,
+          fontSize: 11,
+          fontWeight: 600,
+          fontFamily: "'JetBrains Mono', 'Fira Code', 'SF Mono', 'Consolas', monospace",
+          background: "var(--color-bg-secondary)",
+          border: "1px solid var(--color-border-subtle)",
+          color: "var(--color-text-tertiary)",
+          lineHeight: "16px",
+        }}>
+          {shortcutKey}
+        </span>
+      )}
       <div>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
           <div style={{
@@ -1248,161 +1448,124 @@ function ActionCard({
   );
 }
 
-function ProgressCard({ entry, onDismiss }: { entry: ProgressEntry; onDismiss: () => void }) {
-  const isRunning = entry.status === "running";
-  const isError = entry.status === "error";
-  const results = entry.response?.results;
+function TerminalFeed({
+  lines,
+  isRunning,
+  onClear,
+}: {
+  lines: TerminalLine[];
+  isRunning: boolean;
+  onClear: () => void;
+}) {
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Calculate totals
-  let totalGenerated = 0;
-  let totalAttempted = 0;
-  let totalErrors = 0;
-  if (results) {
-    for (const r of Object.values(results)) {
-      totalGenerated += r.generated;
-      totalAttempted += r.attempted;
-      totalErrors += r.errors.length;
+  // Auto-scroll to bottom when new lines appear
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }
+  }, [lines.length]);
 
-  const formatElapsed = (s: number) => {
-    if (s < 60) return `${s}s`;
-    const m = Math.floor(s / 60);
-    const sec = s % 60;
-    return `${m}m ${sec}s`;
+  const typeColors: Record<TerminalLine["type"], string> = {
+    info: "#e2e8f0",
+    success: "#4ade80",
+    error: "#f87171",
+    warning: "#fbbf24",
+    dim: "#64748b",
+    separator: "#4ade80",
   };
 
   return (
     <div style={{
-      background: "var(--color-bg-primary)",
-      border: `1px solid ${isError ? "#c45a5a40" : isRunning ? `${entry.cronPath.includes("generate-news") ? "#3b82f6" : "#10b981"}30` : "var(--color-border-subtle)"}`,
+      background: "#0a0a0a",
+      border: "1px solid #1a1a1a",
       borderRadius: 10,
-      padding: "16px 20px",
-      boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+      overflow: "hidden",
+      fontFamily: "'JetBrains Mono', 'Fira Code', 'SF Mono', 'Consolas', monospace",
     }}>
-      {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: isRunning && !results ? 0 : 12 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          {isRunning ? (
-            <div style={{
-              width: 10, height: 10, borderRadius: "50%",
-              background: "#3b82f6",
-              animation: "pulse 1.5s ease-in-out infinite",
-            }} />
-          ) : isError ? (
-            <XCircle size={16} style={{ color: "#c45a5a" }} />
-          ) : (
-            <CheckCircle2 size={16} style={{ color: "#10b981" }} />
-          )}
-          <span style={{ fontSize: 13, fontWeight: 500, color: "var(--color-text-primary)" }}>
-            {isRunning ? `Running: ${entry.label}` : isError ? `Failed: ${entry.label}` : `${entry.label} completed`}
-          </span>
-          <span style={{ fontSize: 12, color: "var(--color-text-tertiary)" }}>
-            {formatElapsed(entry.elapsedSeconds)}
+      {/* Title bar */}
+      <div style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "8px 14px",
+        borderBottom: "1px solid #1a1a1a",
+        background: "#111",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{
+            width: 8,
+            height: 8,
+            borderRadius: "50%",
+            background: isRunning ? "#4ade80" : "#64748b",
+            boxShadow: isRunning ? "0 0 6px #4ade8060" : "none",
+            transition: "all 0.3s",
+          }} />
+          <span style={{ fontSize: 12, color: "#94a3b8" }}>
+            biotechtube@admin:~$
           </span>
         </div>
-        {!isRunning && (
+        {!isRunning && lines.length > 0 && (
           <button
-            onClick={onDismiss}
-            style={{ background: "none", border: "none", color: "var(--color-text-tertiary)", cursor: "pointer", padding: 4 }}
+            onClick={onClear}
+            style={{
+              background: "none",
+              border: "none",
+              color: "#64748b",
+              cursor: "pointer",
+              padding: "2px 4px",
+              fontSize: 12,
+              fontFamily: "'JetBrains Mono', 'Fira Code', 'SF Mono', 'Consolas', monospace",
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+            }}
           >
-            <X size={14} />
+            <X size={12} />
+            Clear
           </button>
         )}
       </div>
 
-      {/* Error message */}
-      {isError && entry.response?.error && (
-        <div style={{
+      {/* Log area */}
+      <div
+        ref={scrollRef}
+        style={{
+          maxHeight: 350,
+          overflowY: "auto",
+          padding: "12px 14px",
           fontSize: 12,
-          color: "#c45a5a",
-          padding: "8px 12px",
-          background: "#c45a5a10",
-          borderRadius: 6,
-        }}>
-          <AlertCircle size={12} style={{ display: "inline", marginRight: 4, verticalAlign: -2 }} />
-          {entry.response.error}
-        </div>
-      )}
-
-      {/* Pipeline results */}
-      {results && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          {Object.entries(results).map(([type, result]) => (
-            <div key={type} style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              padding: "4px 0",
-              fontSize: 12,
-            }}>
-              {result.generated > 0 ? (
-                <CheckCircle2 size={13} style={{ color: "#10b981", flexShrink: 0 }} />
-              ) : result.errors.length > 0 ? (
-                <XCircle size={13} style={{ color: "#c45a5a", flexShrink: 0 }} />
-              ) : (
-                <Minus size={13} style={{ color: "var(--color-text-tertiary)", flexShrink: 0 }} />
-              )}
-              <span style={{
-                color: result.generated > 0 ? "var(--color-text-primary)" : "var(--color-text-tertiary)",
-                fontWeight: result.generated > 0 ? 500 : 400,
-              }}>
-                {PIPELINE_LABELS[type] || type}
-              </span>
-              <span style={{ color: "var(--color-text-tertiary)" }}>
-                {result.generated > 0
-                  ? `${result.generated} generated`
-                  : result.attempted === 0
-                    ? "no candidates"
-                    : result.errors.length > 0
-                      ? result.errors[0]?.substring(0, 80)
-                      : "0 generated"
-                }
-              </span>
-            </div>
-          ))}
-
-          {/* Total summary */}
-          <div style={{
-            borderTop: "1px solid var(--color-border-subtle)",
-            marginTop: 8,
-            paddingTop: 8,
-            fontSize: 12,
-            fontWeight: 500,
-            color: "var(--color-text-primary)",
-          }}>
-            {totalGenerated} articles generated in {formatElapsed(entry.elapsedSeconds)}
-            {totalErrors > 0 && (
-              <span style={{ color: "#c45a5a", marginLeft: 8 }}>
-                ({totalErrors} error{totalErrors > 1 ? "s" : ""})
-              </span>
-            )}
+          lineHeight: 1.7,
+        }}
+      >
+        {lines.map((line, i) => (
+          <div key={i} style={{ display: "flex", gap: 8, minHeight: line.text === "" ? 12 : undefined }}>
+            <span style={{ color: "#64748b", flexShrink: 0, userSelect: "none" }}>
+              [{line.time}]
+            </span>
+            <span style={{ color: typeColors[line.type] || "#e2e8f0" }}>
+              {line.text}
+            </span>
           </div>
-        </div>
-      )}
+        ))}
+        {/* Blinking cursor when running */}
+        {isRunning && (
+          <span style={{
+            display: "inline-block",
+            width: 8,
+            height: 14,
+            background: "#4ade80",
+            marginLeft: lines.length > 0 ? 0 : 0,
+            verticalAlign: "middle",
+            animation: "terminalBlink 1s step-end infinite",
+          }} />
+        )}
+      </div>
 
-      {/* Non-generate-news results (simple response) */}
-      {entry.status === "completed" && !results && entry.response && (
-        <div style={{ fontSize: 12, color: "var(--color-text-secondary)" }}>
-          {entry.response.message || entry.response.summary || "Completed successfully"}
-          {entry.response.inserted !== undefined && (
-            <span style={{ color: "var(--color-text-tertiary)", marginLeft: 4 }}>
-              &middot; {entry.response.inserted} items processed
-            </span>
-          )}
-          {entry.response.updated !== undefined && (
-            <span style={{ color: "var(--color-text-tertiary)", marginLeft: 4 }}>
-              &middot; {entry.response.updated} updated
-            </span>
-          )}
-        </div>
-      )}
-
-      {/* Pulse animation */}
       <style>{`
-        @keyframes pulse {
+        @keyframes terminalBlink {
           0%, 100% { opacity: 1; }
-          50% { opacity: 0.4; }
+          50% { opacity: 0; }
         }
       `}</style>
     </div>
