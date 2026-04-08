@@ -40,9 +40,9 @@ interface ArticleRow {
 export default async function NewsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ type?: string }>;
+  searchParams: { type?: string };
 }) {
-  const { type: filterType } = await searchParams;
+  const filterType = searchParams.type;
   const supabase = createServerClient();
 
   // Fetch initial articles
