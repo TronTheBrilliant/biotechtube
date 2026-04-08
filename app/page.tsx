@@ -29,6 +29,7 @@ import TrendingNews from "@/components/home/TrendingNews";
 import SciencePapers from "@/components/home/SciencePapers";
 import OpenPositions from "@/components/home/OpenPositions";
 import { NewsletterSignup } from "@/components/home/NewsletterSignup";
+import { LatestIntelligence } from "@/components/home/LatestIntelligence";
 
 import { getFundingAnnualForHomepage } from "@/lib/funding-queries";
 
@@ -591,6 +592,17 @@ async function getLatestFundingArticles() {
   return data || [];
 }
 
+async function getLatestIntelligenceArticles() {
+  const supabase = getSupabase();
+  const { data } = await supabase
+    .from("articles")
+    .select("slug, headline, summary, type, hero_placeholder_style, published_at, reading_time_min")
+    .eq("status", "published")
+    .order("published_at", { ascending: false })
+    .limit(5);
+  return data || [];
+}
+
 /**
  * Safe fetch wrapper that distinguishes errors from empty data.
  * On error: logs and returns fallback, but marks the fetch as failed.
@@ -613,7 +625,7 @@ export default async function HomePage() {
   // Clear errors for this render
   fetchErrors.length = 0;
 
-  const [companies, snapshot, trending, sectors, countries, investorsData, peopleData, fundingAnnualData, indexHistory, hotPipelines, recentFunding, events, latestArticles] =
+  const [companies, snapshot, trending, sectors, countries, investorsData, peopleData, fundingAnnualData, indexHistory, hotPipelines, recentFunding, events, latestArticles, intelligenceArticles] =
     await Promise.all([
       safeFetch("topCompanies", getTopCompanies, []),
       safeFetch("snapshot", getLatestSnapshot, null),
@@ -628,6 +640,7 @@ export default async function HomePage() {
       safeFetch("recentFunding", getRecentFunding, []),
       safeFetch("events", getUpcomingEvents, []),
       safeFetch("latestArticles", getLatestFundingArticles, []),
+      safeFetch("intelligenceArticles", getLatestIntelligenceArticles, []),
     ]);
 
   // Log critical section failures (but don't throw — on fresh deploys there's no stale cache to serve)
@@ -743,6 +756,11 @@ export default async function HomePage() {
 
       {/* Index Cards — hidden for testing */}
       {/* {snapshot && <IndexCards snapshot={snapshot} />} */}
+
+      {/* Latest Intelligence */}
+      <div className="max-w-[1200px] mx-auto px-4 md:px-6 pb-4">
+        <LatestIntelligence articles={intelligenceArticles} />
+      </div>
 
       {/* Sections Grid */}
       <main className="px-4 md:px-6 py-4 space-y-4 max-w-[1200px] mx-auto">
