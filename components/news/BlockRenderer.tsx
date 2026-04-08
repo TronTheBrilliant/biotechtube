@@ -36,7 +36,7 @@ function renderMarks(
               href={mark.attrs.href}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ color: 'var(--accent)', textDecoration: 'underline' }}
+              style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}
             >
               {node}
             </a>
@@ -52,7 +52,7 @@ function ParagraphBlock({ node }: { node: ParagraphNode }) {
   if (!node.content || node.content.length === 0) return null
   return (
     <p
-      style={{ color: 'var(--text-primary)', lineHeight: 1.75 }}
+      style={{ color: 'var(--color-text-primary)', lineHeight: 1.75 }}
       className="mb-4"
     >
       {renderMarks(node.content)}
@@ -67,7 +67,7 @@ function HeadingBlock({ node }: { node: HeadingNode }) {
   return (
     <Tag
       id={id}
-      style={{ color: 'var(--text-primary)' }}
+      style={{ color: 'var(--color-text-primary)' }}
       className={
         node.attrs.level === 2
           ? 'text-2xl font-bold mt-10 mb-4'
@@ -83,8 +83,8 @@ function PullQuoteBlock({ node }: { node: PullQuoteNode }) {
   return (
     <blockquote
       style={{
-        borderLeft: '4px solid var(--accent)',
-        color: 'var(--text-secondary)',
+        borderLeft: '4px solid var(--color-accent)',
+        color: 'var(--color-text-secondary)',
       }}
       className="pl-5 py-2 my-8 italic text-lg"
     >
@@ -97,15 +97,15 @@ function CompanyCardEmbed({ node }: { node: CompanyCardNode }) {
   return (
     <div
       style={{
-        border: '1px solid var(--border)',
-        backgroundColor: 'var(--bg-secondary)',
-        color: 'var(--text-secondary)',
+        border: '1px solid var(--color-border-subtle)',
+        backgroundColor: 'var(--color-bg-secondary)',
+        color: 'var(--color-text-secondary)',
       }}
       className="rounded-lg p-4 my-6"
     >
       <div
         className="text-xs font-semibold uppercase tracking-wide mb-1"
-        style={{ color: 'var(--accent)' }}
+        style={{ color: 'var(--color-accent)' }}
       >
         Company Profile
       </div>
@@ -118,15 +118,15 @@ function ChartEmbedBlock({ node }: { node: ChartEmbedNode }) {
   return (
     <div
       style={{
-        border: '1px solid var(--border)',
-        backgroundColor: 'var(--bg-secondary)',
-        color: 'var(--text-secondary)',
+        border: '1px solid var(--color-border-subtle)',
+        backgroundColor: 'var(--color-bg-secondary)',
+        color: 'var(--color-text-secondary)',
       }}
       className="rounded-lg p-4 my-6 text-center"
     >
       <div
         className="text-xs font-semibold uppercase tracking-wide mb-1"
-        style={{ color: 'var(--accent)' }}
+        style={{ color: 'var(--color-accent)' }}
       >
         {node.attrs.chartType.replace(/_/g, ' ')} &middot; {node.attrs.period}
       </div>
@@ -139,15 +139,15 @@ function PipelineTableEmbed({ node }: { node: PipelineTableNode }) {
   return (
     <div
       style={{
-        border: '1px solid var(--border)',
-        backgroundColor: 'var(--bg-secondary)',
-        color: 'var(--text-secondary)',
+        border: '1px solid var(--color-border-subtle)',
+        backgroundColor: 'var(--color-bg-secondary)',
+        color: 'var(--color-text-secondary)',
       }}
       className="rounded-lg p-4 my-6"
     >
       <div
         className="text-xs font-semibold uppercase tracking-wide mb-1"
-        style={{ color: 'var(--accent)' }}
+        style={{ color: 'var(--color-accent)' }}
       >
         Pipeline
       </div>
@@ -161,13 +161,13 @@ function DataCalloutBlock({ node }: { node: DataCalloutNode }) {
     <div className="my-8 text-center">
       <div
         className="text-4xl font-bold"
-        style={{ color: 'var(--accent)' }}
+        style={{ color: 'var(--color-accent)' }}
       >
         {node.attrs.value}
       </div>
       <div
         className="text-sm mt-1"
-        style={{ color: 'var(--text-muted)' }}
+        style={{ color: 'var(--color-text-tertiary)' }}
       >
         {node.attrs.label}
       </div>
@@ -179,7 +179,7 @@ function DividerBlock() {
   return (
     <hr
       className="my-8"
-      style={{ borderColor: 'var(--border)' }}
+      style={{ borderColor: 'var(--color-border-subtle)' }}
     />
   )
 }
@@ -195,7 +195,7 @@ function ImageBlock({ node }: { node: ImageNode }) {
       {node.attrs.caption && (
         <figcaption
           className="text-sm mt-2 text-center"
-          style={{ color: 'var(--text-muted)' }}
+          style={{ color: 'var(--color-text-tertiary)' }}
         >
           {node.attrs.caption}
         </figcaption>

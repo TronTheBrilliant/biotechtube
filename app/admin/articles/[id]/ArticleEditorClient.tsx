@@ -109,7 +109,7 @@ export default function ArticleEditorClient({ id }: { id: string }) {
     fetchArticle();
   }, [authLoading, user, fetchArticle]);
 
-  // Editor
+  // Editor — do NOT depend on [article] to avoid destroying/recreating on save
   const editor = useEditor(
     {
       extensions: [
@@ -127,18 +127,27 @@ export default function ArticleEditorClient({ id }: { id: string }) {
         Divider,
         SlashCommand,
       ],
-      content: article?.body || { type: "doc", content: [] },
+      content: { type: "doc", content: [] },
       editorProps: {
         attributes: {
           style: "outline: none; min-height: 400px;",
         },
       },
     },
-    [article]
+    []
   );
 
+  // Set editor content when article loads (initial load only)
+  const initialContentSet = useRef(false);
+  useEffect(() => {
+    if (editor && article?.body && !initialContentSet.current) {
+      editor.commands.setContent(article.body);
+      initialContentSet.current = true;
+    }
+  }, [editor, article]);
+
   // Save
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     if (!editor) return;
     setSaving(true);
     try {
@@ -170,7 +179,19 @@ export default function ArticleEditorClient({ id }: { id: string }) {
       setToast({ message: `Save failed: ${err.message}`, type: "error" });
     }
     setSaving(false);
-  };
+  }, [editor, id, headline, subtitle, summary, status, slug, seoTitle, seoDescription, sources, heroImageUrl]);
+
+  // Cmd+S / Ctrl+S save shortcut
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        e.preventDefault();
+        handleSave();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleSave]);
 
   // Copy AI prompt
   const handleCopyPrompt = () => {
