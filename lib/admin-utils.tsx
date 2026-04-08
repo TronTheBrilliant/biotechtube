@@ -98,6 +98,32 @@ export function formatDate(dateStr: string | null): string {
   });
 }
 
+// ─── Shared Color Constants ───
+
+export const TYPE_CONFIG: Record<string, { label: string; color: string }> = {
+  funding_deal: { label: "Funding", color: "#059669" },
+  clinical_trial: { label: "Clinical Trial", color: "#2563eb" },
+  market_analysis: { label: "Market", color: "#7c3aed" },
+  company_deep_dive: { label: "Spotlight", color: "#ea580c" },
+  weekly_roundup: { label: "Roundup", color: "#ca8a04" },
+  breaking_news: { label: "Breaking", color: "#dc2626" },
+  science_essay: { label: "Deep Science", color: "#0891b2" },
+  innovation_spotlight: { label: "Innovation", color: "#d946ef" },
+};
+
+export const STATUS_COLORS: Record<string, string> = {
+  published: "#22c55e",
+  in_review: "#eab308",
+  draft: "#9ca3af",
+  archived: "#ef4444",
+};
+
+export const CONFIDENCE_COLORS: Record<string, string> = {
+  high: "#22c55e",
+  medium: "#eab308",
+  low: "#ef4444",
+};
+
 // ─── ConfirmDialog ───
 
 interface ConfirmDialogProps {

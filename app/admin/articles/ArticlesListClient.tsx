@@ -5,7 +5,14 @@ import { useRouter } from "next/navigation";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { useAuth } from "@/lib/auth";
-import { ADMIN_EMAIL, ConfirmDialog, timeAgo } from "@/lib/admin-utils";
+import {
+  ADMIN_EMAIL,
+  ConfirmDialog,
+  timeAgo,
+  TYPE_CONFIG,
+  STATUS_COLORS as SHARED_STATUS_COLORS,
+  CONFIDENCE_COLORS as SHARED_CONFIDENCE_COLORS,
+} from "@/lib/admin-utils";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { Loader2, Search } from "lucide-react";
 
@@ -33,27 +40,18 @@ const STATUS_FILTERS: { label: string; value: string; color: string }[] = [
   { label: "Archived", value: "archived", color: "#ef4444" },
 ];
 
-const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
-  funding_deal: { bg: "#065f4620", text: "#10b981" },
-  clinical_trial: { bg: "#1e40af20", text: "#3b82f6" },
-  market_analysis: { bg: "#6b21a820", text: "#a855f7" },
-  company_deep_dive: { bg: "#9a340620", text: "#f97316" },
-  weekly_roundup: { bg: "#854d0e20", text: "#eab308" },
-  breaking_news: { bg: "#991b1b20", text: "#ef4444" },
-};
+// Derive bg+text color maps from shared constants
+const TYPE_COLORS: Record<string, { bg: string; text: string }> = Object.fromEntries(
+  Object.entries(TYPE_CONFIG).map(([k, v]) => [k, { bg: `${v.color}20`, text: v.color }])
+);
 
-const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
-  published: { bg: "#22c55e20", text: "#22c55e" },
-  in_review: { bg: "#eab30820", text: "#eab308" },
-  draft: { bg: "#9ca3af20", text: "#9ca3af" },
-  archived: { bg: "#ef444420", text: "#ef4444" },
-};
+const STATUS_COLORS: Record<string, { bg: string; text: string }> = Object.fromEntries(
+  Object.entries(SHARED_STATUS_COLORS).map(([k, c]) => [k, { bg: `${c}20`, text: c }])
+);
 
-const CONFIDENCE_COLORS: Record<string, { bg: string; text: string }> = {
-  high: { bg: "#22c55e20", text: "#22c55e" },
-  medium: { bg: "#eab30820", text: "#eab308" },
-  low: { bg: "#ef444420", text: "#ef4444" },
-};
+const CONFIDENCE_COLORS: Record<string, { bg: string; text: string }> = Object.fromEntries(
+  Object.entries(SHARED_CONFIDENCE_COLORS).map(([k, c]) => [k, { bg: `${c}20`, text: c }])
+);
 
 function formatLabel(s: string): string {
   return s
@@ -110,7 +108,7 @@ export default function ArticlesListClient() {
     fetch("/api/admin/articles?status=in_review")
       .then((r) => r.json())
       .then((d) => setInReviewCount(d.articles?.length || 0))
-      .catch(() => {});
+      .catch((err) => console.error("Failed to fetch in_review count:", err));
   }, [authLoading, user]);
 
   // Fetch articles when filter changes
@@ -174,7 +172,7 @@ export default function ArticlesListClient() {
     fetch("/api/admin/articles?status=in_review")
       .then((r) => r.json())
       .then((d) => setInReviewCount(d.articles?.length || 0))
-      .catch(() => {});
+      .catch((err) => console.error("Failed to refresh in_review count:", err));
   };
 
   if (authLoading) {

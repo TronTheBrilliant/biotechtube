@@ -7,10 +7,7 @@ const TABS = [
   { label: "Overview", path: "/admin/command-center" },
   { label: "Agents", path: "/admin/agents" },
   { label: "Articles", path: "/admin/articles" },
-  { label: "Data", path: "/admin/data" },
-  { label: "Content", path: "/admin/content" },
   { label: "Quality", path: "/admin/quality" },
-  { label: "Analytics", path: "/admin/analytics" },
 ];
 
 export function AdminNav() {

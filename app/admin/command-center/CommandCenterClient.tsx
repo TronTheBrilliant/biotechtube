@@ -19,6 +19,9 @@ import {
   scoreColor,
   timeAgo,
   cronToHuman,
+  TYPE_CONFIG,
+  STATUS_COLORS as SHARED_STATUS_COLORS,
+  CONFIDENCE_COLORS as SHARED_CONFIDENCE_COLORS,
 } from "@/lib/admin-utils";
 import { AdminNav } from "@/components/admin/AdminNav";
 
@@ -83,28 +86,12 @@ const PIPELINE_LABELS: Record<string, string> = {
   innovation_spotlight: "Innovation Spotlight",
 };
 
-const TYPE_COLORS: Record<string, string> = {
-  breaking_news: "#3b82f6",
-  funding_deal: "#10b981",
-  clinical_trial: "#8b5cf6",
-  market_analysis: "#f59e0b",
-  weekly_roundup: "#6366f1",
-  company_deep_dive: "#ec4899",
-  science_essay: "#14b8a6",
-  innovation_spotlight: "#f97316",
-};
-
-const CONFIDENCE_COLORS: Record<string, string> = {
-  high: "#10b981",
-  medium: "#f59e0b",
-  low: "#ef4444",
-};
-
-const STATUS_COLORS: Record<string, string> = {
-  published: "#10b981",
-  in_review: "#f59e0b",
-  draft: "#6b7280",
-};
+// Derive flat color maps from shared config
+const TYPE_COLORS: Record<string, string> = Object.fromEntries(
+  Object.entries(TYPE_CONFIG).map(([k, v]) => [k, v.color])
+);
+const CONFIDENCE_COLORS = SHARED_CONFIDENCE_COLORS;
+const STATUS_COLORS = SHARED_STATUS_COLORS;
 
 // ── Component ──
 
@@ -113,6 +100,7 @@ export default function CommandCenterClient() {
 
   // Dashboard stats
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [statsError, setStatsError] = useState(false);
 
   // Agent management (existing)
   const [agents, setAgents] = useState<AgentStatus[]>([]);
@@ -146,9 +134,16 @@ export default function CommandCenterClient() {
     try {
       const res = await fetch("/api/admin/stats");
       const data = await res.json();
-      if (!data.error) setStats(data);
-    } catch {
-      // silent
+      if (!data.error) {
+        setStats(data);
+        setStatsError(false);
+      } else {
+        console.error("Failed to fetch stats:", data.error);
+        setStatsError(true);
+      }
+    } catch (err) {
+      console.error("Failed to fetch stats:", err);
+      setStatsError(true);
     }
   }, []);
 
@@ -157,8 +152,8 @@ export default function CommandCenterClient() {
       const res = await fetch("/api/admin/articles?limit=5");
       const data = await res.json();
       setRecentArticles((data.articles || []).slice(0, 5));
-    } catch {
-      // silent
+    } catch (err) {
+      console.error("Failed to fetch recent articles:", err);
     }
   }, []);
 
@@ -171,8 +166,8 @@ export default function CommandCenterClient() {
       const allActivity: AgentRun[] = data.activity || [];
       setActivity(allActivity.slice(0, activityPage * ACTIVITY_PAGE_SIZE));
       setHasMoreActivity(allActivity.length > activityPage * ACTIVITY_PAGE_SIZE);
-    } catch {
-      // Silent fail on poll
+    } catch (err) {
+      console.error("Failed to fetch agent status:", err);
     }
     setLoading(false);
   }, [activityPage]);
@@ -257,10 +252,101 @@ export default function CommandCenterClient() {
   };
 
   const runAllAgents = async () => {
-    for (const agent of agents) {
-      if (!agent.enabled) continue;
-      await runAgent(agent.agent_id);
+    const enabledAgents = agents.filter((a) => a.enabled);
+    const total = enabledAgents.length;
+    if (total === 0) return;
+
+    const entryId = `run-all-${Date.now()}`;
+    const entry: ProgressEntry = {
+      id: entryId,
+      label: `Running Agents (0/${total})`,
+      cronPath: "agents/run-all",
+      status: "running",
+      startedAt: Date.now(),
+      elapsedSeconds: 0,
+      response: null,
+    };
+    setProgressEntries((prev) => [entry, ...prev].slice(0, 10));
+
+    // Tick elapsed time
+    const timer = setInterval(() => {
+      setProgressEntries((prev) =>
+        prev.map((e) =>
+          e.id === entryId && e.status === "running"
+            ? { ...e, elapsedSeconds: Math.round((Date.now() - e.startedAt) / 1000) }
+            : e
+        )
+      );
+    }, 1000);
+    progressTimersRef.current.set(entryId, timer);
+
+    let succeeded = 0;
+    let skipped = 0;
+    let failed = 0;
+
+    for (let i = 0; i < enabledAgents.length; i++) {
+      const agent = enabledAgents[i];
+      const agentName = AGENT_META[agent.agent_id]?.name || agent.agent_id;
+
+      setRunningAgents((prev) => new Set(prev).add(agent.agent_id));
+      try {
+        const res = await fetch(`/api/agents/${agent.agent_id}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ triggered_by: "manual" }),
+        });
+        const data = await res.json();
+        if (data.error) {
+          failed++;
+        } else if (data.items_scanned === 0) {
+          skipped++;
+        } else {
+          succeeded++;
+        }
+        await fetchStatus();
+      } catch (err) {
+        console.error(`Failed to run agent ${agent.agent_id}:`, err);
+        failed++;
+      }
+
+      setRunningAgents((prev) => {
+        const next = new Set(prev);
+        next.delete(agent.agent_id);
+        return next;
+      });
+
+      // Update progress label
+      setProgressEntries((prev) =>
+        prev.map((e) =>
+          e.id === entryId
+            ? { ...e, label: `Running Agents (${i + 1}/${total}) — ${agentName} done` }
+            : e
+        )
+      );
     }
+
+    clearInterval(timer);
+    progressTimersRef.current.delete(entryId);
+
+    // Final summary
+    const parts: string[] = [];
+    if (succeeded > 0) parts.push(`${succeeded} succeeded`);
+    if (skipped > 0) parts.push(`${skipped} skipped`);
+    if (failed > 0) parts.push(`${failed} failed`);
+
+    setProgressEntries((prev) =>
+      prev.map((e) =>
+        e.id === entryId
+          ? {
+              ...e,
+              label: `All agents complete: ${parts.join(", ")}`,
+              status: failed > 0 ? "error" : "completed",
+              elapsedSeconds: Math.round((Date.now() - e.startedAt) / 1000),
+              response: { ok: failed === 0 },
+            }
+          : e
+      )
+    );
   };
 
   const loadMoreActivity = () => {
@@ -278,7 +364,8 @@ export default function CommandCenterClient() {
       const res = await fetch(`/api/agents/${agentId}?limit=20`);
       const data = await res.json();
       setHistoryRuns(data.runs || []);
-    } catch {
+    } catch (err) {
+      console.error("Failed to fetch agent history:", err);
       setHistoryRuns([]);
     }
     setHistoryLoading(false);
@@ -298,7 +385,7 @@ export default function CommandCenterClient() {
       response: null,
     };
 
-    setProgressEntries((prev) => [entry, ...prev]);
+    setProgressEntries((prev) => [entry, ...prev].slice(0, 10));
 
     // Tick elapsed time every second
     const timer = setInterval(() => {
@@ -441,6 +528,39 @@ export default function CommandCenterClient() {
           />
         </div>
 
+        {/* Stats error indicator */}
+        {statsError && (
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "8px 14px",
+            marginBottom: 14,
+            background: "#ef444410",
+            border: "1px solid #ef444430",
+            borderRadius: 8,
+            fontSize: 12,
+            color: "#ef4444",
+          }}>
+            <AlertCircle size={14} />
+            Failed to load dashboard stats.
+            <button
+              onClick={() => fetchStats()}
+              style={{
+                background: "none",
+                border: "none",
+                color: "#ef4444",
+                textDecoration: "underline",
+                cursor: "pointer",
+                fontSize: 12,
+                padding: 0,
+              }}
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
         {/* ── Quick Actions ── */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 14, marginBottom: 28 }}>
           <ActionCard
@@ -488,6 +608,24 @@ export default function CommandCenterClient() {
         {/* ── Progress Feed ── */}
         {progressEntries.length > 0 && (
           <div style={{ marginBottom: 28, display: "flex", flexDirection: "column", gap: 12 }}>
+            {progressEntries.some((e) => e.status !== "running") && (
+              <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                <button
+                  onClick={() => setProgressEntries((prev) => prev.filter((e) => e.status === "running"))}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "var(--color-text-tertiary)",
+                    fontSize: 12,
+                    cursor: "pointer",
+                    padding: "2px 0",
+                    textDecoration: "underline",
+                  }}
+                >
+                  Clear completed
+                </button>
+              </div>
+            )}
             {progressEntries.map((entry) => (
               <ProgressCard key={entry.id} entry={entry} onDismiss={() => dismissProgress(entry.id)} />
             ))}
@@ -668,10 +806,55 @@ export default function CommandCenterClient() {
                             </div>
                           </div>
                         </div>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: scoreColor(agent.health_score) }}>
-                          {agent.health_score}%
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          {/* Enabled / Disabled badge */}
+                          <span style={{
+                            fontSize: 10,
+                            fontWeight: 500,
+                            padding: "2px 7px",
+                            borderRadius: 999,
+                            background: agent.enabled ? "#22c55e18" : "#9ca3af18",
+                            color: agent.enabled ? "#22c55e" : "#9ca3af",
+                          }}>
+                            {agent.enabled ? "Enabled" : "Disabled"}
+                          </span>
+                          <div style={{ fontSize: 14, fontWeight: 600, color: scoreColor(agent.health_score) }}>
+                            {agent.health_score}%
+                          </div>
                         </div>
                       </div>
+
+                      {/* Last run result badge */}
+                      {agent.latest_run && (
+                        <div style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 5,
+                          marginBottom: 8,
+                          fontSize: 11,
+                        }}>
+                          {agent.latest_run.status === "completed" ? (
+                            <CheckCircle2 size={12} style={{ color: "#22c55e" }} />
+                          ) : agent.latest_run.status === "failed" ? (
+                            <XCircle size={12} style={{ color: "#ef4444" }} />
+                          ) : (
+                            <Loader2 size={12} className="animate-spin" style={{ color: "var(--color-text-tertiary)" }} />
+                          )}
+                          <span style={{
+                            fontWeight: 500,
+                            color: agent.latest_run.status === "completed"
+                              ? "#22c55e"
+                              : agent.latest_run.status === "failed"
+                                ? "#ef4444"
+                                : "var(--color-text-tertiary)",
+                          }}>
+                            {agent.latest_run.status === "completed" ? "Success" : agent.latest_run.status === "failed" ? "Failed" : "Running"}
+                          </span>
+                          <span style={{ color: "var(--color-text-tertiary)" }}>
+                            {timeAgo(agent.latest_run.completed_at || agent.latest_run.started_at)}
+                          </span>
+                        </div>
+                      )}
 
                       {/* Progress bar */}
                       <div style={{ height: 2, background: "var(--color-border-subtle)", borderRadius: 2, marginBottom: 10 }}>
