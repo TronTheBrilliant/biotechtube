@@ -802,7 +802,7 @@ export default async function HomePage() {
         )}
 
         {/* Funding Season — combined card: chart + latest rounds */}
-        <HomeSection icon="💰" title="Funding Season" viewAllHref="/news/funding" viewAllLabel="Full analysis">
+        <HomeSection icon="💰" title="Funding & Deal Flow" viewAllHref="/news/funding" viewAllLabel="Full analysis">
           <div className="flex flex-col lg:flex-row">
             {/* Left: chart */}
             <div className="flex-1 min-w-0">
