@@ -818,17 +818,10 @@ export default async function HomePage() {
           </div>
         </HomeSection>
 
-        {/* Row 4: Events + Investors */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <HomeSection icon="📅" title="Upcoming Events" viewAllHref="/events" viewAllLabel="View all">
-            <UpcomingEventsSection events={events.slice(0, 5)} />
-          </HomeSection>
-          {investorsData.length > 0 && (
-            <HomeSection icon="🏦" title="Top Investors" viewAllHref="/funding" viewAllLabel="View all">
-              <TopInvestors investors={investorsData} />
-            </HomeSection>
-          )}
-        </div>
+        {/* Events */}
+        <HomeSection icon="📅" title="Upcoming Events" viewAllHref="/events" viewAllLabel="View all">
+          <UpcomingEventsSection events={events.slice(0, 5)} />
+        </HomeSection>
       </main>
 
       {/* Newsletter signup */}
