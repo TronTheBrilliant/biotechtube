@@ -114,23 +114,18 @@ export function FundingNewsClient({ articles, stats }: Props) {
               AI-generated analysis of the latest biotech funding rounds. Real-time deal flow intelligence across the global biotech industry.
             </p>
 
-            {/* Dashboard strip */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-8">
-              <StatCard label="Last 30 Days" value={formatMarketCap(stats.monthTotal)} sub={`${stats.monthCount} rounds`} icon={<Calendar size={14} />} />
-              <StatCard label="Last 90 Days" value={formatMarketCap(stats.quarterTotal)} icon={<TrendingUp size={14} />} />
-              <StatCard label="Year to Date" value={formatMarketCap(stats.yearTotal)} icon={<DollarSign size={14} />} />
-              {stats.largestThisWeek && (
-                <StatCard
-                  label="Top Deal"
-                  value={formatMarketCap(stats.largestThisWeek.amount_usd)}
-                  sub={stats.largestThisWeek.company_name}
-                  icon={<Zap size={14} />}
-                />
-              )}
-              {stats.topSector && (
-                <StatCard label="Hot Sector" value={stats.topSector} icon={<Tag size={14} />} />
-              )}
-              <StatCard label="Articles" value={String(articles.length)} sub="AI-generated" icon={<Building2 size={14} />} />
+            {/* Minimal stats strip */}
+            <div className="flex items-center gap-6 mt-6 flex-wrap">
+              <div className="flex items-center gap-2">
+                <span style={{ fontSize: 11, color: "var(--color-text-tertiary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>30d</span>
+                <span style={{ fontSize: 20, fontWeight: 600, color: "var(--color-text-primary)" }}>{formatMarketCap(stats.monthTotal)}</span>
+                <span style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>{stats.monthCount} rounds</span>
+              </div>
+              <div style={{ width: 1, height: 24, background: "var(--color-border-subtle)" }} />
+              <div className="flex items-center gap-2">
+                <span style={{ fontSize: 11, color: "var(--color-text-tertiary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>90d</span>
+                <span style={{ fontSize: 20, fontWeight: 600, color: "var(--color-text-primary)" }}>{formatMarketCap(stats.quarterTotal)}</span>
+              </div>
             </div>
           </div>
         </div>
