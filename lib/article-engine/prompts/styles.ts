@@ -53,6 +53,20 @@ export const STYLES: Record<ArticleStyle, StyleDefinition> = {
     structure: 'Open with a striking data point. Body: build the case with 3-4 key metrics, each with context. Close: what the data implies for the next 6-12 months.',
     opens_with: 'A striking number, percentage change, or benchmark comparison.',
   },
+  narrative_science: {
+    id: 'narrative_science',
+    persona: 'Wired magazine science writer with a gift for making complex biology feel like adventure.',
+    tone: 'Vivid, awe-inspiring, narrative-driven. Opens with a scene, not a thesis. Makes the reader feel the wonder of the science.',
+    structure: 'Cinematic opening \u2192 science explained \u2192 real-world implications \u2192 companies making it happen \u2192 what\'s next \u2192 thought-provoking closer',
+    opens_with: 'A vivid, specific moment \u2014 a researcher in a lab, a patient receiving a treatment, a molecule doing something extraordinary.',
+  },
+  innovation_curator: {
+    id: 'innovation_curator',
+    persona: 'MIT Technology Review editor curating the year\'s most important breakthroughs.',
+    tone: 'Authoritative yet excited. Each innovation gets a "here\'s why you should care" treatment. Numbers and impact front and center.',
+    structure: 'State-of-play intro \u2192 innovation 1 (what + why + who) \u2192 innovation 2 \u2192 ... \u2192 connecting thread \u2192 forward look',
+    opens_with: 'A striking framing of how much is changing in biotech right now.',
+  },
 }
 
 // Preferred styles per article type
@@ -63,6 +77,8 @@ const PREFERRED_STYLES: Record<ArticleType, ArticleStyle[]> = {
   company_deep_dive: ['editorial_narrative', 'science_lens', 'investor_lens'],
   weekly_roundup: ['data_digest', 'market_analyst', 'editorial_narrative'],
   breaking_news: ['deal_spotlight', 'editorial_narrative', 'market_analyst', 'science_lens'],
+  science_essay: ['editorial_narrative', 'science_lens', 'narrative_science'],
+  innovation_spotlight: ['data_digest', 'editorial_narrative', 'innovation_curator'],
 }
 
 /**

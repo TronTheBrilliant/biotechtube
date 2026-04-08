@@ -40,6 +40,14 @@ function getTypeElements(articleType: ArticleType, context?: ArticleContext): st
       return 'Mosaic of geometric biotech symbols — pills, molecules, charts, buildings — arranged in a balanced editorial grid. Multiple accent colors in harmony.'
     case 'breaking_news':
       return 'Dynamic composition with sharp angular forms suggesting urgency and impact. Lightning-bolt energy with precise geometric control. Bright accent against dark backdrop.'
+    case 'science_essay': {
+      let base = 'Flowing organic science forms — DNA strands, protein structures, and cellular landscapes rendered as elegant abstract art. Depth and wonder. Teal and cyan tones with emerald accents.'
+      if (indication) base += ` Visual elements evoking ${indication} biology.`
+      if (sector) base += ` Subtle ${sector} imagery woven into organic forms.`
+      return base
+    }
+    case 'innovation_spotlight':
+      return 'A mosaic of diverse biotech innovation symbols — molecules, robots, pills, DNA, lab equipment — arranged in a dynamic grid pattern. Multiple accent colors (amber, teal, violet) against dark backdrop. Energy and variety.'
     default:
       return 'Abstract chart patterns, candlestick-inspired geometric forms. Data visualization aesthetic with flowing lines and grid patterns. Cool blue and white tones.'
   }
@@ -84,6 +92,16 @@ const PLACEHOLDER_STYLES: Record<ArticleType, PlaceholderStyle> = {
     pattern: 'burst',
     accentColor: '#EF4444',
     icon: 'zap',
+  },
+  science_essay: {
+    pattern: 'hexgrid',
+    accentColor: '#0891b2',
+    icon: 'microscope',
+  },
+  innovation_spotlight: {
+    pattern: 'grid',
+    accentColor: '#d946ef',
+    icon: 'sparkles',
   },
 }
 

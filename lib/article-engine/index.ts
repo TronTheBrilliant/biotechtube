@@ -11,12 +11,16 @@ import { buildClinicalTrialPrompt } from './prompts/templates/clinical-trial'
 import { buildMarketAnalysisPrompt } from './prompts/templates/market-analysis'
 import { buildCompanyProfilePrompt } from './prompts/templates/company-profile'
 import { buildRoundupPrompt } from './prompts/templates/roundup'
+import { buildScienceEssayPrompt } from './prompts/templates/science-essay'
+import { buildInnovationSpotlightPrompt } from './prompts/templates/innovation-spotlight'
 import { gatherFundingContext } from './sources/funding'
 import { gatherBreakingNewsContext } from './sources/breaking-news'
 import { gatherClinicalTrialContext } from './sources/clinical-trial'
 import { gatherMarketAnalysisContext } from './sources/market-analysis'
 import { gatherCompanyProfileContext } from './sources/company-profile'
 import { gatherRoundupContext } from './sources/roundup'
+import { gatherScienceEssayContext } from './sources/science-essay'
+import { gatherInnovationSpotlightContext } from './sources/innovation-spotlight'
 import { scoreConfidence, statusFromConfidence } from './confidence'
 import { convertToBlocks, estimateReadingTime } from './blocks'
 import { generateImagePrompt, getPlaceholderStyle } from './image-prompt'
@@ -107,6 +111,10 @@ export class ArticleEngine {
         source_type: this.sourceTypeKey(input.type),
         source_id: this.extractSourceId(input),
         deal_size: context.fundingRound ? dealSizeCategory(context.fundingRound.amount_usd) : undefined,
+        topic: (context as any).metadata?.topic || undefined,
+        angle: (context as any).metadata?.angle || undefined,
+        theme: (context as any).metadata?.theme || undefined,
+        pubmed_paper_count: (context as any).metadata?.pubmed_papers?.length || undefined,
         confidence_breakdown: confidence,
         generated_at: new Date().toISOString(),
       },
@@ -152,6 +160,18 @@ export class ArticleEngine {
         return gatherCompanyProfileContext({ companyId: input.source.company_id })
       case 'weekly_roundup':
         return gatherRoundupContext({ weekStart: input.source.week_start, weekEnd: input.source.week_end })
+      case 'science_essay':
+        return gatherScienceEssayContext({
+          topic: input.source.topic,
+          angle: input.source.angle,
+          pubmedPmids: input.source.pubmedPmids,
+        })
+      case 'innovation_spotlight':
+        return gatherInnovationSpotlightContext({
+          focus: input.source.focus,
+          theme: input.source.theme,
+          angle: input.source.angle,
+        })
       default:
         return {
           sources: [],
@@ -176,6 +196,10 @@ export class ArticleEngine {
         return buildCompanyProfilePrompt(context)
       case 'weekly_roundup':
         return buildRoundupPrompt(context)
+      case 'science_essay':
+        return buildScienceEssayPrompt(context)
+      case 'innovation_spotlight':
+        return buildInnovationSpotlightPrompt(context)
       default:
         return `Write a biotech ${type.replace(/_/g, ' ')} article based on the following context:\n${JSON.stringify(context, null, 2)}`
     }
@@ -251,6 +275,8 @@ export class ArticleEngine {
       case 'market_analysis': return 'sector'
       case 'company_deep_dive': return 'company'
       case 'weekly_roundup': return 'week'
+      case 'science_essay': return 'topic'
+      case 'innovation_spotlight': return 'spotlight'
       default: return type
     }
   }
