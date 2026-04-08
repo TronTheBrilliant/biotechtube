@@ -10,6 +10,28 @@ const RSS_FEEDS = [
   { name: "PRNewswire", url: "https://www.prnewswire.com/rss/health-latest-news/health-latest-news-list.rss", source_name: "prnewswire" },
 ];
 
+// ─── RSS Item Helpers ───
+
+function categorizeBiotechNews(title: string, description?: string): string {
+  const text = `${title} ${description || ''}`.toLowerCase()
+  if (/fda|approv|clear|reject|complete response|advisory committee/.test(text)) return 'fda'
+  if (/rais|fund|series [a-e]|seed|ipo|financ|invest|venture|grant/.test(text)) return 'funding'
+  if (/partner|collaborat|licens|agreement|alliance/.test(text)) return 'partnership'
+  if (/acqui|merg|buyout|takeover/.test(text)) return 'acquisition'
+  if (/trial|phase [1-3]|endpoint|efficacy|safety data|readout|clinical/.test(text)) return 'trial'
+  return 'general'
+}
+
+function extractCompanyNames(title: string, description?: string): string[] {
+  const text = `${title} ${description || ''}`
+  const matches = text.match(/[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*(?:\s+(?:Inc|Corp|Ltd|Therapeutics|Pharma|Bio|Sciences|Biosciences|Oncology|Genomics)\.?)?/g)
+  if (!matches) return []
+  const skipWords = new Set(['The', 'This', 'That', 'These', 'Those', 'FDA', 'SEC', 'NYSE', 'NASDAQ', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'])
+  return [...new Set(matches)]
+    .filter(m => !skipWords.has(m) && m.length > 3)
+    .slice(0, 5)
+}
+
 const FUNDING_KEYWORDS = [
   "raises", "raised", "funding", "series a", "series b", "series c",
   "seed round", "seed funding", "investment", "million", "financing",
@@ -93,7 +115,30 @@ export async function GET() {
   }
   results.articles = allItems.length;
 
-  // 2. Filter funding
+  // 2. Store ALL RSS items in rss_items table for breaking news pipeline
+  if (allItems.length > 0) {
+    const rssRows = allItems.map((item) => ({
+      title: item.title,
+      url: item.link,
+      source_name: item.source,
+      summary: item.description?.substring(0, 500) || null,
+      published_at: item.pubDate ? new Date(item.pubDate).toISOString() : new Date().toISOString(),
+      category: categorizeBiotechNews(item.title, item.description),
+      company_names: extractCompanyNames(item.title, item.description),
+    }));
+
+    const { error: rssError } = await supabase
+      .from('rss_items')
+      .upsert(rssRows, { onConflict: 'url', ignoreDuplicates: true });
+
+    if (rssError) {
+      console.error('Failed to upsert rss_items:', rssError.message);
+    } else {
+      (results as Record<string, number>).rssItemsStored = rssRows.length;
+    }
+  }
+
+  // 3. Filter funding
   const fundingArticles = allItems.filter((item) => {
     const text = `${item.title} ${item.description}`.toLowerCase();
     return FUNDING_KEYWORDS.some((kw) => text.includes(kw));
@@ -104,11 +149,11 @@ export async function GET() {
     return NextResponse.json({ ok: true, ...results, message: "No funding articles found" });
   }
 
-  // 3. Extract with AI
+  // 4. Extract with AI
   const rounds = await extractWithAI(fundingArticles);
   results.extracted = rounds.length;
 
-  // 4. Match and insert (auto-create companies if not found)
+  // 5. Match and insert (auto-create companies if not found)
   const newCompanyIds: string[] = [];
 
   for (const round of rounds) {
@@ -181,7 +226,7 @@ export async function GET() {
     if (!error) results.inserted++;
   }
 
-  // 5. Enrich newly created companies via DeepSeek (basic fields)
+  // 6. Enrich newly created companies via DeepSeek (basic fields)
   if (newCompanyIds.length > 0 && process.env.DEEPSEEK_API_KEY) {
     const companyList = newCompanyIds.length <= 10 ? newCompanyIds : newCompanyIds.slice(0, 10);
     const { data: newCos } = await supabase.from("companies").select("id, name").in("id", companyList);
