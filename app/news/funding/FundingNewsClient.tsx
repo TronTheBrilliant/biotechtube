@@ -146,7 +146,7 @@ export function FundingNewsClient({ articles, stats }: Props) {
                     <Zap size={14} style={{ color: "var(--color-accent)" }} />
                     Featured Deals
                   </h2>
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 -mx-1 px-1">
                     {featured.map((article) => (
                       <FeaturedCard key={article.id} article={article} />
                     ))}
@@ -301,46 +301,51 @@ function StatCard({ label, value, sub, icon }: { label: string; value: string; s
 function FeaturedCard({ article }: { article: Article }) {
   const roundColor = ROUND_COLORS[article.round_type || ""] || "var(--color-accent)";
   const date = article.round_date ? new Date(article.round_date) : null;
-  const excerpt = article.body.split("\n\n")[0]?.substring(0, 120) + "...";
   return (
     <Link
       href={`/news/funding/${article.slug}`}
-      className="group rounded-xl overflow-hidden transition-all hover:shadow-md block"
-      style={{ background: "var(--color-bg-primary)", border: "0.5px solid var(--color-border-subtle)" }}
+      className="group rounded-xl overflow-hidden transition-all hover:shadow-md block flex-shrink-0"
+      style={{
+        background: "var(--color-bg-primary)",
+        border: "0.5px solid var(--color-border-subtle)",
+        width: 340,
+        minHeight: 140,
+      }}
     >
-      <div className="h-1" style={{ background: `linear-gradient(90deg, ${roundColor}, ${roundColor}60)` }} />
-      <div className="p-4">
-        <div className="flex items-center gap-2 mb-2 flex-wrap">
-          {article.round_type && (
-            <span className="px-2 py-0.5 rounded-full" style={{ fontSize: 9, fontWeight: 500, color: roundColor, background: `${roundColor}12` }}>
-              {article.round_type}
-            </span>
-          )}
-          {article.amount_usd && article.amount_usd > 0 && (
-            <span style={{ fontSize: 13, fontWeight: 600, color: "var(--color-text-primary)" }}>
-              {formatMarketCap(article.amount_usd)}
-            </span>
-          )}
-          {date && (
-            <span style={{ fontSize: 10, color: "var(--color-text-tertiary)" }}>
-              {date.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-            </span>
-          )}
-        </div>
-        <h3
-          className="group-hover:underline"
-          style={{ fontSize: 15, fontWeight: 500, color: "var(--color-text-primary)", lineHeight: 1.35 }}
-        >
-          {article.headline}
-        </h3>
-        <p className="mt-2" style={{ fontSize: 12, color: "var(--color-text-tertiary)", lineHeight: 1.5 }}>
-          {excerpt}
-        </p>
-        <div className="flex items-center justify-between mt-3 pt-3" style={{ borderTop: "0.5px solid var(--color-border-subtle)" }}>
-          <div className="flex items-center gap-2">
+      <div className="p-4 flex flex-col justify-between h-full">
+        {/* Top: company + round + amount */}
+        <div>
+          <div className="flex items-center gap-2 flex-wrap mb-2">
             <span style={{ fontSize: 12, color: "var(--color-text-secondary)", fontWeight: 500 }}>
               {article.company_name}
             </span>
+            {article.round_type && (
+              <span className="px-1.5 py-0.5 rounded-full" style={{ fontSize: 9, fontWeight: 500, color: roundColor, background: `${roundColor}12` }}>
+                {article.round_type}
+              </span>
+            )}
+            {article.amount_usd && article.amount_usd > 0 && (
+              <span style={{ fontSize: 13, fontWeight: 600, color: "var(--color-text-primary)" }}>
+                {formatMarketCap(article.amount_usd)}
+              </span>
+            )}
+          </div>
+          <h3
+            className="group-hover:underline"
+            style={{ fontSize: 15, fontWeight: 500, color: "var(--color-text-primary)", lineHeight: 1.35 }}
+          >
+            {article.headline}
+          </h3>
+        </div>
+
+        {/* Bottom: date + sector */}
+        <div className="flex items-center justify-between mt-3">
+          <div className="flex items-center gap-2">
+            {date && (
+              <span style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>
+                {date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+              </span>
+            )}
             {article.sector && (
               <span style={{ fontSize: 10, color: "var(--color-text-tertiary)" }}>· {article.sector}</span>
             )}
