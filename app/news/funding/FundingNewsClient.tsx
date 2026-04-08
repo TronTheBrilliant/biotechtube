@@ -188,88 +188,46 @@ export function FundingNewsClient({ articles, stats }: Props) {
                 {filtered.map((article, idx) => {
                   const roundColor = ROUND_COLORS[article.round_type || ""] || "var(--color-accent)";
                   const date = article.round_date ? new Date(article.round_date) : null;
-                  const excerpt = article.body.split("\n\n")[0]?.substring(0, 180) + "...";
-                  const isRecent = date && (Date.now() - date.getTime()) < 14 * 24 * 60 * 60 * 1000;
 
                   return (
                     <Link
                       key={article.id}
                       href={`/news/funding/${article.slug}`}
-                      className="group rounded-xl overflow-hidden transition-all hover:shadow-md block"
+                      className="group rounded-xl overflow-hidden transition-all hover:shadow-sm block"
                       style={{
                         background: "var(--color-bg-primary)",
                         border: "0.5px solid var(--color-border-subtle)",
                       }}
                     >
-                      {/* Color accent bar */}
-                      <div className="h-0.5" style={{ background: roundColor }} />
+                      <div className="px-4 py-3">
+                        {/* Headline */}
+                        <h3
+                          className="group-hover:underline"
+                          style={{ fontSize: 15, fontWeight: 500, color: "var(--color-text-primary)", lineHeight: 1.35 }}
+                        >
+                          {article.headline}
+                        </h3>
 
-                      <div className="p-5">
                         {/* Meta line */}
-                        <div className="flex items-center gap-2 flex-wrap mb-3">
-                          {isRecent && (
-                            <span className="px-1.5 py-0.5 rounded" style={{ fontSize: 9, fontWeight: 600, color: "white", background: "var(--color-accent)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                              New
-                            </span>
-                          )}
+                        <div className="flex items-center gap-2 flex-wrap mt-1.5">
+                          <span style={{ fontSize: 12, color: "var(--color-text-secondary)", fontWeight: 500 }}>
+                            {article.company_name}
+                          </span>
                           {article.round_type && (
-                            <span className="px-2 py-0.5 rounded-full" style={{ fontSize: 10, fontWeight: 500, color: roundColor, background: `${roundColor}12` }}>
+                            <span className="px-1.5 py-0.5 rounded-full" style={{ fontSize: 9, fontWeight: 500, color: roundColor, background: `${roundColor}12` }}>
                               {article.round_type}
                             </span>
                           )}
                           {article.amount_usd && article.amount_usd > 0 && (
-                            <span style={{ fontSize: 13, fontWeight: 600, color: "var(--color-text-primary)" }}>
+                            <span style={{ fontSize: 12, fontWeight: 600, color: "var(--color-text-primary)" }}>
                               {formatMarketCap(article.amount_usd)}
                             </span>
                           )}
                           {date && (
                             <span style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>
-                              {date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                              {date.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                             </span>
                           )}
-                          {article.sector && (
-                            <span style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>· {article.sector}</span>
-                          )}
-                          {article.country && (
-                            <span style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>· {article.country}</span>
-                          )}
-                        </div>
-
-                        {/* Headline */}
-                        <h3
-                          className="group-hover:underline"
-                          style={{ fontSize: 17, fontWeight: 500, color: "var(--color-text-primary)", lineHeight: 1.35 }}
-                        >
-                          {article.headline}
-                        </h3>
-
-                        {/* Subtitle */}
-                        {article.subtitle && (
-                          <p className="mt-1.5" style={{ fontSize: 14, color: "var(--color-text-secondary)", lineHeight: 1.5 }}>
-                            {article.subtitle}
-                          </p>
-                        )}
-
-                        {/* Excerpt */}
-                        <p className="mt-2" style={{ fontSize: 13, color: "var(--color-text-tertiary)", lineHeight: 1.6 }}>
-                          {excerpt}
-                        </p>
-
-                        {/* Company + investor + read more */}
-                        <div className="flex items-center justify-between mt-4 pt-3" style={{ borderTop: "0.5px solid var(--color-border-subtle)" }}>
-                          <div className="flex items-center gap-3">
-                            <span style={{ fontSize: 12, color: "var(--color-text-secondary)", fontWeight: 500 }}>
-                              {article.company_name}
-                            </span>
-                            {article.lead_investor && article.lead_investor !== "Undisclosed" && (
-                              <span style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>
-                                Led by {article.lead_investor}
-                              </span>
-                            )}
-                          </div>
-                          <span className="flex items-center gap-1 group-hover:gap-2 transition-all" style={{ fontSize: 12, color: "var(--color-accent)", fontWeight: 500 }}>
-                            Read <ArrowUpRight size={12} />
-                          </span>
                         </div>
                       </div>
                     </Link>
