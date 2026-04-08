@@ -595,7 +595,7 @@ async function getLatestFundingArticles() {
 async function getLatestIntelligenceArticles() {
   const supabase = getSupabase();
   const { data } = await (supabase.from as any)("articles")
-    .select("slug, headline, summary, type, hero_placeholder_style, hero_image_url, published_at, reading_time_min")
+    .select("slug, headline, summary, type, company_id, hero_placeholder_style, hero_image_url, published_at, reading_time_min")
     .eq("status", "published")
     .order("published_at", { ascending: false })
     .limit(5);
@@ -659,6 +659,28 @@ export default async function HomePage() {
     website: c.website || null,
     dailyChange: c.dailyChange ?? null,
   }));
+
+  // Build company map for intelligence articles
+  const intelligenceCompanyIds = (intelligenceArticles || [])
+    .map((a: any) => a.company_id)
+    .filter(Boolean);
+  let intelligenceCompanyMap: Record<string, { name: string; logo_url: string | null; slug: string }> = {};
+  if (intelligenceCompanyIds.length > 0) {
+    try {
+      const supabase = getSupabase();
+      const { data: intCos } = await supabase
+        .from('companies')
+        .select('id, name, logo_url, slug')
+        .in('id', intelligenceCompanyIds);
+      if (intCos) {
+        for (const c of intCos as any[]) {
+          intelligenceCompanyMap[c.id] = { name: c.name, logo_url: c.logo_url, slug: c.slug };
+        }
+      }
+    } catch (err) {
+      console.error('Homepage: failed to fetch intelligence company data', err);
+    }
+  }
 
   // JSON-LD structured data for homepage
   const websiteJsonLd = {
@@ -758,7 +780,7 @@ export default async function HomePage() {
 
       {/* Latest Intelligence */}
       <div className="max-w-[1200px] mx-auto px-4 md:px-6 pb-4">
-        <LatestIntelligence articles={intelligenceArticles} />
+        <LatestIntelligence articles={intelligenceArticles} companyMap={intelligenceCompanyMap} />
       </div>
 
       {/* Sections Grid */}

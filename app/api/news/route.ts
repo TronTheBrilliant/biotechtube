@@ -13,7 +13,7 @@ export async function GET(request: Request) {
 
   let query = (supabase.from as any)("articles")
     .select(
-      "slug, headline, subtitle, summary, type, status, hero_image_url, hero_placeholder_style, published_at, reading_time_min"
+      "slug, headline, subtitle, summary, type, company_id, status, hero_image_url, hero_placeholder_style, published_at, reading_time_min"
     )
     .eq("status", "published")
     .order("published_at", { ascending: false })
@@ -26,8 +26,23 @@ export async function GET(request: Request) {
   const { data, error } = await query;
 
   if (error) {
-    return NextResponse.json({ articles: [], error: error.message }, { status: 500 });
+    return NextResponse.json({ articles: [], companies: {}, error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ articles: data || [] });
+  // Build company map for returned articles
+  const companyIds = (data || []).map((a: any) => a.company_id).filter(Boolean);
+  let companies: Record<string, any> = {};
+  if (companyIds.length > 0) {
+    const { data: cos } = await supabase
+      .from('companies')
+      .select('id, name, logo_url, slug')
+      .in('id', companyIds);
+    if (cos) {
+      for (const c of cos as any[]) {
+        companies[c.id] = { name: c.name, logo_url: c.logo_url, slug: c.slug };
+      }
+    }
+  }
+
+  return NextResponse.json({ articles: data || [], companies });
 }

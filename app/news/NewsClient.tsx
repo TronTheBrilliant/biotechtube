@@ -14,11 +14,14 @@ interface ArticleRow {
   subtitle: string | null;
   summary: string | null;
   type: string;
+  company_id: string | null;
   hero_image_url: string | null;
   hero_placeholder_style: PlaceholderStyle | null;
   published_at: string | null;
   reading_time_min: number | null;
 }
+
+type CompanyMap = Record<string, { name: string; logo_url: string | null; slug: string }>;
 
 // ── Constants ──
 
@@ -92,14 +95,17 @@ export function NewsClient({
   typeCounts,
   totalCount,
   initialType,
+  initialCompanyMap,
 }: {
   initialArticles: ArticleRow[];
   typeCounts: Record<string, number>;
   totalCount: number;
   initialType: string;
+  initialCompanyMap: CompanyMap;
 }) {
   const [activeFilter, setActiveFilter] = useState(initialType);
   const [articles, setArticles] = useState<ArticleRow[]>(initialArticles);
+  const [companyMap, setCompanyMap] = useState<CompanyMap>(initialCompanyMap);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(initialArticles.length > 10);
@@ -119,11 +125,14 @@ export function NewsClient({
         const res = await fetch(`/api/news?${params}`);
         const json = await res.json();
         const newArticles: ArticleRow[] = json.articles || [];
+        const newCompanies: CompanyMap = json.companies || {};
 
         if (append) {
           setArticles((prev) => [...prev, ...newArticles]);
+          setCompanyMap((prev) => ({ ...prev, ...newCompanies }));
         } else {
           setArticles(newArticles);
+          setCompanyMap(newCompanies);
         }
         setHasMore(newArticles.length >= 10);
       } catch {
@@ -306,6 +315,36 @@ export function NewsClient({
                 </span>
               </div>
 
+              {/* Company info */}
+              {featured.company_id && companyMap[featured.company_id] && (
+                <div className="flex items-center gap-2 mb-2">
+                  {companyMap[featured.company_id].logo_url ? (
+                    <img
+                      src={companyMap[featured.company_id].logo_url!}
+                      alt=""
+                      className="rounded"
+                      style={{ width: 20, height: 20, objectFit: 'contain' }}
+                    />
+                  ) : (
+                    <div
+                      className="rounded flex items-center justify-center"
+                      style={{
+                        width: 20, height: 20,
+                        background: 'var(--color-accent)',
+                        color: 'white',
+                        fontSize: 10,
+                        fontWeight: 700,
+                      }}
+                    >
+                      {companyMap[featured.company_id].name.charAt(0)}
+                    </div>
+                  )}
+                  <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' }}>
+                    {companyMap[featured.company_id].name}
+                  </span>
+                </div>
+              )}
+
               <h2
                 className="line-clamp-3 mb-2 group-hover:opacity-80 transition-opacity"
                 style={{
@@ -394,6 +433,36 @@ export function NewsClient({
                       {cfg.label}
                     </span>
                   </div>
+
+                  {/* Company info */}
+                  {article.company_id && companyMap[article.company_id] && (
+                    <div className="flex items-center gap-2 mb-1.5">
+                      {companyMap[article.company_id].logo_url ? (
+                        <img
+                          src={companyMap[article.company_id].logo_url!}
+                          alt=""
+                          className="rounded"
+                          style={{ width: 16, height: 16, objectFit: 'contain' }}
+                        />
+                      ) : (
+                        <div
+                          className="rounded flex items-center justify-center"
+                          style={{
+                            width: 16, height: 16,
+                            background: 'var(--color-accent)',
+                            color: 'white',
+                            fontSize: 9,
+                            fontWeight: 700,
+                          }}
+                        >
+                          {companyMap[article.company_id].name.charAt(0)}
+                        </div>
+                      )}
+                      <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-text-secondary)' }}>
+                        {companyMap[article.company_id].name}
+                      </span>
+                    </div>
+                  )}
 
                   {/* Headline */}
                   <h3

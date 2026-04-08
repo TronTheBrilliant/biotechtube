@@ -31,6 +31,7 @@ interface ArticleRow {
   subtitle: string | null;
   summary: string | null;
   type: string;
+  company_id: string | null;
   hero_image_url: string | null;
   hero_placeholder_style: any;
   published_at: string | null;
@@ -48,7 +49,7 @@ export default async function NewsPage({
   // Fetch initial articles
   let query = (supabase.from as any)("articles")
     .select(
-      "slug, headline, subtitle, summary, type, hero_image_url, hero_placeholder_style, published_at, reading_time_min"
+      "slug, headline, subtitle, summary, type, company_id, hero_image_url, hero_placeholder_style, published_at, reading_time_min"
     )
     .eq("status", "published")
     .order("published_at", { ascending: false })
@@ -59,6 +60,25 @@ export default async function NewsPage({
   }
 
   const { data: articles } = await query;
+
+  // Fetch company data for articles that have a company_id
+  const companyIds = (articles || [])
+    .map((a: any) => a.company_id)
+    .filter(Boolean);
+
+  let companyMap: Record<string, { name: string; logo_url: string | null; slug: string }> = {};
+  if (companyIds.length > 0) {
+    const { data: companies } = await supabase
+      .from('companies')
+      .select('id, name, logo_url, slug')
+      .in('id', companyIds);
+
+    if (companies) {
+      for (const c of companies as any[]) {
+        companyMap[c.id] = { name: c.name, logo_url: c.logo_url, slug: c.slug };
+      }
+    }
+  }
 
   // Get counts per type for filter badges
   const { data: allArticles } = await (supabase.from as any)("articles")
@@ -86,6 +106,7 @@ export default async function NewsPage({
           typeCounts={typeCounts}
           totalCount={totalCount}
           initialType={filterType || "all"}
+          initialCompanyMap={companyMap}
         />
       </main>
       <Footer />

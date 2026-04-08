@@ -9,11 +9,14 @@ export interface ArticleCard {
   headline: string
   summary: string
   type: string
+  company_id?: string | null
   hero_image_url?: string | null
   hero_placeholder_style?: PlaceholderStyle | null
   published_at: string
   reading_time_min?: number | null
 }
+
+type CompanyMap = Record<string, { name: string; logo_url: string | null; slug: string }>
 
 const TYPE_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   funding_deal: { label: 'Funding', color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
@@ -42,7 +45,7 @@ function timeAgo(dateStr: string): string {
   return `${days} days ago`
 }
 
-export function LatestIntelligence({ articles }: { articles: ArticleCard[] }) {
+export function LatestIntelligence({ articles, companyMap = {} }: { articles: ArticleCard[]; companyMap?: CompanyMap }) {
   if (!articles || articles.length === 0) return null
 
   return (
@@ -122,6 +125,39 @@ export function LatestIntelligence({ articles }: { articles: ArticleCard[] }) {
                       {timeAgo(article.published_at)}
                     </span>
                   </div>
+
+                  {/* Company info */}
+                  {article.company_id && companyMap[article.company_id] && (
+                    <div className="flex items-center gap-1.5 mb-1">
+                      {companyMap[article.company_id].logo_url ? (
+                        <img
+                          src={companyMap[article.company_id].logo_url!}
+                          alt=""
+                          className="rounded"
+                          style={{ width: 14, height: 14, objectFit: 'contain' }}
+                        />
+                      ) : (
+                        <div
+                          className="rounded flex items-center justify-center"
+                          style={{
+                            width: 14, height: 14,
+                            background: 'var(--color-accent)',
+                            color: 'white',
+                            fontSize: 8,
+                            fontWeight: 700,
+                          }}
+                        >
+                          {companyMap[article.company_id].name.charAt(0)}
+                        </div>
+                      )}
+                      <span
+                        className="text-[11px] font-medium"
+                        style={{ color: 'var(--color-text-secondary)' }}
+                      >
+                        {companyMap[article.company_id].name}
+                      </span>
+                    </div>
+                  )}
 
                   {/* Headline */}
                   <h3
