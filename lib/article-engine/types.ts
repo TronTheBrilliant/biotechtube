@@ -1,10 +1,10 @@
 // Article Engine — Core Types
 
-export type ArticleType = 'funding_deal' | 'clinical_trial' | 'market_analysis' | 'company_deep_dive' | 'weekly_roundup' | 'breaking_news'
+export type ArticleType = 'funding_deal' | 'clinical_trial' | 'market_analysis' | 'company_deep_dive' | 'weekly_roundup' | 'breaking_news' | 'science_essay' | 'innovation_spotlight'
 export type ArticleStatus = 'draft' | 'in_review' | 'published' | 'archived'
 export type ConfidenceLevel = 'high' | 'medium' | 'low'
 export type EditedBy = 'ai' | 'human' | 'ai+human'
-export type ArticleStyle = 'investor_lens' | 'science_lens' | 'market_analyst' | 'editorial_narrative' | 'deal_spotlight' | 'data_digest'
+export type ArticleStyle = 'investor_lens' | 'science_lens' | 'market_analyst' | 'editorial_narrative' | 'deal_spotlight' | 'data_digest' | 'narrative_science' | 'innovation_curator'
 
 // ── TipTap Block Types ──
 

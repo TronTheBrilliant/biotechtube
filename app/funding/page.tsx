@@ -1,28 +1,33 @@
 import { Metadata } from "next";
 import { Suspense } from "react";
+import { createClient } from "@supabase/supabase-js";
 import { getAllFundingData } from "@/lib/funding-queries";
-import FundingPageClient from "./FundingPageClient";
+import { getAllIntelligenceData } from "@/lib/funding-intelligence-queries";
+import { FundingIntelligenceClient } from "./FundingIntelligenceClient";
 
-export const revalidate = 3600; // 1 hour (was 5 min)
+export const revalidate = 1800; // 30 min
 
-const ogImageUrl = "https://biotechtube.io/api/og?title=Biotech%20Funding%20Tracker&subtitle=%24473B%2B%20tracked%20%C2%B7%2017%2C000%2B%20rounds&type=funding";
+const ogImageUrl =
+  "https://biotechtube.io/api/og?title=Biotech%20Funding%20Intelligence&subtitle=Deals%20%C2%B7%20Charts%20%C2%B7%20Investors&type=funding";
 
 export const metadata: Metadata = {
-  title: "Biotech Funding Rounds & Investment Data | BiotechTube",
+  title: "Biotech Funding Intelligence | BiotechTube",
   description:
-    "Track biotech funding rounds, venture capital deals, and investment trends. Explore annual and quarterly data, top investors, and the latest biotech financing activity.",
+    "Track biotech funding rounds, investment trends, AI-generated deal analysis, and top investor activity across the global biotech industry.",
   openGraph: {
-    title: "Biotech Funding Rounds & Investment Data | BiotechTube",
+    title: "Biotech Funding Intelligence | BiotechTube",
     description:
-      "Track biotech funding rounds, VC deals, and investment trends across the global biotech industry.",
+      "Real-time biotech funding intelligence — deals, charts, investors, and AI analysis.",
     type: "website",
     siteName: "BiotechTube",
-    images: [{ url: ogImageUrl, width: 1200, height: 630, alt: "Biotech Funding Tracker on BiotechTube" }],
+    images: [
+      { url: ogImageUrl, width: 1200, height: 630, alt: "Biotech Funding Intelligence on BiotechTube" },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     site: "@biotechtube",
-    title: "Biotech Funding & Investment Data | BiotechTube",
+    title: "Biotech Funding Intelligence | BiotechTube",
     description:
       "Track biotech funding rounds, VC deals, and investment trends across the global biotech industry.",
     images: [ogImageUrl],
@@ -32,9 +37,27 @@ export const metadata: Metadata = {
   },
 };
 
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
+
 export default async function FundingPage() {
-  const { annualData, quarterlyData, monthlyData, rounds, stats, topInvestors, investorStats } =
-    await getAllFundingData();
+  const supabase = getSupabase();
+
+  const [fundingData, articlesResult, intelligenceData] = await Promise.all([
+    getAllFundingData(),
+    supabase
+      .from("funding_articles")
+      .select(
+        "id, slug, headline, subtitle, body, company_name, company_slug, round_type, amount_usd, lead_investor, round_date, sector, country, deal_size_category, article_type, is_featured, published_at"
+      )
+      .order("round_date", { ascending: false, nullsFirst: false })
+      .limit(100),
+    getAllIntelligenceData(),
+  ]);
 
   const fundingJsonLd = {
     "@context": "https://schema.org",
@@ -66,14 +89,21 @@ export default async function FundingPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(fundingJsonLd) }}
       />
       <Suspense>
-        <FundingPageClient
-          annualData={annualData}
-          quarterlyData={quarterlyData}
-          monthlyData={monthlyData}
-          rounds={rounds}
-          stats={stats}
-          topInvestors={topInvestors}
-          investorStats={investorStats}
+        <FundingIntelligenceClient
+          annualData={fundingData.annualData}
+          quarterlyData={fundingData.quarterlyData}
+          monthlyData={fundingData.monthlyData}
+          rounds={fundingData.rounds}
+          fundingStats={fundingData.stats}
+          topInvestors={fundingData.topInvestors}
+          investorStats={fundingData.investorStats}
+          articles={articlesResult.data || []}
+          pulse={intelligenceData.pulse}
+          byRoundType={intelligenceData.byRoundType}
+          bySector={intelligenceData.bySector}
+          byCountry={intelligenceData.byCountry}
+          dealVelocity={intelligenceData.dealVelocity}
+          coInvestors={intelligenceData.coInvestors}
         />
       </Suspense>
     </>

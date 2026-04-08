@@ -31,6 +31,7 @@ export interface FundingMonthlyRow {
 
 export interface FundingRoundRow {
   company_name: string;
+  company_slug: string | null;
   round_type: string | null;
   amount_usd: number;
   lead_investor: string | null;
@@ -131,21 +132,42 @@ export async function getFundingRounds(): Promise<FundingRoundRow[]> {
   const supabase = getSupabase();
   // Fetch last 2000 rounds (was fetching ALL 17K+ via pagination loop — caused Vercel overage)
   // Page only displays 100 at a time, 2000 is plenty for filters
-  const allRows: FundingRoundRow[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const allRows: any[] = [];
   for (let page = 0; page < 2; page++) {
     const { data: rows } = await supabase
       .from("funding_rounds")
       .select("company_name, round_type, amount_usd, lead_investor, announced_date, country, sector, confidence, source_name")
       .gt("amount_usd", 0)
+      .neq("confidence", "filing_only")
       .order("announced_date", { ascending: false })
       .range(page * 1000, (page + 1) * 1000 - 1);
 
     if (!rows || rows.length === 0) break;
-    allRows.push(...(rows as FundingRoundRow[]));
+    allRows.push(...rows);
     if (rows.length < 1000) break;
   }
 
-  return allRows;
+  // Build company slug lookup
+  const uniqueNames = [...new Set(allRows.map((r) => r.company_name as string))];
+  // Query in batches of 500 to avoid URL length limits
+  const slugMap = new Map<string, string>();
+  for (let i = 0; i < uniqueNames.length; i += 500) {
+    const batch = uniqueNames.slice(i, i + 500);
+    const { data: companySlugs } = await supabase
+      .from("companies")
+      .select("name, slug")
+      .in("name", batch);
+    for (const c of companySlugs || []) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      slugMap.set((c as any).name, (c as any).slug);
+    }
+  }
+
+  return allRows.map((r) => ({
+    ...r,
+    company_slug: slugMap.get(r.company_name) || null,
+  })) as FundingRoundRow[];
 }
 
 // ── Top investors query ──

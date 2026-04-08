@@ -36,7 +36,7 @@ const MENUS: MenuCategory[] = [
     label: "Data",
     items: [
       { href: "/top-companies", emoji: "🏢", title: "Companies", subtitle: "14,000+ tracked", iconBg: "#f0fdf4" },
-      { href: "/funding", emoji: "💰", title: "Funding", subtitle: "Rounds & deals", iconBg: "#fef3c7" },
+      { href: "/funding", emoji: "💰", title: "Funding", subtitle: "Intelligence hub", iconBg: "#fef3c7" },
       { href: "/markets", emoji: "📊", title: "Markets", subtitle: "Stock data", iconBg: "#fce7f3" },
       { href: "/sectors", emoji: "🏷️", title: "Sectors", subtitle: "20 biotech sectors", iconBg: "#f5f3ff" },
       { href: "/pipelines", emoji: "🧬", title: "Pipeline", subtitle: "Drug programs", iconBg: "#ecfdf5" },
@@ -64,7 +64,7 @@ const MENUS: MenuCategory[] = [
     label: "News",
     items: [
       { href: "/news", emoji: "📰", title: "Latest News" },
-      { href: "/news/funding", emoji: "💰", title: "Funding News", subtitle: "Deal flow & analysis" },
+      { href: "/funding?tab=news", emoji: "💰", title: "Funding News", subtitle: "Deal flow & analysis" },
       { href: "/blog", emoji: "📝", title: "Blog", subtitle: "Analysis & guides" },
     ],
   },

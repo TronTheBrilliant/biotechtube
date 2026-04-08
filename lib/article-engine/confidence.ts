@@ -64,6 +64,8 @@ export function scoreConfidence(
     company_deep_dive: 12,  // Depends on data quality
     weekly_roundup: 15,     // Aggregation of known events
     breaking_news: 8,       // Single-source, fast turnaround
+    science_essay: 12,      // PubMed-backed, but interpretive
+    innovation_spotlight: 13, // Multi-source curation
   }
   const typeBaseline = TYPE_BASELINES[articleType] || 10
 
