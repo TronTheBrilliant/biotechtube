@@ -159,6 +159,18 @@ export default async function ArticlePage({
 
   const related = await getRelatedArticles(article);
 
+  // Fetch company data if article has a company_id
+  let company: { name: string; logo_url: string | null; slug: string; ticker: string | null; valuation: number | null } | null = null;
+  if (article.company_id) {
+    const supabase = createServerClient();
+    const { data: co } = await supabase
+      .from('companies')
+      .select('name, logo_url, slug, ticker, valuation')
+      .eq('id', article.company_id)
+      .single();
+    company = co;
+  }
+
   const { label: typeLabel, color: typeColor } = getTypeConfig(article.type);
 
   const publishedDate = article.published_at
@@ -268,6 +280,59 @@ export default async function ArticlePage({
               </span>
             )}
           </div>
+
+          {/* Company banner */}
+          {company && (
+            <Link
+              href={`/company/${company.slug}`}
+              className="flex items-center gap-3 mb-5 p-3 rounded-lg transition-colors hover:opacity-80"
+              style={{
+                background: "var(--color-bg-secondary)",
+                border: "0.5px solid var(--color-border-subtle)",
+              }}
+            >
+              {company.logo_url ? (
+                <img
+                  src={company.logo_url}
+                  alt={company.name}
+                  className="rounded"
+                  style={{ width: 32, height: 32, objectFit: "contain" }}
+                />
+              ) : (
+                <div
+                  className="rounded flex items-center justify-center"
+                  style={{
+                    width: 32,
+                    height: 32,
+                    background: typeColor,
+                    color: "white",
+                    fontSize: 14,
+                    fontWeight: 700,
+                  }}
+                >
+                  {company.name.charAt(0)}
+                </div>
+              )}
+              <div>
+                <span
+                  style={{
+                    fontSize: 15,
+                    fontWeight: 600,
+                    color: "var(--color-text-primary)",
+                  }}
+                >
+                  {company.name}
+                </span>
+                <div className="flex items-center gap-2" style={{ fontSize: 12, color: "var(--color-text-tertiary)" }}>
+                  {company.ticker && <span>{company.ticker}</span>}
+                  {company.ticker && company.valuation && <span>·</span>}
+                  {company.valuation && (
+                    <span>{formatMarketCap(company.valuation)}</span>
+                  )}
+                </div>
+              </div>
+            </Link>
+          )}
 
           {/* Headline */}
           <h1
