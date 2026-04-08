@@ -9,6 +9,7 @@ const TABS = [
   { label: "Articles", path: "/admin/articles" },
   { label: "Data", path: "/admin/data" },
   { label: "Content", path: "/admin/content" },
+  { label: "Quality", path: "/admin/quality" },
   { label: "Analytics", path: "/admin/analytics" },
 ];
 

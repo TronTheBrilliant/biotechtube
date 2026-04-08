@@ -1,6 +1,9 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
 import {
   Users, TrendingUp, Beaker, FileText,
-  Globe, Monitor,
+  Globe, Monitor, Check, Loader2, AlertCircle, AlertTriangle,
 } from "lucide-react";
 
 // ─── Constants ───
@@ -59,9 +62,10 @@ export interface AgentFix {
 // ─── Utilities ───
 
 export function scoreColor(score: number): string {
-  if (score >= 80) return "var(--color-text-primary)";
-  if (score >= 50) return "#b58a1b";
-  return "#c45a5a";
+  if (score >= 80) return "var(--color-accent)";
+  if (score >= 60) return "#ca8a04";
+  if (score >= 40) return "#ea580c";
+  return "#dc2626";
 }
 
 export function timeAgo(dateStr: string | null): string {
@@ -82,4 +86,192 @@ export function cronToHuman(cron: string): string {
   if (hour.startsWith("*/")) return `Every ${hour.replace("*/", "")}h`;
   if (hour === "0") return "Daily";
   return cron;
+}
+
+export function formatDate(dateStr: string | null): string {
+  if (!dateStr) return "—";
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+// ─── ConfirmDialog ───
+
+interface ConfirmDialogProps {
+  open: boolean;
+  title: string;
+  message: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  variant?: "default" | "danger";
+  onConfirm: () => void;
+  onCancel: () => void;
+}
+
+export function ConfirmDialog({
+  open,
+  title,
+  message,
+  confirmLabel = "Confirm",
+  cancelLabel = "Cancel",
+  variant = "default",
+  onConfirm,
+  onCancel,
+}: ConfirmDialogProps) {
+  const confirmRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    // Focus confirm button when dialog opens
+    setTimeout(() => confirmRef.current?.focus(), 0);
+
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onCancel();
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [open, onCancel]);
+
+  if (!open) return null;
+
+  const isDanger = variant === "danger";
+
+  return (
+    <div
+      onClick={onCancel}
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.4)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 2000,
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: "var(--color-bg-primary)",
+          border: "1px solid var(--color-border-subtle)",
+          borderRadius: 12,
+          padding: 24,
+          maxWidth: 400,
+          width: "90vw",
+          boxShadow: "0 8px 30px rgba(0,0,0,0.12)",
+        }}
+      >
+        <h3 style={{
+          fontSize: 16,
+          fontWeight: 600,
+          margin: "0 0 8px",
+          color: "var(--color-text-primary)",
+        }}>
+          {title}
+        </h3>
+        <p style={{
+          fontSize: 14,
+          color: "var(--color-text-secondary)",
+          margin: "0 0 20px",
+          lineHeight: 1.5,
+        }}>
+          {message}
+        </p>
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+          <button
+            onClick={onCancel}
+            style={{
+              padding: "8px 16px",
+              background: "transparent",
+              border: "1px solid var(--color-border-subtle)",
+              borderRadius: 6,
+              color: "var(--color-text-secondary)",
+              fontSize: 14,
+              cursor: "pointer",
+            }}
+          >
+            {cancelLabel}
+          </button>
+          <button
+            ref={confirmRef}
+            onClick={onConfirm}
+            style={{
+              padding: "8px 16px",
+              background: isDanger ? "#dc2626" : "var(--color-text-primary)",
+              border: "none",
+              borderRadius: 6,
+              color: isDanger ? "#fff" : "var(--color-bg-primary)",
+              fontSize: 14,
+              fontWeight: 500,
+              cursor: "pointer",
+            }}
+          >
+            {confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── SaveIndicator ───
+
+interface SaveIndicatorProps {
+  status: "saved" | "saving" | "unsaved" | "error";
+}
+
+export function SaveIndicator({ status }: SaveIndicatorProps) {
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    if (status === "saved") {
+      setVisible(true);
+      const t = setTimeout(() => setVisible(false), 3000);
+      return () => clearTimeout(t);
+    }
+    setVisible(true);
+  }, [status]);
+
+  if (!visible) return null;
+
+  const config: Record<string, { color: string; label: string; icon: React.ReactNode }> = {
+    saved: {
+      color: "var(--color-accent)",
+      label: "Saved",
+      icon: <Check size={12} />,
+    },
+    saving: {
+      color: "var(--color-text-tertiary)",
+      label: "Saving...",
+      icon: <Loader2 size={12} className="animate-spin" />,
+    },
+    unsaved: {
+      color: "#ca8a04",
+      label: "Unsaved changes",
+      icon: <AlertTriangle size={12} />,
+    },
+    error: {
+      color: "#dc2626",
+      label: "Save failed",
+      icon: <AlertCircle size={12} />,
+    },
+  };
+
+  const { color, label, icon } = config[status];
+
+  return (
+    <span style={{
+      display: "inline-flex",
+      alignItems: "center",
+      gap: 6,
+      fontSize: 12,
+      color,
+    }}>
+      {icon}
+      {label}
+    </span>
+  );
 }
