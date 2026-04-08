@@ -128,9 +128,11 @@ export function FundingNewsClient({ articles, stats }: Props) {
                 </div>
               )}
 
-              {/* Filter tabs */}
+              {/* Section title + filter tabs */}
+              <h2 className="mb-3" style={{ fontSize: 14, fontWeight: 500, color: "var(--color-text-primary)", letterSpacing: "-0.01em" }}>
+                Latest Rounds
+              </h2>
               <div className="flex items-center gap-2 mb-6 overflow-x-auto no-scrollbar pb-1">
-                <Filter size={14} style={{ color: "var(--color-text-tertiary)", flexShrink: 0 }} />
                 {ROUND_FILTERS.map((filter) => {
                   const count = filter === "All" ? articles.length : articles.filter(a => a.round_type === filter).length;
                   return (
