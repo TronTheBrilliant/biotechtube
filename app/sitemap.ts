@@ -213,6 +213,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
+  // Engine article pages (from new articles table)
+  const { data: engineArticles } = await supabase
+    .from('articles')
+    .select('slug, published_at')
+    .eq('status', 'published')
+    .order('published_at', { ascending: false });
+
+  const engineArticlePages: MetadataRoute.Sitemap = (engineArticles || []).map((a: { slug: string; published_at: string }) => ({
+    url: `${BASE_URL}/news/${a.slug}`,
+    lastModified: new Date(a.published_at),
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+
   return [
     ...staticPages,
     ...companyPages,
@@ -224,6 +238,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...investorPages,
     ...blogPages,
     ...fundingArticlePages,
+    ...engineArticlePages,
     ...productPages,
   ];
 }
