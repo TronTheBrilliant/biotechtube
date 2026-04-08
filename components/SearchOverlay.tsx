@@ -251,7 +251,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                   className="flex items-center justify-center gap-1.5 w-full py-2 rounded text-12 font-medium transition-colors duration-150"
                   style={{ color: "var(--color-accent)", background: "var(--color-bg-secondary)" }}
                 >
-                  Browse all 10,000+ companies
+                  Browse all 13,000+ companies
                   <ArrowRight size={12} />
                 </Link>
               </div>
@@ -287,7 +287,7 @@ function CompanyRow({
     return (
       <>
         {text.slice(0, idx)}
-        <span style={{ background: "#fef3e2", borderRadius: 2, padding: "0 1px" }}>
+        <span style={{ background: "var(--color-accent)", color: "white", borderRadius: 2, padding: "0 2px", opacity: 0.9 }}>
           {text.slice(idx, idx + highlight.length)}
         </span>
         {text.slice(idx + highlight.length)}
