@@ -32,6 +32,8 @@ const TYPE_CONFIG: Record<string, { label: string; color: string; filterKey: str
   company_deep_dive: { label: "Spotlight", color: "#ea580c", filterKey: "company_deep_dive" },
   weekly_roundup: { label: "Roundup", color: "#ca8a04", filterKey: "weekly_roundup" },
   breaking_news: { label: "Breaking", color: "#dc2626", filterKey: "breaking_news" },
+  science_essay: { label: "Deep Science", color: "#0891b2", filterKey: "science_essay" },
+  innovation_spotlight: { label: "Innovation", color: "#d946ef", filterKey: "innovation_spotlight" },
 };
 
 const FILTER_TABS = [
@@ -42,6 +44,8 @@ const FILTER_TABS = [
   { key: "company_deep_dive", label: "Companies" },
   { key: "weekly_roundup", label: "Roundups" },
   { key: "breaking_news", label: "Breaking" },
+  { key: "science_essay", label: "Deep Science" },
+  { key: "innovation_spotlight", label: "Innovation" },
 ];
 
 // ── Helpers ──

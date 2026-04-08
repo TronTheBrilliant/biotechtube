@@ -32,6 +32,8 @@ const TYPE_CONFIG: Record<
   company_deep_dive: { label: "Company Spotlight", color: "#ea580c" },
   weekly_roundup: { label: "Weekly Roundup", color: "#ca8a04" },
   breaking_news: { label: "Breaking News", color: "#dc2626" },
+  science_essay: { label: "Deep Science", color: "#0891b2" },
+  innovation_spotlight: { label: "Innovation", color: "#d946ef" },
 };
 
 function getTypeConfig(type: string) {

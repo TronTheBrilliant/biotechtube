@@ -25,6 +25,8 @@ const TYPE_CONFIG: Record<string, { label: string; color: string; bg: string }> 
   company_deep_dive: { label: 'Spotlight', color: 'text-orange-400', bg: 'bg-orange-500/10' },
   weekly_roundup: { label: 'Roundup', color: 'text-yellow-400', bg: 'bg-yellow-500/10' },
   breaking_news: { label: 'Breaking', color: 'text-red-400', bg: 'bg-red-500/10' },
+  science_essay: { label: 'Deep Science', color: 'text-cyan-400', bg: 'bg-cyan-500/10' },
+  innovation_spotlight: { label: 'Innovation', color: 'text-fuchsia-400', bg: 'bg-fuchsia-500/10' },
 }
 
 function timeAgo(dateStr: string): string {
