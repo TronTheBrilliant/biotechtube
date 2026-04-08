@@ -4,25 +4,74 @@ import { Footer } from "@/components/Footer";
 import { createServerClient } from "@/lib/supabase";
 import { NewsClient } from "./NewsClient";
 
+export const revalidate = 1800;
+
 export const metadata: Metadata = {
-  title: "News — BiotechTube",
+  title: "Biotech News & Intelligence | BiotechTube",
   description:
-    "AI-curated biotech news: FDA decisions, funding rounds, acquisitions, and pipeline updates.",
+    "AI-powered analysis of the biotech market. Funding deals, clinical trials, market analysis, company spotlights, and breaking news.",
+  openGraph: {
+    title: "Biotech News & Intelligence | BiotechTube",
+    description:
+      "AI-powered analysis of the biotech market. Funding deals, clinical trials, market analysis, and more.",
+    type: "website",
+    siteName: "BiotechTube",
+  },
+  alternates: {
+    canonical: "https://biotechtube.io/news",
+    types: {
+      "application/rss+xml": "/api/feed/rss",
+    },
+  },
 };
 
-export default async function NewsPage() {
+interface ArticleRow {
+  slug: string;
+  headline: string;
+  subtitle: string | null;
+  summary: string | null;
+  type: string;
+  hero_image_url: string | null;
+  hero_placeholder_style: any;
+  published_at: string | null;
+  reading_time_min: number | null;
+}
+
+export default async function NewsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ type?: string }>;
+}) {
+  const { type: filterType } = await searchParams;
   const supabase = createServerClient();
 
-  const { data: items, error } = await supabase
-    .from("news_items")
+  // Fetch initial articles
+  let query = (supabase.from as any)("articles")
     .select(
-      "id, title, source_name, source_url, published_date, summary, companies_mentioned, category, scraped_at"
+      "slug, headline, subtitle, summary, type, hero_image_url, hero_placeholder_style, published_at, reading_time_min"
     )
-    .order("scraped_at", { ascending: false })
-    .limit(100);
+    .eq("status", "published")
+    .order("published_at", { ascending: false })
+    .limit(11);
 
-  if (error) {
-    console.error("Failed to fetch news_items:", error.message);
+  if (filterType && filterType !== "all") {
+    query = query.eq("type", filterType);
+  }
+
+  const { data: articles } = await query;
+
+  // Get counts per type for filter badges
+  const { data: allArticles } = await (supabase.from as any)("articles")
+    .select("type")
+    .eq("status", "published");
+
+  const typeCounts: Record<string, number> = {};
+  let totalCount = 0;
+  if (allArticles) {
+    for (const a of allArticles) {
+      typeCounts[a.type] = (typeCounts[a.type] || 0) + 1;
+      totalCount++;
+    }
   }
 
   return (
@@ -31,52 +80,14 @@ export default async function NewsPage() {
       style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}
     >
       <Nav />
-
-      <main className="max-w-3xl mx-auto px-4 py-10">
-        {/* Page header */}
-        <div style={{ marginBottom: 32 }}>
-          <span
-            style={{
-              fontSize: 11,
-              fontWeight: 500,
-              textTransform: "uppercase",
-              letterSpacing: "0.08em",
-              color: "var(--color-accent)",
-              display: "block",
-              marginBottom: 8,
-            }}
-          >
-            News
-          </span>
-          <h1
-            style={{
-              fontSize: 28,
-              fontWeight: 500,
-              letterSpacing: "-0.5px",
-              color: "var(--color-text-primary)",
-              margin: 0,
-              lineHeight: 1.2,
-            }}
-          >
-            Biotech intelligence feed
-          </h1>
-          <p
-            style={{
-              fontSize: 14,
-              color: "var(--color-text-secondary)",
-              marginTop: 8,
-              lineHeight: 1.5,
-            }}
-          >
-            {items?.length ?? 0} stories — FDA decisions, funding rounds, acquisitions, and
-            pipeline updates.
-          </p>
-        </div>
-
-        {/* News feed with filter tabs */}
-        <NewsClient items={items ?? []} />
+      <main className="max-w-5xl mx-auto px-4 py-10">
+        <NewsClient
+          initialArticles={(articles as ArticleRow[]) ?? []}
+          typeCounts={typeCounts}
+          totalCount={totalCount}
+          initialType={filterType || "all"}
+        />
       </main>
-
       <Footer />
     </div>
   );
