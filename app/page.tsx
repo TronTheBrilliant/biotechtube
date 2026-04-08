@@ -814,6 +814,14 @@ export default async function HomePage() {
                 <span style={{ fontSize: 11, fontWeight: 500, color: "var(--color-text-tertiary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Latest Rounds</span>
               </div>
               <FundingRadar rounds={recentFunding} />
+              {/* CTA */}
+              <a
+                href="/news/funding"
+                className="flex items-center justify-center gap-1.5 mx-4 my-3 py-2 rounded-lg text-12 font-medium transition-all hover:opacity-80"
+                style={{ color: "var(--color-text-secondary)", border: "0.5px solid var(--color-border-subtle)" }}
+              >
+                View all funding activity →
+              </a>
             </div>
           </div>
         </HomeSection>
