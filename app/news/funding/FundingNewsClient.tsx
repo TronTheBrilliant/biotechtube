@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
@@ -64,13 +64,22 @@ const ROUND_COLORS: Record<string, string> = {
   Venture: "#6366f1",
 };
 
+const PAGE_SIZE = 10;
+
 export function FundingNewsClient({ articles, stats }: Props) {
   const [roundFilter, setRoundFilter] = useState("All");
+  const [page, setPage] = useState(1);
 
   const filtered = useMemo(() => {
     if (roundFilter === "All") return articles;
     return articles.filter((a) => a.round_type === roundFilter);
   }, [articles, roundFilter]);
+
+  // Reset page when filter changes
+  useEffect(() => { setPage(1); }, [roundFilter]);
+
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   // Pick top 3 featured: prioritize largest deals, diversify by round type
   const featured = useMemo(() => {
@@ -157,12 +166,12 @@ export function FundingNewsClient({ articles, stats }: Props) {
 
               {/* Article feed */}
               <div className="flex flex-col gap-4">
-                {filtered.length === 0 && (
+                {paginated.length === 0 && (
                   <div className="text-center py-12" style={{ color: "var(--color-text-tertiary)", fontSize: 14 }}>
                     No articles for this filter yet.
                   </div>
                 )}
-                {filtered.map((article, idx) => {
+                {paginated.map((article, idx) => {
                   const roundColor = ROUND_COLORS[article.round_type || ""] || "var(--color-accent)";
                   const date = article.round_date ? new Date(article.round_date) : null;
 
@@ -213,6 +222,43 @@ export function FundingNewsClient({ articles, stats }: Props) {
                   );
                 })}
               </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 mt-6">
+                  <button
+                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                    className="px-3 py-1.5 rounded-lg text-12 font-medium transition-all"
+                    style={{
+                      color: page === 1 ? "var(--color-text-tertiary)" : "var(--color-text-secondary)",
+                      background: "var(--color-bg-primary)",
+                      border: "0.5px solid var(--color-border-subtle)",
+                      opacity: page === 1 ? 0.5 : 1,
+                      cursor: page === 1 ? "default" : "pointer",
+                    }}
+                  >
+                    Previous
+                  </button>
+                  <span style={{ fontSize: 12, color: "var(--color-text-tertiary)" }}>
+                    {page} / {totalPages}
+                  </span>
+                  <button
+                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                    disabled={page === totalPages}
+                    className="px-3 py-1.5 rounded-lg text-12 font-medium transition-all"
+                    style={{
+                      color: page === totalPages ? "var(--color-text-tertiary)" : "var(--color-text-secondary)",
+                      background: "var(--color-bg-primary)",
+                      border: "0.5px solid var(--color-border-subtle)",
+                      opacity: page === totalPages ? 0.5 : 1,
+                      cursor: page === totalPages ? "default" : "pointer",
+                    }}
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Sidebar */}
