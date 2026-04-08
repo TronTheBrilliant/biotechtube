@@ -11,23 +11,30 @@ import {
   AGENT_META,
   AgentStatus,
   AgentRun,
+  ConfirmDialog,
   scoreColor,
   timeAgo,
   cronToHuman,
 } from "@/lib/admin-utils";
 import { AdminNav } from "@/components/admin/AdminNav";
 
+const ACTIVITY_PAGE_SIZE = 20;
+
 export default function CommandCenterClient() {
   const { user, loading: authLoading } = useAuth();
   const [agents, setAgents] = useState<AgentStatus[]>([]);
   const [overallHealth, setOverallHealth] = useState(0);
   const [activity, setActivity] = useState<AgentRun[]>([]);
+  const [activityPage, setActivityPage] = useState(1);
+  const [hasMoreActivity, setHasMoreActivity] = useState(false);
+  const [loadingMoreActivity, setLoadingMoreActivity] = useState(false);
   const [loading, setLoading] = useState(true);
   const [runningAgents, setRunningAgents] = useState<Set<string>>(new Set());
   const [historyAgent, setHistoryAgent] = useState<string | null>(null);
   const [historyRuns, setHistoryRuns] = useState<AgentRun[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [confirmRunAll, setConfirmRunAll] = useState(false);
   const pollRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchStatus = useCallback(async () => {
@@ -36,12 +43,15 @@ export default function CommandCenterClient() {
       const data = await res.json();
       setAgents(data.agents || []);
       setOverallHealth(data.overall_health || 0);
-      setActivity(data.activity || []);
+      const allActivity: AgentRun[] = data.activity || [];
+      // Only show first page worth on initial/poll fetch
+      setActivity(allActivity.slice(0, activityPage * ACTIVITY_PAGE_SIZE));
+      setHasMoreActivity(allActivity.length > activityPage * ACTIVITY_PAGE_SIZE);
     } catch {
       // Silent fail on poll
     }
     setLoading(false);
-  }, []);
+  }, [activityPage]);
 
   useEffect(() => {
     if (authLoading) return;
@@ -112,6 +122,16 @@ export default function CommandCenterClient() {
     }
   };
 
+  const loadMoreActivity = () => {
+    setLoadingMoreActivity(true);
+    setActivityPage((prev) => prev + 1);
+    // The fetchStatus will pick up the new page size on next poll;
+    // trigger an immediate fetch
+    setTimeout(() => {
+      fetchStatus().then(() => setLoadingMoreActivity(false));
+    }, 0);
+  };
+
   const openHistory = async (agentId: string) => {
     setHistoryAgent(agentId);
     setHistoryLoading(true);
@@ -149,6 +169,8 @@ export default function CommandCenterClient() {
     );
   }
 
+  const enabledAgentCount = agents.filter((a) => a.enabled).length;
+
   return (
     <>
       <Nav />
@@ -161,7 +183,7 @@ export default function CommandCenterClient() {
               Command Center
             </h1>
             <p style={{ fontSize: 12, color: "var(--color-text-tertiary)", margin: "4px 0 0" }}>
-              6 agents &middot; {agents.filter(a => a.latest_run).length} have run
+              {agents.length} agents &middot; {agents.filter(a => a.latest_run).length} have run
             </p>
           </div>
           <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
@@ -173,7 +195,7 @@ export default function CommandCenterClient() {
               System Health {overallHealth}%
             </span>
             <button
-              onClick={runAllAgents}
+              onClick={() => setConfirmRunAll(true)}
               disabled={runningAgents.size > 0}
               style={{
                 padding: "8px 16px",
@@ -354,8 +376,46 @@ export default function CommandCenterClient() {
               </div>
             )}
           </div>
+          {/* Load more button */}
+          {hasMoreActivity && (
+            <div style={{ textAlign: "center", marginTop: 12 }}>
+              <button
+                onClick={loadMoreActivity}
+                disabled={loadingMoreActivity}
+                style={{
+                  padding: "8px 20px",
+                  background: "transparent",
+                  border: "1px solid var(--color-border-subtle)",
+                  borderRadius: 6,
+                  color: "var(--color-text-secondary)",
+                  fontSize: 12,
+                  cursor: loadingMoreActivity ? "not-allowed" : "pointer",
+                  opacity: loadingMoreActivity ? 0.6 : 1,
+                }}
+              >
+                {loadingMoreActivity ? (
+                  <><Loader2 size={12} className="animate-spin" style={{ display: "inline", marginRight: 4, verticalAlign: -2 }} /> Loading...</>
+                ) : (
+                  "Load more"
+                )}
+              </button>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Confirm Run All dialog */}
+      <ConfirmDialog
+        open={confirmRunAll}
+        title="Run All Agents"
+        message={`This will trigger all ${enabledAgentCount} enabled agents. Continue?`}
+        confirmLabel="Run All"
+        onConfirm={() => {
+          setConfirmRunAll(false);
+          runAllAgents();
+        }}
+        onCancel={() => setConfirmRunAll(false)}
+      />
 
       {/* History Slide-out */}
       {historyAgent && (
