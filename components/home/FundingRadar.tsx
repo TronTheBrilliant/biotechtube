@@ -11,19 +11,6 @@ interface FundingRadarProps {
   rounds: FundingRound[];
 }
 
-const ROUND_COLORS: Record<string, string> = {
-  Seed: "#ecfdf5",
-  "Pre-Seed": "#ecfdf5",
-  "Series A": "#dbeafe",
-  "Series B": "#ede9fe",
-  "Series C": "#fef3c7",
-  "Series D": "#fce7f3",
-  "Series E": "#fce7f3",
-  IPO: "#dcfce7",
-  Grant: "#f0fdf4",
-  Venture: "#f3f4f6",
-};
-
 function formatRelativeDate(dateStr: string): string {
   const date = new Date(dateStr + "T00:00:00");
   const now = new Date();
@@ -37,15 +24,9 @@ function formatRelativeDate(dateStr: string): string {
 }
 
 function formatAmount(amount: number): string {
-  if (amount >= 1_000_000_000) {
-    return `$${(amount / 1_000_000_000).toFixed(1)}B`;
-  }
-  if (amount >= 1_000_000) {
-    return `$${(amount / 1_000_000).toFixed(1)}M`;
-  }
-  if (amount >= 1_000) {
-    return `$${(amount / 1_000).toFixed(0)}K`;
-  }
+  if (amount >= 1_000_000_000) return `$${(amount / 1_000_000_000).toFixed(1)}B`;
+  if (amount >= 1_000_000) return `$${(amount / 1_000_000).toFixed(0)}M`;
+  if (amount >= 1_000) return `$${(amount / 1_000).toFixed(0)}K`;
   return `$${amount}`;
 }
 
@@ -55,60 +36,56 @@ export function FundingRadar({ rounds }: FundingRadarProps) {
       {rounds.map((round, i) => (
         <div
           key={`${round.companyName}-${i}`}
-          className="px-4 py-2.5 flex items-center gap-3"
+          className="px-4 py-3"
           style={
             i < rounds.length - 1
               ? { borderBottom: "0.5px solid var(--color-border-subtle)" }
               : undefined
           }
         >
-          {/* Company name */}
-          <span
-            className="text-13 font-medium truncate min-w-0"
-            style={{ color: "var(--color-text-primary)" }}
-          >
-            {round.companyName}
-          </span>
-
-          {/* Round type badge */}
-          <span
-            className="text-10 px-1.5 py-0.5 rounded-full font-medium flex-shrink-0"
-            style={{
-              background: ROUND_COLORS[round.roundType] ?? "#f3f4f6",
-              color: "#1a1a1a",
-            }}
-          >
-            {round.roundType}
-          </span>
-
-          {/* Spacer */}
-          <div className="flex-1" />
-
-          {/* Lead investor */}
-          {round.leadInvestor && round.leadInvestor !== "Undisclosed" && (
+          {/* Row 1: Company name + amount */}
+          <div className="flex items-center justify-between gap-2">
             <span
-              className="text-11 truncate flex-shrink-0 max-w-[120px]"
-              style={{ color: "var(--color-text-secondary)" }}
+              className="text-13 font-medium truncate"
+              style={{ color: "var(--color-text-primary)" }}
             >
-              {round.leadInvestor}
+              {round.companyName}
             </span>
-          )}
+            <span
+              className="text-14 font-semibold flex-shrink-0"
+              style={{ color: "var(--color-text-primary)" }}
+            >
+              {formatAmount(round.amountUsd)}
+            </span>
+          </div>
 
-          {/* Amount */}
-          <span
-            className="text-13 font-medium flex-shrink-0"
-            style={{ color: "var(--color-text-primary)" }}
-          >
-            {formatAmount(round.amountUsd)}
-          </span>
-
-          {/* Time ago */}
-          <span
-            className="text-11 flex-shrink-0"
-            style={{ color: "var(--color-text-tertiary)", minWidth: 42 }}
-          >
-            {formatRelativeDate(round.announcedDate)}
-          </span>
+          {/* Row 2: Round type + investor + time */}
+          <div className="flex items-center gap-2 mt-1">
+            <span
+              className="text-11"
+              style={{ color: "var(--color-text-tertiary)" }}
+            >
+              {round.roundType}
+            </span>
+            {round.leadInvestor && round.leadInvestor !== "Undisclosed" && (
+              <>
+                <span style={{ color: "var(--color-border-subtle)" }}>·</span>
+                <span
+                  className="text-11 truncate"
+                  style={{ color: "var(--color-text-tertiary)", maxWidth: 150 }}
+                >
+                  {round.leadInvestor}
+                </span>
+              </>
+            )}
+            <span className="flex-1" />
+            <span
+              className="text-11 flex-shrink-0"
+              style={{ color: "var(--color-text-tertiary)" }}
+            >
+              {formatRelativeDate(round.announcedDate)}
+            </span>
+          </div>
         </div>
       ))}
     </div>
