@@ -845,7 +845,6 @@ export default async function HomePage() {
               </div>
             </HomeSection>
           )}
-        </div>
 
         {/* Row 4: Events + Investors */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
