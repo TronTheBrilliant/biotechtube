@@ -170,16 +170,27 @@ async function getTopCountries() {
     .select("country, combined_market_cap, change_1d_pct, public_company_count")
     .eq("snapshot_date", latestDateRow.snapshot_date);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return ((countryRows ?? []) as any[])
+  // Get actual total company counts from the companies table (not just public with price data)
+  const topCountries = ((countryRows ?? []) as { country: string; combined_market_cap: number; change_1d_pct: number; public_company_count: number }[])
     .sort((a, b) => (b.combined_market_cap ?? 0) - (a.combined_market_cap ?? 0))
-    .slice(0, 8)
-    .map((c) => ({
-      country: c.country,
-      combinedMarketCap: c.combined_market_cap,
-      change1d: c.change_1d_pct,
-      publicCompanyCount: c.public_company_count,
-    }));
+    .slice(0, 8);
+
+  const countryNames = topCountries.map(c => c.country);
+  const companyCounts = new Map<string, number>();
+  for (const name of countryNames) {
+    const { count } = await supabase
+      .from("companies")
+      .select("id", { count: "exact", head: true })
+      .eq("country", name);
+    companyCounts.set(name, count || 0);
+  }
+
+  return topCountries.map((c) => ({
+    country: c.country,
+    combinedMarketCap: c.combined_market_cap,
+    change1d: c.change_1d_pct,
+    publicCompanyCount: companyCounts.get(c.country) || c.public_company_count,
+  }));
 }
 
 async function getTopInvestorsData() {
