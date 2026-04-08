@@ -66,6 +66,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <link rel="alternate" type="application/rss+xml" title="BiotechTube" href="/api/feed/rss" />
         <link rel="preconnect" href="https://img.logo.dev" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://niblhjhtkqazfegktnok.supabase.co" />
         <link rel="dns-prefetch" href="https://img.logo.dev" />
