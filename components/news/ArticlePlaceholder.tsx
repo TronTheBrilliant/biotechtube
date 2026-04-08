@@ -164,6 +164,7 @@ export default function ArticlePlaceholder({
   className = '',
 }: ArticlePlaceholderProps) {
   const Pattern = patternMap[style.pattern] ?? PatternBars
+  const glowId = `glow-${crypto.randomUUID().slice(0, 8)}`
 
   return (
     <svg
@@ -177,12 +178,12 @@ export default function ArticlePlaceholder({
 
       {/* Radial gradient glow */}
       <defs>
-        <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+        <radialGradient id={glowId} cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor="#059669" stopOpacity="0.15" />
           <stop offset="100%" stopColor="#059669" stopOpacity="0" />
         </radialGradient>
       </defs>
-      <rect width="800" height="400" fill="url(#glow)" />
+      <rect width="800" height="400" fill={`url(#${glowId})`} />
 
       {/* Pattern */}
       <Pattern />

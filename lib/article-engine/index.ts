@@ -64,7 +64,7 @@ export class ArticleEngine {
     const body = convertToBlocks(aiOutput, companyId)
 
     // 6. Generate image prompt and placeholder
-    const heroImagePrompt = generateImagePrompt(input.type, aiOutput.image_topic || '')
+    const heroImagePrompt = generateImagePrompt(input.type, aiOutput.image_topic || '', context)
     const heroPlaceholderStyle = getPlaceholderStyle(input.type)
 
     // 7. Score confidence

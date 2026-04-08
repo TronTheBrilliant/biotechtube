@@ -595,7 +595,7 @@ async function getLatestFundingArticles() {
 async function getLatestIntelligenceArticles() {
   const supabase = getSupabase();
   const { data } = await (supabase.from as any)("articles")
-    .select("slug, headline, summary, type, hero_placeholder_style, published_at, reading_time_min")
+    .select("slug, headline, summary, type, hero_placeholder_style, hero_image_url, published_at, reading_time_min")
     .eq("status", "published")
     .order("published_at", { ascending: false })
     .limit(5);

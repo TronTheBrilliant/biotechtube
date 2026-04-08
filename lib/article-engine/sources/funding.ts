@@ -25,6 +25,7 @@ export async function gatherFundingContext(fundingRoundId: string): Promise<Arti
   const context: ArticleContext = {
     fundingRound: {
       id: round.id,
+      company_name: round.company_name || undefined,
       amount_usd: round.amount_usd,
       round_type: round.round_type,
       lead_investor: round.lead_investor,

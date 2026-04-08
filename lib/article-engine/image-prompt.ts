@@ -1,24 +1,56 @@
 // Article Engine — Hero Image Prompt Generation
 
-import type { ArticleType, PlaceholderStyle } from './types'
+import type { ArticleType, ArticleContext, PlaceholderStyle } from './types'
 
 const BASE_IMAGE_TEMPLATE = `A premium editorial illustration for a biotech market intelligence article. Navy blue (#0A1628) background with subtle emerald green (#10B981) accents. Bloomberg Businessweek aesthetic — clean, geometric, sophisticated. Abstract and conceptual. NO text, NO words, NO letters, NO numbers rendered in the image. Professional, data-driven feel.`
 
-const TYPE_ELEMENTS: Record<ArticleType, string> = {
-  funding_deal: 'Abstract representation of capital flow — geometric shapes suggesting growth, upward momentum, interconnected nodes representing investor networks. Golden accent highlights.',
-  clinical_trial: 'Molecular structures and abstract DNA helices. Scientific precision meets editorial design. Subtle laboratory glassware silhouettes. Teal and green tones.',
-  market_analysis: 'Abstract chart patterns, candlestick-inspired geometric forms. Data visualization aesthetic with flowing lines and grid patterns. Cool blue and white tones.',
-  company_deep_dive: 'Corporate architecture meets biology — abstract building forms intertwined with organic cell-like shapes. Depth and layers suggesting comprehensive analysis.',
-  weekly_roundup: 'Mosaic of geometric biotech symbols — pills, molecules, charts, buildings — arranged in a balanced editorial grid. Multiple accent colors in harmony.',
-  breaking_news: 'Dynamic composition with sharp angular forms suggesting urgency and impact. Lightning-bolt energy with precise geometric control. Bright accent against dark backdrop.',
+/**
+ * Build type-specific visual elements, enriched with context when available.
+ */
+function getTypeElements(articleType: ArticleType, context?: ArticleContext): string {
+  const sector = context?.fundingRound?.sector || context?.company?.categories?.[0] || null
+  const indication = context?.pipeline?.[0]?.indication || null
+  const companyName = context?.company?.name || context?.fundingRound?.company_name || null
+
+  switch (articleType) {
+    case 'funding_deal': {
+      let base = 'Abstract representation of capital flow — geometric shapes suggesting growth, upward momentum, interconnected nodes representing investor networks. Golden accent highlights.'
+      if (sector) base += ` Subtle visual nods to ${sector} sector.`
+      if (indication) base += ` Molecular motifs evoking ${indication} research.`
+      return base
+    }
+    case 'clinical_trial': {
+      let base = 'Molecular structures and abstract DNA helices. Scientific precision meets editorial design. Subtle laboratory glassware silhouettes. Teal and green tones.'
+      if (indication) base += ` Visual elements suggesting ${indication} therapy area.`
+      if (sector) base += ` ${sector}-themed scientific imagery.`
+      return base
+    }
+    case 'market_analysis': {
+      let base = 'Abstract chart patterns, candlestick-inspired geometric forms. Data visualization aesthetic with flowing lines and grid patterns. Cool blue and white tones.'
+      if (sector) base += ` Subtle ${sector} sector iconography woven into the data patterns.`
+      return base
+    }
+    case 'company_deep_dive': {
+      let base = 'Corporate architecture meets biology — abstract building forms intertwined with organic cell-like shapes. Depth and layers suggesting comprehensive analysis.'
+      if (sector) base += ` Visual references to ${sector} industry.`
+      if (indication) base += ` Hints of ${indication}-related molecular structures.`
+      return base
+    }
+    case 'weekly_roundup':
+      return 'Mosaic of geometric biotech symbols — pills, molecules, charts, buildings — arranged in a balanced editorial grid. Multiple accent colors in harmony.'
+    case 'breaking_news':
+      return 'Dynamic composition with sharp angular forms suggesting urgency and impact. Lightning-bolt energy with precise geometric control. Bright accent against dark backdrop.'
+    default:
+      return 'Abstract chart patterns, candlestick-inspired geometric forms. Data visualization aesthetic with flowing lines and grid patterns. Cool blue and white tones.'
+  }
 }
 
 /**
  * Generate a branded hero image prompt combining the base template
- * with article-type-specific elements and the AI-suggested topic.
+ * with article-type-specific elements (context-aware) and the AI-suggested topic.
  */
-export function generateImagePrompt(articleType: ArticleType, imageTopic: string): string {
-  const typeElement = TYPE_ELEMENTS[articleType] || TYPE_ELEMENTS.market_analysis
+export function generateImagePrompt(articleType: ArticleType, imageTopic: string, context?: ArticleContext): string {
+  const typeElement = getTypeElements(articleType, context)
   return `${BASE_IMAGE_TEMPLATE}\n\nTopic context: ${imageTopic}\n\nVisual direction: ${typeElement}`
 }
 

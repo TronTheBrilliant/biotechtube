@@ -139,6 +139,7 @@ export interface ArticleContext {
   }>
   fundingRound?: {
     id: string
+    company_name?: string
     amount_usd: number
     round_type: string
     lead_investor: string | null

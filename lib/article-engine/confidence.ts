@@ -7,9 +7,24 @@ interface ConfidenceBreakdown {
   dataBackingScore: number  // 0-30
   typeBaseline: number      // 0-20
   outputQuality: number     // 0-10
+  bannedPhrasesPenalty: number // 0 to -10
   total: number             // 0-100
   level: ConfidenceLevel
 }
+
+const BANNED_PHRASES = [
+  'capital infusion',
+  'vote of confidence',
+  'it remains to be seen',
+  'only time will tell',
+  'ever-evolving landscape',
+  'paradigm shift',
+  'game-changer',
+  'groundbreaking',
+  'revolutionary',
+  'cutting-edge',
+  'poised to',
+]
 
 /**
  * Score article confidence 0-100 based on source quality, data backing,
@@ -60,10 +75,26 @@ export function scoreConfidence(
   if (output.sources && output.sources.length > 0) outputQuality += 2
   outputQuality = Math.min(10, outputQuality)
 
-  const total = sourceScore + dataBackingScore + typeBaseline + outputQuality
+  // Banned phrases penalty (0 to -10): penalize generic AI filler language
+  let bannedPhrasesPenalty = 0
+  const allText = output.sections
+    .filter((s): s is { type: 'text'; content: string } => s.type === 'text')
+    .map(s => s.content)
+    .join(' ')
+    .toLowerCase()
+  const fullText = `${output.headline} ${output.subtitle || ''} ${output.summary || ''} ${allText}`.toLowerCase()
+
+  for (const phrase of BANNED_PHRASES) {
+    if (fullText.includes(phrase)) {
+      bannedPhrasesPenalty -= 2
+    }
+  }
+  bannedPhrasesPenalty = Math.max(-10, bannedPhrasesPenalty)
+
+  const total = Math.max(0, sourceScore + dataBackingScore + typeBaseline + outputQuality + bannedPhrasesPenalty)
   const level: ConfidenceLevel = total >= 65 ? 'high' : total >= 40 ? 'medium' : 'low'
 
-  return { sourceScore, dataBackingScore, typeBaseline, outputQuality, total, level }
+  return { sourceScore, dataBackingScore, typeBaseline, outputQuality, bannedPhrasesPenalty, total, level }
 }
 
 /**
