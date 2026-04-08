@@ -149,13 +149,12 @@ export function FundingNewsClient({ articles, stats }: Props) {
                     <button
                       key={filter}
                       onClick={() => setRoundFilter(filter)}
-                      className="px-2.5 py-1 rounded transition-all shrink-0"
+                      className="px-3 py-1.5 rounded-full transition-all shrink-0"
                       style={{
                         fontSize: 12,
                         fontWeight: roundFilter === filter ? 500 : 400,
                         color: roundFilter === filter ? "var(--color-text-primary)" : "var(--color-text-tertiary)",
-                        background: "transparent",
-                        borderBottom: roundFilter === filter ? "1.5px solid var(--color-text-primary)" : "1.5px solid transparent",
+                        background: roundFilter === filter ? "var(--color-bg-secondary)" : "transparent",
                       }}
                     >
                       {filter} <span style={{ opacity: 0.5 }}>{count}</span>
