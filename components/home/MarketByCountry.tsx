@@ -64,13 +64,20 @@ export default function MarketByCountry({
                 : undefined
             }
           >
-            {/* Flag + Country Name */}
-            <span
-              className="font-medium"
-              style={{ fontSize: 13, color: "var(--color-text-primary)" }}
-            >
-              {flag} {c.country}
-            </span>
+            {/* Flag + Country Name + Company Count */}
+            <div className="flex flex-col min-w-0">
+              <span
+                className="font-medium"
+                style={{ fontSize: 13, color: "var(--color-text-primary)" }}
+              >
+                {flag} {c.country}
+              </span>
+              {c.publicCompanyCount != null && (
+                <span style={{ fontSize: 10, color: "var(--color-text-tertiary)" }}>
+                  {c.publicCompanyCount} companies
+                </span>
+              )}
+            </div>
 
             {/* Spacer */}
             <span className="flex-1" />
@@ -81,18 +88,6 @@ export default function MarketByCountry({
               style={{ fontSize: 12, color: pctColor(capPercent(c.change1d, "1d")) }}
             >
               {formatPercent(capPercent(c.change1d, "1d"))}
-            </span>
-
-            {/* Company Count */}
-            <span
-              style={{
-                fontSize: 12,
-                color: "var(--color-text-secondary)",
-                minWidth: 48,
-                textAlign: "right",
-              }}
-            >
-              {c.publicCompanyCount != null ? `${c.publicCompanyCount} cos` : "—"}
             </span>
 
             {/* Market Cap */}
