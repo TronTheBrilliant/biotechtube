@@ -8,7 +8,8 @@ import { useAuth } from "@/lib/auth";
 import {
   Play, History, Loader2, X, Zap, FileText, Clock, Rss, Building2,
   ChevronDown, ChevronRight, Newspaper, RefreshCw, DollarSign, CheckCircle2,
-  XCircle, AlertCircle,
+  XCircle, AlertCircle, BarChart3, TrendingUp as TrendingUpIcon, TrendingDown, Globe, Search,
+  Lightbulb, ArrowRight, Calendar,
 } from "lucide-react";
 import {
   ADMIN_EMAIL,
@@ -34,6 +35,15 @@ interface DashboardStats {
   rssItemsToday: number;
   companiesTotal: number;
   lastCronRun: string | null;
+  // Business metrics
+  articlesThisMonth: number;
+  articlesLastMonth: number;
+  monthOverMonthGrowth: number;
+  typeBreakdownThisMonth: Record<string, number>;
+  sponsoredCount: number;
+  estimatedMonthlyCost: number;
+  costPerArticle: number;
+  totalArticlesAllTime: number;
 }
 
 interface PipelineResult {
@@ -77,6 +87,15 @@ interface RecentArticle {
   created_at: string;
 }
 
+interface ContentSuggestion {
+  type: 'uncovered_funding' | 'trending_topic' | 'stale_content' | 'uncovered_company';
+  title: string;
+  description: string;
+  priority: 'high' | 'medium' | 'low';
+  action?: string;
+  data?: any;
+}
+
 // ── Constants ──
 
 const ACTIVITY_PAGE_SIZE = 20;
@@ -98,6 +117,126 @@ const TYPE_COLORS: Record<string, string> = Object.fromEntries(
 );
 const CONFIDENCE_COLORS = SHARED_CONFIDENCE_COLORS;
 const STATUS_COLORS = SHARED_STATUS_COLORS;
+
+// Content Calendar: which article types run on which days
+// Day indices: 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
+const SCHEDULE_MAP: Record<number, string[]> = {
+  0: ["weekly_roundup"], // Sunday
+  1: ["breaking_news", "funding_deal", "clinical_trial", "market_analysis"],
+  2: ["breaking_news", "funding_deal", "clinical_trial", "market_analysis"],
+  3: ["breaking_news", "funding_deal", "clinical_trial", "market_analysis", "company_deep_dive"],
+  4: ["breaking_news", "funding_deal", "clinical_trial", "market_analysis"],
+  5: ["breaking_news", "funding_deal", "clinical_trial", "market_analysis", "science_essay"],
+  6: [],
+};
+
+// Quality score color helper
+function qualityScoreColor(score: number): string {
+  if (score >= 80) return "#22c55e";
+  if (score >= 60) return "#eab308";
+  if (score >= 40) return "#ea580c";
+  return "#dc2626";
+}
+
+// ASCII bar for terminal
+function qualityBar(score: number, width: number = 10): string {
+  const filled = Math.round((score / 100) * width);
+  const half = (score / 100) * width - filled >= 0.5 ? 1 : 0;
+  return "\u2588".repeat(filled) + (half ? "\u258C" : "") + " ".repeat(Math.max(0, width - filled - half));
+}
+
+interface QualityScoreData {
+  overall: number;
+  readability: number;
+  sourceCoverage: number;
+  wordCount: number;
+  breakdown: {
+    sourceCount: number;
+    bannedPhrasesFound: string[];
+  };
+}
+
+interface CalendarArticle {
+  id: string;
+  type: string;
+  headline: string;
+  created_at: string;
+}
+
+// ── Client-side quality score calculation ──
+
+const BANNED_PHRASES_CLIENT = [
+  "in conclusion", "it is worth noting", "it should be noted", "at the end of the day",
+  "only time will tell", "remains to be seen", "game changer", "game-changer",
+  "paradigm shift", "synergy", "revolutionary", "groundbreaking", "cutting-edge",
+  "unprecedented", "delve", "delving", "tapestry", "moreover", "furthermore",
+];
+
+function extractTextFromBody(body: any): string {
+  if (!body) return "";
+  if (typeof body === "string") return body;
+  let text = "";
+  function walk(node: any) {
+    if (!node) return;
+    if (node.type === "text" && node.text) text += node.text + " ";
+    if (node.content && Array.isArray(node.content)) {
+      for (const child of node.content) walk(child);
+    }
+  }
+  walk(body);
+  return text.trim();
+}
+
+function calculateClientQualityScore(article: { body: any; sources: any[] }): QualityScoreData {
+  const text = extractTextFromBody(article.body);
+  const words = text.split(/\s+/).filter((w: string) => w.length > 0);
+  const wordCount = words.length;
+  const sentences = text.split(/[.!?]+/).map((s: string) => s.trim()).filter((s: string) => s.length > 5);
+  const avgSentenceLength = sentences.length > 0
+    ? sentences.reduce((sum: number, s: string) => sum + s.split(/\s+/).length, 0) / sentences.length
+    : 0;
+
+  // Readability
+  let readability: number;
+  if (avgSentenceLength >= 15 && avgSentenceLength <= 25) readability = 100;
+  else if (avgSentenceLength < 15) readability = Math.max(0, 100 - (15 - avgSentenceLength) * 5);
+  else readability = Math.max(0, 100 - (avgSentenceLength - 25) * 8);
+
+  // Source coverage
+  const sourceCount = article.sources?.length || 0;
+  const sourceCoverage = Math.min(sourceCount * 25, 100);
+
+  // Word count score
+  let wordCountScore: number;
+  if (wordCount >= 300 && wordCount <= 500) wordCountScore = 100;
+  else if (wordCount < 200) wordCountScore = Math.round((wordCount / 200) * 60);
+  else if (wordCount < 300) wordCountScore = Math.round(60 + ((wordCount - 200) / 100) * 40);
+  else if (wordCount <= 800) wordCountScore = 100;
+  else wordCountScore = Math.max(50, Math.round(100 - (wordCount - 800) * 0.1));
+
+  // Forward-looking
+  const forwardPatterns = [/\bexpect\b/gi, /\blikely\b/gi, /\bcould\b/gi, /\bpotential\b/gi, /\bforecast\b/gi, /\boutlook\b/gi];
+  let insightCount = 0;
+  for (const p of forwardPatterns) { const m = text.match(p); if (m) insightCount += m.length; }
+  const insightScore = Math.min(Math.round((insightCount / 3) * 100), 100);
+
+  // Banned phrases
+  const lower = text.toLowerCase();
+  const bannedFound = BANNED_PHRASES_CLIENT.filter((p) => lower.includes(p));
+  const bannedScore = bannedFound.length === 0 ? 100 : 0;
+
+  const overall = Math.round(
+    readability * 0.25 + sourceCoverage * 0.25 + wordCountScore * 0.2 + insightScore * 0.15 + bannedScore * 0.15
+  );
+
+  return {
+    overall,
+    readability: Math.round(readability),
+    sourceCoverage,
+    wordCount,
+    breakdown: { sourceCount, bannedPhrasesFound: bannedFound },
+  };
+}
 
 // ── Component ──
 
@@ -139,8 +278,21 @@ export default function CommandCenterClient() {
   // Recent articles
   const [recentArticles, setRecentArticles] = useState<RecentArticle[]>([]);
 
+  // Quality scores for recent articles (keyed by article id)
+  const [qualityScores, setQualityScores] = useState<Record<string, QualityScoreData>>({});
+
+  // Calendar articles (last 14 days)
+  const [calendarArticles, setCalendarArticles] = useState<CalendarArticle[]>([]);
+
+  // Content suggestions
+  const [suggestions, setSuggestions] = useState<ContentSuggestion[]>([]);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
+
   // Activity section collapsed
   const [activityCollapsed, setActivityCollapsed] = useState(false);
+
+  // EventSource ref for SSE streaming
+  const eventSourceRef = useRef<EventSource | null>(null);
 
   // ── Data Fetching ──
 
@@ -163,12 +315,50 @@ export default function CommandCenterClient() {
 
   const fetchRecentArticles = useCallback(async () => {
     try {
-      const res = await fetch("/api/admin/articles?limit=5");
+      const res = await fetch("/api/admin/articles?limit=5&includeBody=true");
       const data = await res.json();
-      setRecentArticles((data.articles || []).slice(0, 5));
+      const articles = (data.articles || []).slice(0, 5);
+      setRecentArticles(articles);
+
+      // Calculate quality scores for each article
+      const scores: Record<string, QualityScoreData> = {};
+      for (const article of articles) {
+        if (article.body && article.sources) {
+          scores[article.id] = calculateClientQualityScore(article);
+        }
+      }
+      setQualityScores(scores);
     } catch (err) {
       console.error("Failed to fetch recent articles:", err);
     }
+  }, []);
+
+  const fetchCalendarArticles = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/articles?limit=50");
+      const data = await res.json();
+      const articles = (data.articles || []).map((a: any) => ({
+        id: a.id,
+        type: a.type,
+        headline: a.headline,
+        created_at: a.created_at,
+      }));
+      setCalendarArticles(articles);
+    } catch (err) {
+      console.error("Failed to fetch calendar articles:", err);
+    }
+  }, []);
+
+  const fetchSuggestions = useCallback(async () => {
+    setSuggestionsLoading(true);
+    try {
+      const res = await fetch("/api/admin/suggestions");
+      const data = await res.json();
+      setSuggestions(data.suggestions || []);
+    } catch (err) {
+      console.error("Failed to fetch suggestions:", err);
+    }
+    setSuggestionsLoading(false);
   }, []);
 
   const fetchStatus = useCallback(async () => {
@@ -192,7 +382,9 @@ export default function CommandCenterClient() {
     fetchStatus();
     fetchStats();
     fetchRecentArticles();
-  }, [authLoading, user, fetchStatus, fetchStats, fetchRecentArticles]);
+    fetchCalendarArticles();
+    fetchSuggestions();
+  }, [authLoading, user, fetchStatus, fetchStats, fetchRecentArticles, fetchCalendarArticles, fetchSuggestions]);
 
   // Polling
   useEffect(() => {
@@ -458,50 +650,134 @@ export default function CommandCenterClient() {
     return `${m}m ${sec}s`;
   };
 
-  // ── Cron Trigger (with terminal output) ──
+  // ── SSE Streaming for Article Generation ──
+
+  const triggerGenerateStream = useCallback(() => {
+    if (isTerminalRunning) return;
+    setIsTerminalRunning(true);
+
+    // Track generated articles for quality report
+    const generatedArticles: Array<{ headline: string; type: string; confidence: string; body: any; sources: any[] }> = [];
+
+    const es = new EventSource("/api/admin/generate-stream");
+    eventSourceRef.current = es;
+
+    es.addEventListener("log", (e: MessageEvent) => {
+      try {
+        const data = JSON.parse(e.data);
+        addTerminalLine(data.text, data.type || "info");
+      } catch { /* ignore parse errors */ }
+    });
+
+    es.addEventListener("article", (e: MessageEvent) => {
+      try {
+        const data = JSON.parse(e.data);
+        generatedArticles.push({
+          headline: data.headline,
+          type: data.type,
+          confidence: data.confidence,
+          body: data.body,
+          sources: data.sources || [],
+        });
+      } catch { /* ignore parse errors */ }
+    });
+
+    es.addEventListener("done", (e: MessageEvent) => {
+      // Quality report in terminal
+      if (generatedArticles.length > 0) {
+        addTerminalLine("", "dim");
+        addTerminalLine("\u2550\u2550\u2550 Quality Report \u2550\u2550\u2550", "separator");
+        let totalScore = 0;
+        for (let i = 0; i < generatedArticles.length; i++) {
+          const art = generatedArticles[i];
+          const score = calculateClientQualityScore({ body: art.body, sources: art.sources });
+          totalScore += score.overall;
+          const bar = qualityBar(score.overall);
+          addTerminalLine(
+            `Article ${i + 1}: ${score.overall}/100 ${bar}  (readability: ${score.readability}, sources: ${score.breakdown.sourceCount}, ${score.wordCount} words)`,
+            score.overall >= 80 ? "success" : score.overall >= 60 ? "warning" : "error"
+          );
+        }
+        const avg = Math.round(totalScore / generatedArticles.length);
+        addTerminalLine(`Average quality: ${avg}/100`, avg >= 80 ? "success" : avg >= 60 ? "warning" : "error");
+        addTerminalLine("\u2550".repeat(40), "separator");
+      }
+
+      es.close();
+      eventSourceRef.current = null;
+      setIsTerminalRunning(false);
+
+      // Refresh data
+      fetchStats();
+      fetchRecentArticles();
+      fetchCalendarArticles();
+      fetchStatus();
+    });
+
+    es.onerror = () => {
+      // EventSource error - could be connection loss or stream end
+      if (eventSourceRef.current) {
+        addTerminalLine("Connection closed", "dim");
+        es.close();
+        eventSourceRef.current = null;
+        setIsTerminalRunning(false);
+        fetchStats();
+        fetchRecentArticles();
+        fetchCalendarArticles();
+        fetchStatus();
+      }
+    };
+  }, [isTerminalRunning, addTerminalLine, fetchStats, fetchRecentArticles, fetchCalendarArticles, fetchStatus]);
+
+  // Cleanup EventSource on unmount
+  useEffect(() => {
+    return () => {
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
+        eventSourceRef.current = null;
+      }
+    };
+  }, []);
+
+  // ── Cron Trigger (with terminal output — for non-generate jobs) ──
 
   const triggerCron = async (label: string, cronPath: string) => {
     if (isTerminalRunning) return;
 
+    // Use SSE streaming for article generation
+    const isGenerateNews = cronPath.includes("generate-news");
+    if (isGenerateNews) {
+      triggerGenerateStream();
+      return;
+    }
+
     const startTime = Date.now();
     setIsTerminalRunning(true);
 
-    // Determine the kind of job for appropriate messages
-    const isGenerateNews = cronPath.includes("generate-news");
-    const jobVerb = isGenerateNews
-      ? "article generation"
-      : cronPath.includes("scrape")
-        ? "news scrape"
-        : cronPath.includes("prices")
-          ? "price update"
-          : label.toLowerCase();
+    const jobVerb = cronPath.includes("scrape")
+      ? "news scrape"
+      : cronPath.includes("prices")
+        ? "price update"
+        : label.toLowerCase();
 
-    // Initial terminal lines
     addTerminalLine(`Starting ${jobVerb}...`, "info");
 
-    if (isGenerateNews) {
-      await addTerminalLineDelayed("\u25CF Connecting to sources...", "info", 600);
-    } else {
-      const fetchLabel = cronPath.includes("scrape")
-        ? "\u25CF Fetching RSS feeds..."
-        : cronPath.includes("prices")
-          ? "\u25CF Fetching market data..."
-          : "\u25CF Processing...";
-      await addTerminalLineDelayed(fetchLabel, "info", 600);
-    }
+    const fetchLabel = cronPath.includes("scrape")
+      ? "\u25CF Fetching RSS feeds..."
+      : cronPath.includes("prices")
+        ? "\u25CF Fetching market data..."
+        : "\u25CF Processing...";
+    await addTerminalLineDelayed(fetchLabel, "info", 600);
 
-    // Periodic "processing" lines while waiting
     let processingCount = 0;
-    const processingMessages = isGenerateNews
-      ? ["\u25CF Processing pipelines...", "\u25CF Evaluating candidates...", "\u25CF Generating content...", "\u25CF Running quality checks..."]
-      : ["\u25CF Processing...", "\u25CF Fetching data...", "\u25CF Updating records..."];
+    const processingMessages = ["\u25CF Processing...", "\u25CF Fetching data...", "\u25CF Updating records..."];
 
     const progressInterval = setInterval(() => {
       const msg = processingMessages[processingCount % processingMessages.length];
       const elapsed = Math.round((Date.now() - startTime) / 1000);
       addTerminalLine(`${msg} (${formatElapsedCompact(elapsed)} elapsed)`, "dim");
       processingCount++;
-    }, isGenerateNews ? 4000 : 5000);
+    }, 5000);
     terminalIntervalRef.current = progressInterval;
 
     try {
@@ -519,31 +795,7 @@ export default function CommandCenterClient() {
 
       if (data.error) {
         await addTerminalLineDelayed(`\u2717 Error: ${data.error}`, "error", 100);
-      } else if (isGenerateNews && data.results) {
-        // Type out pipeline results with delay
-        let totalGenerated = 0;
-        let totalErrors = 0;
-        for (const [type, result] of Object.entries(data.results)) {
-          const pipelineLabel = PIPELINE_LABELS[type] || type;
-          if (result.generated > 0) {
-            totalGenerated += result.generated;
-            await addTerminalLineDelayed(`\u2713 ${pipelineLabel}: ${result.generated} article${result.generated > 1 ? "s" : ""} generated`, "success", 100);
-          } else if (result.errors.length > 0) {
-            totalErrors += result.errors.length;
-            await addTerminalLineDelayed(`\u2717 ${pipelineLabel}: ${result.errors[0]?.substring(0, 80)}`, "error", 100);
-          } else {
-            await addTerminalLineDelayed(`\u2014 ${pipelineLabel}: no candidates`, "dim", 80);
-          }
-        }
-        // Summary
-        await addTerminalLineDelayed("", "dim", 120);
-        await addTerminalLineDelayed("\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550", "separator", 60);
-        const summaryParts = [`${totalGenerated} article${totalGenerated !== 1 ? "s" : ""}`];
-        if (totalErrors > 0) summaryParts.push(`${totalErrors} error${totalErrors !== 1 ? "s" : ""}`);
-        await addTerminalLineDelayed(`\u2713 Complete: ${summaryParts.join(", ")} in ${formatElapsedCompact(elapsed)}`, "success", 60);
-        await addTerminalLineDelayed("\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550", "separator", 60);
       } else {
-        // Simple cron result
         const msg = data.message || data.summary || "Completed successfully";
         const parts: string[] = [msg];
         if (data.inserted !== undefined) parts.push(`${data.inserted} items processed`);
@@ -551,9 +803,9 @@ export default function CommandCenterClient() {
         await addTerminalLineDelayed(`\u2713 Complete: ${parts.join(" \u00B7 ")} in ${formatElapsedCompact(elapsed)}`, "success", 100);
       }
 
-      // Refresh data
       fetchStats();
       fetchRecentArticles();
+      fetchCalendarArticles();
       fetchStatus();
     } catch (err: any) {
       clearInterval(progressInterval);
@@ -734,6 +986,31 @@ export default function CommandCenterClient() {
           </div>
         )}
 
+        {/* ── Business Metrics ── */}
+        {stats && (
+          <BusinessMetrics
+            articlesThisMonth={stats.articlesThisMonth ?? 0}
+            articlesLastMonth={stats.articlesLastMonth ?? 0}
+            monthOverMonthGrowth={stats.monthOverMonthGrowth ?? 0}
+            estimatedMonthlyCost={stats.estimatedMonthlyCost ?? 0}
+            costPerArticle={stats.costPerArticle ?? 0.03}
+            totalArticlesAllTime={stats.totalArticlesAllTime ?? stats.totalArticles ?? 0}
+            typeBreakdownThisMonth={stats.typeBreakdownThisMonth ?? {}}
+            sponsoredCount={stats.sponsoredCount ?? 0}
+            companiesTotal={stats.companiesTotal ?? 0}
+          />
+        )}
+
+        {/* ── Content Calendar ── */}
+        <ContentCalendar articles={calendarArticles} />
+
+        {/* ── Content Opportunities ── */}
+        <ContentOpportunities
+          suggestions={suggestions}
+          loading={suggestionsLoading}
+          onRefresh={fetchSuggestions}
+        />
+
         {/* ── Recent Articles ── */}
         {recentArticles.length > 0 && (
           <div style={{
@@ -798,6 +1075,43 @@ export default function CommandCenterClient() {
                     }}>
                       {article.headline}
                     </span>
+
+                    {/* Quality score bar */}
+                    {qualityScores[article.id] && (
+                      <span
+                        title={`Quality: ${qualityScores[article.id].overall}/100 | Readability: ${qualityScores[article.id].readability} | Sources: ${qualityScores[article.id].breakdown.sourceCount} | Words: ${qualityScores[article.id].wordCount}${qualityScores[article.id].breakdown.bannedPhrasesFound.length > 0 ? " | Banned: " + qualityScores[article.id].breakdown.bannedPhrasesFound.join(", ") : ""}`}
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 4,
+                          flexShrink: 0,
+                        }}
+                      >
+                        <span style={{
+                          fontSize: 10,
+                          fontWeight: 600,
+                          color: qualityScoreColor(qualityScores[article.id].overall),
+                        }}>
+                          {qualityScores[article.id].overall}
+                        </span>
+                        <span style={{
+                          display: "inline-block",
+                          width: 32,
+                          height: 4,
+                          borderRadius: 2,
+                          background: "var(--color-border-subtle)",
+                          overflow: "hidden",
+                        }}>
+                          <span style={{
+                            display: "block",
+                            width: `${qualityScores[article.id].overall}%`,
+                            height: "100%",
+                            background: qualityScoreColor(qualityScores[article.id].overall),
+                            borderRadius: 2,
+                          }} />
+                        </span>
+                      </span>
+                    )}
 
                     {/* Confidence */}
                     {article.confidence && (
@@ -1568,6 +1882,409 @@ function TerminalFeed({
           50% { opacity: 0; }
         }
       `}</style>
+    </div>
+  );
+}
+
+function BusinessMetrics({
+  articlesThisMonth,
+  articlesLastMonth,
+  monthOverMonthGrowth,
+  estimatedMonthlyCost,
+  costPerArticle,
+  totalArticlesAllTime,
+  typeBreakdownThisMonth,
+  sponsoredCount,
+  companiesTotal,
+}: {
+  articlesThisMonth: number;
+  articlesLastMonth: number;
+  monthOverMonthGrowth: number;
+  estimatedMonthlyCost: number;
+  costPerArticle: number;
+  totalArticlesAllTime: number;
+  typeBreakdownThisMonth: Record<string, number>;
+  sponsoredCount: number;
+  companiesTotal: number;
+}) {
+  const growthPositive = monthOverMonthGrowth >= 0;
+  const maxTypeCount = Math.max(...Object.values(typeBreakdownThisMonth), 1);
+  const sortedTypes = Object.entries(typeBreakdownThisMonth).sort(([, a], [, b]) => b - a);
+
+  return (
+    <div style={{
+      background: "var(--color-bg-primary)",
+      border: "1px solid var(--color-border-subtle)",
+      borderRadius: 10,
+      padding: 20,
+      marginBottom: 28,
+      boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+    }}>
+      <h2 style={{ fontSize: 14, fontWeight: 500, margin: "0 0 16px", color: "var(--color-text-primary)", display: "flex", alignItems: "center", gap: 8 }}>
+        <BarChart3 size={16} style={{ color: "var(--color-text-tertiary)" }} />
+        Business Metrics
+      </h2>
+
+      {/* Metric cards row */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 }}>
+        {/* This Month */}
+        <div style={{ border: "1px solid var(--color-border-subtle)", borderRadius: 8, padding: "14px 16px" }}>
+          <div style={{ fontSize: 11, color: "var(--color-text-tertiary)", marginBottom: 6, fontWeight: 500 }}>This Month</div>
+          <div style={{ fontSize: 24, fontWeight: 600, color: "var(--color-text-primary)", lineHeight: 1 }}>{articlesThisMonth}</div>
+          <div style={{ fontSize: 11, color: "var(--color-text-tertiary)", marginTop: 4 }}>last month: {articlesLastMonth}</div>
+        </div>
+
+        {/* MoM Growth */}
+        <div style={{ border: "1px solid var(--color-border-subtle)", borderRadius: 8, padding: "14px 16px" }}>
+          <div style={{ fontSize: 11, color: "var(--color-text-tertiary)", marginBottom: 6, fontWeight: 500 }}>MoM Growth</div>
+          <div style={{ fontSize: 24, fontWeight: 600, color: growthPositive ? "#22c55e" : "#ef4444", lineHeight: 1, display: "flex", alignItems: "center", gap: 4 }}>
+            {growthPositive ? "+" : ""}{monthOverMonthGrowth}%
+            {growthPositive ? <TrendingUpIcon size={18} style={{ color: "#22c55e" }} /> : <TrendingDown size={18} style={{ color: "#ef4444" }} />}
+          </div>
+          <div style={{ fontSize: 11, color: "var(--color-text-tertiary)", marginTop: 4 }}>vs last month</div>
+        </div>
+
+        {/* Monthly Cost */}
+        <div style={{ border: "1px solid var(--color-border-subtle)", borderRadius: 8, padding: "14px 16px" }}>
+          <div style={{ fontSize: 11, color: "var(--color-text-tertiary)", marginBottom: 6, fontWeight: 500 }}>Monthly Cost</div>
+          <div style={{ fontSize: 24, fontWeight: 600, color: "var(--color-text-primary)", lineHeight: 1 }}>${estimatedMonthlyCost.toFixed(2)}</div>
+          <div style={{ fontSize: 11, color: "var(--color-text-tertiary)", marginTop: 4 }}>${costPerArticle.toFixed(2)}/article</div>
+        </div>
+
+        {/* SEO Pages */}
+        <div style={{ border: "1px solid var(--color-border-subtle)", borderRadius: 8, padding: "14px 16px" }}>
+          <div style={{ fontSize: 11, color: "var(--color-text-tertiary)", marginBottom: 6, fontWeight: 500, display: "flex", alignItems: "center", gap: 4 }}>
+            <Globe size={12} /> SEO Pages
+          </div>
+          <div style={{ fontSize: 24, fontWeight: 600, color: "var(--color-text-primary)", lineHeight: 1 }}>{totalArticlesAllTime}</div>
+          <div style={{ fontSize: 11, color: "var(--color-text-tertiary)", marginTop: 4 }}>indexed pages</div>
+        </div>
+      </div>
+
+      {/* Type Breakdown bar chart */}
+      {sortedTypes.length > 0 && (
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ fontSize: 12, fontWeight: 500, color: "var(--color-text-secondary)", marginBottom: 10 }}>Type Breakdown</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {sortedTypes.map(([type, count]) => {
+              const cfg = TYPE_CONFIG[type];
+              const barColor = cfg?.color || "#6b7280";
+              const label = cfg?.label || type.replace(/_/g, " ");
+              const widthPct = Math.max((count / maxTypeCount) * 100, 4);
+              return (
+                <div key={type} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: 11, color: "var(--color-text-secondary)", width: 90, textAlign: "right", flexShrink: 0 }}>{label}</span>
+                  <div style={{ flex: 1, height: 18, background: "var(--color-bg-secondary)", borderRadius: 4, overflow: "hidden" }}>
+                    <div style={{ height: "100%", width: `${widthPct}%`, background: barColor, borderRadius: 4, transition: "width 0.3s ease", opacity: 0.8 }} />
+                  </div>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: "var(--color-text-primary)", width: 32, textAlign: "right", flexShrink: 0 }}>{count}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Potential Revenue callout */}
+      <div style={{ background: "var(--color-bg-secondary)", borderRadius: 8, padding: "14px 16px", border: "1px dashed var(--color-border-subtle)" }}>
+        <div style={{ fontSize: 12, fontWeight: 500, color: "var(--color-text-secondary)", marginBottom: 4 }}>Potential Revenue</div>
+        <div style={{ fontSize: 13, color: "var(--color-text-primary)" }}>{companiesTotal.toLocaleString()}+ companies x Sponsored profiles</div>
+        <div style={{ fontSize: 12, color: sponsoredCount > 0 ? "#22c55e" : "var(--color-text-tertiary)", marginTop: 4 }}>
+          {sponsoredCount > 0 ? `${sponsoredCount} sponsored article${sponsoredCount !== 1 ? "s" : ""} active` : "0 sponsored (start selling!)"}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Content Calendar ──
+
+function ContentCalendar({ articles }: { articles: CalendarArticle[] }) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Build 7-day week starting from Monday
+  const dayOfWeek = today.getDay();
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const monday = new Date(today);
+  monday.setDate(today.getDate() + mondayOffset);
+
+  const days: Date[] = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    days.push(d);
+  }
+
+  const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+  // Group articles by date string
+  const articlesByDate: Record<string, CalendarArticle[]> = {};
+  for (const article of articles) {
+    const dateKey = article.created_at.slice(0, 10);
+    if (!articlesByDate[dateKey]) articlesByDate[dateKey] = [];
+    articlesByDate[dateKey].push(article);
+  }
+
+  // Check if a date is the 1st or 15th (for innovation spotlight)
+  const isBimonthly = (d: Date) => d.getDate() === 1 || d.getDate() === 15;
+
+  return (
+    <div style={{
+      background: "var(--color-bg-primary)",
+      border: "1px solid var(--color-border-subtle)",
+      borderRadius: 10,
+      padding: 20,
+      marginBottom: 28,
+      boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+        <Calendar size={16} style={{ color: "var(--color-text-tertiary)" }} />
+        <h2 style={{ fontSize: 14, fontWeight: 500, margin: 0, color: "var(--color-text-primary)" }}>
+          Content Calendar
+        </h2>
+        <span style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>
+          Week of {monday.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+        </span>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 8 }}>
+        {days.map((day, i) => {
+          const dateKey = day.toISOString().slice(0, 10);
+          const isToday = dateKey === today.toISOString().slice(0, 10);
+          const isFuture = day > today;
+          const dow = day.getDay();
+          const scheduledTypes = [...(SCHEDULE_MAP[dow] || [])];
+          if (isBimonthly(day)) scheduledTypes.push("innovation_spotlight");
+          const dayArticles = articlesByDate[dateKey] || [];
+
+          return (
+            <div
+              key={dateKey}
+              style={{
+                background: isToday ? "var(--color-bg-secondary)" : "transparent",
+                border: isToday ? "1px solid var(--color-accent)" : "1px solid var(--color-border-subtle)",
+                borderRadius: 8,
+                padding: "10px 8px",
+                minHeight: 90,
+                opacity: isFuture ? 0.6 : 1,
+              }}
+            >
+              {/* Day header */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                <span style={{
+                  fontSize: 10,
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  color: isToday ? "var(--color-accent)" : "var(--color-text-tertiary)",
+                }}>
+                  {DAY_NAMES[i]}
+                </span>
+                <span style={{
+                  fontSize: 13,
+                  fontWeight: isToday ? 700 : 400,
+                  color: isToday ? "var(--color-text-primary)" : "var(--color-text-secondary)",
+                }}>
+                  {day.getDate()}
+                </span>
+              </div>
+
+              {/* Scheduled types (pills) */}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 3, marginBottom: 6 }}>
+                {scheduledTypes.map((type) => {
+                  const generated = dayArticles.some((a) => a.type === type);
+                  const cfg = TYPE_CONFIG[type];
+                  return (
+                    <span
+                      key={type}
+                      title={`${cfg?.label || type}${generated ? " (generated)" : isFuture ? " (scheduled)" : " (missed)"}`}
+                      style={{
+                        display: "inline-block",
+                        width: 8,
+                        height: 8,
+                        borderRadius: "50%",
+                        background: generated ? (cfg?.color || "#6b7280") : "transparent",
+                        border: `1.5px solid ${cfg?.color || "#6b7280"}`,
+                        opacity: generated ? 1 : 0.35,
+                      }}
+                    />
+                  );
+                })}
+              </div>
+
+              {/* Article count */}
+              {dayArticles.length > 0 && (
+                <div style={{ fontSize: 10, color: "var(--color-text-tertiary)" }}>
+                  {dayArticles.length} article{dayArticles.length !== 1 ? "s" : ""}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Legend */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--color-border-subtle)" }}>
+        {Object.entries(TYPE_CONFIG).map(([type, cfg]) => (
+          <div key={type} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <span style={{
+              display: "inline-block",
+              width: 6,
+              height: 6,
+              borderRadius: "50%",
+              background: cfg.color,
+            }} />
+            <span style={{ fontSize: 10, color: "var(--color-text-tertiary)" }}>{cfg.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ContentOpportunities({
+  suggestions,
+  loading,
+  onRefresh,
+}: {
+  suggestions: ContentSuggestion[];
+  loading: boolean;
+  onRefresh: () => void;
+}) {
+  const priorityConfig = {
+    high: { color: "#ef4444", dot: "\u{1F534}", bg: "#ef444410", border: "#ef444430" },
+    medium: { color: "#eab308", dot: "\u{1F7E1}", bg: "#eab30810", border: "#eab30830" },
+    low: { color: "#22c55e", dot: "\u{1F7E2}", bg: "#22c55e10", border: "#22c55e30" },
+  };
+
+  const typeIcons: Record<string, React.ReactNode> = {
+    uncovered_funding: <DollarSign size={14} />,
+    trending_topic: <TrendingUpIcon size={14} />,
+    stale_content: <Clock size={14} />,
+    uncovered_company: <Building2 size={14} />,
+  };
+
+  return (
+    <div style={{
+      background: "var(--color-bg-primary)",
+      border: "1px solid var(--color-border-subtle)",
+      borderRadius: 10,
+      padding: 20,
+      marginBottom: 28,
+      boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+    }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+        <h2 style={{ fontSize: 14, fontWeight: 500, margin: 0, color: "var(--color-text-primary)", display: "flex", alignItems: "center", gap: 8 }}>
+          <Lightbulb size={16} style={{ color: "#eab308" }} />
+          Content Opportunities
+        </h2>
+        <button
+          onClick={onRefresh}
+          disabled={loading}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 4,
+            padding: "4px 10px",
+            background: "transparent",
+            border: "1px solid var(--color-border-subtle)",
+            borderRadius: 5,
+            color: "var(--color-text-tertiary)",
+            fontSize: 11,
+            cursor: loading ? "not-allowed" : "pointer",
+            opacity: loading ? 0.6 : 1,
+          }}
+        >
+          {loading ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />}
+          Refresh
+        </button>
+      </div>
+
+      {loading && suggestions.length === 0 ? (
+        <div style={{ textAlign: "center", padding: 30, color: "var(--color-text-tertiary)", fontSize: 12 }}>
+          <Loader2 size={20} className="animate-spin" style={{ display: "inline-block", marginBottom: 8 }} />
+          <div>Analyzing content gaps...</div>
+        </div>
+      ) : suggestions.length === 0 ? (
+        <div style={{ textAlign: "center", padding: 30, color: "var(--color-text-tertiary)", fontSize: 13 }}>
+          No opportunities — you are on top of everything!
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {suggestions.map((s, i) => {
+            const cfg = priorityConfig[s.priority];
+            return (
+              <div
+                key={i}
+                style={{
+                  padding: "14px 16px",
+                  borderRadius: 8,
+                  background: cfg.bg,
+                  border: `1px solid ${cfg.border}`,
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "start", gap: 10 }}>
+                  <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: 28,
+                    height: 28,
+                    borderRadius: 6,
+                    background: `${cfg.color}20`,
+                    color: cfg.color,
+                    flexShrink: 0,
+                    marginTop: 1,
+                  }}>
+                    {typeIcons[s.type] || <Lightbulb size={14} />}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
+                      <span style={{
+                        fontSize: 10,
+                        fontWeight: 600,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.04em",
+                        color: cfg.color,
+                      }}>
+                        {s.priority}
+                      </span>
+                      <span style={{ fontSize: 13, fontWeight: 500, color: "var(--color-text-primary)" }}>
+                        {s.title}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 12, color: "var(--color-text-secondary)", lineHeight: 1.5 }}>
+                      {s.description}
+                    </div>
+                  </div>
+                  {s.action && (
+                    <button
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 4,
+                        padding: "6px 12px",
+                        background: "var(--color-text-primary)",
+                        border: "none",
+                        borderRadius: 5,
+                        color: "var(--color-bg-primary)",
+                        fontSize: 11,
+                        fontWeight: 500,
+                        cursor: "pointer",
+                        whiteSpace: "nowrap",
+                        flexShrink: 0,
+                      }}
+                    >
+                      {s.action}
+                      <ArrowRight size={12} />
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
