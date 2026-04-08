@@ -214,8 +214,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   // Engine article pages (from new articles table)
-  const { data: engineArticles } = await supabase
-    .from('articles')
+  const { data: engineArticles } = await (supabase.from as any)('articles')
     .select('slug, published_at')
     .eq('status', 'published')
     .order('published_at', { ascending: false });

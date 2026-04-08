@@ -191,8 +191,7 @@ export class ArticleEngine {
     const candidate = `${base}-${dateStr}`
 
     // Check for collision
-    const { data: existing } = await supabase
-      .from('articles')
+    const { data: existing } = await (supabase.from as any)('articles')
       .select('slug')
       .like('slug', `${candidate}%`)
 
@@ -209,8 +208,7 @@ export class ArticleEngine {
 
   private async getRecentStyles(articleType: ArticleType): Promise<ArticleStyle[]> {
     const supabase = createServerClient()
-    const { data } = await supabase
-      .from('articles')
+    const { data } = await (supabase.from as any)('articles')
       .select('article_style')
       .eq('type', articleType)
       .order('created_at', { ascending: false })

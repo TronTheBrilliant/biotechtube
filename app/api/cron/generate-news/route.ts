@@ -29,8 +29,7 @@ export async function GET(req: Request) {
   };
 
   // ── Pipeline 1: Breaking News from rss_items ──
-  const { data: rssItems } = await supabase
-    .from("rss_items")
+  const { data: rssItems } = await (supabase.from as any)("rss_items")
     .select("id, title, url, source_name, summary, published_at, category, company_names")
     .eq("processed_for_article", false)
     .neq("category", "funding")
@@ -50,8 +49,7 @@ export async function GET(req: Request) {
         results.breaking_news.generated++;
 
         // Mark as processed
-        await supabase
-          .from("rss_items")
+        await (supabase.from as any)("rss_items")
           .update({ processed_for_article: true })
           .eq("id", item.id);
       } catch (err) {

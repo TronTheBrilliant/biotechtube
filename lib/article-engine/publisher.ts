@@ -10,8 +10,7 @@ import type { GeneratedArticle } from './types'
 export async function publishArticle(article: GeneratedArticle): Promise<{ id: string; slug: string }> {
   const supabase = createServerClient()
 
-  const { data, error } = await supabase
-    .from('articles')
+  const { data, error } = await (supabase.from as any)('articles')
     .insert({
       slug: article.slug,
       type: article.type,
@@ -56,8 +55,7 @@ export async function articleExistsForSource(
   const supabase = createServerClient()
 
   // Check metadata for source reference
-  const { data } = await supabase
-    .from('articles')
+  const { data } = await (supabase.from as any)('articles')
     .select('id')
     .contains('metadata', { source_type: sourceType, source_id: sourceId })
     .limit(1)

@@ -127,8 +127,7 @@ export async function GET() {
       company_names: extractCompanyNames(item.title, item.description),
     }));
 
-    const { error: rssError } = await supabase
-      .from('rss_items')
+    const { error: rssError } = await (supabase.from as any)('rss_items')
       .upsert(rssRows, { onConflict: 'url', ignoreDuplicates: true });
 
     if (rssError) {
