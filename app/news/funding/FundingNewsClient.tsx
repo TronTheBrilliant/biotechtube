@@ -129,7 +129,8 @@ export function FundingNewsClient({ articles, stats }: Props) {
               )}
 
               {/* Section title + filter tabs */}
-              <h2 className="mb-3" style={{ fontSize: 14, fontWeight: 500, color: "var(--color-text-primary)", letterSpacing: "-0.01em" }}>
+              <h2 className="flex items-center gap-2 mb-4" style={{ fontSize: 13, fontWeight: 500, color: "var(--color-text-tertiary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                <TrendingUp size={14} style={{ color: "var(--color-accent)" }} />
                 Latest Rounds
               </h2>
               <div className="flex items-center gap-2 mb-6 overflow-x-auto no-scrollbar pb-1">
