@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CompanyAvatar } from "@/components/CompanyAvatar";
+import { CompanySparkline } from "@/components/charts/CompanySparkline";
 import { formatMarketCap } from "@/lib/market-utils";
 
 interface Company {
@@ -11,6 +12,7 @@ interface Company {
   logo_url: string | null;
   website?: string | null;
   dailyChange?: number | null;
+  sparkline?: number[];
 }
 
 export default function TopCompanies({ companies }: { companies: Company[] }) {
@@ -43,9 +45,9 @@ export default function TopCompanies({ companies }: { companies: Company[] }) {
           <CompanyAvatar name={c.name} logoUrl={c.logo_url ?? undefined} website={c.website ?? undefined} size={24} />
 
           {/* Name + Ticker */}
-          <div className="flex flex-col">
+          <div className="flex flex-col min-w-0">
             <span
-              className="font-medium"
+              className="font-medium truncate"
               style={{ fontSize: 13, color: "var(--color-text-primary)" }}
             >
               {c.name}
@@ -60,10 +62,22 @@ export default function TopCompanies({ companies }: { companies: Company[] }) {
           {/* Spacer */}
           <span className="flex-1" />
 
+          {/* Sparkline — hidden on mobile */}
+          {c.sparkline && c.sparkline.length >= 2 && (
+            <span className="hidden md:block flex-shrink-0">
+              <CompanySparkline
+                data={c.sparkline}
+                positive={(c.dailyChange ?? 0) >= 0}
+                width={60}
+                height={24}
+              />
+            </span>
+          )}
+
           {/* Daily Change */}
           {c.dailyChange != null && (
             <span
-              className="font-medium text-right"
+              className="font-medium text-right flex-shrink-0"
               style={{
                 fontSize: 12,
                 color: c.dailyChange >= 0 ? "#16a34a" : "#dc2626",
@@ -76,7 +90,7 @@ export default function TopCompanies({ companies }: { companies: Company[] }) {
 
           {/* Market Cap */}
           <span
-            className="font-medium text-right"
+            className="font-medium text-right flex-shrink-0"
             style={{ fontSize: 13, color: "var(--color-text-primary)", minWidth: 55 }}
           >
             {c.valuation != null ? formatMarketCap(c.valuation) : "—"}

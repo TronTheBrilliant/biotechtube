@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback } from "react";
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { TvAreaChart } from "@/components/charts/TvAreaChart";
 import { formatMarketCap } from "@/lib/market-utils";
+import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 
 interface IndexPoint {
   snapshot_date: string;
@@ -26,6 +27,8 @@ const timescaleDays: Record<Timescale, number> = {
 
 export default function BiotechIndexChart({ data }: Props) {
   const [timescale, setTimescale] = useState<Timescale>("Max");
+
+  const formatMcap = useCallback((n: number) => formatMarketCap(n), []);
 
   const handleTimescaleChange = useCallback(
     (ts: Timescale) => {
@@ -82,25 +85,22 @@ export default function BiotechIndexChart({ data }: Props) {
       {/* Header row */}
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex items-baseline gap-3 flex-wrap">
+          <AnimatedNumber
+            value={currentMarketCap}
+            format={formatMcap}
+            className="text-stat-sm"
+            style={{ color: "var(--color-text-primary)" }}
+          />
           <span
-            className="text-[26px] font-bold tracking-tight"
+            className="flex items-center gap-0.5 text-14 font-semibold"
             style={{
-              color: "var(--color-text-primary)",
-              letterSpacing: "-0.5px",
-            }}
-          >
-            {formatMarketCap(currentMarketCap)}
-          </span>
-          <span
-            className="flex items-center gap-0.5 text-13 font-medium"
-            style={{
-              color: isPositive ? "var(--color-accent)" : "#c0392b",
+              color: isPositive ? "#16a34a" : "#dc2626",
             }}
           >
             {isPositive ? (
-              <ArrowUpRight size={16} />
+              <ArrowUpRight size={18} strokeWidth={2.5} />
             ) : (
-              <ArrowDownRight size={16} />
+              <ArrowDownRight size={18} strokeWidth={2.5} />
             )}
             {isPositive ? "+" : ""}
             {periodChangePct.toFixed(1)}%

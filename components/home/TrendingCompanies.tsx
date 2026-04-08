@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CompanyAvatar } from "@/components/CompanyAvatar";
+import { CompanySparkline } from "@/components/charts/CompanySparkline";
 import { pctColor, formatMarketCap } from "@/lib/market-utils";
 
 interface TrendingCompany {
@@ -11,6 +12,7 @@ interface TrendingCompany {
   website?: string | null;
   change7d: number;
   marketCap: number;
+  sparkline?: number[];
 }
 
 interface TrendingCompaniesProps {
@@ -68,6 +70,18 @@ export function TrendingCompanies({ companies }: TrendingCompaniesProps) {
 
           {/* Spacer */}
           <div className="flex-1" />
+
+          {/* Sparkline — hidden on mobile */}
+          {company.sparkline && company.sparkline.length >= 2 && (
+            <span className="hidden md:block flex-shrink-0">
+              <CompanySparkline
+                data={company.sparkline}
+                positive={company.change7d >= 0}
+                width={60}
+                height={24}
+              />
+            </span>
+          )}
 
           {/* 7D change */}
           <span

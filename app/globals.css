@@ -324,6 +324,75 @@ body {
   color: var(--color-text-tertiary);
 }
 
+/* ── Magazine Typography System ── */
+.text-display-lg {
+  font-family: var(--font-brand), var(--font-geist-sans), sans-serif;
+  font-size: 56px;
+  font-weight: 700;
+  letter-spacing: -2px;
+  line-height: 1.0;
+}
+.text-display-md {
+  font-family: var(--font-brand), var(--font-geist-sans), sans-serif;
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: -1.5px;
+  line-height: 1.1;
+}
+.text-display-sm {
+  font-family: var(--font-brand), var(--font-geist-sans), sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -1px;
+  line-height: 1.15;
+}
+.text-stat {
+  font-family: var(--font-brand), var(--font-geist-sans), sans-serif;
+  font-size: 48px;
+  font-weight: 700;
+  letter-spacing: -1.5px;
+  line-height: 1.0;
+  font-variant-numeric: tabular-nums;
+}
+.text-stat-sm {
+  font-family: var(--font-brand), var(--font-geist-sans), sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -1px;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Responsive display sizes */
+@media (max-width: 767px) {
+  .text-display-lg { font-size: 36px; letter-spacing: -1.5px; }
+  .text-display-md { font-size: 28px; letter-spacing: -1px; }
+  .text-display-sm { font-size: 24px; letter-spacing: -0.5px; }
+  .text-stat { font-size: 36px; letter-spacing: -1px; }
+  .text-stat-sm { font-size: 24px; letter-spacing: -0.5px; }
+}
+
+/* Frosted glass effect for badges/pills */
+.frosted-glass {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(0, 0, 0, 0.45);
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+}
+.dark .frosted-glass {
+  background: rgba(0, 0, 0, 0.6);
+  border: 0.5px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Animated number count-up */
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-count-up {
+  animation: countUp 0.6s ease-out forwards;
+}
+
 /* Company hover card animation */
 @keyframes hovercard-in {
   from { opacity: 0; transform: translateY(4px); }

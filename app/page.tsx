@@ -30,6 +30,7 @@ import SciencePapers from "@/components/home/SciencePapers";
 import OpenPositions from "@/components/home/OpenPositions";
 import { NewsletterSignup } from "@/components/home/NewsletterSignup";
 import { LatestIntelligence } from "@/components/home/LatestIntelligence";
+import { MarketHeatmap } from "@/components/home/MarketHeatmap";
 
 import { getFundingAnnualForHomepage } from "@/lib/funding-queries";
 
@@ -65,6 +66,7 @@ async function getTopCompanies() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (data as any[]).map((r) => ({
+    id: r.company_id || r.id || null,
     slug: r.company_slug || "",
     name: r.company_name || "",
     ticker: r.ticker || null,
@@ -110,6 +112,7 @@ async function getTrendingCompanies() {
   // Map RPC results to the expected format
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (trendingData as any[]).map((r) => ({
+    id: r.company_id || r.id || null,
     slug: r.company_slug || "",
     name: r.company_name || "",
     ticker: r.ticker || null,
@@ -118,7 +121,7 @@ async function getTrendingCompanies() {
     website: r.website || null,
     change7d: Number(r.price_change_pct) || 0,
     marketCap: Number(r.current_market_cap) || 0,
-  })).filter((c) => c.slug);
+  })).filter((c: { slug: string }) => c.slug);
 }
 
 async function getTopSectors() {
@@ -579,6 +582,105 @@ async function getNextFDADecisions() {
   });
 }
 
+// ── Sparkline data for company lists ──
+
+async function getCompanySparklines(companyIds: string[]): Promise<Record<string, number[]>> {
+  if (companyIds.length === 0) return {};
+  const supabase = getSupabase();
+
+  // Get last 7 days of price data for these companies
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 10); // 10 days to account for weekends
+  const cutoff = sevenDaysAgo.toISOString().split("T")[0];
+
+  const { data } = await supabase
+    .from("company_price_history")
+    .select("company_id, date, adj_close")
+    .in("company_id", companyIds)
+    .gte("date", cutoff)
+    .order("date", { ascending: true });
+
+  if (!data) return {};
+
+  // Group by company, take last 7 points
+  const map: Record<string, { date: string; value: number }[]> = {};
+  for (const row of data as { company_id: string; date: string; adj_close: number }[]) {
+    if (!map[row.company_id]) map[row.company_id] = [];
+    map[row.company_id].push({ date: row.date, value: Number(row.adj_close) });
+  }
+
+  const result: Record<string, number[]> = {};
+  for (const [id, points] of Object.entries(map)) {
+    result[id] = points.slice(-7).map((p) => p.value);
+  }
+  return result;
+}
+
+async function getFlashStats() {
+  const supabase = getSupabase();
+
+  // Get latest snapshot — it has top_gainer_id, top_gainer_pct
+  const { data: snap } = await supabase
+    .from("market_snapshots")
+    .select("top_gainer_id, top_gainer_pct")
+    .order("snapshot_date", { ascending: false })
+    .limit(1)
+    .single();
+
+  let biggestMover: { label: string; value: string; companyLogo: string | null } | null = null;
+  if (snap?.top_gainer_id && snap.top_gainer_pct != null) {
+    const { data: comp } = await supabase
+      .from("companies")
+      .select("name, logo_url")
+      .eq("id", snap.top_gainer_id)
+      .single();
+    if (comp) {
+      const pct = Number(snap.top_gainer_pct);
+      biggestMover = {
+        label: comp.name || "Unknown",
+        value: `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%`,
+        companyLogo: comp.logo_url || null,
+      };
+    }
+  }
+
+  // Largest funding deal this week
+  const weekAgo = new Date();
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  const { data: topDeal } = await supabase
+    .from("funding_rounds")
+    .select("company_name, amount_usd")
+    .gte("announced_date", weekAgo.toISOString().split("T")[0])
+    .not("amount_usd", "is", null)
+    .order("amount_usd", { ascending: false })
+    .limit(1)
+    .single();
+
+  // FDA decisions pending
+  const today = new Date().toISOString().split("T")[0];
+  const { count: fdaCount } = await supabase
+    .from("fda_calendar")
+    .select("id", { count: "exact", head: true })
+    .gte("decision_date", today);
+
+  return [
+    biggestMover
+      ? { icon: "trending" as const, label: biggestMover.label, value: biggestMover.value, companyLogo: biggestMover.companyLogo }
+      : null,
+    topDeal
+      ? {
+          icon: "funding" as const,
+          label: topDeal.company_name || "Top Deal",
+          value: formatMarketCap(Number(topDeal.amount_usd)),
+          companyLogo: null,
+        }
+      : null,
+    fdaCount != null && fdaCount > 0
+      ? { icon: "fda" as const, label: "FDA Decisions", value: String(fdaCount), companyLogo: null }
+      : null,
+  ].filter((x): x is NonNullable<typeof x> => x !== null);
+}
+
 // ── Page ──
 
 async function getLatestFundingArticles() {
@@ -649,7 +751,7 @@ export default async function HomePage() {
 
   // Prepare top 5 companies for display (already limited from RPC)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const top5Companies = companies.slice(0, 5).map((c: any) => ({
+  const top5Base = companies.slice(0, 5).map((c: any) => ({
     slug: c.slug,
     name: c.name,
     ticker: c.ticker || null,
@@ -658,6 +760,31 @@ export default async function HomePage() {
     logo_url: c.logo_url || c.logoUrl || null,
     website: c.website || null,
     dailyChange: c.dailyChange ?? null,
+    id: c.id || null,
+  }));
+
+  // Fetch sparkline data for top + trending companies
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const allCompanyIds = [
+    ...top5Base.map((c: any) => c.id),
+    ...trending.map((c: any) => c.id),
+  ].filter(Boolean);
+  const sparklineData = await safeFetch(
+    "sparklines",
+    () => getCompanySparklines(Array.from(new Set(allCompanyIds))),
+    {} as Record<string, number[]>
+  );
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const top5Companies = top5Base.map((c: any) => ({
+    ...c,
+    sparkline: c.id ? sparklineData[c.id] || [] : [],
+  }));
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const trendingWithSparklines = trending.map((c: any) => ({
+    ...c,
+    sparkline: c.id ? sparklineData[c.id] || [] : [],
   }));
 
   // Build company map for intelligence articles
@@ -787,9 +914,9 @@ export default async function HomePage() {
       <main className="px-4 md:px-6 py-4 space-y-4 max-w-[1200px] mx-auto">
         {/* Row 1: Trending + Top Companies */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {trending.length > 0 ? (
+          {trendingWithSparklines.length > 0 ? (
             <HomeSection icon="🔥" title="Trending Companies" viewAllHref="/trending" viewAllLabel="View all">
-              <TrendingCompanies companies={trending} />
+              <TrendingCompanies companies={trendingWithSparklines} />
             </HomeSection>
           ) : (
             <HomeSection icon="🔥" title="Trending Companies" viewAllHref="/trending" viewAllLabel="View all">
@@ -832,6 +959,11 @@ export default async function HomePage() {
             )}
           </HomeSection>
         </div>
+
+        {/* Market Heatmap — full width */}
+        <HomeSection icon="🗺️" title="Market Heatmap" viewAllHref="/markets" viewAllLabel="Full markets">
+          <MarketHeatmap />
+        </HomeSection>
 
         {/* Biotech Market Index — full width */}
         {indexHistory.length > 0 && (
