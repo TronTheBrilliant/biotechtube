@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase";
 import { ArticleEngine } from "@/lib/article-engine";
+import { discoverTrendingTopics } from "@/lib/article-engine/sources/pubmed";
+import { discoverEssayTopics, discoverSpotlightTopics } from "@/lib/article-engine/sources/topic-discovery";
 
 export const maxDuration = 300;
 export const dynamic = "force-dynamic";
@@ -16,9 +18,15 @@ function sleep(ms: number) {
 
 function shouldRunToday(schedule: string): boolean {
   if (schedule === "daily") return true;
-  const day = new Date().getUTCDay(); // 0=Sun, 3=Wed
+  const now = new Date();
+  const day = now.getUTCDay(); // 0=Sun, 3=Wed, 5=Fri
   if (schedule === "sunday") return day === 0;
   if (schedule === "wednesday") return day === 3;
+  if (schedule === "friday") return day === 5;
+  if (schedule === "bimonthly") {
+    const date = now.getUTCDate();
+    return date === 1 || date === 15;
+  }
   return true;
 }
 
@@ -235,6 +243,84 @@ async function getCompanyDeepDiveCandidate(): Promise<PipelineCandidate[]> {
   return [];
 }
 
+async function getScienceEssayTopic(): Promise<PipelineCandidate[]> {
+  const supabase = createServerClient();
+
+  // Check if a science_essay was published in the last 6 days (weekly on Fridays)
+  const sixDaysAgo = new Date();
+  sixDaysAgo.setUTCDate(sixDaysAgo.getUTCDate() - 6);
+
+  const { data: existing } = await (supabase.from as any)("articles")
+    .select("id, metadata")
+    .eq("type", "science_essay")
+    .gte("published_at", sixDaysAgo.toISOString())
+    .limit(5);
+
+  // If already published this week, skip
+  if (existing && existing.length > 0) return [];
+
+  // Use topic discovery engine for richer, angle-driven topics
+  try {
+    const suggestions = await discoverEssayTopics();
+    if (suggestions.length > 0) {
+      const top = suggestions[0];
+      const pmids = top.sources.pubmedPapers.map((p) => p.pmid);
+      return [{
+        id: top.topic,
+        data: {
+          topic: top.topic,
+          angle: top.angle,
+          pubmedPmids: pmids,
+        },
+      }];
+    }
+  } catch {
+    // Fall back to simple trending topics
+  }
+
+  // Fallback: use simple trending topic discovery
+  const topics = await discoverTrendingTopics();
+  const freshTopic = topics[0] || "CRISPR gene therapy";
+
+  return [{ id: freshTopic, data: { topic: freshTopic } }];
+}
+
+async function getInnovationSpotlightTopic(): Promise<PipelineCandidate[]> {
+  const supabase = createServerClient();
+
+  // Check if an innovation_spotlight was published in the last 14 days
+  const fourteenDaysAgo = new Date();
+  fourteenDaysAgo.setUTCDate(fourteenDaysAgo.getUTCDate() - 14);
+
+  const { data: existing } = await (supabase.from as any)("articles")
+    .select("id")
+    .eq("type", "innovation_spotlight")
+    .gte("published_at", fourteenDaysAgo.toISOString())
+    .limit(1);
+
+  if (existing && existing.length > 0) return [];
+
+  // Use topic discovery for richer spotlight content
+  try {
+    const suggestions = await discoverSpotlightTopics();
+    if (suggestions.length > 0) {
+      const top = suggestions[0];
+      return [{
+        id: "spotlight",
+        data: {
+          focus: top.topic,
+          theme: top.topic,
+          angle: top.angle,
+        },
+      }];
+    }
+  } catch {
+    // Fall back to generic spotlight
+  }
+
+  return [{ id: "spotlight", data: {} }];
+}
+
 // ── Pipeline config ──
 
 interface PipelineConfig {
@@ -263,6 +349,12 @@ const PIPELINES: PipelineConfig[] = [
 
   // Priority 6: Company deep dive (Wednesdays only)
   { type: "company_deep_dive", source: getCompanyDeepDiveCandidate, limit: 1, schedule: "wednesday" },
+
+  // Priority 7: Science essay (Fridays only)
+  { type: "science_essay", source: getScienceEssayTopic, limit: 1, schedule: "friday" },
+
+  // Priority 8: Innovation spotlight (1st and 15th of month)
+  { type: "innovation_spotlight", source: getInnovationSpotlightTopic, limit: 1, schedule: "bimonthly" },
 ];
 
 // ── Main handler ──
@@ -370,6 +462,20 @@ function buildSourceInput(type: string, candidate: PipelineCandidate): Record<st
       };
     case "company_deep_dive":
       return { company_id: candidate.id };
+    case "science_essay":
+      return {
+        topic: candidate.data.topic,
+        angle: candidate.data.angle,
+        pubmedPmids: candidate.data.pubmedPmids,
+        id: candidate.id,
+      };
+    case "innovation_spotlight":
+      return {
+        focus: candidate.data.focus,
+        theme: candidate.data.theme,
+        angle: candidate.data.angle,
+        id: candidate.id,
+      };
     default:
       return candidate.data;
   }
