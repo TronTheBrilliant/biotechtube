@@ -99,35 +99,14 @@ export function FundingNewsClient({ articles, stats }: Props) {
       <Nav />
       <main className="min-h-screen" style={{ background: "var(--color-bg-secondary)" }}>
         {/* Hero */}
-        <div style={{ background: "var(--color-bg-primary)", borderBottom: "0.5px solid var(--color-border-subtle)" }}>
-          <div className="max-w-[1200px] mx-auto px-5 pt-20 pb-10">
-            <div className="flex items-center gap-2 mb-3">
-              <DollarSign size={16} style={{ color: "var(--color-accent)" }} />
-              <span style={{ fontSize: 11, fontWeight: 500, color: "var(--color-accent)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
-                Funding Intelligence
-              </span>
-            </div>
-            <h1 style={{ fontSize: "clamp(28px, 5vw, 44px)", fontWeight: 500, color: "var(--color-text-primary)", letterSpacing: "-0.02em", lineHeight: 1.1 }}>
-              Biotech Funding News
-            </h1>
-            <p className="mt-3 max-w-xl" style={{ fontSize: 16, color: "var(--color-text-secondary)", lineHeight: 1.6 }}>
-              AI-generated analysis of the latest biotech funding rounds. Real-time deal flow intelligence across the global biotech industry.
-            </p>
-
-            {/* Minimal stats strip */}
-            <div className="flex items-center gap-6 mt-6 flex-wrap">
-              <div className="flex items-center gap-2">
-                <span style={{ fontSize: 11, color: "var(--color-text-tertiary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>30d</span>
-                <span style={{ fontSize: 20, fontWeight: 600, color: "var(--color-text-primary)" }}>{formatMarketCap(stats.monthTotal)}</span>
-                <span style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>{stats.monthCount} rounds</span>
-              </div>
-              <div style={{ width: 1, height: 24, background: "var(--color-border-subtle)" }} />
-              <div className="flex items-center gap-2">
-                <span style={{ fontSize: 11, color: "var(--color-text-tertiary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>90d</span>
-                <span style={{ fontSize: 20, fontWeight: 600, color: "var(--color-text-primary)" }}>{formatMarketCap(stats.quarterTotal)}</span>
-              </div>
-            </div>
-          </div>
+        <div className="max-w-[1200px] mx-auto px-5 pt-20 pb-6">
+          <h1 style={{ fontSize: "clamp(24px, 4vw, 36px)", fontWeight: 500, color: "var(--color-text-primary)", letterSpacing: "-0.02em", lineHeight: 1.15 }}>
+            Funding News
+          </h1>
+          <p className="mt-2" style={{ fontSize: 13, color: "var(--color-text-tertiary)" }}>
+            Last 30 days: <span style={{ color: "var(--color-text-secondary)", fontWeight: 500 }}>{formatMarketCap(stats.monthTotal)}</span> across {stats.monthCount} rounds
+            {" · "}Last 90 days: <span style={{ color: "var(--color-text-secondary)", fontWeight: 500 }}>{formatMarketCap(stats.quarterTotal)}</span>
+          </p>
         </div>
 
         <div className="max-w-[1200px] mx-auto px-5 py-8">
