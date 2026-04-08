@@ -83,6 +83,17 @@ async function getLatestSnapshot() {
     .order("snapshot_date", { ascending: false })
     .limit(1)
     .single();
+  if (!snapshot) return null;
+
+  // Normalize market cap same as the chart (BASELINE_COUNT = 983)
+  const BASELINE_COUNT = 983;
+  const companyCount = snapshot.public_companies_count || BASELINE_COUNT;
+  if (companyCount > BASELINE_COUNT) {
+    snapshot.total_market_cap = Math.round(
+      (Number(snapshot.total_market_cap) / companyCount) * BASELINE_COUNT
+    );
+  }
+
   return snapshot;
 }
 
@@ -708,10 +719,10 @@ export default async function HomePage() {
         >
           Track{" "}
           <span style={{ color: "var(--color-text-primary)", fontWeight: 600 }}>
-            {snapshot ? formatMarketCap(snapshot.total_market_cap) : "$7.0T"}+
+            {snapshot ? formatMarketCap(snapshot.total_market_cap) : "$6.9T"}+
           </span>{" "}
-          in biotech market cap across {" "}
-          <span style={{ fontWeight: 600, color: "var(--color-text-primary)" }}>{snapshot?.public_companies_count?.toLocaleString() || "1,000"}</span> public companies,{" "}
+          in biotech market cap across{" "}
+          <span style={{ fontWeight: 600, color: "var(--color-text-primary)" }}>13,000+</span> companies,{" "}
           <span style={{ fontWeight: 600, color: "var(--color-text-primary)" }}>20</span> sectors, and{" "}
           <span style={{ fontWeight: 600, color: "var(--color-text-primary)" }}>30+</span> countries.
         </p>
