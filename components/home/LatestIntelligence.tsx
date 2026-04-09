@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import ArticlePlaceholder from '@/components/news/ArticlePlaceholder'
+import HeroWithLogo from '@/components/news/HeroWithLogo'
 import type { PlaceholderStyle } from '@/lib/article-engine/types'
 
 export interface ArticleCard {
@@ -72,8 +72,8 @@ export function LatestIntelligence({ articles, companyMap = {} }: { articles: Ar
         </Link>
       </div>
 
-      {/* Horizontal scroll */}
-      <div className="overflow-x-auto scrollbar-hide -mx-4 px-4">
+      {/* Horizontal scroll with snap */}
+      <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 scroll-fade-right snap-x" style={{ scrollPaddingLeft: 16 }}>
         <div className="flex gap-3" style={{ paddingBottom: 4 }}>
           {articles.map((article) => {
             const cfg = TYPE_CONFIG[article.type] || TYPE_CONFIG.breaking_news
@@ -87,28 +87,23 @@ export function LatestIntelligence({ articles, companyMap = {} }: { articles: Ar
               <Link
                 key={article.slug}
                 href={`/news/${article.slug}`}
-                className="block flex-shrink-0 rounded-xl overflow-hidden transition-all hover:scale-[1.02] hover:shadow-lg"
+                className="block flex-shrink-0 rounded-xl overflow-hidden transition-all hover:scale-[1.02] hover:shadow-lg snap-start"
                 style={{
-                  width: 280,
+                  width: 300,
                   background: 'var(--color-bg-secondary)',
                   border: '0.5px solid var(--color-border-subtle)',
                 }}
               >
                 {/* Hero */}
-                <div className="h-36 overflow-hidden">
-                  {article.hero_image_url ? (
-                    <img
-                      src={article.hero_image_url}
-                      alt={article.headline}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <ArticlePlaceholder
-                      style={placeholderStyle}
-                      headline={article.headline}
-                      className="w-full h-full"
-                    />
-                  )}
+                <div className="h-36 overflow-hidden relative">
+                  <HeroWithLogo
+                    imageUrl={article.hero_image_url}
+                    placeholderStyle={placeholderStyle}
+                    headline={article.headline}
+                    companyLogo={article.company_id && companyMap[article.company_id]?.logo_url}
+                    companyName={article.company_id && companyMap[article.company_id]?.name}
+                    className="w-full h-full"
+                  />
                 </div>
 
                 {/* Content */}

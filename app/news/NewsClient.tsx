@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import Link from "next/link";
-import ArticlePlaceholder from "@/components/news/ArticlePlaceholder";
+import HeroWithLogo from "@/components/news/HeroWithLogo";
 import type { PlaceholderStyle } from "@/lib/article-engine/types";
 import { Rss, Clock, ChevronRight } from "lucide-react";
 
@@ -86,10 +86,6 @@ function formatDate(dateStr: string | null): string {
 
 function getTypeConfig(type: string) {
   return TYPE_CONFIG[type] ?? { label: "News", color: "#059669", filterKey: type };
-}
-
-function defaultPlaceholder(): PlaceholderStyle {
-  return { pattern: "bars", accentColor: "#059669", icon: "chart" };
 }
 
 // ── Component ──
@@ -283,20 +279,15 @@ export function NewsClient({
         >
           <div className="md:flex">
             {/* Hero */}
-            <div className="md:w-3/5 h-52 md:h-72 overflow-hidden">
-              {featured.hero_image_url ? (
-                <img
-                  src={featured.hero_image_url}
-                  alt={featured.headline}
-                  className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform"
-                />
-              ) : (
-                <ArticlePlaceholder
-                  style={featured.hero_placeholder_style || defaultPlaceholder()}
-                  headline={featured.headline}
-                  className="w-full h-full"
-                />
-              )}
+            <div className="md:w-3/5 h-52 md:h-72 overflow-hidden relative">
+              <HeroWithLogo
+                imageUrl={featured.hero_image_url}
+                placeholderStyle={featured.hero_placeholder_style}
+                headline={featured.headline}
+                companyLogo={featured.company_id && companyMap[featured.company_id]?.logo_url}
+                companyName={featured.company_id && companyMap[featured.company_id]?.name}
+                className="w-full h-full"
+              />
             </div>
 
             {/* Content */}
@@ -405,20 +396,15 @@ export function NewsClient({
                 }}
               >
                 {/* Hero image */}
-                <div className="h-40 overflow-hidden">
-                  {article.hero_image_url ? (
-                    <img
-                      src={article.hero_image_url}
-                      alt={article.headline}
-                      className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform"
-                    />
-                  ) : (
-                    <ArticlePlaceholder
-                      style={article.hero_placeholder_style || defaultPlaceholder()}
-                      headline={article.headline}
-                      className="w-full h-full"
-                    />
-                  )}
+                <div className="h-40 overflow-hidden relative">
+                  <HeroWithLogo
+                    imageUrl={article.hero_image_url}
+                    placeholderStyle={article.hero_placeholder_style}
+                    headline={article.headline}
+                    companyLogo={article.company_id && companyMap[article.company_id]?.logo_url}
+                    companyName={article.company_id && companyMap[article.company_id]?.name}
+                    className="w-full h-full"
+                  />
                 </div>
 
                 {/* Content */}

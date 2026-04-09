@@ -4,6 +4,7 @@ import Link from "next/link";
 import { createServerClient } from "@/lib/supabase";
 import BlockRenderer from "@/components/news/BlockRenderer";
 import ArticlePlaceholder from "@/components/news/ArticlePlaceholder";
+import HeroWithLogo from "@/components/news/HeroWithLogo";
 import { TipTapDoc, Source, PlaceholderStyle } from "@/lib/article-engine/types";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
@@ -407,23 +408,19 @@ export default async function ArticlePage({
 
         {/* Hero image or placeholder */}
         <div className="max-w-3xl mx-auto px-5 mb-8">
-          {article.hero_image_url ? (
-            <img
-              src={article.hero_image_url}
-              alt={article.headline}
+          {(article.hero_image_url || article.hero_placeholder_style) && (
+            <HeroWithLogo
+              imageUrl={article.hero_image_url}
+              placeholderStyle={article.hero_placeholder_style}
+              headline={article.headline}
+              companyLogo={company?.logo_url}
+              companyName={company?.name}
               className="w-full rounded-xl"
               style={{
                 aspectRatio: "2 / 1",
-                objectFit: "cover",
               }}
             />
-          ) : article.hero_placeholder_style ? (
-            <ArticlePlaceholder
-              style={article.hero_placeholder_style}
-              headline={article.headline}
-              className="w-full rounded-xl"
-            />
-          ) : null}
+          )}
         </div>
 
         {/* Article body */}
