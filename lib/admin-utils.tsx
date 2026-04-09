@@ -129,7 +129,7 @@ export const CONFIDENCE_COLORS: Record<string, string> = {
 interface ConfirmDialogProps {
   open: boolean;
   title: string;
-  message: string;
+  message: React.ReactNode;
   confirmLabel?: string;
   cancelLabel?: string;
   variant?: "default" | "danger";
@@ -198,14 +198,14 @@ export function ConfirmDialog({
         }}>
           {title}
         </h3>
-        <p style={{
+        <div style={{
           fontSize: 14,
           color: "var(--color-text-secondary)",
           margin: "0 0 20px",
           lineHeight: 1.5,
         }}>
           {message}
-        </p>
+        </div>
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
           <button
             onClick={onCancel}
@@ -250,19 +250,6 @@ interface SaveIndicatorProps {
 }
 
 export function SaveIndicator({ status }: SaveIndicatorProps) {
-  const [visible, setVisible] = useState(true);
-
-  useEffect(() => {
-    if (status === "saved") {
-      setVisible(true);
-      const t = setTimeout(() => setVisible(false), 3000);
-      return () => clearTimeout(t);
-    }
-    setVisible(true);
-  }, [status]);
-
-  if (!visible) return null;
-
   const config: Record<string, { color: string; label: string; icon: React.ReactNode }> = {
     saved: {
       color: "var(--color-accent)",

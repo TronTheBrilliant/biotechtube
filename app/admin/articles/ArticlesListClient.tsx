@@ -11,7 +11,6 @@ import {
   timeAgo,
   TYPE_CONFIG,
   STATUS_COLORS as SHARED_STATUS_COLORS,
-  CONFIDENCE_COLORS as SHARED_CONFIDENCE_COLORS,
 } from "@/lib/admin-utils";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { Loader2, Search } from "lucide-react";
@@ -40,18 +39,6 @@ const STATUS_FILTERS: { label: string; value: string; color: string }[] = [
   { label: "Archived", value: "archived", color: "#ef4444" },
 ];
 
-// Derive bg+text color maps from shared constants
-const TYPE_COLORS: Record<string, { bg: string; text: string }> = Object.fromEntries(
-  Object.entries(TYPE_CONFIG).map(([k, v]) => [k, { bg: `${v.color}20`, text: v.color }])
-);
-
-const STATUS_COLORS: Record<string, { bg: string; text: string }> = Object.fromEntries(
-  Object.entries(SHARED_STATUS_COLORS).map(([k, c]) => [k, { bg: `${c}20`, text: c }])
-);
-
-const CONFIDENCE_COLORS: Record<string, { bg: string; text: string }> = Object.fromEntries(
-  Object.entries(SHARED_CONFIDENCE_COLORS).map(([k, c]) => [k, { bg: `${c}20`, text: c }])
-);
 
 function formatLabel(s: string): string {
   return s
@@ -146,27 +133,56 @@ export default function ArticlesListClient() {
 
   const clearSelection = () => setSelectedIds(new Set());
 
+  // Toast state
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
+  // Toast auto-dismiss
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 5000);
+    return () => clearTimeout(t);
+  }, [toast]);
+
   // Bulk action execution
   const executeBulkAction = async (action: "publish" | "archive") => {
     const ids = Array.from(selectedIds);
     const newStatus = action === "publish" ? "published" : "archived";
+    const actionLabel = action === "publish" ? "Published" : "Archived";
     setBulkProgress({ current: 0, total: ids.length });
+
+    const failures: string[] = [];
 
     for (let i = 0; i < ids.length; i++) {
       setBulkProgress({ current: i + 1, total: ids.length });
       try {
-        await fetch(`/api/admin/articles/${ids[i]}`, {
+        const res = await fetch(`/api/admin/articles/${ids[i]}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status: newStatus }),
         });
+        if (!res.ok) {
+          const failedArticle = articles.find((a) => a.id === ids[i]);
+          failures.push(failedArticle?.headline || ids[i]);
+        }
       } catch {
-        // continue on individual failures
+        const failedArticle = articles.find((a) => a.id === ids[i]);
+        failures.push(failedArticle?.headline || ids[i]);
       }
     }
 
     setBulkProgress(null);
     clearSelection();
+
+    // Show detailed toast
+    const successCount = ids.length - failures.length;
+    if (failures.length === 0) {
+      setToast({ message: `${actionLabel} ${ids.length} article${ids.length > 1 ? "s" : ""} successfully`, type: "success" });
+    } else if (successCount > 0) {
+      setToast({ message: `${actionLabel} ${successCount} of ${ids.length} articles. ${failures.length} failed: ${failures[0]}`, type: "error" });
+    } else {
+      setToast({ message: `Failed to ${action} ${ids.length} article${ids.length > 1 ? "s" : ""}`, type: "error" });
+    }
+
     fetchArticles();
     // Refresh in_review count
     fetch("/api/admin/articles?status=in_review")
@@ -306,61 +322,57 @@ export default function ArticlesListClient() {
             {debouncedSearch ? "No articles match your search" : "No articles found"}
           </div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            {/* Header row */}
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {/* Select all */}
             <div
               style={{
-                display: "grid",
-                gridTemplateColumns: "36px 100px 1fr 90px 80px 90px 70px",
-                gap: 12,
-                padding: "8px 12px",
-                fontSize: 11,
-                fontWeight: 600,
-                color: "var(--color-text-tertiary)",
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-                borderBottom: "1px solid var(--color-border-subtle)",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "8px 16px",
+                marginBottom: 4,
               }}
             >
-              <span style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <input
-                  type="checkbox"
-                  checked={allSelected}
-                  onChange={toggleSelectAll}
-                  style={{
-                    width: 16,
-                    height: 16,
-                    cursor: "pointer",
-                    accentColor: "var(--color-accent)",
-                  }}
-                />
+              <input
+                type="checkbox"
+                checked={allSelected}
+                onChange={toggleSelectAll}
+                style={{
+                  width: 16,
+                  height: 16,
+                  cursor: "pointer",
+                  accentColor: "var(--color-accent)",
+                }}
+              />
+              <span style={{ fontSize: 12, color: "var(--color-text-tertiary)" }}>
+                Select all ({filteredArticles.length})
               </span>
-              <span>Type</span>
-              <span>Headline</span>
-              <span>Status</span>
-              <span>Confidence</span>
-              <span>Date</span>
-              <span>Editor</span>
             </div>
 
             {/* Article rows */}
             {filteredArticles.map((article) => {
-              const typeStyle = TYPE_COLORS[article.type] || { bg: "#6b728020", text: "#6b7280" };
-              const statusStyle = STATUS_COLORS[article.status] || { bg: "#6b728020", text: "#6b7280" };
-              const confStyle = CONFIDENCE_COLORS[article.confidence] || { bg: "#6b728020", text: "#6b7280" };
+              const typeConf = TYPE_CONFIG[article.type];
+              const typeDotColor = typeConf?.color || "#6b7280";
+              const typeLabel = typeConf?.label || formatLabel(article.type);
+              const statusColor = SHARED_STATUS_COLORS[article.status] || "#6b7280";
               const isSelected = selectedIds.has(article.id);
+
+              const metaParts = [
+                typeLabel,
+                article.confidence ? `${article.confidence} confidence` : null,
+                article.reading_time_min ? `${article.reading_time_min} min read` : null,
+                `edited by ${article.edited_by || "AI"}`,
+              ].filter(Boolean).join(" \u00b7 ");
 
               return (
                 <div
                   key={article.id}
                   style={{
-                    display: "grid",
-                    gridTemplateColumns: "36px 100px 1fr 90px 80px 90px 70px",
-                    gap: 12,
-                    padding: "10px 12px",
+                    display: "flex",
                     alignItems: "center",
+                    gap: 12,
+                    padding: "12px 16px",
                     cursor: "pointer",
-                    borderRadius: 6,
                     transition: "background 0.1s",
                     borderBottom: "1px solid var(--color-border-subtle)",
                     background: isSelected ? "var(--color-bg-secondary)" : "transparent",
@@ -371,14 +383,15 @@ export default function ArticlesListClient() {
                   onMouseLeave={(e) => {
                     if (!isSelected) e.currentTarget.style.background = "transparent";
                   }}
+                  onClick={() => router.push(`/admin/articles/${article.id}`)}
                 >
                   {/* Checkbox */}
-                  <span
-                    style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+                  <div
                     onClick={(e) => {
                       e.stopPropagation();
                       toggleSelect(article.id);
                     }}
+                    style={{ flexShrink: 0 }}
                   >
                     <input
                       type="checkbox"
@@ -391,89 +404,48 @@ export default function ArticlesListClient() {
                         accentColor: "var(--color-accent)",
                       }}
                     />
-                  </span>
+                  </div>
 
-                  {/* Rest of row — click navigates */}
-                  <span
-                    onClick={() => router.push(`/admin/articles/${article.id}`)}
+                  {/* Type dot */}
+                  <div
                     style={{
-                      display: "contents",
+                      width: 8,
+                      height: 8,
+                      borderRadius: "50%",
+                      background: typeDotColor,
+                      flexShrink: 0,
                     }}
-                  >
-                    {/* Type badge */}
-                    <span
-                      style={{
-                        display: "inline-block",
-                        padding: "2px 8px",
-                        borderRadius: 999,
-                        fontSize: 11,
-                        fontWeight: 500,
-                        background: typeStyle.bg,
-                        color: typeStyle.text,
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      {formatLabel(article.type)}
-                    </span>
+                    title={typeLabel}
+                  />
 
-                    {/* Headline */}
-                    <span
-                      style={{
-                        fontSize: 13,
-                        color: "var(--color-text-primary)",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                      title={article.headline}
-                    >
-                      {article.headline.length > 60
-                        ? article.headline.slice(0, 60) + "..."
-                        : article.headline}
-                    </span>
+                  {/* Content - takes remaining space */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 500, color: "var(--color-text-primary)" }}>
+                      {article.headline}
+                    </div>
+                    <div style={{ fontSize: 12, color: "var(--color-text-tertiary)", marginTop: 2 }}>
+                      {metaParts}
+                    </div>
+                  </div>
 
-                    {/* Status badge */}
+                  {/* Status + date */}
+                  <div style={{ textAlign: "right", flexShrink: 0 }}>
                     <span
                       style={{
-                        display: "inline-block",
-                        padding: "2px 8px",
-                        borderRadius: 999,
                         fontSize: 11,
+                        padding: "2px 8px",
+                        borderRadius: 4,
+                        background: statusColor + "18",
+                        color: statusColor,
                         fontWeight: 500,
-                        background: statusStyle.bg,
-                        color: statusStyle.text,
                       }}
                     >
                       {formatLabel(article.status)}
                     </span>
-
-                    {/* Confidence badge */}
-                    <span
-                      style={{
-                        display: "inline-block",
-                        padding: "2px 8px",
-                        borderRadius: 999,
-                        fontSize: 11,
-                        fontWeight: 500,
-                        background: confStyle.bg,
-                        color: confStyle.text,
-                      }}
-                    >
-                      {article.confidence ? formatLabel(article.confidence) : "-"}
-                    </span>
-
-                    {/* Date */}
-                    <span style={{ fontSize: 12, color: "var(--color-text-tertiary)" }}>
+                    <div style={{ fontSize: 11, color: "var(--color-text-tertiary)", marginTop: 4 }}>
                       {timeAgo(article.published_at || article.created_at)}
-                    </span>
-
-                    {/* Edited by */}
-                    <span style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>
-                      {article.edited_by || "AI"}
-                    </span>
-                  </span>
+                    </div>
+                  </div>
                 </div>
               );
             })}
@@ -566,9 +538,20 @@ export default function ArticlesListClient() {
         open={bulkAction !== null}
         title={bulkAction === "publish" ? "Publish Articles" : "Archive Articles"}
         message={
-          bulkAction === "publish"
-            ? `Publish ${selectedIds.size} article${selectedIds.size > 1 ? "s" : ""}?`
-            : `Archive ${selectedIds.size} article${selectedIds.size > 1 ? "s" : ""}?`
+          <div>
+            <p style={{ margin: 0 }}>
+              {bulkAction === "publish" ? "Publish" : "Archive"} these {selectedIds.size} article{selectedIds.size > 1 ? "s" : ""}?
+            </p>
+            <ul style={{ marginTop: 8, paddingLeft: 0, listStyle: "none", fontSize: 13, color: "var(--color-text-secondary)" }}>
+              {articles
+                .filter((a) => selectedIds.has(a.id))
+                .map((a) => (
+                  <li key={a.id} style={{ padding: "2px 0" }}>
+                    &middot; {a.headline}
+                  </li>
+                ))}
+            </ul>
+          </div>
         }
         confirmLabel={bulkAction === "publish" ? "Publish" : "Archive"}
         variant={bulkAction === "archive" ? "danger" : "default"}
@@ -579,6 +562,32 @@ export default function ArticlesListClient() {
         }}
         onCancel={() => setBulkAction(null)}
       />
+
+      {/* Toast */}
+      {toast && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: selectedIds.size > 0 ? 80 : 24,
+            right: 24,
+            padding: "12px 20px",
+            background: "var(--color-bg-primary)",
+            border: "1px solid var(--color-border-subtle)",
+            borderLeft: toast.type === "error"
+              ? "3px solid #c45a5a"
+              : "3px solid #22c55e",
+            borderRadius: 8,
+            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+            color: "var(--color-text-primary)",
+            fontSize: 13,
+            fontWeight: 400,
+            zIndex: 2001,
+            maxWidth: 440,
+          }}
+        >
+          {toast.message}
+        </div>
+      )}
 
       <Footer />
 

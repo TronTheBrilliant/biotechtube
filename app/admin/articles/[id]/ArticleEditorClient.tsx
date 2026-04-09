@@ -486,6 +486,7 @@ export default function ArticleEditorClient({ id }: { id: string }) {
             <button
               onClick={handleRegenerate}
               disabled={regeneratingIndex !== null}
+              title="Place cursor in a paragraph, then click to rewrite that section with AI"
               style={{
                 padding: "8px 16px",
                 background: "transparent",
@@ -617,6 +618,11 @@ export default function ArticleEditorClient({ id }: { id: string }) {
             >
               {editor && <EditorContent editor={editor} />}
             </div>
+
+            {/* Keyboard shortcuts hint */}
+            <div style={{ fontSize: 11, color: "var(--color-text-tertiary)", marginTop: 12 }}>
+              Cmd+S to save &middot; Type / to insert blocks
+            </div>
           </div>
 
           {/* Right panel: Sidebar */}
@@ -647,6 +653,9 @@ export default function ArticleEditorClient({ id }: { id: string }) {
                   );
                 })}
               </div>
+              <p style={{ fontSize: 11, color: "var(--color-text-tertiary)", marginTop: 6, marginBottom: 0 }}>
+                Published articles are visible on the site. Draft and In Review are private.
+              </p>
             </SidebarSection>
 
             {/* SEO */}
@@ -714,6 +723,15 @@ export default function ArticleEditorClient({ id }: { id: string }) {
                     }}
                   />
                 </div>
+              )}
+              {article.hero_image_prompt ? (
+                <p style={{ fontSize: 11, color: "var(--color-text-tertiary)", marginTop: 0, marginBottom: 8 }}>
+                  Copy this prompt into ChatGPT or Gemini to generate a branded hero image
+                </p>
+              ) : (
+                <p style={{ fontSize: 12, color: "var(--color-text-tertiary)", marginTop: 0, marginBottom: 8 }}>
+                  No AI image prompt available. Upload a custom hero image below.
+                </p>
               )}
               <div style={{ display: "flex", gap: 8 }}>
                 {article.hero_image_prompt && (
@@ -818,6 +836,9 @@ export default function ArticleEditorClient({ id }: { id: string }) {
             <SidebarSection title="METADATA">
               <MetadataRow label="Type" value={article.type?.replace(/_/g, " ")} />
               <MetadataRow label="Confidence" value={article.confidence} />
+              <span style={{ fontSize: 11, color: "var(--color-text-tertiary)", display: "block", marginBottom: 4 }}>
+                AI confidence based on source quality and data verification
+              </span>
               <MetadataRow
                 label="Reading time"
                 value={article.reading_time_min ? `${article.reading_time_min} min` : "N/A"}
