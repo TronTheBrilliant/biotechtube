@@ -3,6 +3,15 @@
 import { useState, useEffect, useRef } from "react";
 import { createBrowserClient } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
+import { Nav } from "@/components/Nav";
+import { Footer } from "@/components/Footer";
+import { AdminNav } from "@/components/admin/AdminNav";
+import {
+  ADMIN_EMAIL,
+  scoreColor,
+  formatDate as sharedFormatDate,
+  ConfirmDialog,
+} from "@/lib/admin-utils";
 import {
   Shield, AlertTriangle, CheckCircle, MessageSquare,
   Send, Plus, X, Activity, Clock, RefreshCw,
@@ -93,8 +102,6 @@ interface FreshnessRow {
    CONSTANTS
    ================================================================ */
 
-const ADMIN_EMAIL = "trond@biotechtube.io";
-
 const ACTION_DEFS = [
   { id: "cia", icon: <Zap size={15} />, label: "Run CIA (50)", apiAction: "run-cia" },
   { id: "news", icon: <Newspaper size={15} />, label: "Scrape News", apiAction: "scrape-news" },
@@ -124,7 +131,8 @@ function daysAgo(dateStr: string): number {
 
 function formatDate(dateStr: string): string {
   if (!dateStr || dateStr === "N/A") return "N/A";
-  return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  const result = sharedFormatDate(dateStr);
+  return result === "—" ? "N/A" : result;
 }
 
 function timeAgo(dateStr: string): string {
@@ -132,12 +140,6 @@ function timeAgo(dateStr: string): string {
   if (d === 0) return "today";
   if (d === 1) return "1d ago";
   return `${d}d ago`;
-}
-
-function scoreColor(score: number): string {
-  if (score >= 80) return "#22c55e";
-  if (score >= 50) return "#eab308";
-  return "#ef4444";
 }
 
 function severityDot(severity: string): string {
@@ -175,6 +177,10 @@ export default function QualityDashboard() {
   const [pageLoading, setPageLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<Record<string, boolean>>({});
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean; title: string; message: string; confirmLabel: string;
+    variant: "default" | "danger"; onConfirm: () => void;
+  }>({ open: false, title: "", message: "", confirmLabel: "Confirm", variant: "default", onConfirm: () => {} });
 
   /* ─── Load all data ONCE ─── */
   const loadedRef = useRef(false);
@@ -202,6 +208,8 @@ export default function QualityDashboard() {
           reportListRes,
           ciaRes,
           modelRes,
+          articleCountRes,
+          newestArticleRes,
         ] = await Promise.all([
           supabase.from("companies").select("*", { count: "exact", head: true }),
           supabase.from("profile_quality").select("*", { count: "exact", head: true }).gte("quality_score", 5),
@@ -217,6 +225,8 @@ export default function QualityDashboard() {
           supabase.from("error_reports").select("*").eq("status", "open").order("created_at", { ascending: false }).limit(10),
           supabase.from("profile_quality").select("company_id, quality_score, last_checked_at").order("last_checked_at", { ascending: false }).limit(10),
           supabase.from("admin_ai_models").select("*").order("is_default", { ascending: false }),
+          (supabase.from as any)('articles').select('*', { count: 'exact', head: true }).eq('status', 'published'),
+          (supabase.from as any)('articles').select('published_at').eq('status', 'published').order('published_at', { ascending: false }).limit(1),
         ]);
 
         const totalCompanies = totalCompaniesRes.count || 0;
@@ -230,6 +240,8 @@ export default function QualityDashboard() {
         const openErrors = openErrorsRes.count || 0;
         const issueList = issueListRes.data || [];
         const reportList = reportListRes.data || [];
+        const articleCount = articleCountRes.count || 0;
+        const newestArticle = newestArticleRes.data?.[0]?.published_at?.split("T")[0] || "N/A";
 
         // === Build 6 Quality Categories ===
 
@@ -267,16 +279,27 @@ export default function QualityDashboard() {
           });
         }
 
-        // 4. Content
+        // 4. Content (blog posts + articles)
         const blogDaysOld = daysAgo(newestBlog);
-        const contentFreshness = blogDaysOld <= 7 ? 40 : blogDaysOld <= 14 ? 25 : 0;
-        const contentVolume = blogCount >= 20 ? 40 : blogCount >= 10 ? 25 : 10;
+        const articleDaysOld = daysAgo(newestArticle);
+        const freshestContentDays = Math.min(blogDaysOld, articleDaysOld);
+        const contentFreshness = freshestContentDays <= 3 ? 40 : freshestContentDays <= 7 ? 30 : freshestContentDays <= 14 ? 15 : 0;
+        const totalContentItems = blogCount + articleCount;
+        const contentVolume = totalContentItems >= 30 ? 40 : totalContentItems >= 15 ? 30 : totalContentItems >= 5 ? 20 : 10;
         const contentScore = Math.min(100, contentFreshness + contentVolume + 20);
         const contentIssues: QualityIssue[] = [];
+        if (articleDaysOld > 7) {
+          contentIssues.push({
+            id: "articles-stale",
+            description: `No new articles published in ${articleDaysOld} days`,
+            severity: articleDaysOld > 14 ? "critical" : "warning",
+            actions: [{ label: "Generate News", type: "command", value: "generate-recap" }],
+          });
+        }
         if (blogDaysOld > 7) {
           contentIssues.push({
             id: "blog-stale",
-            description: `No new articles in ${blogDaysOld} days`,
+            description: `No new blog posts in ${blogDaysOld} days`,
             severity: blogDaysOld > 14 ? "critical" : "warning",
             actions: [{ label: "Generate Recap", type: "command", value: "generate-recap" }],
           });
@@ -307,7 +330,7 @@ export default function QualityDashboard() {
           { id: "profiles", name: "Profiles", icon: CATEGORY_ICONS.profiles, score: profileScore, summary: `${goodProfiles.toLocaleString()} of ${totalCompanies.toLocaleString()} scored 5+`, issueCount: profileIssues.length, issues: profileIssues },
           { id: "financial", name: "Financial", icon: CATEGORY_ICONS.financial, score: financialScore, summary: `${tickerCount.toLocaleString()} tickers tracked`, issueCount: financialIssues.length, issues: financialIssues },
           { id: "pipeline", name: "Pipeline", icon: CATEGORY_ICONS.pipeline, score: pipelineScore, summary: `${curatedCount} curated items`, issueCount: pipelineIssues.length, issues: pipelineIssues },
-          { id: "content", name: "Content", icon: CATEGORY_ICONS.content, score: contentScore, summary: `${blogCount} articles, newest ${timeAgo(newestBlog)}`, issueCount: contentIssues.length, issues: contentIssues },
+          { id: "content", name: "Content", icon: CATEGORY_ICONS.content, score: contentScore, summary: `${articleCount} articles, ${blogCount} blog posts`, issueCount: contentIssues.length, issues: contentIssues },
           { id: "seo", name: "SEO", icon: CATEGORY_ICONS.seo, score: seoScore, summary: `${totalCompanies.toLocaleString()} indexable pages`, issueCount: seoIssues.length, issues: seoIssues },
           { id: "ux", name: "UX", icon: CATEGORY_ICONS.ux, score: uxScore, summary: openErrors === 0 ? "No open reports" : `${openErrors} open report${openErrors > 1 ? "s" : ""}`, issueCount: uxIssues.length, issues: uxIssues },
         ];
@@ -345,9 +368,10 @@ export default function QualityDashboard() {
         setFreshness([
           { label: "Prices", value: formatDate(latestPrice), status: priceDaysOld <= 2 ? "fresh" : priceDaysOld <= 5 ? "warning" : "stale", actionId: "prices" },
           { label: "News", value: formatDate(lastNews), status: daysAgo(lastNews) <= 3 ? "fresh" : daysAgo(lastNews) <= 7 ? "warning" : "stale", count: undefined, actionId: "news" },
+          { label: "Articles", value: formatDate(newestArticle), status: articleDaysOld <= 3 ? "fresh" : articleDaysOld <= 7 ? "warning" : "stale", count: `${articleCount} published` },
           { label: "Pipelines", value: "", status: "fresh", count: `${(54699).toLocaleString()} items` },
           { label: "Watchlists", value: formatDate(newestBlog), status: "fresh" },
-          { label: "Blog", value: "", status: blogDaysOld <= 7 ? "fresh" : "warning", count: `${blogCount} articles` },
+          { label: "Blog", value: "", status: blogDaysOld <= 7 ? "fresh" : "warning", count: `${blogCount} posts` },
           { label: "Events", value: "", status: "fresh", count: `${eventRes.count || 49} events` },
         ]);
       } catch (err) {
@@ -393,29 +417,53 @@ export default function QualityDashboard() {
     }
   };
 
-  const dismissIssue = async (id: string) => {
-    await supabase.from("integrity_checks").update({ status: "dismissed", resolved_at: new Date().toISOString() }).eq("id", id);
-    setIssues((prev) => prev.filter((i) => i.id !== id));
-    showToast("Issue dismissed");
+  const dismissIssue = (id: string) => {
+    setConfirmDialog({
+      open: true, title: "Dismiss Issue", message: "This will mark the integrity check as dismissed. Continue?",
+      confirmLabel: "Dismiss", variant: "danger",
+      onConfirm: async () => {
+        await supabase.from("integrity_checks").update({ status: "dismissed", resolved_at: new Date().toISOString() }).eq("id", id);
+        setIssues((prev) => prev.filter((i) => i.id !== id));
+        showToast("Issue dismissed");
+      },
+    });
   };
 
-  const resolveIssue = async (id: string) => {
-    await supabase.from("integrity_checks").update({ status: "resolved", resolved_at: new Date().toISOString() }).eq("id", id);
-    setIssues((prev) => prev.filter((i) => i.id !== id));
-    showToast("Issue resolved");
+  const resolveIssue = (id: string) => {
+    setConfirmDialog({
+      open: true, title: "Resolve Issue", message: "Mark this integrity check as resolved?",
+      confirmLabel: "Resolve", variant: "default",
+      onConfirm: async () => {
+        await supabase.from("integrity_checks").update({ status: "resolved", resolved_at: new Date().toISOString() }).eq("id", id);
+        setIssues((prev) => prev.filter((i) => i.id !== id));
+        showToast("Issue resolved");
+      },
+    });
   };
 
-  const resolveReport = async (id: string) => {
-    const note = resolveNotes[id] || "";
-    await supabase.from("error_reports").update({ status: "resolved", resolution_note: note, resolved_at: new Date().toISOString() }).eq("id", id);
-    setReports((prev) => prev.filter((r) => r.id !== id));
-    showToast("Report resolved");
+  const resolveReport = (id: string) => {
+    setConfirmDialog({
+      open: true, title: "Resolve Report", message: "Mark this user report as resolved?",
+      confirmLabel: "Resolve", variant: "default",
+      onConfirm: async () => {
+        const note = resolveNotes[id] || "";
+        await supabase.from("error_reports").update({ status: "resolved", resolution_note: note, resolved_at: new Date().toISOString() }).eq("id", id);
+        setReports((prev) => prev.filter((r) => r.id !== id));
+        showToast("Report resolved");
+      },
+    });
   };
 
-  const dismissReport = async (id: string) => {
-    await supabase.from("error_reports").update({ status: "dismissed", resolved_at: new Date().toISOString() }).eq("id", id);
-    setReports((prev) => prev.filter((r) => r.id !== id));
-    showToast("Report dismissed");
+  const dismissReport = (id: string) => {
+    setConfirmDialog({
+      open: true, title: "Dismiss Report", message: "This will dismiss the user report without resolution. Continue?",
+      confirmLabel: "Dismiss", variant: "danger",
+      onConfirm: async () => {
+        await supabase.from("error_reports").update({ status: "dismissed", resolved_at: new Date().toISOString() }).eq("id", id);
+        setReports((prev) => prev.filter((r) => r.id !== id));
+        showToast("Report dismissed");
+      },
+    });
   };
 
   const sendChat = async () => {
@@ -483,6 +531,11 @@ export default function QualityDashboard() {
      ================================================================ */
 
   return (
+    <>
+    <Nav />
+    <div style={{ maxWidth: 1200, margin: "0 auto", padding: "6rem 1rem 2rem" }}>
+      <AdminNav />
+    </div>
     <div className="min-h-screen" style={{ background: "var(--color-bg-primary)", color: "var(--color-text-primary)" }}>
 
       {/* ─── Toast ─── */}
@@ -931,5 +984,18 @@ export default function QualityDashboard() {
         }
       `}</style>
     </div>
+    <Footer />
+
+    {/* ─── Confirm Dialog ─── */}
+    <ConfirmDialog
+      open={confirmDialog.open}
+      title={confirmDialog.title}
+      message={confirmDialog.message}
+      confirmLabel={confirmDialog.confirmLabel}
+      variant={confirmDialog.variant}
+      onConfirm={() => { confirmDialog.onConfirm(); setConfirmDialog((prev) => ({ ...prev, open: false })); }}
+      onCancel={() => setConfirmDialog((prev) => ({ ...prev, open: false }))}
+    />
+    </>
   );
 }
