@@ -95,7 +95,7 @@ export function LatestIntelligence({ articles, companyMap = {} }: { articles: Ar
                 }}
               >
                 {/* Hero */}
-                <div className="h-36 overflow-hidden relative">
+                <div className="h-48 overflow-hidden relative">
                   <HeroWithLogo
                     imageUrl={article.hero_image_url}
                     placeholderStyle={placeholderStyle}

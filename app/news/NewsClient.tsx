@@ -279,7 +279,7 @@ export function NewsClient({
         >
           <div className="md:flex">
             {/* Hero */}
-            <div className="md:w-3/5 h-52 md:h-72 overflow-hidden relative">
+            <div className="md:w-3/5 h-60 md:h-80 overflow-hidden relative">
               <HeroWithLogo
                 imageUrl={featured.hero_image_url}
                 placeholderStyle={featured.hero_placeholder_style}
@@ -396,7 +396,7 @@ export function NewsClient({
                 }}
               >
                 {/* Hero image */}
-                <div className="h-40 overflow-hidden relative">
+                <div className="h-56 overflow-hidden relative">
                   <HeroWithLogo
                     imageUrl={article.hero_image_url}
                     placeholderStyle={article.hero_placeholder_style}

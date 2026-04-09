@@ -60,7 +60,7 @@ export default function HeroWithLogo({
             WebkitBackdropFilter: 'blur(6px)',
             boxShadow: '0 4px 32px rgba(0, 0, 0, 0.2)',
             borderRadius: 0,
-            padding: 'clamp(14px, 3.5%, 28px)',
+            padding: 'clamp(18px, 5%, 36px)',
           }}
         >
           {companyLogo ? (
@@ -68,7 +68,7 @@ export default function HeroWithLogo({
               src={companyLogo}
               alt={companyName || ''}
               style={{
-                height: 'clamp(40px, 8vw, 64px)',
+                height: 'clamp(52px, 12vw, 88px)',
                 width: 'auto',
                 objectFit: 'contain',
                 display: 'block',
@@ -78,8 +78,8 @@ export default function HeroWithLogo({
             <div
               className="flex items-center justify-center"
               style={{
-                width: 'clamp(48px, 8vw, 72px)',
-                height: 'clamp(48px, 8vw, 72px)',
+                width: 'clamp(56px, 12vw, 88px)',
+                height: 'clamp(56px, 12vw, 88px)',
                 background: 'var(--color-accent, #059669)',
                 color: 'white',
                 fontSize: 'clamp(20px, 4vw, 32px)',
