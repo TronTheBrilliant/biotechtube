@@ -440,11 +440,17 @@ export default function ArticleEditorClient({ id }: { id: string }) {
         .ProseMirror {
           color: var(--color-text-primary);
           font-size: 16px;
-          line-height: 1.7;
+          line-height: 1.75;
+          min-height: 400px;
+          padding: 4px 0;
         }
+        .ProseMirror:focus { outline: none; }
         .ProseMirror p { margin-bottom: 1rem; }
         .ProseMirror h2 { font-size: 1.5rem; font-weight: 700; margin-top: 2rem; margin-bottom: 0.75rem; }
         .ProseMirror h3 { font-size: 1.25rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        .ProseMirror ul, .ProseMirror ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+        .ProseMirror li { margin-bottom: 0.25rem; }
+        .ProseMirror blockquote { border-left: 3px solid var(--color-border-subtle); padding-left: 1rem; margin: 1rem 0; color: var(--color-text-secondary); }
         .ProseMirror .is-empty::before {
           content: attr(data-placeholder);
           color: var(--color-text-tertiary);
@@ -614,14 +620,23 @@ export default function ArticleEditorClient({ id }: { id: string }) {
                 borderRadius: 10,
                 padding: 24,
                 minHeight: 500,
+                boxShadow: "inset 0 1px 3px rgba(0,0,0,0.04)",
               }}
             >
               {editor && <EditorContent editor={editor} />}
             </div>
 
-            {/* Keyboard shortcuts hint */}
-            <div style={{ fontSize: 11, color: "var(--color-text-tertiary)", marginTop: 12 }}>
-              Cmd+S to save &middot; Type / to insert blocks
+            {/* Word count + keyboard shortcuts hint */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 12, fontSize: 11, color: "var(--color-text-tertiary)" }}>
+              <span>
+                {(() => {
+                  const text = editor?.getText() || "";
+                  const words = text.split(/\s+/).filter((w: string) => w.length > 0).length;
+                  const readMin = Math.max(1, Math.ceil(words / 250));
+                  return `${words.toLocaleString()} words \u00b7 ~${readMin} min read`;
+                })()}
+              </span>
+              <span>Cmd+S to save &middot; Type / to insert blocks</span>
             </div>
           </div>
 

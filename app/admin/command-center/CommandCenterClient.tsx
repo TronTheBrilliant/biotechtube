@@ -823,9 +823,34 @@ export default function CommandCenterClient() {
   if (authLoading || loading) {
     return (
       <>
+        <style>{`@keyframes skeletonPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }`}</style>
         <Nav />
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
-          <Loader2 size={32} className="animate-spin" style={{ color: "var(--color-text-tertiary)" }} />
+        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "6rem 1rem 2rem" }}>
+          <AdminNav />
+          {/* Skeleton header */}
+          <div style={{ height: 22, width: 180, background: "var(--color-bg-secondary)", borderRadius: 4, marginBottom: 8, animation: "skeletonPulse 1.5s ease-in-out infinite" }} />
+          <div style={{ height: 12, width: 260, background: "var(--color-bg-secondary)", borderRadius: 4, marginBottom: 24, animation: "skeletonPulse 1.5s ease-in-out infinite" }} />
+          {/* Skeleton stats grid */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginBottom: 28 }}>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} style={{ background: "var(--color-bg-primary)", border: "1px solid var(--color-border-subtle)", borderRadius: 10, padding: "18px 20px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, background: "var(--color-bg-secondary)", animation: "skeletonPulse 1.5s ease-in-out infinite" }} />
+                  <div style={{ height: 12, width: 80, background: "var(--color-bg-secondary)", borderRadius: 4, animation: "skeletonPulse 1.5s ease-in-out infinite" }} />
+                </div>
+                <div style={{ height: 28, width: 60, background: "var(--color-bg-secondary)", borderRadius: 4, animation: "skeletonPulse 1.5s ease-in-out infinite" }} />
+              </div>
+            ))}
+          </div>
+          {/* Skeleton action cards */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 14, marginBottom: 28 }}>
+            {Array.from({ length: 2 }).map((_, i) => (
+              <div key={i} style={{ background: "var(--color-bg-primary)", border: "1px solid var(--color-border-subtle)", borderRadius: 10, padding: 20 }}>
+                <div style={{ height: 14, width: 140, background: "var(--color-bg-secondary)", borderRadius: 4, marginBottom: 8, animation: "skeletonPulse 1.5s ease-in-out infinite" }} />
+                <div style={{ height: 10, width: "80%", background: "var(--color-bg-secondary)", borderRadius: 4, animation: "skeletonPulse 1.5s ease-in-out infinite" }} />
+              </div>
+            ))}
+          </div>
         </div>
         <Footer />
       </>
@@ -855,10 +880,10 @@ export default function CommandCenterClient() {
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
           <div>
-            <h1 style={{ fontSize: 22, fontWeight: 600, margin: 0, color: "var(--color-text-primary)" }}>
+            <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0, color: "var(--color-text-primary)" }}>
               Mission Control
             </h1>
-            <p style={{ fontSize: 12, color: "var(--color-text-tertiary)", margin: "4px 0 0" }}>
+            <p style={{ fontSize: 13, color: "var(--color-text-tertiary)", margin: "4px 0 0" }}>
               System Health {overallHealth}% &middot; {agents.length} agents &middot; {agents.filter(a => a.latest_run).length} have run
             </p>
           </div>
@@ -1647,6 +1672,7 @@ function StatCard({
     <div style={{
       background: "var(--color-bg-primary)",
       border: "1px solid var(--color-border-subtle)",
+      borderLeft: `2px solid ${accentColor}`,
       borderRadius: 10,
       padding: "18px 20px",
       boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
@@ -1664,11 +1690,11 @@ function StatCard({
         }}>
           {icon}
         </div>
-        <span style={{ fontSize: 12, color: "var(--color-text-tertiary)", fontWeight: 500 }}>
+        <span style={{ fontSize: 11, color: "var(--color-text-tertiary)", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.03em" }}>
           {label}
         </span>
       </div>
-      <div style={{ fontSize: 28, fontWeight: 600, color: "var(--color-text-primary)", lineHeight: 1 }}>
+      <div style={{ fontSize: 28, fontWeight: 700, color: "var(--color-text-primary)", lineHeight: 1 }}>
         {value}
       </div>
       {subtitle && (

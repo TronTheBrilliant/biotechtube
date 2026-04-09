@@ -31,11 +31,11 @@ export function AdminNav() {
             style={{
               padding: "10px 16px",
               fontSize: 14,
-              color: isActive ? "var(--color-text-primary)" : "var(--color-text-tertiary)",
+              color: isActive ? "var(--color-accent)" : "var(--color-text-tertiary)",
               textDecoration: "none",
-              borderBottom: isActive ? "2px solid var(--color-text-primary)" : "2px solid transparent",
+              borderBottom: isActive ? "2px solid var(--color-accent)" : "2px solid transparent",
               fontWeight: isActive ? 500 : 400,
-              transition: "color 0.15s, border-color 0.15s",
+              transition: "all 0.2s ease",
             }}
           >
             {tab.label}

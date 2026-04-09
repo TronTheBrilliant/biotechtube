@@ -223,9 +223,12 @@ export default function ArticlesListClient() {
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "24px 16px", paddingBottom: selectedIds.size > 0 ? 80 : 24 }}>
         <AdminNav />
 
-        <h1 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24, color: "var(--color-text-primary)" }}>
+        <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 4, color: "var(--color-text-primary)" }}>
           Articles
         </h1>
+        <p style={{ fontSize: 13, color: "var(--color-text-tertiary)", margin: "0 0 20px" }}>
+          Manage all generated and edited articles
+        </p>
 
         {/* Search input */}
         <div style={{ position: "relative", marginBottom: 16 }}>
@@ -305,11 +308,42 @@ export default function ArticlesListClient() {
           })}
         </div>
 
+        {/* Count summary */}
+        {!loading && articles.length > 0 && (
+          <div style={{ fontSize: 12, color: "var(--color-text-tertiary)", marginBottom: 12 }}>
+            {articles.length} article{articles.length !== 1 ? "s" : ""}
+            {filter === "all" && (() => {
+              const pub = articles.filter(a => a.status === "published").length;
+              const rev = articles.filter(a => a.status === "in_review").length;
+              const dra = articles.filter(a => a.status === "draft").length;
+              const parts: string[] = [];
+              if (pub > 0) parts.push(`${pub} published`);
+              if (rev > 0) parts.push(`${rev} in review`);
+              if (dra > 0) parts.push(`${dra} draft`);
+              return parts.length > 0 ? " \u00b7 " + parts.join(" \u00b7 ") : "";
+            })()}
+          </div>
+        )}
+
         {/* Article list */}
         {loading ? (
-          <div style={{ display: "flex", justifyContent: "center", padding: 48 }}>
-            <Loader2 size={24} style={{ animation: "spin 1s linear infinite", color: "var(--color-text-tertiary)" }} />
-          </div>
+          <>
+            <style>{`@keyframes skeletonPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }`}</style>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} style={{
+                display: "flex", alignItems: "center", gap: 12, padding: "12px 16px",
+                borderBottom: "1px solid var(--color-border-subtle)",
+              }}>
+                <div style={{ width: 16, height: 16, borderRadius: 4, background: "var(--color-bg-secondary)", animation: "skeletonPulse 1.5s ease-in-out infinite" }} />
+                <div style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--color-bg-secondary)", animation: "skeletonPulse 1.5s ease-in-out infinite" }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ height: 14, width: `${60 - i * 5}%`, background: "var(--color-bg-secondary)", borderRadius: 4, animation: "skeletonPulse 1.5s ease-in-out infinite" }} />
+                  <div style={{ height: 10, width: "40%", background: "var(--color-bg-secondary)", borderRadius: 4, marginTop: 6, animation: "skeletonPulse 1.5s ease-in-out infinite" }} />
+                </div>
+                <div style={{ width: 60, height: 20, background: "var(--color-bg-secondary)", borderRadius: 4, animation: "skeletonPulse 1.5s ease-in-out infinite" }} />
+              </div>
+            ))}
+          </>
         ) : filteredArticles.length === 0 ? (
           <div
             style={{

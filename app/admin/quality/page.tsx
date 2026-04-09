@@ -182,16 +182,12 @@ export default function QualityDashboard() {
     variant: "default" | "danger"; onConfirm: () => void;
   }>({ open: false, title: "", message: "", confirmLabel: "Confirm", variant: "default", onConfirm: () => {} });
 
-  /* ─── Load all data ONCE ─── */
+  /* ─── Load all data ─── */
   const loadedRef = useRef(false);
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    if (authLoading || loadedRef.current) return;
-    if (user?.email !== ADMIN_EMAIL) { setPageLoading(false); return; }
-    loadedRef.current = true;
-
-    (async () => {
-      try {
+  const loadData = async () => {
+    try {
         // 14 queries in one Promise.all (under 15 limit)
         const [
           totalCompaniesRes,
@@ -378,9 +374,21 @@ export default function QualityDashboard() {
         console.error("Dashboard load error:", err);
       }
       setPageLoading(false);
-    })();
+      setRefreshing(false);
+  };
+
+  useEffect(() => {
+    if (authLoading || loadedRef.current) return;
+    if (user?.email !== ADMIN_EMAIL) { setPageLoading(false); return; }
+    loadedRef.current = true;
+    loadData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authLoading, user]);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    loadData();
+  };
 
   /* ─── Toast auto-dismiss ─── */
   useEffect(() => {
@@ -541,8 +549,18 @@ export default function QualityDashboard() {
       {/* ─── Toast ─── */}
       {toast && (
         <div
-          className="fixed top-4 right-4 z-50 px-5 py-3 rounded-lg text-[13px] font-medium flex items-center gap-2"
           style={{
+            position: "fixed",
+            top: 80,
+            right: 16,
+            zIndex: 50,
+            padding: "12px 20px",
+            borderRadius: 8,
+            fontSize: 13,
+            fontWeight: 500,
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
             background: toast.type === "success" ? "#22c55e" : toast.type === "error" ? "#ef4444" : "#3b82f6",
             color: "white",
             boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
@@ -562,11 +580,33 @@ export default function QualityDashboard() {
               <BarChart3 size={18} className="text-white" />
             </div>
             <div>
-              <h1 className="text-[18px] font-bold tracking-tight">Quality Command Center</h1>
-              <p className="text-[11px] mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>BiotechTube Platform Health</p>
+              <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Quality Command Center</h1>
+              <p style={{ fontSize: 13, color: "var(--color-text-tertiary)", margin: "2px 0 0" }}>BiotechTube Platform Health</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "6px 12px",
+                fontSize: 12,
+                fontWeight: 500,
+                background: "transparent",
+                border: "1px solid var(--color-border-subtle)",
+                borderRadius: 6,
+                color: "var(--color-text-secondary)",
+                cursor: refreshing ? "not-allowed" : "pointer",
+                opacity: refreshing ? 0.5 : 1,
+                transition: "all 0.15s",
+              }}
+            >
+              <RefreshCw size={13} style={refreshing ? { animation: "spin 1s linear infinite" } : undefined} />
+              {refreshing ? "Refreshing..." : "Refresh"}
+            </button>
             <span className="text-[11px] uppercase tracking-wider font-semibold" style={{ color: "var(--color-text-tertiary)" }}>Health</span>
             <span className="text-[22px] font-bold tabular-nums" style={{ color: hColor }}>{healthScore}</span>
             <span className="w-2.5 h-2.5 rounded-full" style={{ background: hColor }} />
@@ -981,6 +1021,9 @@ export default function QualityDashboard() {
         @keyframes slideDown {
           from { opacity: 0; transform: translateY(-12px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes spin {
+          to { transform: rotate(360deg); }
         }
       `}</style>
     </div>
