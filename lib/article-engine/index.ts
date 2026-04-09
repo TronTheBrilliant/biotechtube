@@ -25,6 +25,7 @@ import { scoreConfidence, statusFromConfidence } from './confidence'
 import { convertToBlocks, estimateReadingTime } from './blocks'
 import { generateImagePrompt, getPlaceholderStyle } from './image-prompt'
 import { publishArticle, articleExistsForSource } from './publisher'
+import { generateAndUploadImage } from './image-generator'
 import type {
   ArticleInput,
   ArticleContext,
@@ -134,6 +135,22 @@ export class ArticleEngine {
   async generateAndPublish(input: ArticleInput): Promise<{ id: string; slug: string; article: GeneratedArticle }> {
     const article = await this.generate(input)
     const { id, slug } = await publishArticle(article)
+
+    // Fire-and-forget image generation (don't block article publish)
+    if (article.hero_image_prompt) {
+      generateAndUploadImage(article.hero_image_prompt, article.slug)
+        .then(imageUrl => {
+          if (imageUrl) {
+            const supabase = createServerClient()
+            ;(supabase.from as any)('articles')
+              .update({ hero_image_url: imageUrl })
+              .eq('slug', article.slug)
+              .then(() => console.log(`Hero image generated for ${article.slug}`))
+          }
+        })
+        .catch(err => console.error('Background image gen failed:', err))
+    }
+
     return { id, slug, article }
   }
 

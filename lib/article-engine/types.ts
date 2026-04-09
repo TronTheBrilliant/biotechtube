@@ -188,6 +188,7 @@ export interface GeneratedArticle {
   body: TipTapDoc
   summary: string
   hero_image_prompt: string
+  hero_image_url?: string | null
   hero_placeholder_style: PlaceholderStyle
   sources: Source[]
   company_id: string | null

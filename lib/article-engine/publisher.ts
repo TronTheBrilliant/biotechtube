@@ -21,6 +21,7 @@ export async function publishArticle(article: GeneratedArticle): Promise<{ id: s
       body: article.body as any,
       summary: article.summary,
       hero_image_prompt: article.hero_image_prompt,
+      hero_image_url: article.hero_image_url || null,
       hero_placeholder_style: article.hero_placeholder_style as any,
       sources: article.sources as any,
       company_id: article.company_id,
