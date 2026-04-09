@@ -32,6 +32,7 @@ import {
   Copy,
   Upload,
   RefreshCw,
+  Zap,
 } from "lucide-react";
 
 import type { ArticleStatus, Source, TipTapDoc } from "@/lib/article-engine/types";
@@ -61,6 +62,7 @@ export default function ArticleEditorClient({ id }: { id: string }) {
   const [seoDescription, setSeoDescription] = useState("");
   const [sources, setSources] = useState<Source[]>([]);
   const [heroImageUrl, setHeroImageUrl] = useState("");
+  const [generatingImage, setGeneratingImage] = useState(false);
 
   // UI state
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
@@ -741,12 +743,53 @@ export default function ArticleEditorClient({ id }: { id: string }) {
               )}
               {article.hero_image_prompt ? (
                 <p style={{ fontSize: 11, color: "var(--color-text-tertiary)", marginTop: 0, marginBottom: 8 }}>
-                  Copy this prompt into ChatGPT or Gemini to generate a branded hero image
+                  Generate an AI hero image or upload your own
                 </p>
               ) : (
                 <p style={{ fontSize: 12, color: "var(--color-text-tertiary)", marginTop: 0, marginBottom: 8 }}>
                   No AI image prompt available. Upload a custom hero image below.
                 </p>
+              )}
+              {article.hero_image_prompt && (
+                <button
+                  onClick={async () => {
+                    setGeneratingImage(true);
+                    try {
+                      const res = await fetch(`/api/admin/articles/${id}/generate-image`, { method: "POST" });
+                      const data = await res.json();
+                      if (data.imageUrl) {
+                        setHeroImageUrl(data.imageUrl);
+                        setToast({ message: "Hero image generated!", type: "success" });
+                      } else {
+                        setToast({ message: data.error || "Image generation failed", type: "error" });
+                      }
+                    } catch {
+                      setToast({ message: "Image generation failed", type: "error" });
+                    }
+                    setGeneratingImage(false);
+                  }}
+                  disabled={generatingImage}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 6,
+                    padding: "8px 12px",
+                    borderRadius: 6,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    background: "var(--color-accent)",
+                    color: "white",
+                    border: "none",
+                    cursor: generatingImage ? "wait" : "pointer",
+                    opacity: generatingImage ? 0.7 : 1,
+                    width: "100%",
+                    marginBottom: 8,
+                  }}
+                >
+                  {generatingImage ? <Loader2 size={14} className="animate-spin" /> : <Zap size={14} />}
+                  {generatingImage ? "Generating..." : "Generate AI Image"}
+                </button>
               )}
               <div style={{ display: "flex", gap: 8 }}>
                 {article.hero_image_prompt && (
