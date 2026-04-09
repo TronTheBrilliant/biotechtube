@@ -863,40 +863,36 @@ export default async function HomePage() {
       <TickerBar />
 
       {/* Hero — centred */}
-      <section aria-label="Hero" className="max-w-[1200px] mx-auto px-4 md:px-6 pt-8 md:pt-14 pb-6 md:pb-8 text-center">
+      <section aria-label="Hero" className="max-w-[1200px] mx-auto px-4 md:px-6 pt-10 md:pt-16 pb-8 md:pb-10 text-center">
         <h1
-          className="text-[36px] md:text-[56px] font-bold tracking-tight mx-auto"
-          style={{
-            color: "var(--color-text-primary)",
-            letterSpacing: "-1.5px",
-            lineHeight: 1.05,
-          }}
+          className="text-display-lg mx-auto"
+          style={{ color: "var(--color-text-primary)" }}
         >
           The Pulse of the Global Biotech Market.
         </h1>
         <p
-          className="text-[15px] md:text-[17px] mt-3 max-w-[560px] mx-auto"
-          style={{ color: "var(--color-text-secondary)", lineHeight: 1.6 }}
+          className="text-[15px] md:text-[17px] mt-4 max-w-[620px] mx-auto"
+          style={{ color: "var(--color-text-secondary)", lineHeight: 1.65 }}
         >
-          Track{" "}
+          Tracking{" "}
           <span style={{ color: "var(--color-text-primary)", fontWeight: 600 }}>
             {snapshot ? formatMarketCap(snapshot.total_market_cap) : "$6.9T"}+
           </span>{" "}
-          in biotech market cap across{" "}
+          in market cap across{" "}
           <span style={{ fontWeight: 600, color: "var(--color-text-primary)" }}>13,000+</span> companies,{" "}
           <span style={{ fontWeight: 600, color: "var(--color-text-primary)" }}>20</span> sectors, and{" "}
           <span style={{ fontWeight: 600, color: "var(--color-text-primary)" }}>30+</span> countries.
         </p>
 
         {/* Company logos as social proof */}
-        <div className="flex items-center justify-center gap-3 md:gap-5 mt-6 opacity-30 overflow-hidden px-2">
+        <div className="flex items-center justify-center gap-4 md:gap-6 mt-8 opacity-40 overflow-hidden px-2">
           {["lilly.com", "pfizer.com", "novartis.com", "roche.com", "amgen.com", "gilead.com"].map((domain) => (
             <img
               key={domain}
               src={`https://img.logo.dev/${domain}?token=pk_FNHUWoZORpiR_7j_vzFnmQ`}
               alt={domain.split(".")[0]}
-              className="h-4 md:h-6 object-contain grayscale flex-shrink-0"
-              style={{ maxWidth: 60 }}
+              className="h-5 md:h-7 object-contain grayscale flex-shrink-0 hover:grayscale-0 transition-all duration-300"
+              style={{ maxWidth: 80 }}
             />
           ))}
         </div>
@@ -904,11 +900,6 @@ export default async function HomePage() {
 
       {/* Index Cards — hidden for testing */}
       {/* {snapshot && <IndexCards snapshot={snapshot} />} */}
-
-      {/* Latest Intelligence */}
-      <div className="max-w-[1200px] mx-auto px-4 md:px-6 pb-4">
-        <LatestIntelligence articles={intelligenceArticles} companyMap={intelligenceCompanyMap} />
-      </div>
 
       {/* Sections Grid */}
       <main className="px-4 md:px-6 py-4 space-y-4 max-w-[1200px] mx-auto">
@@ -938,6 +929,9 @@ export default async function HomePage() {
           )}
         </div>
 
+        {/* Latest Intelligence */}
+        <LatestIntelligence articles={intelligenceArticles} companyMap={intelligenceCompanyMap} />
+
         {/* Sectors + Countries */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <HomeSection icon="🧬" title="Top Sectors" viewAllHref="/top-sectors" viewAllLabel="View all 20">
@@ -960,10 +954,10 @@ export default async function HomePage() {
           </HomeSection>
         </div>
 
-        {/* Market Heatmap — full width */}
-        <HomeSection icon="🗺️" title="Market Heatmap" viewAllHref="/markets" viewAllLabel="Full markets">
+        {/* Market Heatmap — hidden until data quality is fixed */}
+        {/* <HomeSection icon="🗺️" title="Market Heatmap" viewAllHref="/markets" viewAllLabel="Full markets">
           <MarketHeatmap />
-        </HomeSection>
+        </HomeSection> */}
 
         {/* Biotech Market Index — full width */}
         {indexHistory.length > 0 && (
