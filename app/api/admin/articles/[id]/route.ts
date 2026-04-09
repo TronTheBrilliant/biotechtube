@@ -6,7 +6,8 @@ import { cookies } from 'next/headers'
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "trond@biotechtube.io"
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const VALID_STATUSES = ['draft', 'in_review', 'published', 'archived'] as const
-const SLUG_REGEX = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/
+// Accept any lowercase string with hyphens, numbers, dots — very permissive
+const SLUG_REGEX = /^[a-z0-9][a-z0-9._-]*$/
 
 async function verifyAdmin(request: Request): Promise<boolean> {
   // Check CRON_SECRET bearer token first
@@ -152,8 +153,11 @@ export async function PUT(
     }
 
     if (Object.keys(updates).length === 0) {
+      console.error('PUT /api/admin/articles/[id]: No valid fields. Body keys:', Object.keys(body))
       return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 })
     }
+
+    console.log('PUT /api/admin/articles/[id]:', id, 'updating fields:', Object.keys(updates))
 
     // Always mark as human-edited and set updated_at
     updates.edited_by = 'ai+human'

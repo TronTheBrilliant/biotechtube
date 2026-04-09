@@ -205,34 +205,56 @@ export default function ArticleEditorClient({ id }: { id: string }) {
     setSaving(true);
     setSaveStatus("saving");
     try {
-      const body = editor.getJSON() as TipTapDoc;
+      const editorBody = editor.getJSON();
+      const payload = {
+        headline,
+        subtitle,
+        summary,
+        body: editorBody,
+        status,
+        slug,
+        seo_title: seoTitle,
+        seo_description: seoDescription,
+        sources,
+        hero_image_url: heroImageUrl,
+      };
+
+      console.log("[ArticleEditor] Saving article", id, "status:", status);
+
       const res = await fetch(`/api/admin/articles/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          headline,
-          subtitle,
-          summary,
-          body,
-          status,
-          slug,
-          seo_title: seoTitle,
-          seo_description: seoDescription,
-          sources,
-          hero_image_url: heroImageUrl,
-        }),
+        body: JSON.stringify(payload),
       });
-      const data = await res.json();
-      if (data.error) {
-        setToast({ message: `Save failed: ${data.error}`, type: "error" });
+
+      console.log("[ArticleEditor] Response status:", res.status);
+
+      if (!res.ok) {
+        // Try to parse error, fallback to status text
+        let errorMsg = `HTTP ${res.status}`;
+        try {
+          const errData = await res.json();
+          errorMsg = errData.error || errData.details || errorMsg;
+        } catch {
+          errorMsg = await res.text().catch(() => errorMsg);
+        }
+        console.error("[ArticleEditor] Save failed:", errorMsg);
+        setToast({ message: `Save failed: ${errorMsg}`, type: "error" });
         setSaveStatus("error");
       } else {
-        setArticle(data.article);
-        setToast({ message: "Article saved", type: "success" });
-        hasUnsavedChanges.current = false;
-        setSaveStatus("saved");
+        const data = await res.json();
+        if (data.error) {
+          setToast({ message: `Save failed: ${data.error}`, type: "error" });
+          setSaveStatus("error");
+        } else {
+          setArticle(data.article);
+          setToast({ message: "Article saved", type: "success" });
+          hasUnsavedChanges.current = false;
+          setSaveStatus("saved");
+        }
       }
     } catch (err: any) {
+      console.error("[ArticleEditor] Save exception:", err);
       setToast({ message: `Save failed: ${err.message}`, type: "error" });
       setSaveStatus("error");
     }
