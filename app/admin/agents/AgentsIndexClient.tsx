@@ -75,6 +75,18 @@ export default function AgentsIndexClient() {
           {agents.map((agent) => {
             const meta = AGENT_META[agent.agent_id];
             const isHovered = hoveredCard === agent.agent_id;
+            const lastRunStatus = agent.latest_run?.status === "completed"
+              ? "Success"
+              : agent.latest_run?.status === "failed"
+                ? "Failed"
+                : agent.latest_run
+                  ? "Running"
+                  : "Never";
+            const lastRunColor = agent.latest_run?.status === "completed"
+              ? "#22c55e"
+              : agent.latest_run?.status === "failed"
+                ? "#ef4444"
+                : "var(--color-text-tertiary)";
             return (
               <Link
                 key={agent.agent_id}
@@ -85,57 +97,92 @@ export default function AgentsIndexClient() {
                   onMouseEnter={() => setHoveredCard(agent.agent_id)}
                   onMouseLeave={() => setHoveredCard(null)}
                   style={{
+                    position: "relative",
                     background: "var(--color-bg-primary)",
                     border: "1px solid var(--color-border-subtle)",
                     borderRadius: 10,
                     padding: 20,
                     cursor: "pointer",
                     boxShadow: isHovered ? "0 4px 12px rgba(0,0,0,0.08)" : "0 1px 2px rgba(0,0,0,0.04)",
-                    transition: "box-shadow 0.15s",
+                    transition: "box-shadow 0.15s, opacity 0.15s",
+                    opacity: agent.enabled ? 1 : 0.5,
                   }}
                 >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: 12 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <div style={{
-                        width: 32, height: 32, borderRadius: 8,
-                        background: "var(--color-bg-secondary)",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        color: "var(--color-text-secondary)",
-                      }}>
-                        {meta?.icon}
-                      </div>
-                      <div>
-                        <div style={{ fontSize: 14, fontWeight: 500, color: "var(--color-text-primary)" }}>
-                          {meta?.name || agent.agent_id}
-                        </div>
-                        <div style={{ fontSize: 12, color: "var(--color-text-tertiary)" }}>
-                          {cronToHuman(agent.schedule_cron)} &middot; Last: {timeAgo(agent.latest_run?.started_at || null)}
-                        </div>
-                      </div>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{
-                        fontSize: 11, fontWeight: 500, textTransform: "uppercase" as const, letterSpacing: "0.02em",
-                        color: agent.enabled ? "var(--color-text-primary)" : "var(--color-text-tertiary)",
-                      }}>
-                        {agent.enabled ? "Enabled" : "Paused"}
-                      </span>
-                      <span style={{ fontSize: 20, fontWeight: 600, color: scoreColor(agent.health_score) }}>
-                        {agent.health_score}%
-                      </span>
-                    </div>
-                  </div>
-                  <div style={{ height: 3, background: "var(--color-border-subtle)", borderRadius: 2, marginBottom: 10 }}>
-                    <div style={{ height: 3, background: scoreColor(agent.health_score), borderRadius: 2, width: `${agent.health_score}%` }} />
-                  </div>
-                  <div style={{ fontSize: 12, color: "var(--color-text-tertiary)" }}>
-                    {agent.health_summary}
-                  </div>
-                  {agent.latest_run && (
-                    <div style={{ fontSize: 12, color: "var(--color-text-tertiary)", marginTop: 8 }}>
-                      Last: {agent.latest_run.summary || agent.latest_run.status}
+                  {/* Paused overlay */}
+                  {!agent.enabled && (
+                    <div style={{
+                      position: "absolute",
+                      top: 8,
+                      right: 8,
+                      fontSize: 10,
+                      fontWeight: 600,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.04em",
+                      color: "var(--color-text-tertiary)",
+                      background: "var(--color-bg-secondary)",
+                      padding: "2px 8px",
+                      borderRadius: 4,
+                    }}>
+                      Paused
                     </div>
                   )}
+
+                  {/* Icon + Name */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+                    <div style={{
+                      width: 32, height: 32, borderRadius: 8,
+                      background: "var(--color-bg-secondary)",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      color: "var(--color-text-secondary)",
+                    }}>
+                      {meta?.icon}
+                    </div>
+                    <div style={{ fontSize: 14, fontWeight: 500, color: "var(--color-text-primary)" }}>
+                      {meta?.name || agent.agent_id}
+                    </div>
+                  </div>
+
+                  {/* Schedule */}
+                  <div style={{ fontSize: 12, color: "var(--color-text-tertiary)", marginBottom: 14, paddingLeft: 42 }}>
+                    Runs {cronToHuman(agent.schedule_cron).toLowerCase()}
+                  </div>
+
+                  {/* Health bar + percentage */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+                    <div style={{ flex: 1, height: 6, background: "var(--color-border-subtle)", borderRadius: 3 }}>
+                      <div style={{
+                        height: 6,
+                        background: scoreColor(agent.health_score),
+                        borderRadius: 3,
+                        width: `${agent.health_score}%`,
+                        transition: "width 0.3s",
+                      }} />
+                    </div>
+                    <span style={{ fontSize: 14, fontWeight: 600, color: scoreColor(agent.health_score), minWidth: 36, textAlign: "right" }}>
+                      {agent.health_score}%
+                    </span>
+                  </div>
+
+                  {/* Last run time + status */}
+                  <div style={{ fontSize: 12, color: "var(--color-text-tertiary)", marginBottom: 14 }}>
+                    Last run: {timeAgo(agent.latest_run?.started_at || null)}
+                    {" "}
+                    <span style={{ fontWeight: 500, color: lastRunColor }}>
+                      &middot; {lastRunStatus}
+                    </span>
+                  </div>
+
+                  {/* View Details link */}
+                  <div style={{
+                    fontSize: 12,
+                    fontWeight: 500,
+                    color: "var(--color-text-secondary)",
+                    textAlign: "center",
+                    padding: "8px 0 0",
+                    borderTop: "1px solid var(--color-border-subtle)",
+                  }}>
+                    View Details &rarr;
+                  </div>
                 </div>
               </Link>
             );

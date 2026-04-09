@@ -862,6 +862,9 @@ export default function CommandCenterClient() {
               System Health {overallHealth}% &middot; {agents.length} agents &middot; {agents.filter(a => a.latest_run).length} have run
             </p>
           </div>
+          <span style={{ fontSize: 11, color: "var(--color-text-tertiary)", fontFamily: "'JetBrains Mono', 'Fira Code', 'SF Mono', 'Consolas', monospace" }}>
+            Press ? for shortcuts
+          </span>
         </div>
 
         {/* ── Stats Dashboard ── */}
@@ -928,6 +931,14 @@ export default function CommandCenterClient() {
         )}
 
         {/* ── Quick Actions ── */}
+        <div style={{ marginBottom: 16 }}>
+          <h2 style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text-primary)', margin: 0 }}>
+            Quick Actions
+          </h2>
+          <p style={{ fontSize: 12, color: 'var(--color-text-tertiary)', marginTop: 2 }}>
+            Trigger jobs manually. Press ? for keyboard shortcuts.
+          </p>
+        </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 14, marginBottom: 28 }}>
           <ActionCard
             icon={<Newspaper size={20} />}
@@ -976,15 +987,13 @@ export default function CommandCenterClient() {
         </div>
 
         {/* ── Terminal Feed ── */}
-        {terminalLines.length > 0 && (
-          <div style={{ marginBottom: 28 }}>
-            <TerminalFeed
-              lines={terminalLines}
-              isRunning={isTerminalRunning}
-              onClear={() => setTerminalLines([])}
-            />
-          </div>
-        )}
+        <div style={{ marginBottom: 28 }}>
+          <TerminalFeed
+            lines={terminalLines}
+            isRunning={isTerminalRunning}
+            onClear={() => setTerminalLines([])}
+          />
+        </div>
 
         {/* ── Business Metrics ── */}
         {stats && (
@@ -1022,9 +1031,14 @@ export default function CommandCenterClient() {
             boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
           }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-              <h2 style={{ fontSize: 14, fontWeight: 500, margin: 0, color: "var(--color-text-primary)" }}>
-                Recent Articles
-              </h2>
+              <div>
+                <h2 style={{ fontSize: 14, fontWeight: 500, margin: 0, color: "var(--color-text-primary)" }}>
+                  Recent Articles
+                </h2>
+                <p style={{ fontSize: 12, color: 'var(--color-text-tertiary)', margin: '2px 0 0' }}>
+                  Latest articles from the news engine. Click to edit.
+                </p>
+              </div>
               <Link href="/admin/articles" style={{ fontSize: 12, color: "var(--color-text-tertiary)", textDecoration: "none" }}>
                 View all
               </Link>
@@ -1181,10 +1195,15 @@ export default function CommandCenterClient() {
             }}
           >
             {activityCollapsed ? <ChevronRight size={16} /> : <ChevronDown size={16} />}
-            Agent Activity
-            <span style={{ fontSize: 12, color: "var(--color-text-tertiary)", fontWeight: 400, marginLeft: 4 }}>
-              {agents.length} agents &middot; System Health {overallHealth}%
-            </span>
+            <div>
+              <span>Agent Activity</span>
+              <span style={{ fontSize: 12, color: "var(--color-text-tertiary)", fontWeight: 400, marginLeft: 8 }}>
+                {agents.length} agents &middot; System Health {overallHealth}%
+              </span>
+              <p style={{ fontSize: 12, color: 'var(--color-text-tertiary)', fontWeight: 400, margin: '2px 0 0' }}>
+                Data quality agents run automatically. Click to see details.
+              </p>
+            </div>
           </button>
 
           {!activityCollapsed && (
@@ -1852,6 +1871,25 @@ function TerminalFeed({
           lineHeight: 1.7,
         }}
       >
+        {lines.length === 0 && !isRunning && (
+          <div>
+            <div style={{ color: "#64748b", marginBottom: 4 }}>
+              Ready. Press G to generate articles, S to scrape news, P to update prices.
+            </div>
+            <div style={{ color: "#64748b" }}>
+              Type ? for all shortcuts.
+            </div>
+            <span style={{
+              display: "inline-block",
+              width: 8,
+              height: 14,
+              background: "#64748b",
+              marginTop: 4,
+              verticalAlign: "middle",
+              animation: "terminalBlink 1s step-end infinite",
+            }} />
+          </div>
+        )}
         {lines.map((line, i) => (
           <div key={i} style={{ display: "flex", gap: 8, minHeight: line.text === "" ? 12 : undefined }}>
             <span style={{ color: "#64748b", flexShrink: 0, userSelect: "none" }}>
@@ -1920,10 +1958,15 @@ function BusinessMetrics({
       marginBottom: 28,
       boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
     }}>
-      <h2 style={{ fontSize: 14, fontWeight: 500, margin: "0 0 16px", color: "var(--color-text-primary)", display: "flex", alignItems: "center", gap: 8 }}>
-        <BarChart3 size={16} style={{ color: "var(--color-text-tertiary)" }} />
-        Business Metrics
-      </h2>
+      <div style={{ marginBottom: 16 }}>
+        <h2 style={{ fontSize: 14, fontWeight: 500, margin: 0, color: "var(--color-text-primary)", display: "flex", alignItems: "center", gap: 8 }}>
+          <BarChart3 size={16} style={{ color: "var(--color-text-tertiary)" }} />
+          Business Metrics
+        </h2>
+        <p style={{ fontSize: 12, color: 'var(--color-text-tertiary)', margin: '2px 0 0' }}>
+          Monthly article output and estimated costs at $0.03/article.
+        </p>
+      </div>
 
       {/* Metric cards row */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 }}>
@@ -2038,14 +2081,19 @@ function ContentCalendar({ articles }: { articles: CalendarArticle[] }) {
       marginBottom: 28,
       boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
     }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-        <Calendar size={16} style={{ color: "var(--color-text-tertiary)" }} />
-        <h2 style={{ fontSize: 14, fontWeight: 500, margin: 0, color: "var(--color-text-primary)" }}>
-          Content Calendar
-        </h2>
-        <span style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>
-          Week of {monday.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-        </span>
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <Calendar size={16} style={{ color: "var(--color-text-tertiary)" }} />
+          <h2 style={{ fontSize: 14, fontWeight: 500, margin: 0, color: "var(--color-text-primary)" }}>
+            Content Calendar
+          </h2>
+          <span style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>
+            Week of {monday.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+          </span>
+        </div>
+        <p style={{ fontSize: 12, color: 'var(--color-text-tertiary)', margin: '2px 0 0' }}>
+          Scheduled article types by day of week. Dots show what was generated.
+        </p>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 8 }}>
@@ -2174,10 +2222,15 @@ function ContentOpportunities({
       boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
     }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-        <h2 style={{ fontSize: 14, fontWeight: 500, margin: 0, color: "var(--color-text-primary)", display: "flex", alignItems: "center", gap: 8 }}>
-          <Lightbulb size={16} style={{ color: "#eab308" }} />
-          Content Opportunities
-        </h2>
+        <div>
+          <h2 style={{ fontSize: 14, fontWeight: 500, margin: 0, color: "var(--color-text-primary)", display: "flex", alignItems: "center", gap: 8 }}>
+            <Lightbulb size={16} style={{ color: "#eab308" }} />
+            Content Opportunities
+          </h2>
+          <p style={{ fontSize: 12, color: 'var(--color-text-tertiary)', margin: '2px 0 0' }}>
+            AI-detected gaps in coverage. Click actions to fill them.
+          </p>
+        </div>
         <button
           onClick={onRefresh}
           disabled={loading}
