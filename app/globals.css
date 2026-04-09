@@ -2,8 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Balance all headings for clean visual weight */
+/* All headings use the brand font (Space Grotesk) */
 h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-brand), var(--font-geist-sans), -apple-system, sans-serif;
   text-wrap: balance;
 }
 /* Also balance subtitle/description paragraphs near headings */
@@ -391,6 +392,32 @@ body {
 }
 .animate-count-up {
   animation: countUp 0.6s ease-out forwards;
+}
+
+/* Hide scrollbars but keep scroll functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Scroll snap for carousels */
+.snap-x {
+  scroll-snap-type: x mandatory;
+}
+.snap-center {
+  scroll-snap-align: center;
+}
+.snap-start {
+  scroll-snap-align: start;
+}
+
+/* Smooth fade edges for horizontal scroll containers */
+.scroll-fade-right {
+  mask-image: linear-gradient(to right, black 85%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
 }
 
 /* Company hover card animation */

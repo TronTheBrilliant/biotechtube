@@ -57,7 +57,7 @@ export default function MarketByCountry({
           <Link
             key={c.country}
             href={`/countries/${countrySlug}`}
-            className="px-4 py-2.5 flex items-center gap-3 hover:bg-[var(--color-bg-secondary)] no-underline"
+            className="px-4 py-2.5 flex items-center gap-3 hover:bg-[var(--color-bg-secondary)] no-underline transition-colors duration-100"
             style={
               i < 7 && i < countries.length - 1
                 ? { borderBottom: "0.5px solid var(--color-border-subtle)" }

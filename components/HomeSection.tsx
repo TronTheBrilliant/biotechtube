@@ -18,7 +18,7 @@ export function HomeSection({
 }: Props) {
   return (
     <div
-      className="rounded-lg"
+      className="rounded-xl transition-shadow duration-200 hover:shadow-md"
       style={{
         background: "var(--color-bg-primary)",
         boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 0 0 0.5px var(--color-border-subtle)",
@@ -26,7 +26,6 @@ export function HomeSection({
         overflow: "hidden",
       }}
     >
-      {/* Accent top bar - hidden for now */}
       <div
         className="flex items-center justify-between px-4 py-3"
         style={{ borderBottom: "0.5px solid var(--color-border-subtle)" }}

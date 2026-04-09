@@ -22,7 +22,7 @@ export default function TopCompanies({ companies }: { companies: Company[] }) {
         <Link
           key={c.slug}
           href={`/company/${c.slug}`}
-          className="px-4 py-2.5 flex items-center gap-3 hover:bg-[var(--color-bg-secondary)] no-underline"
+          className="px-4 py-2.5 flex items-center gap-3 hover:bg-[var(--color-bg-secondary)] no-underline transition-colors duration-100"
           style={
             i < 4 && i < companies.length - 1
               ? { borderBottom: "0.5px solid var(--color-border-subtle)" }
