@@ -55,14 +55,12 @@ export default function HeroWithLogo({
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: 'min(38%, 180px)',
-            minWidth: 56,
-            background: 'rgba(255, 255, 255, 0.92)',
-            backdropFilter: 'blur(4px)',
-            WebkitBackdropFilter: 'blur(4px)',
-            boxShadow: '0 4px 24px rgba(0, 0, 0, 0.15)',
-            borderRadius: 12,
-            padding: 'clamp(12px, 3%, 24px) clamp(16px, 4%, 32px)',
+            background: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(6px)',
+            WebkitBackdropFilter: 'blur(6px)',
+            boxShadow: '0 4px 32px rgba(0, 0, 0, 0.2)',
+            borderRadius: 0,
+            padding: 'clamp(14px, 3.5%, 28px)',
           }}
         >
           {companyLogo ? (
@@ -70,20 +68,21 @@ export default function HeroWithLogo({
               src={companyLogo}
               alt={companyName || ''}
               style={{
-                maxHeight: 48,
-                maxWidth: 160,
+                height: 'clamp(40px, 8vw, 64px)',
+                width: 'auto',
                 objectFit: 'contain',
+                display: 'block',
               }}
             />
           ) : companyName ? (
             <div
-              className="flex items-center justify-center rounded-full"
+              className="flex items-center justify-center"
               style={{
-                width: 'clamp(32px, 6vw, 48px)',
-                height: 'clamp(32px, 6vw, 48px)',
+                width: 'clamp(48px, 8vw, 72px)',
+                height: 'clamp(48px, 8vw, 72px)',
                 background: 'var(--color-accent, #059669)',
                 color: 'white',
-                fontSize: 'clamp(14px, 3vw, 22px)',
+                fontSize: 'clamp(20px, 4vw, 32px)',
                 fontWeight: 700,
               }}
             >
