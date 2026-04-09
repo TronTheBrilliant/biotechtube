@@ -7,25 +7,34 @@ export function MarketHeatmap() {
   const [companies, setCompanies] = useState<TreemapCompany[]>([])
   const [count, setCount] = useState(50)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+  const [retryKey, setRetryKey] = useState(0)
 
   useEffect(() => {
     let cancelled = false
     setLoading(true)
+    setError(false)
 
     fetch(`/api/treemap?limit=${count}`)
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`API error: ${r.status}`)
+        return r.json()
+      })
       .then((data) => {
-        if (!cancelled && data.companies) {
-          setCompanies(data.companies)
+        if (!cancelled) {
+          setCompanies(data.companies || [])
         }
       })
-      .catch(() => {})
+      .catch((err) => {
+        console.error('MarketHeatmap fetch error:', err)
+        if (!cancelled) setError(true)
+      })
       .finally(() => {
         if (!cancelled) setLoading(false)
       })
 
     return () => { cancelled = true }
-  }, [count])
+  }, [count, retryKey])
 
   return (
     <div>
@@ -76,28 +85,54 @@ export function MarketHeatmap() {
       <div className="px-2 pb-2">
         {loading ? (
           <div
-            className="w-full rounded-lg flex items-center justify-center"
-            style={{
-              height: 400,
-              background: 'var(--color-bg-secondary)',
-            }}
+            className="w-full rounded-lg overflow-hidden"
+            style={{ height: 400, background: 'var(--color-bg-secondary)' }}
           >
-            <span className="text-13" style={{ color: 'var(--color-text-tertiary)' }}>
-              Loading market data...
+            <div className="w-full h-full grid grid-cols-6 grid-rows-4 gap-0.5 p-0.5">
+              {Array.from({ length: 24 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="rounded-sm animate-pulse"
+                  style={{
+                    background: 'var(--color-bg-tertiary)',
+                    gridColumn: i < 2 ? 'span 2' : i < 4 ? 'span 2' : 'span 1',
+                    gridRow: i < 1 ? 'span 2' : 'span 1',
+                    opacity: 0.5 + ((i * 7 + 3) % 5) * 0.1,
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        ) : error ? (
+          <div
+            className="w-full rounded-lg flex flex-col items-center justify-center gap-3"
+            style={{ height: 400, background: 'var(--color-bg-secondary)' }}
+          >
+            <span className="text-[32px]">⚠️</span>
+            <span className="text-13 font-medium" style={{ color: 'var(--color-text-tertiary)' }}>
+              Failed to load market data
             </span>
+            <button
+              onClick={() => setRetryKey(k => k + 1)}
+              className="text-12 font-medium px-4 py-1.5 rounded-md"
+              style={{ background: 'var(--color-accent)', color: 'white', border: 'none', cursor: 'pointer' }}
+            >
+              Retry
+            </button>
           </div>
         ) : companies.length > 0 ? (
           <MarketTreemap companies={companies} height={400} />
         ) : (
           <div
-            className="w-full rounded-lg flex items-center justify-center"
-            style={{
-              height: 400,
-              background: 'var(--color-bg-secondary)',
-            }}
+            className="w-full rounded-lg flex flex-col items-center justify-center gap-2"
+            style={{ height: 400, background: 'var(--color-bg-secondary)' }}
           >
-            <span className="text-13" style={{ color: 'var(--color-text-tertiary)' }}>
+            <span className="text-[32px]">🗺️</span>
+            <span className="text-13 font-medium" style={{ color: 'var(--color-text-tertiary)' }}>
               No market data available
+            </span>
+            <span className="text-11" style={{ color: 'var(--color-text-tertiary)' }}>
+              Check back when markets are open
             </span>
           </div>
         )}
