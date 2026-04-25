@@ -43,7 +43,7 @@ export async function computeCatalysts(input: CatalystInput): Promise<CatalystEn
       }
     }
 
-    const ct = p.trial_id && input.ct_by_nct?.[p.trial_id];
+    const ct = p.trial_id ? (input.ct_by_nct?.[p.trial_id] ?? null) : null;
     entries.push({
       title: `${p.stage} readout: ${p.product_name ?? p.trial_id ?? p.indication}`,
       expected_date: ct ? ct.est_completion : null,

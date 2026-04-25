@@ -4,19 +4,25 @@ import type { ComparablePeer } from "../types";
 
 export async function computeComparables(company: any): Promise<ComparablePeer[]> {
   const supabase = createServerClient();
-  if (!company?.sector) return [];
-  const { data: peers } = await supabase
+  // company.sector may not exist in the DB schema (schema assumption from spec).
+  // Fall back to company.categories[0] if present, otherwise return empty.
+  const sectorKey: string | null = company?.sector ?? company?.categories?.[0] ?? null;
+  if (!sectorKey) return [];
+
+  // Use select("*") cast to any to handle columns that may not exist in generated types.
+  const { data: peersRaw } = await (supabase
     .from("companies")
-    .select("id, name, sector, stage, total_raised, valuation, employees, founded")
-    .eq("sector", company.sector)
+    .select("*") as any)
+    .eq("sector", sectorKey)
     .neq("id", company.id)
     .order("valuation", { ascending: false, nullsFirst: false })
     .limit(20);
-  if (!peers || peers.length === 0) return [];
+  const peers: any[] = peersRaw ?? [];
+  if (peers.length === 0) return [];
 
   const top5 = peers.slice(0, 5);
 
-  const ids = top5.map(p => p.id);
+  const ids = top5.map((p: any) => p.id);
   const { data: pipes } = await supabase
     .from("pipelines")
     .select("company_id")
@@ -24,7 +30,7 @@ export async function computeComparables(company: any): Promise<ComparablePeer[]
   const depthByCo: Record<string, number> = {};
   for (const r of pipes ?? []) depthByCo[r.company_id as string] = (depthByCo[r.company_id as string] ?? 0) + 1;
 
-  const result: ComparablePeer[] = top5.map(p => ({
+  const result: ComparablePeer[] = top5.map((p: any) => ({
     company_name: p.name,
     market_cap_usd: typeof p.valuation === "number" ? p.valuation : null,
     pipeline_depth: depthByCo[p.id] ?? 0,
