@@ -161,10 +161,11 @@ async function buildInternalContext(companyId: string): Promise<InternalContext>
   const [pipelinesRes, fundingRes, articlesRes] = await Promise.all([
     supabase.from("pipelines").select("*").eq("company_id", companyId).limit(100),
     supabase.from("funding_rounds").select("*").eq("company_id", companyId)
-      .order("announced_at", { ascending: false }).limit(50),
-    supabase.from("articles").select("id, title, slug, body, published_at")
+      .order("announced_date", { ascending: false }).limit(50),
+    // Schema: articles.headline (not "title"); funding_rounds.announced_date (not "announced_at")
+    supabase.from("articles").select("id, headline, slug, body, published_at")
       .gte("published_at", ninetyDaysAgo)
-      .or(`title.ilike.%${company.name}%,body.ilike.%${company.name}%,body.ilike.%${company.slug}%`)
+      .or(`headline.ilike.%${(company.name ?? "").replace(/[%_,]/g, m => "\\" + m)}%,body.ilike.%${(company.name ?? "").replace(/[%_,]/g, m => "\\" + m)}%`)
       .limit(30),
   ]);
 

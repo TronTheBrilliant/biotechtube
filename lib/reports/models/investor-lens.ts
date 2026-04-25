@@ -26,12 +26,12 @@ export async function computeInvestorLens(companyId: string): Promise<InvestorSi
       .from("funding_rounds")
       .select("*")
       .eq("lead_investor" as any, name)
-      .order("announced_at" as any, { ascending: false })
+      .order("announced_date" as any, { ascending: false })
       .limit(50);
     if (!deals) continue;
 
     const dealsLastYear = deals.filter(d => {
-      const announced = (d as any).announced_at as string | undefined;
+      const announced = (d as any).announced_date as string | undefined;
       return announced && new Date(announced).getTime() > Date.now() - 365 * 24 * 60 * 60 * 1000;
     }).length;
 
