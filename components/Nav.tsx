@@ -56,6 +56,7 @@ const MENUS: MenuCategory[] = [
     label: "Discover",
     items: [
       { href: "/trending", emoji: "🔥", title: "Trending", subtitle: "Hot companies", iconBg: "#fef3c7" },
+      { href: "/agents/research", emoji: "🤖", title: "Ask AI", subtitle: "Research assistant", iconBg: "#ede9fe" },
       { href: "/countries", emoji: "🌍", title: "Countries", subtitle: "30+ markets", iconBg: "#f0fdf4" },
       { href: "/events", emoji: "📅", title: "Events", subtitle: "Industry events", iconBg: "#eff6ff" },
     ],
