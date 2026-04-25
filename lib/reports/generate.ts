@@ -11,6 +11,11 @@ import { REPORT_OUTPUT_SCHEMA } from "./prompts/schema";
 import { renderPdf } from "./render-pdf";
 import { publish } from "./publisher";
 import { buildEnrichmentBundle } from "./enrichment";
+import { runQuantModels } from "./models";
+import { factCheck } from "./fact-check";
+import { rewriteForAngle } from "./angle-rewrite";
+import { renderMechanismSvg } from "./render-mechanism-svg";
+import { renderAudio } from "./render-audio";
 
 const REPORT_TTL_DAYS = 14;
 
@@ -58,7 +63,14 @@ export async function generateEquityReport(opts: GenerateOptions): Promise<Gener
     pipelines: internal.pipelines,
   });
 
-  const dynamicSuffix = buildDynamicSuffix(internal, enrichment, opts.angle ?? "general");
+  const quant = await runQuantModels({
+    company: internal.company,
+    pipelines: internal.pipelines,
+    funding_rounds: internal.funding_rounds,
+    enrichment,
+  });
+
+  const dynamicSuffix = buildDynamicSuffix(internal, enrichment, quant, opts.angle ?? "general");
 
   const ds = getDeepSeek();
   const completion = await ds.chat.completions.create({
@@ -86,14 +98,34 @@ export async function generateEquityReport(opts: GenerateOptions): Promise<Gener
     throw new Error(`V4-Pro returned non-JSON: ${raw.slice(0, 500)}`);
   }
 
-  const pdfBytes = await renderPdf({ content, company: internal.company });
+  // 1. Angle rewrite first (if buyer wants a non-general angle)
+  if (opts.angle && opts.angle !== "general" && !content.angles[opts.angle]) {
+    content.angles[opts.angle] = await rewriteForAngle(content, opts.angle);
+  }
+  // 2. Fact-check the entire content (covers all angle variants)
+  const factChecked = await factCheck(content, dynamicSuffix);
+
+  const mechanismSvg = renderMechanismSvg({
+    companyName: internal.company.name,
+    competitors: internal.competitors.map((c: any) => ({
+      name: c.name,
+      mechanism: c.sector ?? null,
+      pipeline_depth: 0,
+    })),
+  });
+
+  const [pdfBytes, audioBytes] = await Promise.all([
+    renderPdf({ content: factChecked, company: internal.company }),
+    renderAudio(factChecked),
+  ]);
+
   const result = await publish({
     companyId: opts.companyId,
-    content,
+    content: factChecked,
     enrichment,
     pdfBytes,
-    audioBytes: null,
-    mechanismSvg: null,
+    audioBytes,
+    mechanismSvg,
     costCents,
     generationSeconds: Math.round((Date.now() - start) / 1000),
     expiresAt: new Date(Date.now() + REPORT_TTL_DAYS * 24 * 60 * 60 * 1000).toISOString(),
@@ -155,7 +187,7 @@ async function buildInternalContext(companyId: string): Promise<InternalContext>
   return { company, pipelines, funding_rounds, recent_articles, competitors };
 }
 
-function buildDynamicSuffix(ctx: InternalContext, enr: EnrichmentBundle, angle: Angle): string {
+function buildDynamicSuffix(ctx: InternalContext, enr: EnrichmentBundle, quant: QuantSignals, angle: Angle): string {
   return `# Output Schema
 ${REPORT_OUTPUT_SCHEMA}
 
@@ -195,14 +227,8 @@ ${enr.literature ? JSON.stringify(enr.literature, null, 2).slice(0, 8000) : "No 
 ## Patent Landscape
 ${enr.uspto ? JSON.stringify(enr.uspto, null, 2).slice(0, 6000) : "No patent data available."}
 
-# Quant Signals
-The quant signals subsystem is not yet wired in this build (Chunk 4). Use this stub:
-${JSON.stringify({
-  funding: { p_next_round_12mo: 50, months_of_runway: null, lead_investor_cadence_per_year: null, sector_momentum: 50, math_explanation: "Quant model not yet wired (Chunk 4)." },
-  catalysts: [],
-  comparables: [],
-  investor_lens: [],
-} satisfies QuantSignals, null, 2)}
+# Quant Signals (deterministic, do not modify in your output — echo verbatim into quant_signals)
+${JSON.stringify(quant, null, 2)}
 
 # Bibliography Bootstrap
 Use these as your starting source IDs. Add additional sources as needed for article URLs etc.
