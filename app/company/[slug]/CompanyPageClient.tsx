@@ -27,6 +27,7 @@ import { FollowButton } from "@/components/feed/FollowButton";
 import { ConfidenceBadge } from "@/components/ConfidenceBadge";
 import { AskBiotechTube } from "@/components/AskBiotechTube";
 import { useUser } from "@/lib/auth";
+import { ResearchReportCTA } from "@/components/research/ResearchReportCTA";
 
 /* ─── Types for enriched data ─── */
 interface PipelineRow {
@@ -2004,6 +2005,11 @@ export function CompanyPageClient({
 
             {/* Similar Companies */}
             {similar.length > 0 && <SimilarCompanies companies={similar} />}
+
+            {/* Equity Research CTA */}
+            <div className="px-5 py-4 border-b" style={{ borderColor: "var(--color-border-subtle)" }}>
+              <ResearchReportCTA companyName={company.name} slug={company.slug} />
+            </div>
 
             {/* Report Error */}
             <div className="px-5 py-4 border-b" style={{ borderColor: "var(--color-border-subtle)" }}>
