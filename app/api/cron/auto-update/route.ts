@@ -12,7 +12,8 @@ export const dynamic = 'force-dynamic'
 
 const TIMEOUT_MS = 270_000
 const RATE_LIMIT_MS = 750
-const HIGH_CONF = 0.9
+// Anything above MIN_CONF auto-applies. Everything is logged to audit_log
+// so a bad change can be reverted by inspecting before_jsonb.
 const MIN_CONF = 0.6
 
 function sleep(ms: number) {
@@ -39,7 +40,6 @@ export async function GET(req: Request) {
     matched: 0,
     drafted: 0,
     auto_applied: 0,
-    queued: 0,
     discarded_low_conf: 0,
     discarded_no_match: 0,
     errors: 0,
@@ -96,25 +96,9 @@ export async function GET(req: Request) {
 
     const sourceTag = `auto-update-cron:${update.source_type}:${update.source_id}`
 
-    if (finalConfidence >= HIGH_CONF) {
-      const out = await applyEditDraft(supabase as any, match.company_id, { ...draft, proposed_changes: sanitized }, sourceTag)
-      if (out.applied) {
-        counters.auto_applied++
-        await (supabase.from as any)('profile_edit_queue').insert({
-          company_id: match.company_id,
-          source_type: update.source_type,
-          source_id: update.source_id,
-          proposed_changes: sanitized,
-          confidence: finalConfidence,
-          reasoning: draft.reasoning,
-          status: 'auto_applied',
-          applied_at: new Date().toISOString(),
-        })
-      } else {
-        counters.errors++
-        errors.push(`apply ${update.source_type}:${update.source_id}: ${out.reason}`)
-      }
-    } else {
+    const out = await applyEditDraft(supabase as any, match.company_id, { ...draft, proposed_changes: sanitized }, sourceTag)
+    if (out.applied) {
+      counters.auto_applied++
       await (supabase.from as any)('profile_edit_queue').insert({
         company_id: match.company_id,
         source_type: update.source_type,
@@ -122,9 +106,12 @@ export async function GET(req: Request) {
         proposed_changes: sanitized,
         confidence: finalConfidence,
         reasoning: draft.reasoning,
-        status: 'pending',
+        status: 'auto_applied',
+        applied_at: new Date().toISOString(),
       })
-      counters.queued++
+    } else {
+      counters.errors++
+      errors.push(`apply ${update.source_type}:${update.source_id}: ${out.reason}`)
     }
 
     await sleep(RATE_LIMIT_MS)

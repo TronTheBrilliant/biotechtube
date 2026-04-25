@@ -26,10 +26,7 @@ interface Edit {
 }
 
 const STATUS_FILTERS = [
-  { label: "Pending", value: "pending", color: "#eab308" },
   { label: "Auto-applied", value: "auto_applied", color: "#3b82f6" },
-  { label: "Applied", value: "applied", color: "#22c55e" },
-  { label: "Rejected", value: "rejected", color: "#ef4444" },
   { label: "All", value: "all", color: "var(--color-text-secondary)" },
 ];
 
@@ -63,7 +60,7 @@ export default function ProfileEditsListClient() {
   const { user, loading: authLoading } = useAuth();
   const [edits, setEdits] = useState<Edit[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<string>("pending");
+  const [filter, setFilter] = useState<string>("auto_applied");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [busyId, setBusyId] = useState<string | null>(null);
   const [bulkAction, setBulkAction] = useState<"approve" | "reject" | null>(null);
@@ -163,7 +160,7 @@ export default function ProfileEditsListClient() {
           Profile Edits
         </h1>
         <p style={{ fontSize: 13, color: "var(--color-text-tertiary)", margin: "0 0 20px" }}>
-          AI-drafted changes from external sources awaiting review
+          History of profile changes the auto-update agent applied. Inspect a row, then revert via the company page if anything looks wrong.
         </p>
 
         <div style={{ display: "flex", gap: 8, marginBottom: 24, flexWrap: "wrap" }}>
