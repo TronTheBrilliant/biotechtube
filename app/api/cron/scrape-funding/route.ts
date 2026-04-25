@@ -76,7 +76,7 @@ async function extractWithAI(articles: RSSItem[]): Promise<Array<{ company_name:
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}` },
       body: JSON.stringify({
-        model: "deepseek-chat",
+        model: "deepseek-v4-flash",
         messages: [
           { role: "system", content: `Extract biotech funding rounds from news. Return JSON array: [{"article_index":1,"company_name":"X","round_type":"Series A","amount_millions_usd":50,"lead_investor":"Y","date":"YYYY-MM-DD"}]. Only clear funding announcements. No markdown.` },
           { role: "user", content: `Extract funding rounds:\n\n${texts}\n\nToday: ${new Date().toISOString().split("T")[0]}` }
@@ -236,7 +236,7 @@ export async function GET() {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}` },
           body: JSON.stringify({
-            model: "deepseek-chat",
+            model: "deepseek-v4-flash",
             messages: [
               { role: "system", content: "Biotech company data enrichment. Return JSON keyed by company name." },
               { role: "user", content: `For each biotech company, provide: description (1 sentence, max 30 words), categories (1-3 from: Oncology, Immunology, Neuroscience, Gene Therapy, Cell Therapy, etc.), country, city, founded (year).\n\nCompanies:\n${names}\n\nReturn JSON: {"Company Name": {"description":"...", "categories":[...], "country":"...", "city":"...", "founded":2020}}` },

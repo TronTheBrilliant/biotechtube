@@ -34,7 +34,7 @@ async function generateWithAI(prompt: string): Promise<string> {
   if (deepseek) {
     // Use DeepSeek V3 — ~100x cheaper than Sonnet
     const completion = await deepseek.chat.completions.create({
-      model: "deepseek-chat",
+      model: "deepseek-v4-pro",
       messages: [{ role: "user", content: prompt }],
       max_tokens: 8192,
       temperature: 0.3,

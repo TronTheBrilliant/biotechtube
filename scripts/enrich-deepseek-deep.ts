@@ -25,7 +25,7 @@ const supabase = createClient(
 
 const MERCURY_API_URL = "https://api.deepseek.com/chat/completions";
 const MERCURY_API_KEY = process.env.DEEPSEEK_API_KEY!;
-const MODEL = "deepseek-chat";
+const MODEL = "deepseek-v4-flash";
 
 const DRY_RUN = process.argv.includes("--dry-run");
 const LIMIT = parseInt(

@@ -758,7 +758,7 @@ async function callDeepSeek(prompt: string, retries: number = 3): Promise<{ text
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       const completion = await client.chat.completions.create({
-        model: "deepseek-chat",
+        model: "deepseek-v4-flash",
         messages: [{ role: "user", content: prompt }],
         max_tokens: 4096,
         temperature: 0.3,

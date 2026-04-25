@@ -223,8 +223,12 @@ export class ArticleEngine {
   }
 
   private async callDeepSeek(systemPrompt: string, userPrompt: string): Promise<AIArticleOutput> {
+    // Migrated from deepseek-chat → deepseek-v4-pro on 2026-04-25.
+    // V4-Pro: 1.6T MoE, 1M context, ~6× cheaper than GPT-5.5, matches Claude Sonnet 4.5.
+    // Cache-friendly: keep systemPrompt byte-identical across calls in a batch
+    // → cached input is $0.145/M vs $1.74/M (12× cheaper).
     const response = await this.openai.chat.completions.create({
-      model: 'deepseek-chat',
+      model: 'deepseek-v4-pro',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },

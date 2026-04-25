@@ -66,7 +66,7 @@ No markdown. Just the JSON.`;
         Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "deepseek-chat",
+        model: "deepseek-v4-flash",
         messages: [
           { role: "system", content: "You are a biotech venture capital data analyst. Provide factual investor data only. Do not fabricate investor names." },
           { role: "user", content: prompt },

@@ -27,7 +27,7 @@ export async function callDeepSeek(options: DeepSeekOptions): Promise<string | n
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: "deepseek-chat",
+          model: "deepseek-v4-flash",
           messages: [
             { role: "system", content: system },
             { role: "user", content: prompt },

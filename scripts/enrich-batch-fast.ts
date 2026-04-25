@@ -36,7 +36,7 @@ async function enrichBatch(companies: Company[]): Promise<Record<string, Record<
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${API_KEY}` },
     body: JSON.stringify({
-      model: "deepseek-chat",
+      model: "deepseek-v4-flash",
       messages: [
         { role: "system", content: "You are a biotech analyst. Generate company profiles as JSON." },
         { role: "user", content: `For each company, provide a JSON object with these fields:

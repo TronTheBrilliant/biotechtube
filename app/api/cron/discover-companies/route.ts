@@ -151,7 +151,7 @@ export async function GET() {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${DEEPSEEK_API_KEY}` },
             body: JSON.stringify({
-              model: "deepseek-chat",
+              model: "deepseek-v4-flash",
               messages: [
                 { role: "system", content: "Biotech company enrichment. Return JSON keyed by company name." },
                 { role: "user", content: `For each company: description (1 sentence, max 30 words), categories (1-3: Oncology, Immunology, Neuroscience, Gene Therapy, etc.), country, city, founded (year).\n\nCompanies:\n${names}\n\nReturn: {"Company Name": {"description":"...", "categories":[...], "country":"...", "city":"...", "founded":2020}}` },

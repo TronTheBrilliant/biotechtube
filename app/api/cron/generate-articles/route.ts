@@ -158,7 +158,7 @@ No markdown fences.`;
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${DEEPSEEK_API_KEY}` },
         body: JSON.stringify({
-          model: "deepseek-chat",
+          model: "deepseek-v4-pro",
           messages: [
             { role: "system", content: style.system },
             { role: "user", content: prompt },

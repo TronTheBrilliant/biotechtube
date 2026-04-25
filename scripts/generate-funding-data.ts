@@ -22,7 +22,7 @@ if (!DEEPSEEK_API_KEY) {
 }
 
 const API_URL = "https://api.deepseek.com/chat/completions";
-const MODEL = "deepseek-chat";
+const MODEL = "deepseek-v4-flash";
 
 interface FundingRound {
   company: string;

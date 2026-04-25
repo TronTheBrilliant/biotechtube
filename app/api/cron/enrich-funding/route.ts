@@ -65,7 +65,7 @@ export async function GET() {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${DEEPSEEK_API_KEY}` },
         body: JSON.stringify({
-          model: "deepseek-chat",
+          model: "deepseek-v4-flash",
           messages: [
             { role: "system", content: `Return 2024-2026 funding rounds for biotech companies as JSON: {"Company Name": [{"round_type":"Series A","amount_millions":50,"currency":"USD","date":"2025-03-15","lead_investor":"Investor Name"}]}. Empty array if no known rounds. Only confident data.` },
             { role: "user", content: `2024-2026 funding rounds:\n\n${companyList}` }
