@@ -165,7 +165,7 @@ async function buildInternalContext(companyId: string): Promise<InternalContext>
     // Schema: articles.headline (not "title"); funding_rounds.announced_date (not "announced_at")
     supabase.from("articles").select("id, headline, slug, body, published_at")
       .gte("published_at", ninetyDaysAgo)
-      .or(`headline.ilike.%${(company.name ?? "").replace(/[%_,]/g, m => "\\" + m)}%,body.ilike.%${(company.name ?? "").replace(/[%_,]/g, m => "\\" + m)}%`)
+      .or(`headline.ilike.%${(company.name ?? "").replace(/[%_,]/g, (m: string) => "\\" + m)}%,body.ilike.%${(company.name ?? "").replace(/[%_,]/g, (m: string) => "\\" + m)}%`)
       .limit(30),
   ]);
 
