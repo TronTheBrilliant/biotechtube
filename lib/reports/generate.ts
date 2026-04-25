@@ -10,6 +10,7 @@ import { STATIC_PREFIX } from "./prompts/static-prefix";
 import { REPORT_OUTPUT_SCHEMA } from "./prompts/schema";
 import { renderPdf } from "./render-pdf";
 import { publish } from "./publisher";
+import { buildEnrichmentBundle } from "./enrichment";
 
 const REPORT_TTL_DAYS = 14;
 
@@ -42,7 +43,22 @@ export async function generateEquityReport(opts: GenerateOptions): Promise<Gener
   const supabase = createServerClient();
 
   const internal = await buildInternalContext(opts.companyId);
-  const dynamicSuffix = buildDynamicSuffix(internal, opts.angle ?? "general");
+
+  const mechanismKeywords =
+    (internal.company as any).mechanism_keywords ??
+    Array.from(new Set(
+      (internal.pipelines ?? [])
+        .map((p: any) => (p.indication ?? "").toLowerCase().split(/[\s,]+/))
+        .flat()
+        .filter((s: string) => s.length > 3)
+    )).slice(0, 3);
+
+  const enrichment = await buildEnrichmentBundle({
+    company: { name: internal.company.name, ticker: internal.company.ticker ?? null, mechanism_keywords: mechanismKeywords },
+    pipelines: internal.pipelines,
+  });
+
+  const dynamicSuffix = buildDynamicSuffix(internal, enrichment, opts.angle ?? "general");
 
   const ds = getDeepSeek();
   const completion = await ds.chat.completions.create({
@@ -74,7 +90,7 @@ export async function generateEquityReport(opts: GenerateOptions): Promise<Gener
   const result = await publish({
     companyId: opts.companyId,
     content,
-    enrichment: {} as EnrichmentBundle,
+    enrichment,
     pdfBytes,
     audioBytes: null,
     mechanismSvg: null,
@@ -139,7 +155,7 @@ async function buildInternalContext(companyId: string): Promise<InternalContext>
   return { company, pipelines, funding_rounds, recent_articles, competitors };
 }
 
-function buildDynamicSuffix(ctx: InternalContext, angle: Angle): string {
+function buildDynamicSuffix(ctx: InternalContext, enr: EnrichmentBundle, angle: Angle): string {
   return `# Output Schema
 ${REPORT_OUTPUT_SCHEMA}
 
@@ -148,7 +164,7 @@ The buyer is reading this from the angle of: \`${angle}\`.
 Tailor the executive_summary + bull_case + bear_case under angles.${angle} for that lens.
 Always also produce angles.general (the default variant).
 
-# Per-Company Data
+# Per-Company Data (internal)
 
 ## Company
 ${JSON.stringify(ctx.company, null, 2)}
@@ -165,8 +181,22 @@ ${JSON.stringify(ctx.recent_articles.slice(0, 20), null, 2)}
 ## Top Competitors (${ctx.competitors.length})
 ${JSON.stringify(ctx.competitors, null, 2)}
 
+# External Enrichment
+
+## SEC EDGAR
+${enr.sec_edgar ? JSON.stringify(enr.sec_edgar, null, 2).slice(0, 12000) : "Not available (private company or fetch failed)."}
+
+## ClinicalTrials.gov (per-NCT live data)
+${enr.clinicaltrials ? JSON.stringify(enr.clinicaltrials.by_nct, null, 2).slice(0, 6000) : "No NCTs in pipeline."}
+
+## Literature (last 90d, sentiment-tagged)
+${enr.literature ? JSON.stringify(enr.literature, null, 2).slice(0, 8000) : "No literature available."}
+
+## Patent Landscape
+${enr.uspto ? JSON.stringify(enr.uspto, null, 2).slice(0, 6000) : "No patent data available."}
+
 # Quant Signals
-The quant signals subsystem is not yet wired in this build. Use this stub:
+The quant signals subsystem is not yet wired in this build (Chunk 4). Use this stub:
 ${JSON.stringify({
   funding: { p_next_round_12mo: 50, months_of_runway: null, lead_investor_cadence_per_year: null, sector_momentum: 50, math_explanation: "Quant model not yet wired (Chunk 4)." },
   catalysts: [],
@@ -175,7 +205,13 @@ ${JSON.stringify({
 } satisfies QuantSignals, null, 2)}
 
 # Bibliography Bootstrap
-Use sources[1] = { id: 1, type: "internal_db", url: null, title: "BiotechTube database (companies, pipelines, funding_rounds, articles)", retrieved_at: "${new Date().toISOString()}" } as the default citation for any internal-DB-derived claim. Add additional sources as needed for article URLs etc.
+Use these as your starting source IDs. Add additional sources as needed for article URLs etc.
+- 1: internal_db (BiotechTube companies/pipelines/funding/articles)
+${enr.sec_edgar ? `- 2: sec_edgar (latest 10-K + 10-Q + Form 4)` : ""}
+${enr.clinicaltrials ? `- 3: clinicaltrials (per-NCT live status)` : ""}
+${enr.literature ? `- 4: pubmed (last 90d search)` : ""}
+${enr.literature ? `- 5: biorxiv (last 90d search)` : ""}
+${enr.uspto ? `- 6: uspto (PatentsView)` : ""}
 
 Generate the report now.`;
 }
