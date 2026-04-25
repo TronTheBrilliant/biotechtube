@@ -126,12 +126,47 @@ export default async function TopCompaniesPage() {
 
   const totalMarketCap = companies.reduce((sum, c) => sum + c.marketCap, 0);
 
+  // Dual JSON-LD: ItemList (rich results) + Dataset (Google Dataset Search)
+  const structuredJsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      name: "Top Biotech Companies by Market Cap",
+      description: "Ranking of the world's largest publicly traded biotech companies by USD market cap.",
+      numberOfItems: companies.length,
+      itemListOrder: "https://schema.org/ItemListOrderDescending",
+      itemListElement: companies.slice(0, 100).map((c, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        url: `https://biotechtube.io/company/${c.slug}`,
+        name: c.name,
+      })),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Dataset",
+      name: "Top Biotech Companies by Market Cap — BiotechTube",
+      description: `Daily-updated dataset ranking ${companies.length.toLocaleString()} publicly traded biotech and pharma companies by USD market capitalization.`,
+      url: "https://biotechtube.io/top-companies",
+      keywords: ["biotech", "market cap", "public companies", "pharmaceutical", "ranking", "stock"],
+      license: "https://biotechtube.io/terms",
+      isAccessibleForFree: true,
+      creator: { "@id": "https://biotechtube.io/#organization" },
+      publisher: { "@id": "https://biotechtube.io/#organization" },
+      variableMeasured: ["Market capitalization (USD)", "1-day price change (%)", "Ticker symbol", "Country of listing"],
+    },
+  ];
+
   return (
     <div
       className="page-content"
       style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}
     >
       <Nav />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredJsonLd) }}
+      />
 
       {/* Hero */}
       <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-6 md:py-8">

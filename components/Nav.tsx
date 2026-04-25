@@ -33,32 +33,27 @@ interface MenuCategory {
 
 const MENUS: MenuCategory[] = [
   {
-    label: "Data",
+    label: "Discover",
     items: [
+      { href: "/trending", emoji: "🔥", title: "Trending", subtitle: "Hot companies", iconBg: "#fef3c7" },
       { href: "/top-companies", emoji: "🏢", title: "Companies", subtitle: "14,000+ tracked", iconBg: "#f0fdf4" },
       { href: "/funding", emoji: "💰", title: "Funding", subtitle: "Intelligence hub", iconBg: "#fef3c7" },
-      { href: "/markets", emoji: "📊", title: "Markets", subtitle: "Stock data", iconBg: "#fce7f3" },
-      { href: "/sectors", emoji: "🏷️", title: "Sectors", subtitle: "20 biotech sectors", iconBg: "#f5f3ff" },
       { href: "/pipelines", emoji: "🧬", title: "Pipeline", subtitle: "Drug programs", iconBg: "#ecfdf5" },
+      { href: "/sectors", emoji: "🏷️", title: "Sectors", subtitle: "20 biotech sectors", iconBg: "#f5f3ff" },
+      { href: "/markets", emoji: "📊", title: "Markets", subtitle: "Stock data", iconBg: "#fce7f3" },
       { href: "/charts", emoji: "📈", title: "Charts", subtitle: "20 market insights", iconBg: "#e0f2fe" },
+      { href: "/countries", emoji: "🌍", title: "Countries", subtitle: "30+ markets", iconBg: "#f0fdf4" },
+      { href: "/events", emoji: "📅", title: "Events", subtitle: "Industry events", iconBg: "#eff6ff" },
     ],
     featured: {
       heading: "Top Countries",
       items: [
-        { href: "/companies/united-states", emoji: "🇺🇸", label: "United States" },
-        { href: "/companies/united-kingdom", emoji: "🇬🇧", label: "United Kingdom" },
-        { href: "/companies/norway", emoji: "🇳🇴", label: "Norway" },
-        { href: "/companies/sweden", emoji: "🇸🇪", label: "Sweden" },
+        { href: "/countries/united-states", emoji: "🇺🇸", label: "United States" },
+        { href: "/countries/united-kingdom", emoji: "🇬🇧", label: "United Kingdom" },
+        { href: "/countries/norway", emoji: "🇳🇴", label: "Norway" },
+        { href: "/countries/sweden", emoji: "🇸🇪", label: "Sweden" },
       ],
     },
-  },
-  {
-    label: "Discover",
-    items: [
-      { href: "/trending", emoji: "🔥", title: "Trending", subtitle: "Hot companies", iconBg: "#fef3c7" },
-      { href: "/countries", emoji: "🌍", title: "Countries", subtitle: "30+ markets", iconBg: "#f0fdf4" },
-      { href: "/events", emoji: "📅", title: "Events", subtitle: "Industry events", iconBg: "#eff6ff" },
-    ],
   },
   {
     label: "News",

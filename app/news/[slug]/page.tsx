@@ -191,7 +191,27 @@ export default async function ArticlePage({
   const amountUsd = meta.amount_usd as number | undefined;
   const leadInvestor = meta.lead_investor as string | undefined;
 
-  // JSON-LD structured data
+  // Derive keywords + wordCount from article content for richer schema
+  function extractText(doc: unknown): string {
+    if (!doc || typeof doc !== 'object') return '';
+    const d = doc as { content?: unknown[]; text?: string };
+    if (typeof d.text === 'string') return d.text;
+    if (Array.isArray(d.content)) return d.content.map(extractText).join(' ');
+    return '';
+  }
+  const articleText = extractText(article.body);
+  const wordCount = articleText ? articleText.trim().split(/\s+/).length : undefined;
+  const keywordSet = new Set<string>();
+  if (article.type) keywordSet.add(typeLabel);
+  if (article.sector) keywordSet.add(article.sector);
+  if (company?.name) keywordSet.add(company.name);
+  if (company?.ticker) keywordSet.add(company.ticker);
+  if (leadInvestor) keywordSet.add(leadInvestor);
+  if (roundType) keywordSet.add(roundType);
+  keywordSet.add('biotech'); keywordSet.add('biotechnology');
+  const keywords = Array.from(keywordSet).filter(Boolean);
+
+  // Enriched NewsArticle JSON-LD
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
@@ -199,22 +219,27 @@ export default async function ArticlePage({
     description: article.summary || article.subtitle || article.headline,
     datePublished: article.published_at,
     dateModified: article.updated_at || article.published_at,
+    articleSection: typeLabel,
+    ...(keywords.length ? { keywords } : {}),
+    ...(wordCount ? { wordCount } : {}),
+    ...(articleText ? { articleBody: articleText.slice(0, 5000) } : {}),
     author: {
       "@type": "Organization",
-      name: "BiotechTube",
+      name: article.edited_by || "BiotechTube Editorial",
       url: "https://biotechtube.io",
     },
     publisher: {
       "@type": "Organization",
       name: "BiotechTube",
       url: "https://biotechtube.io",
+      logo: { "@type": "ImageObject", url: "https://biotechtube.io/logo.png" },
     },
     mainEntityOfPage: {
       "@type": "WebPage",
       "@id": `https://biotechtube.io/news/${article.slug}`,
     },
     ...(article.hero_image_url
-      ? { image: article.hero_image_url }
+      ? { image: { "@type": "ImageObject", url: article.hero_image_url, width: 1200, height: 630 } }
       : {}),
   };
 

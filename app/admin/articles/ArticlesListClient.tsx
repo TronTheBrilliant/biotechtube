@@ -67,6 +67,9 @@ export default function ArticlesListClient() {
   const [bulkAction, setBulkAction] = useState<"publish" | "archive" | null>(null);
   const [bulkProgress, setBulkProgress] = useState<{ current: number; total: number } | null>(null);
 
+  // Inline per-row publish state (id of row currently publishing, if any)
+  const [publishingId, setPublishingId] = useState<string | null>(null);
+
   // Debounce search input
   const handleSearchChange = useCallback((value: string) => {
     setSearchQuery(value);
@@ -142,6 +145,38 @@ export default function ArticlesListClient() {
     const t = setTimeout(() => setToast(null), 5000);
     return () => clearTimeout(t);
   }, [toast]);
+
+  // Inline one-click publish from the list row.
+  // Uses the same PUT endpoint as the bulk flow so backend semantics are identical.
+  const publishSingle = async (article: Article) => {
+    if (publishingId) return; // prevent double-click
+    setPublishingId(article.id);
+    try {
+      const res = await fetch(`/api/admin/articles/${article.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "published" }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      // Optimistic local update so the badge flips instantly
+      setArticles((prev) =>
+        prev.map((a) => (a.id === article.id ? { ...a, status: "published" as ArticleStatus, published_at: new Date().toISOString() } : a))
+      );
+      setToast({ message: `Published "${article.headline}"`, type: "success" });
+
+      // Refresh in_review count (this article may have been in_review)
+      fetch("/api/admin/articles?status=in_review")
+        .then((r) => r.json())
+        .then((d) => setInReviewCount(d.articles?.length || 0))
+        .catch(() => { /* non-fatal */ });
+    } catch (err) {
+      setToast({ message: `Failed to publish "${article.headline}"`, type: "error" });
+      console.error("publishSingle failed:", err);
+    } finally {
+      setPublishingId(null);
+    }
+  };
 
   // Bulk action execution
   const executeBulkAction = async (action: "publish" | "archive") => {
@@ -461,6 +496,42 @@ export default function ArticlesListClient() {
                       {metaParts}
                     </div>
                   </div>
+
+                  {/* Inline Publish button — only for draft / in_review rows */}
+                  {(article.status === "draft" || article.status === "in_review") && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        publishSingle(article);
+                      }}
+                      disabled={publishingId === article.id}
+                      style={{
+                        flexShrink: 0,
+                        padding: "4px 10px",
+                        background: publishingId === article.id ? "#16a34a" : "#22c55e",
+                        border: "none",
+                        borderRadius: 4,
+                        color: "#fff",
+                        fontSize: 12,
+                        fontWeight: 500,
+                        cursor: publishingId === article.id ? "default" : "pointer",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 6,
+                        opacity: publishingId && publishingId !== article.id ? 0.5 : 1,
+                      }}
+                      title="Publish this article"
+                    >
+                      {publishingId === article.id ? (
+                        <>
+                          <Loader2 size={12} style={{ animation: "spin 1s linear infinite" }} />
+                          Publishing
+                        </>
+                      ) : (
+                        "Publish"
+                      )}
+                    </button>
+                  )}
 
                   {/* Status + date */}
                   <div style={{ textAlign: "right", flexShrink: 0 }}>

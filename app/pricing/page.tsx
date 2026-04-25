@@ -73,10 +73,47 @@ const tiers = [
   },
 ];
 
+const faqItems: { q: string; a: string }[] = [
+  {
+    q: "Is BiotechTube free to use?",
+    a: "Yes. The Explorer tier is free forever and gives you access to 14,000+ company profiles, drug pipeline data, market snapshots, and daily news. Pro and Enterprise tiers unlock additional features like unlimited API calls, CSV exports, and portfolio tracking.",
+  },
+  {
+    q: "How many biotech companies does BiotechTube track?",
+    a: "We currently track over 14,000 biotech and pharma companies globally, including 1,000+ public companies with daily stock prices, 54,000+ drug pipeline programs, and comprehensive funding and clinical trial data.",
+  },
+  {
+    q: "Do you offer API access?",
+    a: "Yes. The Explorer tier includes 100 API requests per day. Pro tier increases this to 10,000/day for $29/mo. Enterprise offers unlimited access with custom SLAs.",
+  },
+  {
+    q: "How often is the data updated?",
+    a: "Stock prices and market data are updated daily. Pipeline, funding round, and company profile data is updated continuously as new information becomes available from primary sources like SEC filings, ClinicalTrials.gov, and press releases.",
+  },
+  {
+    q: "Can I cancel my subscription anytime?",
+    a: "Yes. All paid subscriptions can be cancelled at any time directly from your account settings. You'll retain access through the end of your current billing period.",
+  },
+];
+
 export default function PricingPage() {
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqItems.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a },
+    })),
+  };
+
   return (
     <div className="page-content" style={{ background: "var(--color-bg-primary)", minHeight: "100vh" }}>
       <Nav />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
 
       <main className="max-w-5xl mx-auto px-4 py-12">
         {/* Hero */}
@@ -359,6 +396,33 @@ export default function PricingPage() {
             </div>
           </div>
         </div>
+
+        {/* FAQ — visible content matching the FAQPage JSON-LD schema */}
+        <section className="mt-20 max-w-3xl mx-auto">
+          <h2 className="text-[24px] md:text-[28px] font-semibold mb-6 text-center" style={{ color: "var(--color-text-primary)", letterSpacing: "-0.3px" }}>
+            Frequently asked questions
+          </h2>
+          <div className="flex flex-col gap-4">
+            {faqItems.map((item) => (
+              <details
+                key={item.q}
+                className="rounded-xl p-5 group"
+                style={{ background: "var(--color-bg-secondary)", border: "1px solid var(--color-border-subtle)" }}
+              >
+                <summary
+                  className="cursor-pointer text-[15px] font-medium list-none flex items-center justify-between"
+                  style={{ color: "var(--color-text-primary)" }}
+                >
+                  <span>{item.q}</span>
+                  <span className="ml-4 text-[13px] group-open:rotate-45 transition-transform" style={{ color: "var(--color-text-tertiary)" }}>+</span>
+                </summary>
+                <p className="text-[14px] mt-3 leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                  {item.a}
+                </p>
+              </details>
+            ))}
+          </div>
+        </section>
       </main>
 
       <Footer />

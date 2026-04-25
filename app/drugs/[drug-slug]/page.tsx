@@ -74,18 +74,34 @@ export default async function DrugPage({ params }: DrugPageProps) {
     }, [] as DrugWithCompany[])
     .slice(0, 12);
 
-  // JSON-LD
+  // Richer Drug schema — Schema.org/Drug IS a MedicalEntity (inherits);
+  // listing both @types gives broader parser compatibility.
+  const drugUrl = `https://biotechtube.io/drugs/${params["drug-slug"]}`;
+  const drugStatuses = Array.from(new Set(drugs.map((d) => d.status).filter(Boolean)));
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "Drug",
+    "@type": ["Drug", "MedicalEntity"],
+    "@id": drugUrl,
     name: primaryDrug.name,
-    description: `${primaryDrug.name} is a ${primaryDrug.phase} drug candidate for ${primaryDrug.indication}.`,
+    alternateName: primaryDrug.name,
+    proprietaryName: primaryDrug.name,
+    description:
+      `${primaryDrug.name} is a ${primaryDrug.phase} drug for ${primaryDrug.indication}` +
+      (drugs.length > 1
+        ? `, co-developed by ${drugs.map((d) => d.companyName).slice(0, 3).join(", ")}.`
+        : `, developed by ${drugs[0].companyName}.`),
+    medicineSystem: "WesternConventional",
     relevantSpecialty: areas[0] || primaryDrug.indication,
+    url: drugUrl,
     manufacturer: drugs.map((d) => ({
       "@type": "Organization",
       name: d.companyName,
       url: `https://biotechtube.io/company/${d.companySlug}`,
     })),
+    ...(primaryDrug.indication
+      ? { indication: { "@type": "MedicalCondition", name: primaryDrug.indication } }
+      : {}),
+    ...(drugStatuses.length ? { clinicalTrialStatus: drugStatuses.join(", ") } : {}),
   };
 
   return (
