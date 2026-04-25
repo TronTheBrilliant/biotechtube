@@ -1,0 +1,5 @@
+Contact: mailto:security@biotechtube.io
+Expires: 2027-04-22T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://biotechtube.io/.well-known/security.txt
+Policy: https://biotechtube.io/privacy

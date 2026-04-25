@@ -1,0 +1,12 @@
+/* TEAM */
+Project: BiotechTube — Global Biotech Intelligence Platform
+Website: https://biotechtube.io
+Contact: hello@biotechtube.io
+
+/* SITE */
+Last update: 2026-04-22
+Language: English
+Doctype: HTML5
+Standards: HTML5, CSS3, TypeScript, React, Next.js
+Components: Supabase, Vercel
+Software: Next.js, TypeScript, Tailwind CSS

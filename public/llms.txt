@@ -1,0 +1,34 @@
+# BiotechTube
+
+> Global biotech intelligence platform — tracks 14,000+ biotech and pharma companies, 54,000+ drug pipeline programs, 1,000+ public company stock tickers, and $7.5T+ in combined market capitalization.
+
+BiotechTube is the "Bloomberg Terminal for Biotech" — a free, open-access data platform for investors, founders, recruiters, and researchers in the life sciences industry. Data is aggregated from Yahoo Finance, ClinicalTrials.gov, SEC filings, RSS news feeds, and proprietary enrichment pipelines.
+
+## Core entity pages
+
+- [Companies ranking](https://biotechtube.io/top-companies): Publicly traded biotech companies ranked by USD market cap. Daily updates.
+- [Drug pipeline](https://biotechtube.io/pipelines): All drug programs with clinical phase, indication, NCT IDs, and sponsor company.
+- [Funding tracker](https://biotechtube.io/funding): Recent venture rounds (Series A–IPO) with deal sizes and lead investors.
+- [Sectors](https://biotechtube.io/sectors): 20+ therapeutic areas with combined market cap and performance metrics.
+- [Countries](https://biotechtube.io/countries): 30+ countries ranked by biotech market cap.
+- [News](https://biotechtube.io/news): AI-powered market intelligence articles (funding deals, clinical trials, market analysis, company deep dives).
+
+## Feeds
+
+- RSS: https://biotechtube.io/api/feed/rss
+- Atom: https://biotechtube.io/api/feed/atom
+- JSON Feed: https://biotechtube.io/api/feed/json
+
+## Data & structure
+
+- Sitemap index: https://biotechtube.io/sitemap.xml
+- Google News sitemap: https://biotechtube.io/sitemap-news.xml
+
+## Pricing
+
+- [Pricing page](https://biotechtube.io/pricing): Free tier (Explorer) + Pro ($29/mo) + Enterprise (custom). API access at all tiers.
+
+## Contact
+
+- hello@biotechtube.io
+- security@biotechtube.io
