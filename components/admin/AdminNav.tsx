@@ -7,6 +7,7 @@ const TABS = [
   { label: "Overview", path: "/admin/command-center" },
   { label: "Agents", path: "/admin/agents" },
   { label: "Articles", path: "/admin/articles" },
+  { label: "Profile Edits", path: "/admin/profile-edits" },
   { label: "Quality", path: "/admin/quality" },
 ];
 

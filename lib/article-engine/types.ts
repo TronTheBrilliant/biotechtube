@@ -1,6 +1,6 @@
 // Article Engine — Core Types
 
-export type ArticleType = 'funding_deal' | 'clinical_trial' | 'market_analysis' | 'company_deep_dive' | 'weekly_roundup' | 'breaking_news' | 'science_essay' | 'innovation_spotlight'
+export type ArticleType = 'funding_deal' | 'clinical_trial' | 'market_analysis' | 'company_deep_dive' | 'weekly_roundup' | 'breaking_news' | 'science_essay' | 'innovation_spotlight' | 'funding_prediction'
 export type ArticleStatus = 'draft' | 'in_review' | 'published' | 'archived'
 export type ConfidenceLevel = 'high' | 'medium' | 'low'
 export type EditedBy = 'ai' | 'human' | 'ai+human'
