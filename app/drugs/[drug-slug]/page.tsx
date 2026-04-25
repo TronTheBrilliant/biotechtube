@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowUpRight, FlaskConical, Building2, Activity, ExternalLink } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
+import { AskBiotechTube } from "@/components/AskBiotechTube";
 import { getAllDrugs, drugSlug, DrugWithCompany } from "@/lib/seo-utils";
 
 export const revalidate = 86400; // 24 hours
@@ -164,6 +165,11 @@ export default async function DrugPage({ params }: DrugPageProps) {
                 <ExternalLink size={10} />
               </a>
             )}
+          </div>
+
+          {/* Ask BiotechTube widget */}
+          <div className="my-6">
+            <AskBiotechTube context={{ type: "drug", slug: params["drug-slug"] }} />
           </div>
 
           {/* Key Facts Card */}

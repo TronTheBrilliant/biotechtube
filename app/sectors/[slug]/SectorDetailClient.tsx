@@ -9,6 +9,7 @@ import { PaywallCard } from "@/components/PaywallCard";
 import { CompanyAvatar } from "@/components/CompanyAvatar";
 import { BarChart3, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { TvAreaChart } from "@/components/charts/TvAreaChart";
+import { AskBiotechTube } from "@/components/AskBiotechTube";
 import { formatMarketCap, formatPercent, pctColor, capPercent } from "@/lib/market-utils";
 import { getSectorEmoji, SECTOR_DESCRIPTIONS } from "@/lib/sector-emojis";
 
@@ -212,6 +213,11 @@ export default function SectorDetailClient({
             {sector.description || SECTOR_DESCRIPTIONS[sector.slug] || ""}
           </p>
         )}
+      </div>
+
+      {/* Ask BiotechTube widget */}
+      <div className="px-4 md:px-5 my-6">
+        <AskBiotechTube context={{ type: "sector", slug: sector.slug }} />
       </div>
 
       {/* Stats Strip */}

@@ -25,6 +25,7 @@ import { PipelineWatchButton } from "@/components/PipelineWatchButton";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { FollowButton } from "@/components/feed/FollowButton";
 import { ConfidenceBadge } from "@/components/ConfidenceBadge";
+import { AskBiotechTube } from "@/components/AskBiotechTube";
 import { useUser } from "@/lib/auth";
 
 /* ─── Types for enriched data ─── */
@@ -913,6 +914,11 @@ export function CompanyPageClient({
 
         </div>
       </header>
+
+      {/* ─── Ask BiotechTube widget ─── */}
+      <div className="max-w-[1200px] mx-auto px-4 md:px-6 my-6">
+        <AskBiotechTube context={{ type: "company", slug: company.slug }} />
+      </div>
 
       {/* ─── Claim Banner ─── */}
       {!isClaimed && (
