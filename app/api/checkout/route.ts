@@ -61,20 +61,23 @@ export async function POST(req: NextRequest) {
     // -----------------------------------------------------------
     // Stripe integration point
     // -----------------------------------------------------------
-    if (process.env.STRIPE_SECRET_KEY) {
-      // TODO: Replace with real Stripe checkout when STRIPE_SECRET_KEY is configured
-      // const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-      // const session = await stripe.checkout.sessions.create({
-      //   mode: "subscription",
-      //   payment_method_types: ["card"],
-      //   line_items: [{ price: planConfig.stripePriceId, quantity: 1 }],
-      //   metadata: { companyId, plan, userId },
-      //   success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/company/${company.slug}/admin?session_id={CHECKOUT_SESSION_ID}`,
-      //   cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/claim/${company.slug}`,
-      // });
-      // return NextResponse.json({ url: session.url });
-
-      // For now, fall through to mock flow until Stripe price IDs are configured
+    if (process.env.STRIPE_SECRET_KEY && planConfig.stripePriceId) {
+      const { getStripe } = await import("@/lib/stripe/client");
+      const stripe = getStripe();
+      const session = await stripe.checkout.sessions.create({
+        mode: "subscription",
+        payment_method_types: ["card"],
+        line_items: [{ price: planConfig.stripePriceId, quantity: 1 }],
+        metadata: {
+          type: "company_claim", // dispatched by /api/webhooks/stripe/route.ts
+          companyId,
+          plan,
+          userId,
+        },
+        success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/company/${company.slug}/admin?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/claim/${company.slug}`,
+      });
+      return NextResponse.json({ url: session.url });
     }
 
     // -----------------------------------------------------------
