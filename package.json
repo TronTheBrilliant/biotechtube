@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",
+    "@react-pdf/renderer": "^4.5.1",
     "@supabase/supabase-js": "^2.99.3",
     "@tiptap/extension-image": "^3.22.3",
     "@tiptap/extension-link": "^3.22.3",
