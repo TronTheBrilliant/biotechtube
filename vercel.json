@@ -43,6 +43,14 @@
     {
       "path": "/api/cron/research-stuck-generations",
       "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/research-event-detector",
+      "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/cron/research-day14-refresh",
+      "schedule": "30 11 * * *"
     }
   ]
 }
