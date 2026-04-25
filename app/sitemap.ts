@@ -68,6 +68,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/pricing`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.5 },
     { url: `${BASE_URL}/blog`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
     { url: `${BASE_URL}/news/funding`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
+    { url: `${BASE_URL}/research`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.8 },
   ];
 
   // Company pages
@@ -227,6 +228,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  // Research preview pages — top 500 companies by valuation
+  const { data: topCos } = await supabase
+    .from("companies")
+    .select("slug, updated_at")
+    .order("valuation", { ascending: false, nullsFirst: false })
+    .limit(500);
+  const researchPages: MetadataRoute.Sitemap = (topCos ?? []).map((c: { slug: string; updated_at: string | null }) => ({
+    url: `${BASE_URL}/research/${c.slug}`,
+    lastModified: c.updated_at ? new Date(c.updated_at) : new Date(),
+    changeFrequency: "weekly" as const,
+    priority: 0.5,
+  }));
+
   return [
     ...staticPages,
     ...companyPages,
@@ -239,6 +253,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...blogPages,
     ...fundingArticlePages,
     ...engineArticlePages,
+    ...researchPages,
     ...productPages,
   ];
 }
