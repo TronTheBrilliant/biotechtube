@@ -21,6 +21,10 @@ function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+// Hard cap on what we'll ever write to market_cap_usd. No biotech on earth is >$1.5T.
+// Guards against FX-conversion bugs (e.g. writing raw INR/KRW/JPY as USD).
+const MAX_MARKET_CAP_USD = 1_500_000_000_000;
+
 async function main() {
   console.log("Fetch Orphan Market Caps");
   console.log("=".repeat(60));
@@ -28,6 +32,20 @@ async function main() {
   // Dynamically import yahoo-finance2 (ESM module)
   const YahooFinance = (await import("yahoo-finance2")).default;
   const yahooFinance = new YahooFinance();
+
+  // ---- FX rates (mirrors daily-update.ts). Without these, foreign market caps
+  // get written as raw local-currency values into market_cap_usd, producing
+  // values 80-100x inflated for INR/KRW/JPY stocks (the Mankind Pharma bug).
+  const exchangeRates = new Map<string, number>();
+  exchangeRates.set("USD", 1.0);
+  const pairs = ["EUR", "GBP", "NOK", "SEK", "DKK", "CHF", "JPY", "AUD", "CAD", "INR", "CNY", "HKD", "ILS", "KRW", "TWD", "PLN", "SGD", "ZAR"];
+  for (const curr of pairs) {
+    try {
+      const q = await yahooFinance.quote(`${curr}USD=X`);
+      if (q?.regularMarketPrice) exchangeRates.set(curr, q.regularMarketPrice);
+    } catch { /* skip */ }
+  }
+  console.log(`  Fetched ${exchangeRates.size} exchange rates`);
 
   // Find companies with price data but no market_cap_usd
   const { data: orphanIds } = await supabase.rpc("get_orphan_marketcap_companies") as any;
@@ -103,7 +121,20 @@ async function main() {
       const marketCap = quote.marketCap;
       const sharesOut = quote.sharesOutstanding;
       const price = quote.regularMarketPrice;
-      const currency = quote.currency || "USD";
+      const rawCurrency = quote.currency || "USD";
+
+      // Normalize sub-unit currencies (GBp=pence, ZAc=cents) to main units.
+      // Yahoo quotes UK/South-Africa stocks in sub-units — divide by 100 before applying FX rate.
+      let currency = rawCurrency;
+      let subUnitDivisor = 1;
+      if (rawCurrency === "GBp" || rawCurrency === "GBX" || rawCurrency === "GBx") {
+        currency = "GBP";
+        subUnitDivisor = 100;
+      } else if (rawCurrency === "ZAc" || rawCurrency === "ZAC") {
+        currency = "ZAR";
+        subUnitDivisor = 100;
+      }
+      const usdRate = exchangeRates.get(currency) || 1.0;
 
       if (!marketCap && !sharesOut) {
         console.log(`${progress} ❌ ${c.name} (${c.ticker}) — no marketCap or shares`);
@@ -111,7 +142,9 @@ async function main() {
         continue;
       }
 
-      // Update shares_outstanding on companies table
+      // Update shares_outstanding on companies table.
+      // NOTE: valuation stays in local currency (matches daily-update.ts behavior);
+      // ranking page converts to USD via company_price_history.market_cap_usd.
       const updateData: Record<string, unknown> = {};
       if (sharesOut) updateData.shares_outstanding = sharesOut;
       if (marketCap) updateData.valuation = Math.round(marketCap);
@@ -120,9 +153,8 @@ async function main() {
         await supabase.from("companies").update(updateData).eq("id", c.id);
       }
 
-      // Now update all price history rows with market_cap_usd
-      // market_cap_usd = close_price_local * shares_outstanding * fx_rate
-      // But simpler: use the latest marketCap from Yahoo and scale by price ratio
+      // Now update all price history rows with market_cap_usd.
+      // Formula: mcap_usd = (price_ratio * marketCap_local / subUnitDivisor) * usdRate
       if (sharesOut && marketCap) {
         // Get all price rows for this company
         const allRows: Array<{ date: string; close_price: number }> = [];
@@ -141,16 +173,28 @@ async function main() {
         }
 
         if (allRows.length > 0 && price) {
-          // Calculate price-to-mcap ratio from current data
-          // marketCapUsd for each date = (close_price / current_price) * current_marketCap
-          const updates: Array<{ company_id: string; date: string; market_cap_usd: number }> = [];
+          // Calculate price-to-mcap ratio + apply FX conversion.
+          // mcapUsd = (close_price/current_price) * marketCap_local / subUnitDivisor * usdRate
+          const updates: Array<{ company_id: string; date: string; market_cap_usd: number; currency: string }> = [];
+          let skippedOverCap = 0;
           for (const row of allRows) {
             const ratio = row.close_price / price;
-            const mcapUsd = Math.round(ratio * marketCap);
+            const mcapUsd = Math.round((ratio * marketCap / subUnitDivisor) * usdRate);
+
+            // Sanity guard: refuse to write obviously inflated values.
+            // Catches FX bugs where currency is misidentified as USD.
+            if (mcapUsd > MAX_MARKET_CAP_USD || mcapUsd < 0) {
+              skippedOverCap++;
+              continue;
+            }
+
             updates.push({
               company_id: c.id,
               date: row.date,
               market_cap_usd: mcapUsd,
+              // Always write currency explicitly — DB default is 'USD' which
+              // produces a false-positive USD tag for foreign stocks.
+              currency,
             });
           }
 
@@ -165,7 +209,9 @@ async function main() {
             }
           }
 
-          console.log(`${progress} ✅ ${c.name} (${c.ticker}) — mcap $${(marketCap / 1e6).toFixed(0)}M, ${allRows.length} rows updated, ${sharesOut?.toLocaleString()} shares`);
+          const mcapUsdLive = Math.round((marketCap / subUnitDivisor) * usdRate);
+          const skipNote = skippedOverCap > 0 ? ` [skipped ${skippedOverCap} over $${MAX_MARKET_CAP_USD / 1e12}T cap]` : "";
+          console.log(`${progress} ✅ ${c.name} (${c.ticker}) [${currency}] — mcap $${(mcapUsdLive / 1e6).toFixed(0)}M, ${updates.length}/${allRows.length} rows updated${skipNote}`);
           success++;
         } else {
           console.log(`${progress} ⚠️  ${c.name} (${c.ticker}) — mcap $${(marketCap / 1e6).toFixed(0)}M but no price rows to update`);
