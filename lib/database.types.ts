@@ -258,10 +258,571 @@ export type Database = {
             foreignKeyName: "ai_ml_devices_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_ml_devices_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
         ]
+      }
+      articles: {
+        Row: {
+          article_style: string | null
+          body: Json
+          company_id: string | null
+          company_ids: string[] | null
+          confidence: string
+          created_at: string | null
+          edited_by: string | null
+          headline: string
+          hero_image_prompt: string | null
+          hero_image_url: string | null
+          hero_placeholder_style: Json | null
+          id: string
+          metadata: Json | null
+          published_at: string | null
+          reading_time_min: number | null
+          sector: string | null
+          seo_description: string | null
+          seo_title: string | null
+          slug: string
+          sources: Json | null
+          status: string
+          subtitle: string | null
+          summary: string | null
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          article_style?: string | null
+          body?: Json
+          company_id?: string | null
+          company_ids?: string[] | null
+          confidence?: string
+          created_at?: string | null
+          edited_by?: string | null
+          headline: string
+          hero_image_prompt?: string | null
+          hero_image_url?: string | null
+          hero_placeholder_style?: Json | null
+          id?: string
+          metadata?: Json | null
+          published_at?: string | null
+          reading_time_min?: number | null
+          sector?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug: string
+          sources?: Json | null
+          status?: string
+          subtitle?: string | null
+          summary?: string | null
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          article_style?: string | null
+          body?: Json
+          company_id?: string | null
+          company_ids?: string[] | null
+          confidence?: string
+          created_at?: string | null
+          edited_by?: string | null
+          headline?: string
+          hero_image_prompt?: string | null
+          hero_image_url?: string | null
+          hero_placeholder_style?: Json | null
+          id?: string
+          metadata?: Json | null
+          published_at?: string | null
+          reading_time_min?: number | null
+          sector?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string
+          sources?: Json | null
+          status?: string
+          subtitle?: string | null
+          summary?: string | null
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "articles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "articles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      atelier_generated_sites: {
+        Row: {
+          animation_level: string | null
+          approved_at: string | null
+          color_palette: Json | null
+          company_id: string | null
+          copy_density: string | null
+          created_at: string | null
+          file_manifest: Json | null
+          generation_cost_usd: number | null
+          generation_ms: number | null
+          id: string
+          image_style: string | null
+          inspirations_used: string[] | null
+          layout_archetype: string | null
+          model_used: string | null
+          plugins_used: string[] | null
+          preview_url: string | null
+          prompt_used: string | null
+          queue_id: string | null
+          sanity_schema: Json | null
+          score: number | null
+          stage: string
+          storage_path: string | null
+          typography_pair: string | null
+          vercel_project_id: string | null
+          version: number | null
+        }
+        Insert: {
+          animation_level?: string | null
+          approved_at?: string | null
+          color_palette?: Json | null
+          company_id?: string | null
+          copy_density?: string | null
+          created_at?: string | null
+          file_manifest?: Json | null
+          generation_cost_usd?: number | null
+          generation_ms?: number | null
+          id?: string
+          image_style?: string | null
+          inspirations_used?: string[] | null
+          layout_archetype?: string | null
+          model_used?: string | null
+          plugins_used?: string[] | null
+          preview_url?: string | null
+          prompt_used?: string | null
+          queue_id?: string | null
+          sanity_schema?: Json | null
+          score?: number | null
+          stage: string
+          storage_path?: string | null
+          typography_pair?: string | null
+          vercel_project_id?: string | null
+          version?: number | null
+        }
+        Update: {
+          animation_level?: string | null
+          approved_at?: string | null
+          color_palette?: Json | null
+          company_id?: string | null
+          copy_density?: string | null
+          created_at?: string | null
+          file_manifest?: Json | null
+          generation_cost_usd?: number | null
+          generation_ms?: number | null
+          id?: string
+          image_style?: string | null
+          inspirations_used?: string[] | null
+          layout_archetype?: string | null
+          model_used?: string | null
+          plugins_used?: string[] | null
+          preview_url?: string | null
+          prompt_used?: string | null
+          queue_id?: string | null
+          sanity_schema?: Json | null
+          score?: number | null
+          stage?: string
+          storage_path?: string | null
+          typography_pair?: string | null
+          vercel_project_id?: string | null
+          version?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "atelier_generated_sites_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atelier_generated_sites_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atelier_generated_sites_queue_id_fkey"
+            columns: ["queue_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["queue_id"]
+          },
+          {
+            foreignKeyName: "atelier_generated_sites_queue_id_fkey"
+            columns: ["queue_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      atelier_inspirations: {
+        Row: {
+          average_score_when_used: number | null
+          content_tone: Json | null
+          created_at: string | null
+          id: string
+          layout_grammar: Json | null
+          motion_language: Json | null
+          name: string | null
+          screenshot_url: string | null
+          style_archetypes: string[] | null
+          tags: string[] | null
+          times_used: number | null
+          trust_signals: Json | null
+          url: string
+          verticals: string[] | null
+          visual_language: Json | null
+        }
+        Insert: {
+          average_score_when_used?: number | null
+          content_tone?: Json | null
+          created_at?: string | null
+          id?: string
+          layout_grammar?: Json | null
+          motion_language?: Json | null
+          name?: string | null
+          screenshot_url?: string | null
+          style_archetypes?: string[] | null
+          tags?: string[] | null
+          times_used?: number | null
+          trust_signals?: Json | null
+          url: string
+          verticals?: string[] | null
+          visual_language?: Json | null
+        }
+        Update: {
+          average_score_when_used?: number | null
+          content_tone?: Json | null
+          created_at?: string | null
+          id?: string
+          layout_grammar?: Json | null
+          motion_language?: Json | null
+          name?: string | null
+          screenshot_url?: string | null
+          style_archetypes?: string[] | null
+          tags?: string[] | null
+          times_used?: number | null
+          trust_signals?: Json | null
+          url?: string
+          verticals?: string[] | null
+          visual_language?: Json | null
+        }
+        Relationships: []
+      }
+      atelier_queue: {
+        Row: {
+          animation_level: string | null
+          approved_hero_id: string | null
+          company_id: string
+          created_at: string | null
+          current_score: number | null
+          design_direction: Json | null
+          design_system: Json | null
+          enriched_intelligence: Json | null
+          error_message: string | null
+          full_site_storage_path: string | null
+          hero_variants: Json | null
+          homepage_preview_url: string | null
+          id: string
+          image_style: string | null
+          is_priority: boolean | null
+          last_critique: Json | null
+          outreach_email_id: string | null
+          positioning_brief: Json | null
+          preview_url: string | null
+          prompt_version: string | null
+          selected_inspiration_urls: string[] | null
+          selected_plugin_ids: string[] | null
+          status: Database["public"]["Enums"]["atelier_status"] | null
+          taste_snapshot: Json | null
+          updated_at: string | null
+          vercel_project_id: string | null
+        }
+        Insert: {
+          animation_level?: string | null
+          approved_hero_id?: string | null
+          company_id: string
+          created_at?: string | null
+          current_score?: number | null
+          design_direction?: Json | null
+          design_system?: Json | null
+          enriched_intelligence?: Json | null
+          error_message?: string | null
+          full_site_storage_path?: string | null
+          hero_variants?: Json | null
+          homepage_preview_url?: string | null
+          id?: string
+          image_style?: string | null
+          is_priority?: boolean | null
+          last_critique?: Json | null
+          outreach_email_id?: string | null
+          positioning_brief?: Json | null
+          preview_url?: string | null
+          prompt_version?: string | null
+          selected_inspiration_urls?: string[] | null
+          selected_plugin_ids?: string[] | null
+          status?: Database["public"]["Enums"]["atelier_status"] | null
+          taste_snapshot?: Json | null
+          updated_at?: string | null
+          vercel_project_id?: string | null
+        }
+        Update: {
+          animation_level?: string | null
+          approved_hero_id?: string | null
+          company_id?: string
+          created_at?: string | null
+          current_score?: number | null
+          design_direction?: Json | null
+          design_system?: Json | null
+          enriched_intelligence?: Json | null
+          error_message?: string | null
+          full_site_storage_path?: string | null
+          hero_variants?: Json | null
+          homepage_preview_url?: string | null
+          id?: string
+          image_style?: string | null
+          is_priority?: boolean | null
+          last_critique?: Json | null
+          outreach_email_id?: string | null
+          positioning_brief?: Json | null
+          preview_url?: string | null
+          prompt_version?: string | null
+          selected_inspiration_urls?: string[] | null
+          selected_plugin_ids?: string[] | null
+          status?: Database["public"]["Enums"]["atelier_status"] | null
+          taste_snapshot?: Json | null
+          updated_at?: string | null
+          vercel_project_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "atelier_queue_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atelier_queue_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      atelier_ratings: {
+        Row: {
+          animation_level: string | null
+          color_palette: Json | null
+          company_id: string | null
+          company_stage: string | null
+          company_type: string | null
+          created_at: string | null
+          id: string
+          image_style: string | null
+          inspiration_urls: string[] | null
+          layout_archetype: string | null
+          led_to_approval: boolean | null
+          led_to_outreach: boolean | null
+          notes: string | null
+          queue_id: string | null
+          rating_stage: string
+          score: number
+          site_id: string | null
+          therapeutic_areas: string[] | null
+          typography_pair: string | null
+        }
+        Insert: {
+          animation_level?: string | null
+          color_palette?: Json | null
+          company_id?: string | null
+          company_stage?: string | null
+          company_type?: string | null
+          created_at?: string | null
+          id?: string
+          image_style?: string | null
+          inspiration_urls?: string[] | null
+          layout_archetype?: string | null
+          led_to_approval?: boolean | null
+          led_to_outreach?: boolean | null
+          notes?: string | null
+          queue_id?: string | null
+          rating_stage: string
+          score: number
+          site_id?: string | null
+          therapeutic_areas?: string[] | null
+          typography_pair?: string | null
+        }
+        Update: {
+          animation_level?: string | null
+          color_palette?: Json | null
+          company_id?: string | null
+          company_stage?: string | null
+          company_type?: string | null
+          created_at?: string | null
+          id?: string
+          image_style?: string | null
+          inspiration_urls?: string[] | null
+          layout_archetype?: string | null
+          led_to_approval?: boolean | null
+          led_to_outreach?: boolean | null
+          notes?: string | null
+          queue_id?: string | null
+          rating_stage?: string
+          score?: number
+          site_id?: string | null
+          therapeutic_areas?: string[] | null
+          typography_pair?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "atelier_ratings_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atelier_ratings_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atelier_ratings_queue_id_fkey"
+            columns: ["queue_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["queue_id"]
+          },
+          {
+            foreignKeyName: "atelier_ratings_queue_id_fkey"
+            columns: ["queue_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_queue"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atelier_ratings_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_generated_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      atelier_settings: {
+        Row: {
+          key: string
+          updated_at: string | null
+          value: Json | null
+        }
+        Insert: {
+          key: string
+          updated_at?: string | null
+          value?: Json | null
+        }
+        Update: {
+          key?: string
+          updated_at?: string | null
+          value?: Json | null
+        }
+        Relationships: []
+      }
+      atelier_taste_profiles: {
+        Row: {
+          confidence_score: number | null
+          generated_at: string | null
+          id: string
+          patterns: Json
+          prompt_injections: Json | null
+          ratings_analyzed: number | null
+          version: number
+        }
+        Insert: {
+          confidence_score?: number | null
+          generated_at?: string | null
+          id?: string
+          patterns: Json
+          prompt_injections?: Json | null
+          ratings_analyzed?: number | null
+          version?: number
+        }
+        Update: {
+          confidence_score?: number | null
+          generated_at?: string | null
+          id?: string
+          patterns?: Json
+          prompt_injections?: Json | null
+          ratings_analyzed?: number | null
+          version?: number
+        }
+        Relationships: []
+      }
+      audit_log: {
+        Row: {
+          action: string
+          actor: string | null
+          after_jsonb: Json | null
+          before_jsonb: Json | null
+          created_at: string
+          id: string
+          record_id: string
+          source: string | null
+          table_name: string
+        }
+        Insert: {
+          action: string
+          actor?: string | null
+          after_jsonb?: Json | null
+          before_jsonb?: Json | null
+          created_at?: string
+          id?: string
+          record_id: string
+          source?: string | null
+          table_name: string
+        }
+        Update: {
+          action?: string
+          actor?: string | null
+          after_jsonb?: Json | null
+          before_jsonb?: Json | null
+          created_at?: string
+          id?: string
+          record_id?: string
+          source?: string | null
+          table_name?: string
+        }
+        Relationships: []
       }
       biotech_events: {
         Row: {
@@ -359,10 +920,223 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_conversations: {
+        Row: {
+          context_slug: string | null
+          context_type: string | null
+          created_at: string
+          id: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          context_slug?: string | null
+          context_type?: string | null
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          context_slug?: string | null
+          context_type?: string | null
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      chat_messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          role: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          role: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_rate_limits: {
+        Row: {
+          count: number
+          day: string
+          ip: string
+          updated_at: string
+        }
+        Insert: {
+          count?: number
+          day: string
+          ip: string
+          updated_at?: string
+        }
+        Update: {
+          count?: number
+          day?: string
+          ip?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      commercial_products: {
+        Row: {
+          active_ingredient: string | null
+          brand_name: string
+          commercial_status: string
+          company_id: string | null
+          company_name: string
+          confidence: string | null
+          created_at: string | null
+          cumulative_revenue: number | null
+          data_completeness: number | null
+          description: string | null
+          dosage_form: string | null
+          enriched_at: string | null
+          exclusivity_expiry_date: string | null
+          first_approval_date: string | null
+          generic_name: string | null
+          has_biosimilar_competition: boolean | null
+          has_generic_competition: boolean | null
+          id: string
+          indication_primary: string | null
+          indications: string[] | null
+          latest_annual_revenue: number | null
+          latest_revenue_year: number | null
+          launch_date: string | null
+          marketing_partner: string | null
+          mechanism_of_action: string | null
+          molecule_type: string | null
+          patent_expiry_date: string | null
+          peak_annual_revenue: number | null
+          peak_revenue_year: number | null
+          product_type: string
+          route: string | null
+          slug: string
+          source: string
+          therapeutic_area: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          active_ingredient?: string | null
+          brand_name: string
+          commercial_status?: string
+          company_id?: string | null
+          company_name: string
+          confidence?: string | null
+          created_at?: string | null
+          cumulative_revenue?: number | null
+          data_completeness?: number | null
+          description?: string | null
+          dosage_form?: string | null
+          enriched_at?: string | null
+          exclusivity_expiry_date?: string | null
+          first_approval_date?: string | null
+          generic_name?: string | null
+          has_biosimilar_competition?: boolean | null
+          has_generic_competition?: boolean | null
+          id?: string
+          indication_primary?: string | null
+          indications?: string[] | null
+          latest_annual_revenue?: number | null
+          latest_revenue_year?: number | null
+          launch_date?: string | null
+          marketing_partner?: string | null
+          mechanism_of_action?: string | null
+          molecule_type?: string | null
+          patent_expiry_date?: string | null
+          peak_annual_revenue?: number | null
+          peak_revenue_year?: number | null
+          product_type?: string
+          route?: string | null
+          slug: string
+          source?: string
+          therapeutic_area?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          active_ingredient?: string | null
+          brand_name?: string
+          commercial_status?: string
+          company_id?: string | null
+          company_name?: string
+          confidence?: string | null
+          created_at?: string | null
+          cumulative_revenue?: number | null
+          data_completeness?: number | null
+          description?: string | null
+          dosage_form?: string | null
+          enriched_at?: string | null
+          exclusivity_expiry_date?: string | null
+          first_approval_date?: string | null
+          generic_name?: string | null
+          has_biosimilar_competition?: boolean | null
+          has_generic_competition?: boolean | null
+          id?: string
+          indication_primary?: string | null
+          indications?: string[] | null
+          latest_annual_revenue?: number | null
+          latest_revenue_year?: number | null
+          launch_date?: string | null
+          marketing_partner?: string | null
+          mechanism_of_action?: string | null
+          molecule_type?: string | null
+          patent_expiry_date?: string | null
+          peak_annual_revenue?: number | null
+          peak_revenue_year?: number | null
+          product_type?: string
+          route?: string | null
+          slug?: string
+          source?: string
+          therapeutic_area?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commercial_products_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commercial_products_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           categories: string[] | null
           city: string | null
+          commercial_product_count: number | null
           company_type: string | null
           country: string
           created_at: string | null
@@ -379,6 +1153,8 @@ export type Database = {
           last_enhanced_at: string | null
           logo_url: string | null
           name: string
+          outreach_priority: number | null
+          outreach_status: string | null
           profile_completeness: number | null
           profile_level: number | null
           profile_views: number | null
@@ -395,10 +1171,14 @@ export type Database = {
           updated_at: string | null
           valuation: number | null
           website: string | null
+          website_score: number | null
+          website_score_details: Json | null
+          website_scored_at: string | null
         }
         Insert: {
           categories?: string[] | null
           city?: string | null
+          commercial_product_count?: number | null
           company_type?: string | null
           country: string
           created_at?: string | null
@@ -415,6 +1195,8 @@ export type Database = {
           last_enhanced_at?: string | null
           logo_url?: string | null
           name: string
+          outreach_priority?: number | null
+          outreach_status?: string | null
           profile_completeness?: number | null
           profile_level?: number | null
           profile_views?: number | null
@@ -431,10 +1213,14 @@ export type Database = {
           updated_at?: string | null
           valuation?: number | null
           website?: string | null
+          website_score?: number | null
+          website_score_details?: Json | null
+          website_scored_at?: string | null
         }
         Update: {
           categories?: string[] | null
           city?: string | null
+          commercial_product_count?: number | null
           company_type?: string | null
           country?: string
           created_at?: string | null
@@ -451,6 +1237,8 @@ export type Database = {
           last_enhanced_at?: string | null
           logo_url?: string | null
           name?: string
+          outreach_priority?: number | null
+          outreach_status?: string | null
           profile_completeness?: number | null
           profile_level?: number | null
           profile_views?: number | null
@@ -467,6 +1255,9 @@ export type Database = {
           updated_at?: string | null
           valuation?: number | null
           website?: string | null
+          website_score?: number | null
+          website_score_details?: Json | null
+          website_scored_at?: string | null
         }
         Relationships: []
       }
@@ -482,6 +1273,7 @@ export type Database = {
           investor_deck_url: string | null
           plan: string | null
           status: string | null
+          template: string | null
           user_id: string
           verification_method: string | null
           verified_at: string | null
@@ -498,6 +1290,7 @@ export type Database = {
           investor_deck_url?: string | null
           plan?: string | null
           status?: string | null
+          template?: string | null
           user_id: string
           verification_method?: string | null
           verified_at?: string | null
@@ -514,12 +1307,20 @@ export type Database = {
           investor_deck_url?: string | null
           plan?: string | null
           status?: string | null
+          template?: string | null
           user_id?: string
           verification_method?: string | null
           verified_at?: string | null
           video_url?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "company_claims_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "company_claims_company_id_fkey"
             columns: ["company_id"]
@@ -561,6 +1362,13 @@ export type Database = {
           sender_company?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "company_inquiries_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "company_inquiries_company_id_fkey"
             columns: ["company_id"]
@@ -612,6 +1420,13 @@ export type Database = {
             foreignKeyName: "company_jobs_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_jobs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
@@ -643,6 +1458,13 @@ export type Database = {
           title?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "company_news_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "company_news_company_id_fkey"
             columns: ["company_id"]
@@ -723,6 +1545,13 @@ export type Database = {
           volume?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "company_price_history_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "company_price_history_company_id_fkey"
             columns: ["company_id"]
@@ -879,6 +1708,13 @@ export type Database = {
             foreignKeyName: "company_sectors_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_sectors_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
@@ -917,6 +1753,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "company_seo_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "company_seo_company_id_fkey"
             columns: ["company_id"]
@@ -965,6 +1808,13 @@ export type Database = {
             foreignKeyName: "company_team_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_team_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
@@ -996,6 +1846,13 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "company_updates_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "company_updates_company_id_fkey"
             columns: ["company_id"]
@@ -1067,6 +1924,13 @@ export type Database = {
           visual_type?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "company_visuals_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "company_visuals_company_id_fkey"
             columns: ["company_id"]
@@ -1264,6 +2128,233 @@ export type Database = {
           },
         ]
       }
+      equity_report_chats: {
+        Row: {
+          created_at: string
+          id: string
+          last_message_at: string | null
+          message_count: number
+          messages: Json
+          purchase_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          message_count?: number
+          messages?: Json
+          purchase_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          message_count?: number
+          messages?: Json
+          purchase_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equity_report_chats_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "equity_report_purchases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      equity_report_events: {
+        Row: {
+          detected_at: string
+          equity_report_id: string
+          event_summary: string | null
+          event_type: string
+          id: string
+          is_material: boolean
+          source_url: string | null
+        }
+        Insert: {
+          detected_at?: string
+          equity_report_id: string
+          event_summary?: string | null
+          event_type: string
+          id?: string
+          is_material?: boolean
+          source_url?: string | null
+        }
+        Update: {
+          detected_at?: string
+          equity_report_id?: string
+          event_summary?: string | null
+          event_type?: string
+          id?: string
+          is_material?: boolean
+          source_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equity_report_events_equity_report_id_fkey"
+            columns: ["equity_report_id"]
+            isOneToOne: false
+            referencedRelation: "equity_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      equity_report_purchases: {
+        Row: {
+          alerts_opted_in: boolean
+          amount_cents: number
+          angle: string
+          buyer_email: string
+          company_id: string
+          day14_refresh_sent_at: string | null
+          download_count: number
+          equity_report_id: string | null
+          generation_attempts: number
+          generation_started_at: string | null
+          id: string
+          last_downloaded_at: string | null
+          live_access_expires_at: string | null
+          paid_at: string
+          refunded_at: string | null
+          status: string
+          stripe_payment_intent_id: string | null
+          stripe_session_id: string
+          tier: string
+          user_id: string | null
+        }
+        Insert: {
+          alerts_opted_in?: boolean
+          amount_cents: number
+          angle?: string
+          buyer_email: string
+          company_id: string
+          day14_refresh_sent_at?: string | null
+          download_count?: number
+          equity_report_id?: string | null
+          generation_attempts?: number
+          generation_started_at?: string | null
+          id?: string
+          last_downloaded_at?: string | null
+          live_access_expires_at?: string | null
+          paid_at?: string
+          refunded_at?: string | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id: string
+          tier: string
+          user_id?: string | null
+        }
+        Update: {
+          alerts_opted_in?: boolean
+          amount_cents?: number
+          angle?: string
+          buyer_email?: string
+          company_id?: string
+          day14_refresh_sent_at?: string | null
+          download_count?: number
+          equity_report_id?: string | null
+          generation_attempts?: number
+          generation_started_at?: string | null
+          id?: string
+          last_downloaded_at?: string | null
+          live_access_expires_at?: string | null
+          paid_at?: string
+          refunded_at?: string | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string
+          tier?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equity_report_purchases_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equity_report_purchases_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equity_report_purchases_equity_report_id_fkey"
+            columns: ["equity_report_id"]
+            isOneToOne: false
+            referencedRelation: "equity_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      equity_reports: {
+        Row: {
+          audio_url: string | null
+          company_id: string
+          content_jsonb: Json
+          cost_cents: number
+          enrichment_jsonb: Json | null
+          expires_at: string | null
+          generated_at: string
+          generation_seconds: number | null
+          id: string
+          mechanism_svg: string | null
+          model_version: string
+          pdf_url: string | null
+          refreshed_at: string
+        }
+        Insert: {
+          audio_url?: string | null
+          company_id: string
+          content_jsonb: Json
+          cost_cents?: number
+          enrichment_jsonb?: Json | null
+          expires_at?: string | null
+          generated_at?: string
+          generation_seconds?: number | null
+          id?: string
+          mechanism_svg?: string | null
+          model_version?: string
+          pdf_url?: string | null
+          refreshed_at?: string
+        }
+        Update: {
+          audio_url?: string | null
+          company_id?: string
+          content_jsonb?: Json
+          cost_cents?: number
+          enrichment_jsonb?: Json | null
+          expires_at?: string | null
+          generated_at?: string
+          generation_seconds?: number | null
+          id?: string
+          mechanism_svg?: string | null
+          model_version?: string
+          pdf_url?: string | null
+          refreshed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equity_reports_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equity_reports_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       error_reports: {
         Row: {
           company_id: string | null
@@ -1305,6 +2396,13 @@ export type Database = {
           status?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "error_reports_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "error_reports_company_id_fkey"
             columns: ["company_id"]
@@ -1365,6 +2463,13 @@ export type Database = {
             foreignKeyName: "fda_approvals_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fda_approvals_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
@@ -1414,6 +2519,13 @@ export type Database = {
           status?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "fda_calendar_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "fda_calendar_company_id_fkey"
             columns: ["company_id"]
@@ -1480,6 +2592,127 @@ export type Database = {
           },
         ]
       }
+      follows: {
+        Row: {
+          created_at: string
+          follower_id: string
+          following_id: string
+          following_type: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          follower_id: string
+          following_id: string
+          following_type?: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          follower_id?: string
+          following_id?: string
+          following_type?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      funding_articles: {
+        Row: {
+          amount_usd: number | null
+          article_type: string | null
+          body: string
+          company_id: string | null
+          company_name: string
+          company_slug: string | null
+          country: string | null
+          created_at: string | null
+          deal_size_category: string | null
+          funding_round_id: string | null
+          headline: string
+          id: string
+          is_featured: boolean | null
+          lead_investor: string | null
+          published_at: string | null
+          round_date: string | null
+          round_type: string | null
+          sector: string | null
+          slug: string
+          source_url: string | null
+          subtitle: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount_usd?: number | null
+          article_type?: string | null
+          body: string
+          company_id?: string | null
+          company_name: string
+          company_slug?: string | null
+          country?: string | null
+          created_at?: string | null
+          deal_size_category?: string | null
+          funding_round_id?: string | null
+          headline: string
+          id?: string
+          is_featured?: boolean | null
+          lead_investor?: string | null
+          published_at?: string | null
+          round_date?: string | null
+          round_type?: string | null
+          sector?: string | null
+          slug: string
+          source_url?: string | null
+          subtitle?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount_usd?: number | null
+          article_type?: string | null
+          body?: string
+          company_id?: string | null
+          company_name?: string
+          company_slug?: string | null
+          country?: string | null
+          created_at?: string | null
+          deal_size_category?: string | null
+          funding_round_id?: string | null
+          headline?: string
+          id?: string
+          is_featured?: boolean | null
+          lead_investor?: string | null
+          published_at?: string | null
+          round_date?: string | null
+          round_type?: string | null
+          sector?: string | null
+          slug?: string
+          source_url?: string | null
+          subtitle?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funding_articles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "funding_articles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "funding_articles_funding_round_id_fkey"
+            columns: ["funding_round_id"]
+            isOneToOne: false
+            referencedRelation: "funding_rounds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       funding_rounds: {
         Row: {
           amount: number | null
@@ -1541,6 +2774,52 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "funding_rounds_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "funding_rounds_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      index_constituents: {
+        Row: {
+          added_at: string
+          company_id: string
+          id: string
+          is_active: boolean | null
+          removed_at: string | null
+        }
+        Insert: {
+          added_at?: string
+          company_id: string
+          id?: string
+          is_active?: boolean | null
+          removed_at?: string | null
+        }
+        Update: {
+          added_at?: string
+          company_id?: string
+          id?: string
+          is_active?: boolean | null
+          removed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "index_constituents_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "index_constituents_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
@@ -1650,7 +2929,21 @@ export type Database = {
             foreignKeyName: "market_snapshots_top_gainer_id_fkey"
             columns: ["top_gainer_id"]
             isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "market_snapshots_top_gainer_id_fkey"
+            columns: ["top_gainer_id"]
+            isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "market_snapshots_top_loser_id_fkey"
+            columns: ["top_loser_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_company_targets"
             referencedColumns: ["id"]
           },
           {
@@ -1722,6 +3015,13 @@ export type Database = {
             foreignKeyName: "medical_devices_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medical_devices_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
@@ -1784,6 +3084,437 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          actor_id: string
+          created_at: string
+          id: string
+          post_id: string | null
+          read: boolean | null
+          recipient_id: string
+          type: string
+        }
+        Insert: {
+          actor_id: string
+          created_at?: string
+          id?: string
+          post_id?: string | null
+          read?: boolean | null
+          recipient_id: string
+          type: string
+        }
+        Update: {
+          actor_id?: string
+          created_at?: string
+          id?: string
+          post_id?: string | null
+          read?: boolean | null
+          recipient_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      outreach_contacts: {
+        Row: {
+          company_id: string
+          created_at: string | null
+          email: string | null
+          id: string
+          linkedin_url: string | null
+          name: string | null
+          role: string | null
+          scraped_at: string | null
+          source: string | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          linkedin_url?: string | null
+          name?: string | null
+          role?: string | null
+          scraped_at?: string | null
+          source?: string | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          linkedin_url?: string | null
+          name?: string | null
+          role?: string | null
+          scraped_at?: string | null
+          source?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outreach_contacts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "outreach_contacts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      outreach_emails: {
+        Row: {
+          body: string
+          clicked: boolean | null
+          company_id: string
+          contact_id: string | null
+          conversion_outcome: string | null
+          created_at: string | null
+          deal_notes: string | null
+          deal_stage: string | null
+          experiment_vars: Json | null
+          follow_up_count: number | null
+          id: string
+          next_follow_up_at: string | null
+          opened: boolean | null
+          personalization_notes: string | null
+          playbook_version: number | null
+          replied_at: string | null
+          reply_sentiment: string | null
+          reply_summary: string | null
+          sent_at: string | null
+          status: string
+          subject: string
+          to_email: string
+          updated_at: string | null
+        }
+        Insert: {
+          body: string
+          clicked?: boolean | null
+          company_id: string
+          contact_id?: string | null
+          conversion_outcome?: string | null
+          created_at?: string | null
+          deal_notes?: string | null
+          deal_stage?: string | null
+          experiment_vars?: Json | null
+          follow_up_count?: number | null
+          id?: string
+          next_follow_up_at?: string | null
+          opened?: boolean | null
+          personalization_notes?: string | null
+          playbook_version?: number | null
+          replied_at?: string | null
+          reply_sentiment?: string | null
+          reply_summary?: string | null
+          sent_at?: string | null
+          status?: string
+          subject: string
+          to_email: string
+          updated_at?: string | null
+        }
+        Update: {
+          body?: string
+          clicked?: boolean | null
+          company_id?: string
+          contact_id?: string | null
+          conversion_outcome?: string | null
+          created_at?: string | null
+          deal_notes?: string | null
+          deal_stage?: string | null
+          experiment_vars?: Json | null
+          follow_up_count?: number | null
+          id?: string
+          next_follow_up_at?: string | null
+          opened?: boolean | null
+          personalization_notes?: string | null
+          playbook_version?: number | null
+          replied_at?: string | null
+          reply_sentiment?: string | null
+          reply_summary?: string | null
+          sent_at?: string | null
+          status?: string
+          subject?: string
+          to_email?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outreach_emails_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "outreach_emails_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "outreach_emails_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "outreach_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      outreach_experiments: {
+        Row: {
+          confidence: number | null
+          created_at: string | null
+          ended_at: string | null
+          hypothesis: string
+          id: string
+          incorporated_into_playbook: boolean | null
+          name: string
+          started_at: string | null
+          variant_a: string
+          variant_a_replies: number | null
+          variant_a_sent: number | null
+          variant_b: string
+          variant_b_replies: number | null
+          variant_b_sent: number | null
+          winner: string | null
+        }
+        Insert: {
+          confidence?: number | null
+          created_at?: string | null
+          ended_at?: string | null
+          hypothesis: string
+          id?: string
+          incorporated_into_playbook?: boolean | null
+          name: string
+          started_at?: string | null
+          variant_a: string
+          variant_a_replies?: number | null
+          variant_a_sent?: number | null
+          variant_b: string
+          variant_b_replies?: number | null
+          variant_b_sent?: number | null
+          winner?: string | null
+        }
+        Update: {
+          confidence?: number | null
+          created_at?: string | null
+          ended_at?: string | null
+          hypothesis?: string
+          id?: string
+          incorporated_into_playbook?: boolean | null
+          name?: string
+          started_at?: string | null
+          variant_a?: string
+          variant_a_replies?: number | null
+          variant_a_sent?: number | null
+          variant_b?: string
+          variant_b_replies?: number | null
+          variant_b_sent?: number | null
+          winner?: string | null
+        }
+        Relationships: []
+      }
+      outreach_performance: {
+        Row: {
+          claims_paid: number | null
+          claims_started: number | null
+          conversion_rate: number | null
+          created_at: string | null
+          emails_sent: number | null
+          id: string
+          insights: string | null
+          meetings_booked: number | null
+          playbook_version: number | null
+          positive_rate: number | null
+          positive_replies: number | null
+          replies_received: number | null
+          reply_rate: number | null
+          sponsor_leads: number | null
+          top_performing_segment: string | null
+          top_performing_subject: string | null
+          week_start: string
+        }
+        Insert: {
+          claims_paid?: number | null
+          claims_started?: number | null
+          conversion_rate?: number | null
+          created_at?: string | null
+          emails_sent?: number | null
+          id?: string
+          insights?: string | null
+          meetings_booked?: number | null
+          playbook_version?: number | null
+          positive_rate?: number | null
+          positive_replies?: number | null
+          replies_received?: number | null
+          reply_rate?: number | null
+          sponsor_leads?: number | null
+          top_performing_segment?: string | null
+          top_performing_subject?: string | null
+          week_start: string
+        }
+        Update: {
+          claims_paid?: number | null
+          claims_started?: number | null
+          conversion_rate?: number | null
+          created_at?: string | null
+          emails_sent?: number | null
+          id?: string
+          insights?: string | null
+          meetings_booked?: number | null
+          playbook_version?: number | null
+          positive_rate?: number | null
+          positive_replies?: number | null
+          replies_received?: number | null
+          reply_rate?: number | null
+          sponsor_leads?: number | null
+          top_performing_segment?: string | null
+          top_performing_subject?: string | null
+          week_start?: string
+        }
+        Relationships: []
+      }
+      outreach_playbook: {
+        Row: {
+          avg_positive_rate: number | null
+          avg_reply_rate: number | null
+          best_company_segments: string[] | null
+          best_cta_style: string | null
+          best_email_length_range: string | null
+          best_personalization_approach: string | null
+          best_subject_patterns: string[] | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          learnings: string
+          total_experiments: number | null
+          version: number
+          worst_subject_patterns: string[] | null
+        }
+        Insert: {
+          avg_positive_rate?: number | null
+          avg_reply_rate?: number | null
+          best_company_segments?: string[] | null
+          best_cta_style?: string | null
+          best_email_length_range?: string | null
+          best_personalization_approach?: string | null
+          best_subject_patterns?: string[] | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          learnings: string
+          total_experiments?: number | null
+          version?: number
+          worst_subject_patterns?: string[] | null
+        }
+        Update: {
+          avg_positive_rate?: number | null
+          avg_reply_rate?: number | null
+          best_company_segments?: string[] | null
+          best_cta_style?: string | null
+          best_email_length_range?: string | null
+          best_personalization_approach?: string | null
+          best_subject_patterns?: string[] | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          learnings?: string
+          total_experiments?: number | null
+          version?: number
+          worst_subject_patterns?: string[] | null
+        }
+        Relationships: []
+      }
+      outreach_replies: {
+        Row: {
+          body: string
+          created_at: string | null
+          direction: string
+          email_id: string
+          from_email: string | null
+          id: string
+          needs_review: boolean | null
+          sent_at: string | null
+        }
+        Insert: {
+          body: string
+          created_at?: string | null
+          direction: string
+          email_id: string
+          from_email?: string | null
+          id?: string
+          needs_review?: boolean | null
+          sent_at?: string | null
+        }
+        Update: {
+          body?: string
+          created_at?: string | null
+          direction?: string
+          email_id?: string
+          from_email?: string | null
+          id?: string
+          needs_review?: boolean | null
+          sent_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outreach_replies_email_id_fkey"
+            columns: ["email_id"]
+            isOneToOne: false
+            referencedRelation: "outreach_emails"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      outreach_runs: {
+        Row: {
+          companies_scraped: number | null
+          created_at: string | null
+          deals_flagged: number | null
+          emails_drafted: number | null
+          emails_sent: number | null
+          id: string
+          notes: string | null
+          replies_received: number | null
+          run_date: string
+        }
+        Insert: {
+          companies_scraped?: number | null
+          created_at?: string | null
+          deals_flagged?: number | null
+          emails_drafted?: number | null
+          emails_sent?: number | null
+          id?: string
+          notes?: string | null
+          replies_received?: number | null
+          run_date?: string
+        }
+        Update: {
+          companies_scraped?: number | null
+          created_at?: string | null
+          deals_flagged?: number | null
+          emails_drafted?: number | null
+          emails_sent?: number | null
+          id?: string
+          notes?: string | null
+          replies_received?: number | null
+          run_date?: string
+        }
+        Relationships: []
+      }
       patents: {
         Row: {
           abstract: string | null
@@ -1825,6 +3556,13 @@ export type Database = {
           title?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "patents_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "patents_company_id_fkey"
             columns: ["company_id"]
@@ -1891,7 +3629,332 @@ export type Database = {
             foreignKeyName: "pipelines_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pipelines_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_bookmarks: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_bookmarks_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_comments: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_likes: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts: {
+        Row: {
+          author_id: string
+          body: string
+          comment_count: number | null
+          company_id: string | null
+          created_at: string
+          id: string
+          image_url: string | null
+          like_count: number | null
+          post_type: string
+          share_count: number | null
+          shared_post_id: string | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          comment_count?: number | null
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          like_count?: number | null
+          post_type?: string
+          share_count?: number | null
+          shared_post_id?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          comment_count?: number | null
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          like_count?: number | null
+          post_type?: string
+          share_count?: number | null
+          shared_post_id?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_shared_post_id_fkey"
+            columns: ["shared_post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_approvals: {
+        Row: {
+          application_number: string | null
+          application_type: string | null
+          approval_date: string | null
+          approval_status: string | null
+          commercial_product_id: string
+          created_at: string | null
+          fda_approval_id: string | null
+          id: string
+          indication: string | null
+          region: string
+          regulatory_agency: string
+          source: string | null
+        }
+        Insert: {
+          application_number?: string | null
+          application_type?: string | null
+          approval_date?: string | null
+          approval_status?: string | null
+          commercial_product_id: string
+          created_at?: string | null
+          fda_approval_id?: string | null
+          id?: string
+          indication?: string | null
+          region: string
+          regulatory_agency: string
+          source?: string | null
+        }
+        Update: {
+          application_number?: string | null
+          application_type?: string | null
+          approval_date?: string | null
+          approval_status?: string | null
+          commercial_product_id?: string
+          created_at?: string | null
+          fda_approval_id?: string | null
+          id?: string
+          indication?: string | null
+          region?: string
+          regulatory_agency?: string
+          source?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_approvals_commercial_product_id_fkey"
+            columns: ["commercial_product_id"]
+            isOneToOne: false
+            referencedRelation: "commercial_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_approvals_fda_approval_id_fkey"
+            columns: ["fda_approval_id"]
+            isOneToOne: false
+            referencedRelation: "fda_approvals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_pipeline_links: {
+        Row: {
+          commercial_product_id: string
+          confidence: number | null
+          created_at: string | null
+          link_type: string | null
+          pipeline_id: string
+        }
+        Insert: {
+          commercial_product_id: string
+          confidence?: number | null
+          created_at?: string | null
+          link_type?: string | null
+          pipeline_id: string
+        }
+        Update: {
+          commercial_product_id?: string
+          confidence?: number | null
+          created_at?: string | null
+          link_type?: string | null
+          pipeline_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_pipeline_links_commercial_product_id_fkey"
+            columns: ["commercial_product_id"]
+            isOneToOne: false
+            referencedRelation: "commercial_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_pipeline_links_pipeline_id_fkey"
+            columns: ["pipeline_id"]
+            isOneToOne: false
+            referencedRelation: "pipelines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_revenue: {
+        Row: {
+          commercial_product_id: string
+          confidence: string | null
+          created_at: string | null
+          id: string
+          market_share_pct: number | null
+          quarter: number | null
+          reporting_currency: string | null
+          revenue_local: number | null
+          revenue_usd: number
+          source: string
+          source_url: string | null
+          updated_at: string | null
+          year: number
+          yoy_growth_pct: number | null
+        }
+        Insert: {
+          commercial_product_id: string
+          confidence?: string | null
+          created_at?: string | null
+          id?: string
+          market_share_pct?: number | null
+          quarter?: number | null
+          reporting_currency?: string | null
+          revenue_local?: number | null
+          revenue_usd: number
+          source?: string
+          source_url?: string | null
+          updated_at?: string | null
+          year: number
+          yoy_growth_pct?: number | null
+        }
+        Update: {
+          commercial_product_id?: string
+          confidence?: string | null
+          created_at?: string | null
+          id?: string
+          market_share_pct?: number | null
+          quarter?: number | null
+          reporting_currency?: string | null
+          revenue_local?: number | null
+          revenue_usd?: number
+          source?: string
+          source_url?: string | null
+          updated_at?: string | null
+          year?: number
+          yoy_growth_pct?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_revenue_commercial_product_id_fkey"
+            columns: ["commercial_product_id"]
+            isOneToOne: false
+            referencedRelation: "commercial_products"
             referencedColumns: ["id"]
           },
         ]
@@ -1953,6 +4016,13 @@ export type Database = {
             foreignKeyName: "product_scores_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_scores_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
@@ -2000,6 +4070,13 @@ export type Database = {
           status?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "product_sponsorships_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "product_sponsorships_company_id_fkey"
             columns: ["company_id"]
@@ -2117,6 +4194,73 @@ export type Database = {
             foreignKeyName: "profile_daily_stats_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profile_daily_stats_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profile_edit_queue: {
+        Row: {
+          applied_at: string | null
+          company_id: string | null
+          confidence: number
+          created_at: string
+          id: string
+          proposed_changes: Json
+          reasoning: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          source_id: string | null
+          source_type: string
+          status: string
+        }
+        Insert: {
+          applied_at?: string | null
+          company_id?: string | null
+          confidence: number
+          created_at?: string
+          id?: string
+          proposed_changes: Json
+          reasoning?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source_id?: string | null
+          source_type: string
+          status?: string
+        }
+        Update: {
+          applied_at?: string | null
+          company_id?: string | null
+          confidence?: number
+          created_at?: string
+          id?: string
+          proposed_changes?: Json
+          reasoning?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source_id?: string | null
+          source_type?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_edit_queue_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profile_edit_queue_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
@@ -2176,6 +4320,13 @@ export type Database = {
             foreignKeyName: "profile_enhancements_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profile_enhancements_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
@@ -2225,6 +4376,13 @@ export type Database = {
           visitor_org?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "profile_events_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "profile_events_company_id_fkey"
             columns: ["company_id"]
@@ -2282,6 +4440,13 @@ export type Database = {
             foreignKeyName: "profile_quality_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: true
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profile_quality_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
@@ -2307,6 +4472,13 @@ export type Database = {
           viewed_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "profile_views_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "profile_views_company_id_fkey"
             columns: ["company_id"]
@@ -2406,38 +4578,153 @@ export type Database = {
             foreignKeyName: "publications_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "publications_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
         ]
       }
+      pubmed_papers: {
+        Row: {
+          abstract: string | null
+          authors: string[] | null
+          citation_count: number | null
+          doi: string | null
+          fetched_at: string | null
+          id: string
+          journal: string | null
+          keywords: string[] | null
+          mesh_terms: string[] | null
+          pmid: string
+          published_date: string | null
+          relevance_score: number | null
+          title: string
+          used_in_article: boolean | null
+        }
+        Insert: {
+          abstract?: string | null
+          authors?: string[] | null
+          citation_count?: number | null
+          doi?: string | null
+          fetched_at?: string | null
+          id?: string
+          journal?: string | null
+          keywords?: string[] | null
+          mesh_terms?: string[] | null
+          pmid: string
+          published_date?: string | null
+          relevance_score?: number | null
+          title: string
+          used_in_article?: boolean | null
+        }
+        Update: {
+          abstract?: string | null
+          authors?: string[] | null
+          citation_count?: number | null
+          doi?: string | null
+          fetched_at?: string | null
+          id?: string
+          journal?: string | null
+          keywords?: string[] | null
+          mesh_terms?: string[] | null
+          pmid?: string
+          published_date?: string | null
+          relevance_score?: number | null
+          title?: string
+          used_in_article?: boolean | null
+        }
+        Relationships: []
+      }
+      rss_items: {
+        Row: {
+          category: string | null
+          company_names: string[] | null
+          id: string
+          processed_for_article: boolean | null
+          published_at: string | null
+          scraped_at: string | null
+          source_name: string
+          summary: string | null
+          title: string
+          url: string
+        }
+        Insert: {
+          category?: string | null
+          company_names?: string[] | null
+          id?: string
+          processed_for_article?: boolean | null
+          published_at?: string | null
+          scraped_at?: string | null
+          source_name: string
+          summary?: string | null
+          title: string
+          url: string
+        }
+        Update: {
+          category?: string | null
+          company_names?: string[] | null
+          id?: string
+          processed_for_article?: boolean | null
+          published_at?: string | null
+          scraped_at?: string | null
+          source_name?: string
+          summary?: string | null
+          title?: string
+          url?: string
+        }
+        Relationships: []
+      }
       scrape_log: {
         Row: {
+          companies_enriched: number | null
+          companies_found: number | null
+          companies_new: number | null
           company_count: number | null
           completed_at: string | null
+          error: string | null
           error_message: string | null
           id: string
+          scraped_at: string | null
           source: string
+          source_id: string | null
           started_at: string | null
           status: string
           url: string
         }
         Insert: {
+          companies_enriched?: number | null
+          companies_found?: number | null
+          companies_new?: number | null
           company_count?: number | null
           completed_at?: string | null
+          error?: string | null
           error_message?: string | null
           id?: string
+          scraped_at?: string | null
           source: string
+          source_id?: string | null
           started_at?: string | null
           status?: string
           url: string
         }
         Update: {
+          companies_enriched?: number | null
+          companies_found?: number | null
+          companies_new?: number | null
           company_count?: number | null
           completed_at?: string | null
+          error?: string | null
           error_message?: string | null
           id?: string
+          scraped_at?: string | null
           source?: string
+          source_id?: string | null
           started_at?: string | null
           status?: string
           url?: string
@@ -2514,6 +4801,13 @@ export type Database = {
             columns: ["sector_id"]
             isOneToOne: false
             referencedRelation: "sectors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sector_market_data_top_company_id_fkey"
+            columns: ["top_company_id"]
+            isOneToOne: false
+            referencedRelation: "atelier_company_targets"
             referencedColumns: ["id"]
           },
           {
@@ -2726,6 +5020,13 @@ export type Database = {
             foreignKeyName: "user_watchlist_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_watchlist_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
@@ -2785,6 +5086,13 @@ export type Database = {
             foreignKeyName: "watchlist_items_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
+            referencedRelation: "atelier_company_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "watchlist_items_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
@@ -2828,7 +5136,29 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      atelier_company_targets: {
+        Row: {
+          company_type: string | null
+          contact_email: string | null
+          domain: string | null
+          id: string | null
+          is_priority: boolean | null
+          logo_url: string | null
+          name: string | null
+          quality_issues: string[] | null
+          quality_score: number | null
+          queue_id: string | null
+          queue_preview_url: string | null
+          queue_score: number | null
+          queue_status: Database["public"]["Enums"]["atelier_status"] | null
+          queue_updated_at: string | null
+          slug: string | null
+          stage: string | null
+          summary: string | null
+          website: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       calculate_product_scores: {
@@ -2836,6 +5166,14 @@ export type Database = {
         Returns: number
       }
       execute_sql: { Args: { query: string }; Returns: Json }
+      get_co_investors: {
+        Args: { p_limit?: number }
+        Returns: {
+          investor_a: string
+          investor_b: string
+          shared_companies: number
+        }[]
+      }
       get_country_counts: {
         Args: never
         Returns: {
@@ -2843,10 +5181,28 @@ export type Database = {
           country: string
         }[]
       }
+      get_deal_velocity: {
+        Args: never
+        Returns: {
+          deal_count: number
+          total_amount: number
+          week_start: string
+        }[]
+      }
       get_distinct_price_dates: {
         Args: never
         Returns: {
           d: string
+        }[]
+      }
+      get_ex_top50_market_cap: {
+        Args: never
+        Returns: {
+          ex_top50_companies: number
+          ex_top50_market_cap: number
+          snapshot_date: string
+          top50_market_cap: number
+          total_market_cap: number
         }[]
       }
       get_funding_annual: {
@@ -2857,6 +5213,31 @@ export type Database = {
           year: number
         }[]
       }
+      get_funding_by_country: {
+        Args: { p_limit?: number }
+        Returns: {
+          country: string
+          rounds: number
+          total: number
+        }[]
+      }
+      get_funding_by_round_type: {
+        Args: never
+        Returns: {
+          round_type: string
+          rounds: number
+          total: number
+          year: number
+        }[]
+      }
+      get_funding_by_sector: {
+        Args: { p_limit?: number }
+        Returns: {
+          rounds: number
+          sector: string
+          total: number
+        }[]
+      }
       get_funding_monthly: {
         Args: never
         Returns: {
@@ -2864,6 +5245,25 @@ export type Database = {
           rounds: number
           total: number
           year: number
+        }[]
+      }
+      get_funding_pulse: {
+        Args: never
+        Returns: {
+          avg_round_size: number
+          hottest_sector: string
+          latest_deal_amount: number
+          latest_deal_company: string
+          latest_deal_date: string
+          latest_deal_slug: string
+          latest_deal_type: string
+          month_count: number
+          month_total: number
+          prev_avg_round_size: number
+          prev_month_count: number
+          prev_month_total: number
+          prev_ytd_total: number
+          ytd_total: number
         }[]
       }
       get_funding_quarterly: {
@@ -2883,6 +5283,17 @@ export type Database = {
           total_companies: number
           total_rounds: number
           total_tracked: number
+        }[]
+      }
+      get_investor_details: {
+        Args: { p_investor: string }
+        Returns: {
+          amount_usd: number
+          announced_date: string
+          company_name: string
+          round_type: string
+          sector: string
+          sector_count: number
         }[]
       }
       get_investor_stats: {
@@ -2906,6 +5317,27 @@ export type Database = {
           total: number
         }[]
       }
+      get_recent_price_date_counts: {
+        Args: never
+        Returns: {
+          cnt: number
+          date: string
+        }[]
+      }
+      get_top_companies: {
+        Args: { limit_count?: number }
+        Returns: {
+          company_id: string
+          company_name: string
+          company_slug: string
+          country: string
+          daily_change_pct: number
+          logo_url: string
+          market_cap: number
+          ticker: string
+          website: string
+        }[]
+      }
       get_top_investors: {
         Args: { p_limit?: number }
         Returns: {
@@ -2916,13 +5348,50 @@ export type Database = {
           total_invested: number
         }[]
       }
+      get_trending_companies: {
+        Args: { limit_count?: number }
+        Returns: {
+          company_id: string
+          company_name: string
+          company_slug: string
+          country: string
+          current_date_used: string
+          current_market_cap: number
+          current_price: number
+          logo_url: string
+          old_date_used: string
+          old_price: number
+          price_change_pct: number
+          ticker: string
+          website: string
+        }[]
+      }
+      increment_chat_rate_limit: { Args: { p_ip: string }; Returns: number }
       increment_profile_views: {
         Args: { company_slug: string }
         Returns: undefined
       }
+      merge_company: {
+        Args: { p_loser: string; p_winner: string }
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      atelier_status:
+        | "queued"
+        | "enriching"
+        | "generating_hero"
+        | "hero_ready"
+        | "generating_homepage"
+        | "homepage_ready"
+        | "deploying"
+        | "deployed"
+        | "approved"
+        | "outreach_queued"
+        | "outreach_sent"
+        | "client_responded"
+        | "converted"
+        | "archived"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -3049,6 +5518,23 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      atelier_status: [
+        "queued",
+        "enriching",
+        "generating_hero",
+        "hero_ready",
+        "generating_homepage",
+        "homepage_ready",
+        "deploying",
+        "deployed",
+        "approved",
+        "outreach_queued",
+        "outreach_sent",
+        "client_responded",
+        "converted",
+        "archived",
+      ],
+    },
   },
 } as const

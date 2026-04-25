@@ -20,19 +20,12 @@ export async function handleChargeRefunded(
       : charge.payment_intent?.id ?? null;
   if (!piId) return NextResponse.json({ received: true });
 
-  // The equity_report_purchases table is created in Chunk 2 — until then the
-  // typed Supabase client doesn't know about it. The `as any` cast lets this
-  // compile, and the 42P01 (undefined_table) skip lets it run safely.
-  try {
-    const { error } = await supabase
-      .from("equity_report_purchases" as any)
-      .update({ status: "refunded", refunded_at: new Date().toISOString() })
-      .eq("stripe_payment_intent_id", piId);
-    if (error && error.code !== "42P01") {
-      console.error("[Stripe Webhook] equity_report_purchases refund update failed:", error);
-    }
-  } catch (e) {
-    console.warn("[Stripe Webhook] equity_report_purchases not yet migrated; skipping:", e);
+  const { error } = await supabase
+    .from("equity_report_purchases")
+    .update({ status: "refunded", refunded_at: new Date().toISOString() })
+    .eq("stripe_payment_intent_id", piId);
+  if (error) {
+    console.error("[Stripe Webhook] equity_report_purchases refund update failed:", error);
   }
 
   return NextResponse.json({ received: true });
