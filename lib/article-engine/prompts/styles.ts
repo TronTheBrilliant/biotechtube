@@ -79,6 +79,7 @@ const PREFERRED_STYLES: Record<ArticleType, ArticleStyle[]> = {
   breaking_news: ['deal_spotlight', 'editorial_narrative', 'market_analyst', 'science_lens'],
   science_essay: ['editorial_narrative', 'science_lens', 'narrative_science'],
   innovation_spotlight: ['data_digest', 'editorial_narrative', 'innovation_curator'],
+  funding_prediction: ['data_digest', 'investor_lens', 'market_analyst'],
 }
 
 /**

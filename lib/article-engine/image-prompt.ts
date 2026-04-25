@@ -63,6 +63,13 @@ const PROMPTS: Record<ArticleType, string[]> = {
     'Bright fuchsia gradient bleeding into deep indigo. Like aurora borealis shot on expired film.',
     'Vivid purple and pink smoke mixing in darkness. Neon edge glow. Cannot tell what it is. Heavy grain.',
   ],
+  funding_prediction: [
+    'Radar sweep of soft purple light over abstract dark waveforms. Heavy analog grain. Atmospheric.',
+    'Concentric rings of violet and emerald glow on a black void. Out of focus. Grainy.',
+    'Pulsing magenta gradient across deep navy. Like a forecast cone shot on expired film.',
+    'Soft purple gradient bleeding outward from center, fading into darkness. Heavy grain.',
+    'Abstract sweep of teal and amethyst light across pitch black. Film aesthetic.',
+  ],
 }
 
 /**
@@ -86,6 +93,7 @@ const PLACEHOLDER_STYLES: Record<ArticleType, PlaceholderStyle> = {
   breaking_news: { pattern: 'burst', accentColor: '#EF4444', icon: 'zap' },
   science_essay: { pattern: 'hexgrid', accentColor: '#0891b2', icon: 'microscope' },
   innovation_spotlight: { pattern: 'grid', accentColor: '#d946ef', icon: 'sparkles' },
+  funding_prediction: { pattern: 'waves', accentColor: '#9333ea', icon: 'trending-up' },
 }
 
 export function getPlaceholderStyle(articleType: ArticleType): PlaceholderStyle {

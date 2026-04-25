@@ -66,6 +66,7 @@ export function scoreConfidence(
     breaking_news: 8,       // Single-source, fast turnaround
     science_essay: 12,      // PubMed-backed, but interpretive
     innovation_spotlight: 13, // Multi-source curation
+    funding_prediction: 9,    // Speculative by nature; capped low.
   }
   const typeBaseline = TYPE_BASELINES[articleType] || 10
 

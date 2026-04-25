@@ -109,6 +109,7 @@ export const TYPE_CONFIG: Record<string, { label: string; color: string }> = {
   breaking_news: { label: "Breaking", color: "#dc2626" },
   science_essay: { label: "Deep Science", color: "#0891b2" },
   innovation_spotlight: { label: "Innovation", color: "#d946ef" },
+  funding_prediction: { label: "Funding Prediction", color: "#9333ea" },
 };
 
 export const STATUS_COLORS: Record<string, string> = {
