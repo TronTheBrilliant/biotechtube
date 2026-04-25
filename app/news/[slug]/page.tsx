@@ -8,6 +8,7 @@ import HeroWithLogo from "@/components/news/HeroWithLogo";
 import { TipTapDoc, Source, PlaceholderStyle } from "@/lib/article-engine/types";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
+import { ResearchReportCTA } from "@/components/research/ResearchReportCTA";
 import { formatMarketCap } from "@/lib/market-utils";
 import {
   ArrowLeft,
@@ -164,9 +165,9 @@ export default async function ArticlePage({
 
   // Fetch company data if article has a company_id
   let company: { name: string; logo_url: string | null; slug: string; ticker: string | null; valuation: number | null } | null = null;
+  const supabaseForCompany = createServerClient();
   if (article.company_id) {
-    const supabase = createServerClient();
-    const { data: co } = await supabase
+    const { data: co } = await supabaseForCompany
       .from('companies')
       .select('name, logo_url, slug, ticker, valuation')
       .eq('id', article.company_id)
@@ -201,6 +202,23 @@ export default async function ArticlePage({
   }
   const articleText = extractText(article.body);
   const wordCount = articleText ? articleText.trim().split(/\s+/).length : undefined;
+
+  // Find a company mentioned in the article for the research CTA
+  let researchCTACompany: { name: string; slug: string } | null = null;
+  if (company) {
+    researchCTACompany = { name: company.name, slug: company.slug };
+  } else {
+    const haystack = `${article.headline ?? ''} ${articleText}`.toLowerCase();
+    const { data: candidates } = await supabaseForCompany
+      .from('companies')
+      .select('name, slug')
+      .order('valuation', { ascending: false, nullsFirst: false })
+      .limit(500);
+    researchCTACompany = (candidates ?? []).find(
+      (c: { name: string; slug: string }) => c.name && haystack.includes(c.name.toLowerCase())
+    ) ?? null;
+  }
+
   const keywordSet = new Set<string>();
   if (article.type) keywordSet.add(typeLabel);
   if (article.sector) keywordSet.add(article.sector);
@@ -560,6 +578,13 @@ export default async function ArticlePage({
                 </div>
               </div>
             )}
+
+          {/* Research CTA — shown when a tracked company is mentioned */}
+          {researchCTACompany && (
+            <div className="mt-8">
+              <ResearchReportCTA companyName={researchCTACompany.name} slug={researchCTACompany.slug} />
+            </div>
+          )}
 
           {/* Sources */}
           {article.sources && article.sources.length > 0 && (
