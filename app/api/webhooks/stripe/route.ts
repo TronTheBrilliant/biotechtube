@@ -1,115 +1,84 @@
+// biotechtube/app/api/webhooks/stripe/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { createServerClient } from "@/lib/supabase";
+import type Stripe from "stripe";
+import { getStripe } from "@/lib/stripe/client";
+import { fulfillCompanyClaim } from "./fulfill-company-claim";
+import { handleSubscriptionCanceled } from "./handle-sub-canceled";
+import { handlePaymentFailed } from "./handle-payment-failed";
+import { handleChargeRefunded } from "./handle-charge-refunded";
 
-// TODO: When Stripe is configured, uncomment and use real webhook verification
-// import Stripe from "stripe";
-// const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-// const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
+/**
+ * Stripe webhook dispatcher.
+ * - Verifies signature against STRIPE_WEBHOOK_SECRET
+ * - Dispatches checkout.session.completed by metadata.type:
+ *     'company_claim'   → fulfillCompanyClaim()    (existing flow)
+ *     'equity_report'   → fulfillEquityReport()    (added in Chunk 5)
+ * - Routes lifecycle events to dedicated handlers
+ *
+ * Idempotency is enforced inside each handler (by stripe_session_id or PI id).
+ */
 export async function POST(req: NextRequest) {
+  const stripe = getStripe();
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!webhookSecret) {
+    console.error("[Stripe Webhook] STRIPE_WEBHOOK_SECRET missing");
+    return NextResponse.json({ error: "Webhook not configured" }, { status: 500 });
+  }
+
+  const body = await req.text();
+  const signature = req.headers.get("stripe-signature");
+  if (!signature) {
+    return NextResponse.json({ error: "Missing signature" }, { status: 400 });
+  }
+
+  let event: Stripe.Event;
   try {
-    const body = await req.text();
+    event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+  } catch (err) {
+    console.error("[Stripe Webhook] Signature verification failed:", err);
+    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+  }
 
-    // -----------------------------------------------------------
-    // Stripe webhook verification
-    // -----------------------------------------------------------
-    // TODO: Replace with real Stripe webhook signature verification
-    // const signature = req.headers.get("stripe-signature");
-    // if (!signature) {
-    //   return NextResponse.json({ error: "Missing signature" }, { status: 400 });
-    // }
-    // let event: Stripe.Event;
-    // try {
-    //   event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
-    // } catch (err) {
-    //   console.error("Webhook signature verification failed:", err);
-    //   return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
-    // }
+  console.log(`[Stripe Webhook] Received: ${event.type} (${event.id})`);
 
-    // For now, parse the body as JSON (mock/testing mode)
-    let event: { type: string; data: { object: Record<string, unknown> } };
-    try {
-      event = JSON.parse(body);
-    } catch {
-      return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
-    }
-
-    console.log(`[Stripe Webhook] Received event: ${event.type}`);
-
-    const supabase = createServerClient();
-
+  try {
     switch (event.type) {
       case "checkout.session.completed": {
-        const session = event.data.object as Record<string, unknown>;
-        const metadata = session.metadata as Record<string, string> | undefined;
-
-        if (!metadata?.companyId || !metadata?.userId || !metadata?.plan) {
-          console.warn("[Stripe Webhook] Missing metadata in checkout session:", metadata);
-          break;
+        const session = event.data.object as Stripe.Checkout.Session;
+        const type = session.metadata?.type;
+        if (type === "company_claim") return await fulfillCompanyClaim(session);
+        if (type === "equity_report") {
+          // The real implementation lands in Chunk 5. Until then a stub re-exports null,
+          // letting the dispatcher compile + log + return 200 instead of crashing.
+          const { fulfillEquityReport } = await import("./fulfill-equity-report");
+          if (!fulfillEquityReport) {
+            console.warn("[Stripe Webhook] equity_report fulfillment not yet wired");
+            return NextResponse.json({ received: true });
+          }
+          return await fulfillEquityReport(session);
         }
-
-        console.log(
-          `[Stripe Webhook] Checkout completed for company ${metadata.companyId}, ` +
-          `plan: ${metadata.plan}, user: ${metadata.userId}`
-        );
-
-        // Upsert company claim as verified with the chosen plan
-        const { error: upsertError } = await supabase
-          .from("company_claims")
-          .upsert(
-            {
-              company_id: metadata.companyId,
-              user_id: metadata.userId,
-              status: "verified",
-              verification_method: "stripe_payment",
-              verified_at: new Date().toISOString(),
-              plan: metadata.plan,
-              stripe_customer_id: (session.customer as string) || null,
-              stripe_subscription_id: (session.subscription as string) || null,
-            },
-            { onConflict: "company_id" }
-          );
-
-        if (upsertError) {
-          console.error("[Stripe Webhook] Error upserting claim:", upsertError);
-          return NextResponse.json({ error: "Database error" }, { status: 500 });
-        }
-
-        console.log(`[Stripe Webhook] Claim verified for company ${metadata.companyId}`);
-        break;
+        console.warn(`[Stripe Webhook] Unknown metadata.type: ${type}`);
+        return NextResponse.json({ received: true });
       }
 
-      case "customer.subscription.updated": {
-        const subscription = event.data.object as Record<string, unknown>;
-        console.log("[Stripe Webhook] Subscription updated:", subscription.id);
-        // TODO: Handle plan changes, cancellations, etc.
-        break;
-      }
+      case "customer.subscription.deleted":
+        return await handleSubscriptionCanceled(event.data.object as Stripe.Subscription);
 
-      case "customer.subscription.deleted": {
-        const subscription = event.data.object as Record<string, unknown>;
-        console.log("[Stripe Webhook] Subscription cancelled:", subscription.id);
-        // TODO: Downgrade or deactivate the company claim
-        break;
-      }
+      case "invoice.payment_failed":
+        return await handlePaymentFailed(event.data.object as Stripe.Invoice);
 
-      case "invoice.payment_failed": {
-        const invoice = event.data.object as Record<string, unknown>;
-        console.log("[Stripe Webhook] Payment failed:", invoice.id);
-        // TODO: Notify the company admin about failed payment
-        break;
-      }
+      case "charge.refunded":
+        return await handleChargeRefunded(event.data.object as Stripe.Charge);
 
       default:
         console.log(`[Stripe Webhook] Unhandled event type: ${event.type}`);
+        return NextResponse.json({ received: true });
     }
-
-    return NextResponse.json({ received: true });
   } catch (err) {
-    console.error("[Stripe Webhook] Error:", err);
-    return NextResponse.json(
-      { error: "Webhook handler error" },
-      { status: 500 }
-    );
+    console.error(`[Stripe Webhook] Handler error for ${event.type}:`, err);
+    return NextResponse.json({ error: "Handler error" }, { status: 500 });
   }
 }
