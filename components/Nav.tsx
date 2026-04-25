@@ -45,6 +45,7 @@ const MENUS: MenuCategory[] = [
       { href: "/charts", emoji: "📈", title: "Charts", subtitle: "20 market insights", iconBg: "#e0f2fe" },
       { href: "/countries", emoji: "🌍", title: "Countries", subtitle: "30+ markets", iconBg: "#f0fdf4" },
       { href: "/events", emoji: "📅", title: "Events", subtitle: "Industry events", iconBg: "#eff6ff" },
+      { href: "/research", emoji: "📄", title: "Research", subtitle: "Equity research memos", iconBg: "#ede9fe" },
     ],
     featured: {
       heading: "Top Countries",

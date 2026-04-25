@@ -19,6 +19,7 @@ const discoverLinks = [
   { label: "💼 Top Investors", href: "/top-investors" },
   { label: "👤 Top People", href: "/top-people" },
   { label: "🏷️ Top Sectors", href: "/top-sectors" },
+  { label: "📄 Equity Research", href: "/research" },
 ];
 
 const forCompaniesLinks = [
