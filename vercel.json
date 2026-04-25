@@ -31,6 +31,14 @@
     {
       "path": "/api/cron/generate-news",
       "schedule": "0 11 * * *"
+    },
+    {
+      "path": "/api/cron/auto-update",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron/funding-predictor",
+      "schedule": "0 9 * * 0"
     }
   ]
 }
