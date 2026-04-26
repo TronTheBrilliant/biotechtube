@@ -1,9 +1,9 @@
 import { createServerClient } from '@/lib/supabase'
 
-export const ANON_DAILY_LIMIT = 5
+export const ANON_DAILY_LIMIT = 25
 
 /** Soft warning threshold — UI shows "sign in for unlimited" banner. */
-export const ANON_WARN_AT = 3
+export const ANON_WARN_AT = 18
 
 export interface RateLimitResult {
   count: number
