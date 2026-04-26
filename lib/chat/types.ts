@@ -7,7 +7,18 @@ export interface ChatMessage {
   content: string
   /** ISO timestamp; only set on persisted messages. */
   created_at?: string
+  /**
+   * Tool invocations that ran while producing this assistant message.
+   * Client-side only — not persisted to chat_messages.
+   */
+  toolEvents?: ToolEvent[]
 }
+
+/** A tool invocation surfaced to the user above the assistant bubble. */
+export type ToolEvent =
+  | { kind: 'searching'; query: string }
+  | { kind: 'searched'; query: string; sources: { url: string; title: string }[] }
+  | { kind: 'search_error'; query: string; error: string }
 
 export type ChatContextType = 'company' | 'drug' | 'sector'
 
@@ -29,6 +40,9 @@ export interface ChatRequestBody {
 export type ChatStreamEvent =
   | { type: 'meta'; conversationId: string | null }
   | { type: 'content'; content: string }
+  | { type: 'tool_call'; tool: 'web_search'; query: string }
+  | { type: 'tool_result'; tool: 'web_search'; sources: { url: string; title: string }[] }
+  | { type: 'tool_error'; tool: 'web_search'; error: string }
   | { type: 'error'; error: string; code?: 'rate_limit' | 'context_not_found' | 'internal' }
   | { type: 'done' }
 
