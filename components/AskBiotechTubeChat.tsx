@@ -2,6 +2,8 @@
 
 import { useState, useRef, useEffect, FormEvent } from "react";
 import { Send, Sparkles, AlertCircle } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useUser, useSession } from "@/lib/auth";
 import type {
   ChatMessage,
@@ -292,15 +294,75 @@ function MessageBubble({
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
       <div
-        className="text-13 px-3 py-2 rounded-md max-w-[88%] whitespace-pre-wrap break-words"
+        className={`text-13 px-3 py-2 rounded-md max-w-[88%] break-words ${isUser ? "whitespace-pre-wrap" : "ask-bt-markdown"}`}
         style={{
           background: isUser ? "var(--color-accent)" : "var(--color-bg-secondary)",
           color: isUser ? "#fff" : "var(--color-text-primary)",
           border: isUser ? "none" : "1px solid var(--color-border-subtle)",
-          lineHeight: 1.5,
+          lineHeight: 1.55,
         }}
       >
-        {content}
+        {isUser ? (
+          content
+        ) : (
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              // Tighten default markdown spacing for chat bubbles
+              p: ({ children }) => <p className="my-1.5 first:mt-0 last:mb-0">{children}</p>,
+              ul: ({ children }) => <ul className="my-1.5 pl-4 list-disc space-y-0.5">{children}</ul>,
+              ol: ({ children }) => <ol className="my-1.5 pl-5 list-decimal space-y-0.5">{children}</ol>,
+              li: ({ children }) => <li className="leading-snug">{children}</li>,
+              h1: ({ children }) => <h2 className="text-[15px] font-semibold mt-3 mb-1.5 first:mt-0">{children}</h2>,
+              h2: ({ children }) => <h2 className="text-[14px] font-semibold mt-3 mb-1.5 first:mt-0">{children}</h2>,
+              h3: ({ children }) => <h3 className="text-[13px] font-semibold mt-2 mb-1 first:mt-0">{children}</h3>,
+              h4: ({ children }) => <h4 className="text-[13px] font-semibold mt-2 mb-1 first:mt-0">{children}</h4>,
+              strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+              em: ({ children }) => <em className="italic">{children}</em>,
+              a: ({ href, children }) => (
+                <a
+                  href={href}
+                  className="underline underline-offset-2"
+                  style={{ color: "var(--color-accent)" }}
+                  target={href?.startsWith("http") ? "_blank" : undefined}
+                  rel={href?.startsWith("http") ? "noopener noreferrer" : undefined}
+                >
+                  {children}
+                </a>
+              ),
+              code: ({ children, ...props }) => {
+                const inline = !(props as { className?: string }).className?.includes("language-");
+                return inline ? (
+                  <code className="px-1 py-0.5 rounded text-[12px]" style={{ background: "var(--color-bg-tertiary)", fontFamily: "var(--font-geist-mono, monospace)" }}>{children}</code>
+                ) : (
+                  <pre className="my-1.5 p-2 rounded text-[12px] overflow-x-auto" style={{ background: "var(--color-bg-tertiary)", fontFamily: "var(--font-geist-mono, monospace)" }}>
+                    <code>{children}</code>
+                  </pre>
+                );
+              },
+              blockquote: ({ children }) => (
+                <blockquote
+                  className="border-l-2 pl-3 my-1.5 italic"
+                  style={{ borderColor: "var(--color-accent)", color: "var(--color-text-secondary)" }}
+                >
+                  {children}
+                </blockquote>
+              ),
+              hr: () => <hr className="my-2 border-0 h-px" style={{ background: "var(--color-border-subtle)" }} />,
+              table: ({ children }) => (
+                <div className="my-2 overflow-x-auto">
+                  <table className="text-[12px] border-collapse" style={{ borderColor: "var(--color-border-subtle)" }}>
+                    {children}
+                  </table>
+                </div>
+              ),
+              th: ({ children }) => <th className="px-2 py-1 font-semibold text-left" style={{ borderBottom: "1px solid var(--color-border-subtle)" }}>{children}</th>,
+              td: ({ children }) => <td className="px-2 py-1" style={{ borderBottom: "1px solid var(--color-border-subtle)" }}>{children}</td>,
+            }}
+          >
+            {content}
+          </ReactMarkdown>
+        )}
         {streaming && <span className="inline-block w-1 h-3 ml-1 animate-pulse" style={{ background: "var(--color-text-tertiary)" }} />}
       </div>
     </div>
