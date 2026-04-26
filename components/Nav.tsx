@@ -321,30 +321,34 @@ export function Nav() {
                   </div>
                 );
               })}
+
+              {/* Search icon — part of the center nav group for balance */}
+              <button
+                onClick={() => setSearchOpen(true)}
+                className="flex items-center justify-center ml-1 rounded-md transition-colors duration-150"
+                style={{
+                  width: 34,
+                  height: 34,
+                  color: "var(--color-text-secondary)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "var(--color-bg-secondary)";
+                  e.currentTarget.style.color = "var(--color-text-primary)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "transparent";
+                  e.currentTarget.style.color = "var(--color-text-secondary)";
+                }}
+                aria-label="Search"
+                title="Search (⌘K)"
+              >
+                <Search size={16} />
+              </button>
             </nav>
           </div>
 
-          {/* Right: Search + Sign in */}
+          {/* Right: Theme + Sign in */}
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => setSearchOpen(true)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[12px] transition-colors duration-150"
-              style={{
-                background: "var(--color-bg-secondary)",
-                border: "1px solid var(--color-border-subtle)",
-                color: "var(--color-text-tertiary)",
-              }}
-            >
-              <Search size={13} />
-              <span>Search...</span>
-              <span
-                className="ml-2 text-[10px] px-1.5 py-[1px] rounded"
-                style={{ background: "var(--color-bg-tertiary)", color: "var(--color-text-tertiary)" }}
-              >
-                ⌘K
-              </span>
-            </button>
-
             <ThemeToggle />
 
             {user ? (

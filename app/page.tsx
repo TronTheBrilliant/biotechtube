@@ -31,6 +31,7 @@ import OpenPositions from "@/components/home/OpenPositions";
 import { NewsletterSignup } from "@/components/home/NewsletterSignup";
 import { LatestIntelligence } from "@/components/home/LatestIntelligence";
 import { MarketHeatmap } from "@/components/home/MarketHeatmap";
+import { HomeHeroSearch } from "@/components/home/HomeHeroSearch";
 
 import { getFundingAnnualForHomepage } from "@/lib/funding-queries";
 
@@ -88,15 +89,10 @@ async function getLatestSnapshot() {
     .single();
   if (!snapshot) return null;
 
-  // Normalize market cap same as the chart (BASELINE_COUNT = 983)
-  const BASELINE_COUNT = 983;
-  const companyCount = snapshot.public_companies_count || BASELINE_COUNT;
-  if (companyCount > BASELINE_COUNT) {
-    snapshot.total_market_cap = Math.round(
-      (Number(snapshot.total_market_cap) / companyCount) * BASELINE_COUNT
-    );
-  }
-
+  // Show the actual market cap (raw sum across all 1300+ public companies).
+  // Previously normalized to BASELINE_COUNT=983 to keep the time-series chart
+  // comparable, but that made the headline number ~30% smaller than reality.
+  // Chart-side normalization (if needed) belongs in the chart component.
   return snapshot;
 }
 
@@ -903,6 +899,11 @@ export default async function HomePage() {
 
       {/* Sections Grid */}
       <main className="px-4 md:px-6 py-4 space-y-4 max-w-[1200px] mx-auto">
+        {/* Hero Search — wide bar spanning the container width */}
+        <div className="pt-2 pb-1">
+          <HomeHeroSearch />
+        </div>
+
         {/* Row 1: Trending + Top Companies */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {trendingWithSparklines.length > 0 ? (
