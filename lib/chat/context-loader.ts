@@ -230,10 +230,69 @@ async function loadCompanyContext(slug: string): Promise<string | null> {
     sections.push(`### Analyst summary\n\n${truncate(report.summary, COMPANY_DESCRIPTION_CHARS)}`)
   }
 
+  // Competitors — primary-sector match with similar market cap (top 5)
+  // + sector-mates as a wider "similar companies" pool (top 5)
+  // Mirrors the page-side `getEnhancedCompetitors` + `getSimilarCompanies`.
+  const competitorsSection = await loadCompetitors(company.id, company.name, slug, company.categories)
+  if (competitorsSection) sections.push(competitorsSection)
+
   // Recent news mentioning this company
   sections.push(await loadRecentNewsForCompany(company.id, company.name, slug))
 
   return sections.filter(Boolean).join('\n\n')
+}
+
+// Competitor lookup used by company context.
+async function loadCompetitors(
+  companyId: string,
+  companyName: string,
+  companySlug: string,
+  categories: string[] | null,
+): Promise<string | null> {
+  const supabase = createServerClient()
+  const lines: string[] = []
+
+  // 1. Sector-based competitors (primary sector match, ranked by valuation)
+  if (Array.isArray(categories) && categories.length > 0) {
+    const primarySector = categories[0]
+    const { data: sameSector } = await (supabase.from as any)('companies')
+      .select('slug, name, ticker, country, valuation, categories, stage')
+      .contains('categories', [primarySector])
+      .neq('slug', companySlug)
+      .not('valuation', 'is', null)
+      .order('valuation', { ascending: false })
+      .limit(8)
+    if (sameSector?.length) {
+      const cs = sameSector.slice(0, 6).map((c: any) =>
+        `- ${c.name}${c.ticker ? ` (${c.ticker})` : ''}${c.country ? `, ${c.country}` : ''}${c.stage ? ` — ${c.stage}` : ''}${c.valuation ? `, $${(Number(c.valuation) / 1e9).toFixed(2)}B` : ''} — /company/${c.slug}`
+      ).join('\n')
+      lines.push(`### Same-sector competitors (${primarySector})\n\n${cs}`)
+    }
+  }
+
+  // 2. Companies in the same country with similar valuation as a fallback pool
+  const { data: company } = await (supabase.from as any)('companies')
+    .select('country, valuation')
+    .eq('id', companyId)
+    .single()
+  if (company?.country) {
+    const { data: countryPeers } = await (supabase.from as any)('companies')
+      .select('slug, name, ticker, valuation, stage, categories')
+      .eq('country', company.country)
+      .neq('slug', companySlug)
+      .not('valuation', 'is', null)
+      .order('valuation', { ascending: false })
+      .limit(5)
+    if (countryPeers?.length) {
+      const cp = countryPeers.slice(0, 5).map((c: any) =>
+        `- ${c.name}${c.ticker ? ` (${c.ticker})` : ''}${c.stage ? ` — ${c.stage}` : ''}${c.valuation ? `, $${(Number(c.valuation) / 1e9).toFixed(2)}B` : ''} — /company/${c.slug}`
+      ).join('\n')
+      lines.push(`### ${company.country} biotech peers\n\n${cp}`)
+    }
+  }
+
+  if (!lines.length) return null
+  return lines.join('\n\n') + `\n\nNote: competitors are inferred from sector + country overlap, not from explicit competitive analysis. ${companyName} may compete with companies outside this list (different sectors, private companies not in BiotechTube, or international peers).`
 }
 
 // ── Drug ──
