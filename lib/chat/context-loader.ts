@@ -173,12 +173,19 @@ export async function loadGeneralPlatformContext(): Promise<string> {
 // ── Company ──
 async function loadCompanyContext(slug: string): Promise<string | null> {
   const supabase = createServerClient()
-  const { data: company } = await (supabase.from as any)('companies')
-    .select('id, slug, name, ticker, country, city, founded, stage, type, focus, employees, total_raised, valuation, description, website')
+  // NOTE: column names match the actual `companies` schema:
+  // - `company_type` (not `type`)
+  // - `categories` array (not `focus`)
+  // - no `employees` column — dropped
+  const { data: company, error } = await (supabase.from as any)('companies')
+    .select('id, slug, name, ticker, country, city, founded, stage, company_type, categories, total_raised, valuation, description, website')
     .eq('slug', slug)
     .single()
 
-  if (!company) return null
+  if (error || !company) {
+    if (error) console.error(`loadCompanyContext error for slug=${slug}:`, error.message)
+    return null
+  }
 
   const sections: string[] = []
 
@@ -189,9 +196,8 @@ async function loadCompanyContext(slug: string): Promise<string | null> {
     City: company.city,
     Founded: company.founded,
     Stage: company.stage,
-    Type: company.type,
-    Focus: Array.isArray(company.focus) ? company.focus.join(', ') : company.focus,
-    Employees: company.employees,
+    Type: company.company_type,
+    Categories: Array.isArray(company.categories) ? company.categories.join(', ') : company.categories,
     'Total raised (USD)': company.total_raised,
     'Valuation (USD)': company.valuation,
     Website: company.website,
