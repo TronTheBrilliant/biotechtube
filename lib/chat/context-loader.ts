@@ -23,6 +23,153 @@ export async function loadContextPayload(context: ChatContext): Promise<string |
   }
 }
 
+/**
+ * Loads platform-wide baseline data for the standalone /agents/research page.
+ * Without this, the chatbot has no live data and can only refuse questions like
+ * "what are the most-funded sectors?". This snapshots the most useful slices
+ * of BiotechTube data into a markdown payload (~5-10K tokens).
+ *
+ * Cached at the route level via Next.js revalidate; this fetcher is safe to
+ * call on every request but each query is small.
+ */
+export async function loadGeneralPlatformContext(): Promise<string> {
+  const supabase = createServerClient()
+  const sections: string[] = []
+
+  // ── Sitewide stats (latest market_snapshot) ──
+  const { data: snap } = await supabase
+    .from('market_snapshots')
+    .select('snapshot_date, total_market_cap, public_companies_count')
+    .order('snapshot_date', { ascending: false })
+    .limit(1)
+    .single()
+  if (snap) {
+    sections.push(
+      `### BiotechTube platform stats (as of ${snap.snapshot_date})\n\n` +
+      `- Public biotech market cap: $${(Number(snap.total_market_cap) / 1e12).toFixed(2)}T\n` +
+      `- Public companies tracked: ${snap.public_companies_count?.toLocaleString() ?? 'n/a'}\n` +
+      `- Total companies (public + private): 14,000+\n` +
+      `- Drug pipeline programs: 54,000+\n` +
+      `- Therapeutic areas: 20+`
+    )
+  }
+
+  // ── Top 15 companies by latest market_cap_usd ──
+  const cutoff = new Date()
+  cutoff.setDate(cutoff.getDate() - 7)
+  const cutoffStr = cutoff.toISOString().split('T')[0]
+  const { data: topCos } = await (supabase.from as any)('company_price_history')
+    .select('company_id, market_cap_usd, date, companies(name, slug, ticker, country)')
+    .gte('date', cutoffStr)
+    .not('market_cap_usd', 'is', null)
+    .order('market_cap_usd', { ascending: false })
+    .limit(80)
+  if (topCos?.length) {
+    const seen = new Set<string>()
+    const lines: string[] = []
+    for (const r of topCos) {
+      const c = r.companies
+      if (!c?.slug || seen.has(c.slug)) continue
+      seen.add(c.slug)
+      lines.push(
+        `- ${c.name} (${c.ticker || '—'}, ${c.country || '—'}): $${(Number(r.market_cap_usd) / 1e9).toFixed(1)}B — /company/${c.slug}`
+      )
+      if (lines.length >= 15) break
+    }
+    sections.push(`### Top 15 biotech companies by market cap\n\n${lines.join('\n')}`)
+  }
+
+  // ── Top sectors by combined market cap ──
+  const { data: sectorMarket } = await (supabase.from as any)('sector_market_data')
+    .select('sector_id, combined_market_cap, change_1d_pct, change_7d_pct, snapshot_date')
+    .order('snapshot_date', { ascending: false })
+    .limit(40)
+  if (sectorMarket?.length) {
+    const latestDate = sectorMarket[0].snapshot_date
+    const latest = sectorMarket.filter((s: any) => s.snapshot_date === latestDate)
+    const sectorIds = latest.map((s: any) => s.sector_id)
+    const { data: sectorMeta } = await (supabase.from as any)('sectors')
+      .select('id, slug, name')
+      .in('id', sectorIds)
+    const metaMap = new Map(sectorMeta?.map((s: any) => [s.id, s]) ?? [])
+    const sorted = latest
+      .map((s: any) => ({ ...s, meta: metaMap.get(s.sector_id) }))
+      .filter((s: any) => s.meta)
+      .sort((a: any, b: any) => (b.combined_market_cap || 0) - (a.combined_market_cap || 0))
+      .slice(0, 12)
+    const lines = sorted.map((s: any) =>
+      `- ${(s.meta as any).name}: $${(Number(s.combined_market_cap) / 1e9).toFixed(0)}B (${s.change_1d_pct >= 0 ? '+' : ''}${(s.change_1d_pct || 0).toFixed(2)}% today, ${s.change_7d_pct >= 0 ? '+' : ''}${(s.change_7d_pct || 0).toFixed(2)}% 7d) — /sectors/${(s.meta as any).slug}`
+    )
+    sections.push(`### Top biotech sectors by market cap (as of ${latestDate})\n\n${lines.join('\n')}`)
+  }
+
+  // ── Recent funding (last 90 days, biggest by amount) ──
+  const fundingCutoff = new Date()
+  fundingCutoff.setDate(fundingCutoff.getDate() - 90)
+  const { data: funding } = await (supabase.from as any)('funding_rounds')
+    .select('company_id, round_type, amount_usd, announced_date, lead_investor, sector, companies(name, slug)')
+    .gte('announced_date', fundingCutoff.toISOString().split('T')[0])
+    .not('amount_usd', 'is', null)
+    .order('amount_usd', { ascending: false })
+    .limit(20)
+  if (funding?.length) {
+    const lines = funding.map((f: any) => {
+      const co = f.companies?.name || 'Unknown'
+      const slug = f.companies?.slug ? ` (/company/${f.companies.slug})` : ''
+      const amt = f.amount_usd ? `$${(Number(f.amount_usd) / 1e6).toFixed(0)}M` : '—'
+      const lead = f.lead_investor ? `, led by ${f.lead_investor}` : ''
+      const sec = f.sector ? `, ${f.sector}` : ''
+      return `- ${f.announced_date}: ${co}${slug} raised ${amt} (${f.round_type || 'Round'}${lead}${sec})`
+    })
+    sections.push(`### Top 20 biotech funding rounds in last 90 days\n\n${lines.join('\n')}`)
+  }
+
+  // ── Funding aggregate by sector (last 90 days) ──
+  if (funding?.length) {
+    const bySector = new Map<string, number>()
+    for (const f of funding) {
+      const k = f.sector || 'Uncategorized'
+      bySector.set(k, (bySector.get(k) || 0) + (Number(f.amount_usd) || 0))
+    }
+    const ranked = Array.from(bySector.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([sec, total]) => `- ${sec}: $${(total / 1e6).toFixed(0)}M total (top 20 deals only)`)
+    sections.push(`### Most-funded sectors in last 90 days (top-20-deal subset)\n\n${ranked.join('\n')}`)
+  }
+
+  // ── Recent news headlines ──
+  const newsCutoff = new Date()
+  newsCutoff.setDate(newsCutoff.getDate() - 14)
+  const { data: news } = await (supabase.from as any)('articles')
+    .select('slug, headline, type, published_at, sector')
+    .eq('status', 'published')
+    .gte('published_at', newsCutoff.toISOString())
+    .order('published_at', { ascending: false })
+    .limit(15)
+  if (news?.length) {
+    const lines = news.map((n: any) =>
+      `- ${n.published_at?.slice(0, 10)} [${n.type}]: ${n.headline} — /news/${n.slug}`
+    )
+    sections.push(`### Recent biotech news (last 14 days)\n\n${lines.join('\n')}`)
+  }
+
+  // ── Quick-link reference ──
+  sections.push(
+    `### Useful BiotechTube pages\n\n` +
+    `- /top-companies — full ranking by market cap\n` +
+    `- /pipelines — 54K+ drug programs with phase/indication\n` +
+    `- /funding — funding intelligence dashboard\n` +
+    `- /sectors — sector market data\n` +
+    `- /countries — biotech market by country\n` +
+    `- /charts — 20+ market indicators\n` +
+    `- /news — AI-generated daily intelligence\n` +
+    `- /events — biotech conference calendar`
+  )
+
+  return sections.join('\n\n')
+}
+
 // ── Company ──
 async function loadCompanyContext(slug: string): Promise<string | null> {
   const supabase = createServerClient()

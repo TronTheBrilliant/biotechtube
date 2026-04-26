@@ -3,7 +3,7 @@ import OpenAI from 'openai'
 import { createServerClient } from '@/lib/supabase'
 import { getUserFromRequest, getClientIp } from '@/lib/chat/auth'
 import { checkAndIncrementRateLimit } from '@/lib/chat/rate-limit'
-import { loadContextPayload } from '@/lib/chat/context-loader'
+import { loadContextPayload, loadGeneralPlatformContext } from '@/lib/chat/context-loader'
 import { buildSystemPrompt } from '@/lib/chat/system-prompt'
 import type { ChatRequestBody, ChatStreamEvent } from '@/lib/chat/types'
 
@@ -53,17 +53,30 @@ export async function POST(req: NextRequest) {
 
   // ── Context resolution ──
   let contextPayload: string | undefined
+  let generalPayload: string | undefined
   if (body.context) {
+    // Entity-grounded mode — strict, only the entity's data
     const payload = await loadContextPayload(body.context)
     if (!payload) {
       return jsonError(`Context not found: ${body.context.type}/${body.context.slug}`, 404)
     }
     contextPayload = payload
+  } else {
+    // General research mode — load platform-wide snapshot so the model can
+    // answer "what are the most-funded sectors", "biggest companies", etc.
+    // ~5-10K tokens. Without this the model has no live data and refuses.
+    try {
+      generalPayload = await loadGeneralPlatformContext()
+    } catch (err) {
+      console.error('loadGeneralPlatformContext failed:', err)
+      // Fall through — model will still answer with general knowledge only
+    }
   }
 
   const systemPrompt = buildSystemPrompt({
     context: body.context,
     contextPayload,
+    generalPayload,
   })
 
   // ── Conversation persistence (signed-in only) ──
