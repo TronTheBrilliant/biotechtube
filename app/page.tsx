@@ -282,44 +282,34 @@ async function getIndexHistory() {
 
   if (allRows.length === 0) return [];
 
-  // ── NORMALIZE INDEX ──
-  // When we add new companies (e.g., scraping Japanese/Chinese biotechs), the raw
-  // total_market_cap spikes artificially. Fix: normalize each snapshot to
-  // (avg_market_cap_per_company × baseline_count) so only real price moves show.
+  // No normalization — show real biotech market cap over time.
   //
-  // Baseline: use the company count from Jan 2026 (~983) as the reference.
-  // This way adding 300 Asian companies doesn't create a fake $2T spike.
-  const BASELINE_COUNT = 983; // Stable count from early 2026 before bulk additions
+  // We previously divided by (currentCount/983) to "preserve index continuity"
+  // when bulk-adding companies, fearing fake $1-2T spikes. The historical data
+  // disproved this — onboarding events (April 2025: 821→968 cos, March 2026:
+  // 988→1317 cos) caused movements of $0-0.16T, well within normal market noise.
+  // Meanwhile the normalization was permanently understating the chart by ~30%
+  // (today: $7.69T real → $5.73T displayed). Mismatch with the headline number
+  // (now also un-normalized in getLatestSnapshot) was the user-visible bug.
 
-  // Simple uniform thinning: target ~600 points for the chart.
+  // Uniform thinning: target ~600 points for the chart payload.
   const target = 600;
   const step = allRows.length > target ? Math.floor(allRows.length / target) : 1;
   const result: { snapshot_date: string; total_market_cap: number }[] = [];
   for (let i = 0; i < allRows.length; i += step) {
     const row = allRows[i];
-    const totalMcap = Number(row.total_market_cap);
-    const companyCount = row.public_companies_count || BASELINE_COUNT;
-
-    // Normalize: (total / actual_count) × baseline_count
-    // If actual count matches baseline, no change. If we added companies, it scales down.
-    const normalizedMcap = companyCount > BASELINE_COUNT
-      ? (totalMcap / companyCount) * BASELINE_COUNT
-      : totalMcap;
-
     result.push({
       snapshot_date: row.snapshot_date,
-      total_market_cap: normalizedMcap,
+      total_market_cap: Number(row.total_market_cap),
     });
   }
-  // Always include the very last point
+  // Always include the very last point so "today's value" matches the headline.
   const last = allRows[allRows.length - 1];
   if (result[result.length - 1].snapshot_date !== last.snapshot_date) {
-    const totalMcap = Number(last.total_market_cap);
-    const companyCount = last.public_companies_count || BASELINE_COUNT;
-    const normalizedMcap = companyCount > BASELINE_COUNT
-      ? (totalMcap / companyCount) * BASELINE_COUNT
-      : totalMcap;
-    result.push({ snapshot_date: last.snapshot_date, total_market_cap: normalizedMcap });
+    result.push({
+      snapshot_date: last.snapshot_date,
+      total_market_cap: Number(last.total_market_cap),
+    });
   }
   return result;
 }
