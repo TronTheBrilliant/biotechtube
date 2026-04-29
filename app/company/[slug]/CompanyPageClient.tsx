@@ -151,28 +151,21 @@ const stageOrder: Record<string, number> = {
   "Discovery": 7,
 };
 
-/* ─── Stage badge colors (dark-mode safe) ─── */
-const stageColors: Record<string, { bg: string; text: string; border: string; darkBg: string; darkText: string; darkBorder: string }> = {
-  "Approved":    { bg: "#fef9c3", text: "#854d0e", border: "#fbbf24", darkBg: "rgba(251,191,36,0.15)", darkText: "#fbbf24", darkBorder: "rgba(251,191,36,0.3)" },
-  "Phase 3":     { bg: "#dcfce7", text: "#166534", border: "#86efac", darkBg: "rgba(34,197,94,0.15)", darkText: "#4ade80", darkBorder: "rgba(34,197,94,0.3)" },
-  "Phase 2/3":   { bg: "#dcfce7", text: "#166534", border: "#86efac", darkBg: "rgba(34,197,94,0.15)", darkText: "#4ade80", darkBorder: "rgba(34,197,94,0.3)" },
-  "Phase 2":     { bg: "#dbeafe", text: "#1e40af", border: "#93c5fd", darkBg: "rgba(59,130,246,0.15)", darkText: "#60a5fa", darkBorder: "rgba(59,130,246,0.3)" },
-  "Phase 1/2":   { bg: "#dbeafe", text: "#1e40af", border: "#93c5fd", darkBg: "rgba(59,130,246,0.15)", darkText: "#60a5fa", darkBorder: "rgba(59,130,246,0.3)" },
-  "Phase 1":     { bg: "#fef3c7", text: "#92400e", border: "#fcd34d", darkBg: "rgba(252,211,77,0.15)", darkText: "#fcd34d", darkBorder: "rgba(252,211,77,0.3)" },
-  "Pre-clinical": { bg: "var(--color-bg-tertiary)", text: "var(--color-text-secondary)", border: "var(--color-border-medium)", darkBg: "var(--color-bg-tertiary)", darkText: "var(--color-text-secondary)", darkBorder: "var(--color-border-medium)" },
-  "Preclinical":  { bg: "var(--color-bg-tertiary)", text: "var(--color-text-secondary)", border: "var(--color-border-medium)", darkBg: "var(--color-bg-tertiary)", darkText: "var(--color-text-secondary)", darkBorder: "var(--color-border-medium)" },
-  "Discovery":    { bg: "var(--color-bg-tertiary)", text: "var(--color-text-secondary)", border: "var(--color-border-medium)", darkBg: "var(--color-bg-tertiary)", darkText: "var(--color-text-secondary)", darkBorder: "var(--color-border-medium)" },
-};
-
-/* ─── Round type badge colors ─── */
-const roundColors: Record<string, { bg: string; text: string; darkBg: string; darkText: string }> = {
-  "Seed":     { bg: "#fff7ed", text: "#c2410c", darkBg: "rgba(234,88,12,0.15)", darkText: "#fb923c" },
-  "Series A": { bg: "#f3e8ff", text: "#7c3aed", darkBg: "rgba(139,92,246,0.15)", darkText: "#a78bfa" },
-  "Series B": { bg: "#dbeafe", text: "#1d4ed8", darkBg: "rgba(59,130,246,0.15)", darkText: "#60a5fa" },
-  "Series C": { bg: "#dcfce7", text: "#166534", darkBg: "rgba(34,197,94,0.15)", darkText: "#4ade80" },
-  "Series D": { bg: "#fce7f3", text: "#be185d", darkBg: "rgba(236,72,153,0.15)", darkText: "#f472b6" },
-  "IPO":      { bg: "#dcfce7", text: "#166534", darkBg: "rgba(34,197,94,0.15)", darkText: "#4ade80" },
-  "Grant":    { bg: "#fff7ed", text: "#c2410c", darkBg: "rgba(234,88,12,0.15)", darkText: "#fb923c" },
+/* ─── Stage tier — monochrome ladder per One Voice Rule.
+ * Emerald-subtle reserved for the "this matters" moments only:
+ * Approved, Phase 3, Phase 2/3 (de-risked, near-term value).
+ * Everything earlier reads as a tonal step on neutrals. */
+type StageTone = "approved" | "neutral";
+const stageTone: Record<string, StageTone> = {
+  "Approved":    "approved",
+  "Phase 3":     "approved",
+  "Phase 2/3":   "approved",
+  "Phase 2":     "neutral",
+  "Phase 1/2":   "neutral",
+  "Phase 1":     "neutral",
+  "Pre-clinical": "neutral",
+  "Preclinical":  "neutral",
+  "Discovery":    "neutral",
 };
 
 /* ─── useDarkMode hook ─── */
@@ -194,18 +187,17 @@ function SectionCard({ icon, title, children, accent = false, count, className =
 }) {
   return (
     <div
-      className={`rounded-xl border overflow-hidden mb-6 transition-shadow duration-200 hover:shadow-sm ${className}`}
+      className={`rounded-xl overflow-hidden mb-6 ${className}`}
       style={{
-        borderColor: accent ? "var(--color-accent)" : "var(--color-border-subtle)",
-        borderWidth: accent ? "1.5px" : "1px",
+        border: "0.5px solid var(--color-border-subtle)",
         background: "var(--color-bg-primary)",
       }}
     >
       <div
-        className="flex items-center gap-2.5 px-5 py-3 border-b"
+        className="flex items-center gap-2.5 px-5 py-3"
         style={{
           background: accent ? "var(--color-accent-subtle)" : "var(--color-bg-secondary)",
-          borderColor: "var(--color-border-subtle)",
+          borderBottom: "0.5px solid var(--color-border-subtle)",
         }}
       >
         {icon}
@@ -230,35 +222,52 @@ function SectionCard({ icon, title, children, accent = false, count, className =
 }
 
 
-/* ─── Stage Badge ─── */
+/* ─── Stage Badge — monochrome ladder. Emerald reserved for de-risked stages. */
 function StageBadge({ stage }: { stage: string }) {
-  const isDark = useIsDark();
-  const c = stageColors[stage] || stageColors["Discovery"];
+  const tone = stageTone[stage] ?? "neutral";
+  if (tone === "approved") {
+    return (
+      <span
+        className="text-[10px] font-semibold px-2 py-0.5 rounded-sm whitespace-nowrap inline-flex items-center"
+        style={{
+          background: "var(--color-accent-subtle)",
+          color: "var(--color-accent-dark, var(--color-accent))",
+          border: "0.5px solid var(--color-accent)",
+          letterSpacing: "0.2px",
+        }}
+      >
+        {stage}
+      </span>
+    );
+  }
   return (
     <span
-      className="text-[10px] font-bold px-2.5 py-0.5 rounded-full border whitespace-nowrap inline-flex items-center gap-1"
+      className="text-[10px] font-medium px-2 py-0.5 rounded-sm whitespace-nowrap inline-flex items-center"
       style={{
-        background: isDark ? c.darkBg : c.bg,
-        color: isDark ? c.darkText : c.text,
-        borderColor: isDark ? c.darkBorder : c.border,
+        background: "var(--color-bg-secondary)",
+        color: "var(--color-text-secondary)",
+        border: "0.5px solid var(--color-border-subtle)",
+        letterSpacing: "0.2px",
       }}
     >
-      <span className="w-1.5 h-1.5 rounded-full" style={{ background: isDark ? c.darkText : c.text }} />
       {stage}
     </span>
   );
 }
 
-/* ─── Round Badge ─── */
+/* ─── Round Badge — monochrome. IPO carries the emerald accent (capital-event signal). */
 function RoundBadge({ type }: { type: string }) {
-  const isDark = useIsDark();
-  const c = roundColors[type] || roundColors["Grant"];
+  const isIPO = type === "IPO";
   return (
     <span
-      className="text-[10px] font-bold px-2.5 py-0.5 rounded-full whitespace-nowrap"
+      className="text-[10px] font-semibold px-2 py-0.5 rounded-sm whitespace-nowrap"
       style={{
-        background: isDark ? c.darkBg : c.bg,
-        color: isDark ? c.darkText : c.text,
+        background: isIPO ? "var(--color-accent-subtle)" : "var(--color-bg-secondary)",
+        color: isIPO ? "var(--color-accent-dark, var(--color-accent))" : "var(--color-text-secondary)",
+        border: isIPO
+          ? "0.5px solid var(--color-accent)"
+          : "0.5px solid var(--color-border-subtle)",
+        letterSpacing: "0.2px",
       }}
     >
       {type}
@@ -549,7 +558,6 @@ export function CompanyPageClient({
   const [showAllPipeline, setShowAllPipeline] = useState(false);
   const [showAllPubs, setShowAllPubs] = useState(false);
   const [showAllPatents, setShowAllPatents] = useState(false);
-  const [descExpanded, setDescExpanded] = useState(false);
 
   // Error report modal state
   const [showErrorReport, setShowErrorReport] = useState(false);
@@ -766,12 +774,8 @@ export function CompanyPageClient({
 
       {/* ═══ HERO HEADER ═══ */}
       <header
-        className="border-b"
         style={{
-          borderColor: "var(--color-border-subtle)",
-          background: (tier === 'enhanced' || tier === 'premium')
-            ? "linear-gradient(180deg, var(--color-accent-subtle) 0%, var(--color-bg-primary) 100%)"
-            : undefined,
+          borderBottom: "0.5px solid var(--color-border-subtle)",
         }}
       >
         <div className="max-w-[1200px] mx-auto px-4 md:px-6 pt-5 pb-4">
@@ -862,26 +866,7 @@ export function CompanyPageClient({
             </div>
           </div>
 
-          {/* ─── Description ─── */}
-          {summaryText && (
-            <div className="mt-3">
-              <p
-                className={`text-[12px] md:text-[13px] max-w-2xl ${descExpanded ? "" : (tier === 'enhanced' || tier === 'premium') ? "line-clamp-3" : "line-clamp-2"}`}
-                style={{ color: "var(--color-text-secondary)", lineHeight: 1.6 }}
-              >
-                {summaryText}
-              </p>
-              {summaryText.length > 150 && (
-                <button
-                  onClick={() => setDescExpanded(!descExpanded)}
-                  className="text-[11px] font-medium mt-0.5"
-                  style={{ color: "var(--color-accent)", background: "none", border: "none", cursor: "pointer", padding: 0 }}
-                >
-                  {descExpanded ? "Show less" : "Read more"}
-                </button>
-              )}
-            </div>
-          )}
+          {/* Description lives in the Overview card below — keeping the hero tight per "density respects the reader". */}
 
           {/* ─── Follow + Website row ─── */}
           <div className="flex items-center gap-3 mt-3">
@@ -1009,7 +994,7 @@ export function CompanyPageClient({
                     style={{ borderColor: "var(--color-border-subtle)", borderTopColor: "var(--color-accent)" }}
                   />
                   <p className="text-[12px]" style={{ color: "var(--color-text-secondary)" }}>
-                    Generating AI intelligence report for {company.name}...
+                    Compiling report for {company.name}...
                   </p>
                 </div>
               )}
@@ -1132,7 +1117,7 @@ export function CompanyPageClient({
               {summaryText && (
                 <SectionCard
                   icon={<Sparkles size={14} style={{ color: "var(--color-accent)" }} />}
-                  title={report?.summary ? "AI Company Overview" : "About"}
+                  title="Overview"
                   accent={!!report?.summary}
                 >
                   <p
@@ -1148,11 +1133,11 @@ export function CompanyPageClient({
                       {(report?.therapeutic_areas || company.focus || []).map((area) => (
                         <span
                           key={area}
-                          className="text-[11px] font-medium px-2.5 py-1 rounded-full border"
+                          className="text-[11px] font-medium px-2.5 py-1 rounded-sm"
                           style={{
-                            borderColor: "var(--color-border-subtle)",
-                            color: "var(--color-accent)",
-                            background: "var(--color-accent-subtle)",
+                            border: "0.5px solid var(--color-border-subtle)",
+                            color: "var(--color-text-secondary)",
+                            background: "var(--color-bg-secondary)",
                           }}
                         >
                           {area}
@@ -1167,7 +1152,7 @@ export function CompanyPageClient({
                     style={{ color: "white", background: "var(--color-accent)" }}
                   >
                     <BookOpen size={13} />
-                    {report?.deep_report ? "Read full AI report" : "Generate AI report"}
+                    {report?.deep_report ? "Read full report" : "Generate full report"}
                     <ChevronRight size={13} />
                   </button>
                 </SectionCard>
@@ -1743,7 +1728,7 @@ export function CompanyPageClient({
               <div className="flex items-center gap-2.5 mb-2">
                 <Sparkles size={18} style={{ color: "var(--color-accent)" }} />
                 <h2 className="text-[18px] font-bold" style={{ color: "var(--color-text-primary)" }}>
-                  AI Deep Analysis
+                  Deep Analysis
                 </h2>
               </div>
 
@@ -1979,7 +1964,9 @@ export function CompanyPageClient({
                         key={s.sector_id}
                         href={`/sectors/${slug}`}
                         className="text-[11px] px-2.5 py-1 rounded-full font-semibold transition-opacity duration-150 hover:opacity-80"
-                        style={s.is_primary ? { background: "var(--color-accent)", color: "#fff" } : { background: "var(--color-bg-tertiary)", color: "var(--color-text-secondary)" }}
+                        style={s.is_primary
+                          ? { background: "var(--color-accent-subtle)", color: "var(--color-accent)", border: "0.5px solid var(--color-accent)" }
+                          : { background: "var(--color-bg-tertiary)", color: "var(--color-text-secondary)", border: "0.5px solid var(--color-border-subtle)" }}
                       >
                         {name}
                       </Link>
