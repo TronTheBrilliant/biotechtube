@@ -5,7 +5,7 @@ import { TickerBar } from "@/components/TickerBar";
 import { Footer } from "@/components/Footer";
 // import { IndexCards } from "@/components/IndexCards";
 import { HomeSection } from "@/components/HomeSection";
-import { Flame, BarChart3, Dna, Globe, TrendingUp, Banknote, Calendar } from "lucide-react";
+import { Dna, Globe, TrendingUp, Banknote, Calendar } from "lucide-react";
 
 import { dbRowsToCompanies } from "@/lib/adapters";
 import { createClient } from "@supabase/supabase-js";
@@ -13,8 +13,8 @@ import { formatMarketCap } from "@/lib/market-utils";
 import { getAllPeople, getAllInvestors } from "@/lib/seo-utils";
 
 // Section components
-import { TrendingCompanies } from "@/components/home/TrendingCompanies";
-import TopCompanies from "@/components/home/TopCompanies";
+import { IndexTable } from "@/components/home/IndexTable";
+import { ClaimYourCompanyStrip } from "@/components/home/ClaimYourCompanyStrip";
 import TopSectors from "@/components/home/TopSectors";
 import MarketByCountry from "@/components/home/MarketByCountry";
 import { FundingRadar } from "@/components/home/FundingRadar";
@@ -61,8 +61,8 @@ function getSupabase() {
 async function getTopCompanies() {
   const supabase = getSupabase();
 
-  // Single RPC — replaces 12+ paginated queries
-  const { data, error } = await supabase.rpc("get_top_companies" as never, { limit_count: 5 });
+  // Single RPC — fetches top 100 by market cap to power the homepage IndexTable.
+  const { data, error } = await supabase.rpc("get_top_companies" as never, { limit_count: 100 });
   if (error) throw new Error(`Top companies RPC failed: ${error.message}`);
   if (!data || !Array.isArray(data) || data.length === 0) return [];
 
@@ -736,9 +736,9 @@ export default async function HomePage() {
     console.error(`Homepage: ${fetchErrors.length} section(s) failed: ${fetchErrors.join(", ")}. Page will render with placeholders.`);
   }
 
-  // Prepare top 5 companies for display (already limited from RPC)
+  // Prepare full index dataset (100 companies) for the homepage IndexTable.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const top5Base = companies.slice(0, 5).map((c: any) => ({
+  const indexBase = companies.map((c: any) => ({
     slug: c.slug,
     name: c.name,
     ticker: c.ticker || null,
@@ -750,10 +750,10 @@ export default async function HomePage() {
     id: c.id || null,
   }));
 
-  // Fetch sparkline data for top + trending companies
+  // Fetch sparkline data for index companies (and any trending entries that may differ).
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const allCompanyIds = [
-    ...top5Base.map((c: any) => c.id),
+    ...indexBase.map((c: any) => c.id),
     ...trending.map((c: any) => c.id),
   ].filter(Boolean);
   const sparklineData = await safeFetch(
@@ -763,13 +763,7 @@ export default async function HomePage() {
   );
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const top5Companies = top5Base.map((c: any) => ({
-    ...c,
-    sparkline: c.id ? sparklineData[c.id] || [] : [],
-  }));
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const trendingWithSparklines = trending.map((c: any) => ({
+  const indexCompanies = indexBase.map((c: any) => ({
     ...c,
     sparkline: c.id ? sparklineData[c.id] || [] : [],
   }));
@@ -837,69 +831,33 @@ export default async function HomePage() {
       />
       <Nav />
       <TickerBar snapshot={snapshot} />
+      <ClaimYourCompanyStrip />
 
-      {/* Hero — centred */}
-      <section aria-label="Hero" className="max-w-[1200px] mx-auto px-4 md:px-6 pt-10 md:pt-16 pb-8 md:pb-10 text-center">
+      {/* Compact hero — single descriptor line, no decorative chrome */}
+      <section aria-label="Hero" className="max-w-[1200px] mx-auto px-4 md:px-6 pt-8 md:pt-10 pb-6 text-center">
         <h1
-          className="text-display-lg mx-auto"
+          className="text-display-md mx-auto max-w-[820px]"
           style={{ color: "var(--color-text-primary)" }}
         >
-          The Pulse of the Global Biotech Market.
+          The biotech index.
         </h1>
         <p
-          className="text-[15px] md:text-[17px] mt-4 max-w-[620px] mx-auto"
-          style={{ color: "var(--color-text-secondary)", lineHeight: 1.65 }}
+          className="text-[14px] md:text-[15px] mt-3 max-w-[640px] mx-auto"
+          style={{ color: "var(--color-text-secondary)", lineHeight: 1.55 }}
         >
-          Tracking{" "}
-          <span style={{ color: "var(--color-text-primary)", fontWeight: 600 }}>
-            {snapshot ? formatMarketCap(snapshot.total_market_cap) : "$6.9T"}+
-          </span>{" "}
-          in market cap across{" "}
-          <span style={{ fontWeight: 600, color: "var(--color-text-primary)" }}>13,000+</span> companies,{" "}
-          <span style={{ fontWeight: 600, color: "var(--color-text-primary)" }}>20</span> sectors, and{" "}
-          <span style={{ fontWeight: 600, color: "var(--color-text-primary)" }}>30+</span> countries.
+          Every public and private biotech, daily-tracked. Free, comprehensive, sortable.
         </p>
-
       </section>
 
-      {/* Index Cards — hidden for testing */}
-      {/* {snapshot && <IndexCards snapshot={snapshot} />} */}
-
-      {/* Sections Grid */}
+      {/* Sections grid */}
       <main className="px-4 md:px-6 py-4 space-y-4 max-w-[1200px] mx-auto">
-        {/* Hero Search — wide bar spanning the container width */}
+        {/* Hero search */}
         <div className="pt-2 pb-1">
           <HomeHeroSearch />
         </div>
 
-        {/* Row 1: Trending + Top Companies */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {trendingWithSparklines.length > 0 ? (
-            <HomeSection icon={<Flame size={14} />} title="Trending Companies" viewAllHref="/trending" viewAllLabel="View all">
-              <TrendingCompanies companies={trendingWithSparklines} />
-            </HomeSection>
-          ) : (
-            <HomeSection icon={<Flame size={14} />} title="Trending Companies" viewAllHref="/trending" viewAllLabel="View all">
-              <div className="px-4 py-8 text-center">
-                <p className="text-13" style={{ color: "var(--color-text-tertiary)" }}>Trending data temporarily unavailable.</p>
-              </div>
-            </HomeSection>
-          )}
-          {top5Companies.length > 0 ? (
-            <HomeSection icon={<BarChart3 size={14} />} title="Top Companies" viewAllHref="/top-companies" viewAllLabel="View all 750+">
-              <TopCompanies companies={top5Companies} />
-            </HomeSection>
-          ) : (
-            <HomeSection icon={<BarChart3 size={14} />} title="Top Companies" viewAllHref="/top-companies" viewAllLabel="View all 750+">
-              <div className="px-4 py-8 text-center">
-                <p className="text-13" style={{ color: "var(--color-text-tertiary)" }}>Company data temporarily unavailable.</p>
-              </div>
-            </HomeSection>
-          )}
-        </div>
-
-        {/* Latest Intelligence */}
-        <LatestIntelligence articles={intelligenceArticles} companyMap={intelligenceCompanyMap} />
+        {/* THE INDEX — centerpiece */}
+        <IndexTable companies={indexCompanies} />
 
         {/* Sectors + Countries */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -922,6 +880,9 @@ export default async function HomePage() {
             )}
           </HomeSection>
         </div>
+
+        {/* Latest Intelligence — moved below the rankings (editorial is downstream of data) */}
+        <LatestIntelligence articles={intelligenceArticles} companyMap={intelligenceCompanyMap} />
 
         {/* Market Heatmap — hidden until data quality is fixed */}
         {/* <HomeSection icon="🗺️" title="Market Heatmap" viewAllHref="/markets" viewAllLabel="Full markets">
