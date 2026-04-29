@@ -5,7 +5,7 @@ import { TickerBar } from "@/components/TickerBar";
 import { Footer } from "@/components/Footer";
 // import { IndexCards } from "@/components/IndexCards";
 import { HomeSection } from "@/components/HomeSection";
-import { Dna, Globe, TrendingUp, Banknote, Calendar } from "lucide-react";
+import { Dna, Globe, TrendingUp, Banknote, Calendar, Flame } from "lucide-react";
 
 import { dbRowsToCompanies } from "@/lib/adapters";
 import { createClient } from "@supabase/supabase-js";
@@ -15,6 +15,7 @@ import { getAllPeople, getAllInvestors } from "@/lib/seo-utils";
 // Section components
 import { IndexTable } from "@/components/home/IndexTable";
 import { ClaimYourCompanyStrip } from "@/components/home/ClaimYourCompanyStrip";
+import { TrendingCompanies } from "@/components/home/TrendingCompanies";
 import TopSectors from "@/components/home/TopSectors";
 import MarketByCountry from "@/components/home/MarketByCountry";
 import { FundingRadar } from "@/components/home/FundingRadar";
@@ -768,6 +769,14 @@ export default async function HomePage() {
     sparkline: c.id ? sparklineData[c.id] || [] : [],
   }));
 
+  // Trending — biggest 7-day movers, surfaced separately because the IndexTable
+  // sorts by 1D and total market cap; trending is a different signal.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const trendingWithSparklines = trending.map((c: any) => ({
+    ...c,
+    sparkline: c.id ? sparklineData[c.id] || [] : [],
+  }));
+
   // Build company map for intelligence articles
   const intelligenceCompanyIds = (intelligenceArticles || [])
     .map((a: any) => a.company_id)
@@ -830,10 +839,9 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
       />
       <Nav />
-      <TickerBar snapshot={snapshot} />
       <ClaimYourCompanyStrip />
 
-      {/* Compact hero — single descriptor line, no decorative chrome */}
+      {/* Compact hero — headline, descriptor, and the live status pill, centered. */}
       <section aria-label="Hero" className="max-w-[1200px] mx-auto px-4 md:px-6 pt-8 md:pt-10 pb-6 text-center">
         <h1
           className="text-display-md mx-auto max-w-[820px]"
@@ -847,6 +855,9 @@ export default async function HomePage() {
         >
           Every public and private biotech, daily-tracked. Free, comprehensive, sortable.
         </p>
+        <div className="flex justify-center">
+          <TickerBar snapshot={snapshot} />
+        </div>
       </section>
 
       {/* Sections grid */}
@@ -858,6 +869,19 @@ export default async function HomePage() {
 
         {/* THE INDEX — centerpiece */}
         <IndexTable companies={indexCompanies} />
+
+        {/* Trending — biggest 7-day movers (different signal from the index's
+            default sort: hype + percentage gain rather than absolute size). */}
+        {trendingWithSparklines.length > 0 && (
+          <HomeSection
+            icon={<Flame size={14} />}
+            title="Trending — biggest 7-day movers"
+            viewAllHref="/trending"
+            viewAllLabel="View all"
+          >
+            <TrendingCompanies companies={trendingWithSparklines} />
+          </HomeSection>
+        )}
 
         {/* Sectors + Countries */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

@@ -191,11 +191,10 @@ export function IndexTable({ companies, pageSize = 50 }: Props) {
         </div>
       </div>
 
-      {/* Table header */}
+      {/* Table header — responsive grid: drops 7-Day below lg, drops Country below md */}
       <div
-        className="grid items-center px-4 py-2.5 text-[10px] font-semibold uppercase"
+        className="grid items-center px-4 py-2.5 text-[10px] font-semibold uppercase grid-cols-[36px_28px_1fr_110px_90px] md:grid-cols-[36px_28px_1fr_140px_110px_90px] lg:grid-cols-[36px_28px_1fr_140px_110px_90px_90px]"
         style={{
-          gridTemplateColumns: "36px 28px 1fr 140px 110px 90px 90px",
           gap: 12,
           color: "var(--color-text-tertiary)",
           letterSpacing: "0.5px",
@@ -256,9 +255,8 @@ export function IndexTable({ companies, pageSize = 50 }: Props) {
             <Link
               key={c.slug}
               href={`/company/${c.slug}`}
-              className="grid items-center px-4 py-3 transition-colors hover:bg-[var(--color-bg-secondary)]"
+              className="grid items-center px-4 py-3 transition-colors hover:bg-[var(--color-bg-secondary)] grid-cols-[36px_28px_1fr_110px_90px] md:grid-cols-[36px_28px_1fr_140px_110px_90px] lg:grid-cols-[36px_28px_1fr_140px_110px_90px_90px]"
               style={{
-                gridTemplateColumns: "36px 28px 1fr 140px 110px 90px 90px",
                 gap: 12,
                 color: "inherit",
                 textDecoration: "none",

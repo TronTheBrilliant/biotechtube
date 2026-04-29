@@ -248,7 +248,7 @@ export function Nav() {
                       <div
                         className="absolute top-full left-0 mt-1 rounded-xl overflow-hidden"
                         style={{
-                          minWidth: 240,
+                          minWidth: menu.items.length > 6 ? 520 : 240,
                           background: "var(--color-bg-primary)",
                           border: "0.5px solid var(--color-border-subtle)",
                           boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
@@ -257,7 +257,7 @@ export function Nav() {
                         }}
                         role="menu"
                       >
-                        <div className="p-2">
+                        <div className={menu.items.length > 6 ? "p-2 grid grid-cols-2 gap-1" : "p-2"}>
                           {menu.items.map((item) => (
                             <Link
                               key={item.href}
@@ -275,10 +275,10 @@ export function Nav() {
                               >
                                 <item.icon size={15} strokeWidth={1.75} />
                               </div>
-                              <div>
+                              <div className="min-w-0">
                                 <div className="text-[13px] font-medium">{item.title}</div>
                                 {item.subtitle && (
-                                  <div className="text-[11px]" style={{ color: "var(--color-text-tertiary)" }}>
+                                  <div className="text-[11px] truncate" style={{ color: "var(--color-text-tertiary)" }}>
                                     {item.subtitle}
                                   </div>
                                 )}
