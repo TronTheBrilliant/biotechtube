@@ -199,7 +199,7 @@ export function IndexTable({ companies, pageSize = 50 }: Props) {
           color: "var(--color-text-tertiary)",
           letterSpacing: "0.5px",
           borderBottom: "0.5px solid var(--color-border-medium)",
-          background: "var(--color-bg-secondary)",
+          background: "var(--color-bg-tertiary)",
         }}
       >
         <button
@@ -347,7 +347,7 @@ export function IndexTable({ companies, pageSize = 50 }: Props) {
           className="flex items-center justify-between px-4 py-3 text-[11px]"
           style={{
             borderTop: "0.5px solid var(--color-border-medium)",
-            background: "var(--color-bg-secondary)",
+            background: "var(--color-bg-tertiary)",
             color: "var(--color-text-tertiary)",
             letterSpacing: "0.2px",
           }}
