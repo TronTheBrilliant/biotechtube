@@ -123,7 +123,7 @@ export function HomeHeroSearch() {
           height: 64,
           padding: "0 18px",
           background: "var(--color-bg-primary)",
-          border: `1px solid ${focused ? "var(--color-accent)" : "var(--color-border-subtle)"}`,
+          border: `0.5px solid ${focused ? "var(--color-accent)" : "var(--color-border-medium)"}`,
           borderRadius: 16,
           outline: focused ? "2px solid var(--color-accent)" : "none",
           outlineOffset: 2,

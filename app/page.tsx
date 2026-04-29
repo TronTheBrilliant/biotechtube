@@ -839,7 +839,7 @@ export default async function HomePage() {
           className="text-display-md mx-auto max-w-[820px]"
           style={{ color: "var(--color-text-primary)" }}
         >
-          The biotech index.
+          The biotech index
         </h1>
         <p
           className="text-[14px] md:text-[15px] mt-3 max-w-[640px] mx-auto"

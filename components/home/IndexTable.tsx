@@ -75,7 +75,7 @@ export function IndexTable({ companies, pageSize = 50 }: Props) {
   const searchParams = useSearchParams();
 
   // URL-synced state
-  const [sortKey, setSortKey] = useState<SortKey>(() => readSortFromUrl(searchParams));
+  const [sortKey, setSortKey] = useState<SortKey>(() => readSortFromUrl(searchParams).key);
   const [sortDir, setSortDir] = useState<SortDir>(() => readSortFromUrl(searchParams).dir);
   const [page, setPage] = useState<number>(() => readPageFromUrl(searchParams));
   const [country, setCountry] = useState<string>(() => readCountryFromUrl(searchParams));
