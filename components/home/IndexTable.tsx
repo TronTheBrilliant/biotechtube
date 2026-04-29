@@ -151,31 +151,32 @@ export function IndexTable({ companies, pageSize = 50 }: Props) {
         overflow: "hidden",
       }}
     >
-      {/* Toolbar: result count + country filter */}
+      {/* Toolbar: title + count + country filter — wraps on mobile */}
       <div
-        className="flex items-center justify-between px-4 py-3"
+        className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-3"
         style={{ borderBottom: "0.5px solid var(--color-border-medium)" }}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-baseline gap-2 flex-wrap">
           <h2
             className="text-[13px] font-bold uppercase tracking-[0.5px]"
             style={{ color: "var(--color-text-primary)", letterSpacing: "0.3px" }}
           >
             The Index
           </h2>
-          <span className="text-[11px]" style={{ color: "var(--color-text-tertiary)" }}>
+          <span className="text-[11px] whitespace-nowrap" style={{ color: "var(--color-text-tertiary)", fontVariantNumeric: "tabular-nums" }}>
             {filteredAndSorted.length.toLocaleString()} companies
             {country !== "all" && ` · ${country}`}
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <label className="text-[11px] font-medium uppercase" style={{ color: "var(--color-text-tertiary)", letterSpacing: "0.3px" }}>
+          <label className="text-[11px] font-medium uppercase hidden sm:inline" style={{ color: "var(--color-text-tertiary)", letterSpacing: "0.3px" }}>
             Country
           </label>
           <select
+            aria-label="Filter by country"
             value={country}
             onChange={(e) => { setCountry(e.target.value); setPage(1); }}
-            className="text-[12px] px-2 py-1 rounded-md outline-none"
+            className="text-[12px] px-2 py-1 rounded-md outline-none max-w-[180px]"
             style={{
               background: "var(--color-bg-secondary)",
               color: "var(--color-text-primary)",
@@ -193,9 +194,8 @@ export function IndexTable({ companies, pageSize = 50 }: Props) {
 
       {/* Table header — responsive grid: drops 7-Day below lg, drops Country below md */}
       <div
-        className="grid items-center px-4 py-2.5 text-[10px] font-semibold uppercase grid-cols-[36px_28px_1fr_110px_90px] md:grid-cols-[36px_28px_1fr_140px_110px_90px] lg:grid-cols-[36px_28px_1fr_140px_110px_90px_90px]"
+        className="grid items-center px-4 py-2.5 text-[10px] font-semibold uppercase grid-cols-[26px_28px_1fr_76px_60px] md:grid-cols-[36px_28px_1fr_140px_110px_90px] lg:grid-cols-[36px_28px_1fr_140px_110px_90px_90px] gap-2 md:gap-3"
         style={{
-          gap: 12,
           color: "var(--color-text-tertiary)",
           letterSpacing: "0.5px",
           borderBottom: "0.5px solid var(--color-border-medium)",
@@ -255,9 +255,8 @@ export function IndexTable({ companies, pageSize = 50 }: Props) {
             <Link
               key={c.slug}
               href={`/company/${c.slug}`}
-              className="grid items-center px-4 py-3 transition-colors hover:bg-[var(--color-bg-secondary)] grid-cols-[36px_28px_1fr_110px_90px] md:grid-cols-[36px_28px_1fr_140px_110px_90px] lg:grid-cols-[36px_28px_1fr_140px_110px_90px_90px]"
+              className="grid items-center px-4 py-3 transition-colors hover:bg-[var(--color-bg-secondary)] grid-cols-[26px_28px_1fr_76px_60px] md:grid-cols-[36px_28px_1fr_140px_110px_90px] lg:grid-cols-[36px_28px_1fr_140px_110px_90px_90px] gap-2 md:gap-3"
               style={{
-                gap: 12,
                 color: "inherit",
                 textDecoration: "none",
                 borderBottom: i < pageRows.length - 1 ? "0.5px solid var(--color-border-subtle)" : "none",
