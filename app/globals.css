@@ -39,6 +39,10 @@ table[style*="height: 48px"] #tv-attr-logo {
   --color-accent-hover: #047857;
   --color-accent-subtle: #ecfdf5;
 
+  /* Semantic gainer/loser tokens — One Voice Rule: one canonical green and red across the system */
+  --color-positive: #059669;
+  --color-negative: #dc2626;
+
   --color-bg-primary: #ffffff;
   --color-bg-secondary: #f7f7f6;
   --color-bg-tertiary: #f0f0ee;
@@ -58,6 +62,10 @@ table[style*="height: 48px"] #tv-attr-logo {
   --color-bg-primary: #121212;
   --color-bg-secondary: #1c1c1c;
   --color-bg-tertiary: #242424;
+
+  /* Semantic gainer/loser tokens — lighter on dark for AA contrast */
+  --color-positive: #34d399;
+  --color-negative: #f87171;
 
   --color-border-subtle: rgba(255, 255, 255, 0.08);
   --color-border-medium: rgba(255, 255, 255, 0.14);
@@ -235,7 +243,7 @@ body {
   text-decoration: underline;
 }
 .prose blockquote {
-  border-left: 4px solid var(--color-accent);
+  border: 0.5px solid var(--color-border-subtle);
   padding: 16px 20px;
   margin: 28px 0;
   font-style: italic;
@@ -243,7 +251,7 @@ body {
   line-height: 1.6;
   color: var(--color-text-primary);
   background: var(--color-bg-secondary);
-  border-radius: 0 8px 8px 0;
+  border-radius: 8px;
 }
 .prose pre {
   background: var(--color-bg-tertiary);

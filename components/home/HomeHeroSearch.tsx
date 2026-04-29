@@ -39,9 +39,13 @@ export function HomeHeroSearch() {
   const [highlightIdx, setHighlightIdx] = useState(-1);
   const [placeholder, setPlaceholder] = useState(PLACEHOLDER_SAMPLES[0]);
 
-  // Rotate the placeholder every 4s so the hero feels alive (only when input is empty & unfocused)
+  // Rotate the placeholder every 4s so the hero feels alive (only when input is empty & unfocused).
+  // Respects prefers-reduced-motion: vestibular-sensitive users get a single static placeholder.
   useEffect(() => {
     if (focused || query) return;
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
     let i = 0;
     const t = setInterval(() => {
       i = (i + 1) % PLACEHOLDER_SAMPLES.length;
@@ -119,11 +123,10 @@ export function HomeHeroSearch() {
           height: 64,
           padding: "0 18px",
           background: "var(--color-bg-primary)",
-          border: `1.5px solid ${focused ? "var(--color-accent)" : "var(--color-border-subtle)"}`,
+          border: `1px solid ${focused ? "var(--color-accent)" : "var(--color-border-subtle)"}`,
           borderRadius: 16,
-          boxShadow: focused
-            ? "0 0 0 4px rgba(26,122,94,0.10), 0 8px 24px rgba(0,0,0,0.06)"
-            : "0 2px 8px rgba(0,0,0,0.04)",
+          outline: focused ? "2px solid var(--color-accent)" : "none",
+          outlineOffset: 2,
         }}
       >
         <div
@@ -132,7 +135,7 @@ export function HomeHeroSearch() {
             width: 36,
             height: 36,
             borderRadius: 10,
-            background: focused ? "rgba(26,122,94,0.10)" : "var(--color-bg-secondary)",
+            background: focused ? "var(--color-accent-subtle)" : "var(--color-bg-secondary)",
             color: focused ? "var(--color-accent)" : "var(--color-text-tertiary)",
             transition: "all 0.15s",
           }}
@@ -304,7 +307,7 @@ function highlightMatch(text: string, q: string) {
       {text.slice(0, idx)}
       <mark
         style={{
-          background: "rgba(26,122,94,0.18)",
+          background: "var(--color-accent-subtle)",
           color: "var(--color-text-primary)",
           padding: "0 2px",
           borderRadius: 2,

@@ -70,10 +70,10 @@ export function capPercent(
   return value;
 }
 
-/** Returns CSS color for positive/negative percentage values */
+/** Returns CSS color for positive/negative percentage values. Uses semantic tokens (One Voice Rule). */
 export function pctColor(val: number | null): string {
   if (val === null) return "var(--color-text-secondary)";
-  return val >= 0 ? "var(--color-accent)" : "#c0392b";
+  return val >= 0 ? "var(--color-positive)" : "var(--color-negative)";
 }
 
 /** Format a date for chart X-axis based on total point count */

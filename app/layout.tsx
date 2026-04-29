@@ -84,7 +84,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://img.logo.dev" />
         <meta name="application-name" content="BiotechTube" />
         <meta name="apple-mobile-web-app-title" content="BiotechTube" />
-        <meta name="theme-color" content="#1a7a5e" />
+        <meta name="theme-color" content="#059669" />
         {/* Sitewide structured data: Organization + WebSite (with SearchAction) + primary nav */}
         <script
           type="application/ld+json"

@@ -2,39 +2,39 @@ import Link from "next/link";
 import { FooterNewsletter } from "./FooterNewsletter";
 
 const platformLinks = [
-  { label: "🏢 Top Companies", href: "/top-companies" },
-  { label: "🧬 Pipeline", href: "/pipelines" },
-  { label: "💰 Funding", href: "/funding" },
-  { label: "📊 Markets", href: "/markets" },
-  { label: "🏷️ Sectors", href: "/sectors" },
-  { label: "🌍 Countries", href: "/countries" },
-  { label: "📈 Charts", href: "/charts" },
-  { label: "📅 Events", href: "/events" },
+  { label: "Top Companies", href: "/top-companies" },
+  { label: "Pipeline", href: "/pipelines" },
+  { label: "Funding", href: "/funding" },
+  { label: "Markets", href: "/markets" },
+  { label: "Sectors", href: "/sectors" },
+  { label: "Countries", href: "/countries" },
+  { label: "Charts", href: "/charts" },
+  { label: "Events", href: "/events" },
 ];
 
 const discoverLinks = [
-  { label: "🔥 Trending", href: "/trending" },
-  { label: "📰 Latest News", href: "/news" },
-  { label: "📝 Blog", href: "/blog" },
-  { label: "💼 Top Investors", href: "/top-investors" },
-  { label: "👤 Top People", href: "/top-people" },
-  { label: "🏷️ Top Sectors", href: "/top-sectors" },
-  { label: "📄 Equity Research", href: "/research" },
+  { label: "Trending", href: "/trending" },
+  { label: "Latest News", href: "/news" },
+  { label: "Blog", href: "/blog" },
+  { label: "Top Investors", href: "/top-investors" },
+  { label: "Top People", href: "/top-people" },
+  { label: "Top Sectors", href: "/top-sectors" },
+  { label: "Equity Research", href: "/research" },
 ];
 
 const forCompaniesLinks = [
-  { label: "🎯 Claim your profile", href: "/claim" },
-  { label: "🤝 Sponsor BiotechTube", href: "/sponsors" },
-  { label: "💻 Website templates", href: "/templates" },
-  { label: "🔌 API Documentation", href: "/api-docs" },
+  { label: "Claim your profile", href: "/claim" },
+  { label: "Sponsor BiotechTube", href: "/sponsors" },
+  { label: "Website templates", href: "/templates" },
+  { label: "API Documentation", href: "/api-docs" },
 ];
 
 const companyLinks = [
-  { label: "ℹ️ About", href: "/about" },
-  { label: "💎 Pricing", href: "/pricing" },
-  { label: "🔒 Privacy policy", href: "/privacy" },
-  { label: "📜 Terms", href: "/terms" },
-  { label: "📡 RSS feed", href: "/api/feed/rss" },
+  { label: "About", href: "/about" },
+  { label: "Pricing", href: "/pricing" },
+  { label: "Privacy policy", href: "/privacy" },
+  { label: "Terms", href: "/terms" },
+  { label: "RSS feed", href: "/api/feed/rss" },
 ];
 
 const popularCompanyLinks = [

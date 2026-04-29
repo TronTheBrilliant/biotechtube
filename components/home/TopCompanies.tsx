@@ -80,7 +80,7 @@ export default function TopCompanies({ companies }: { companies: Company[] }) {
               className="font-medium text-right flex-shrink-0"
               style={{
                 fontSize: 12,
-                color: c.dailyChange >= 0 ? "#16a34a" : "#dc2626",
+                color: c.dailyChange >= 0 ? "var(--color-positive)" : "var(--color-negative)",
                 minWidth: 50,
               }}
             >

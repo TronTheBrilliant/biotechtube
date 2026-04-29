@@ -1,54 +1,55 @@
-export function TickerBar() {
-  // Hidden for now — will re-enable with real data
-  return null;
+import { formatMarketCap } from "@/lib/market-utils";
 
-  const items = [
-    { label: "Listed Companies", value: "14,207", change: "+12", up: true },
-    { label: "Total Investment (YTD)", value: "$4.2B", change: "+8.3%", up: true },
-    { label: "Active Trials", value: "3,841", change: "+24", up: true },
-    { label: "Avg. Valuation", value: "$182M", change: "-2.1%", up: false },
-    { label: "IPOs (YTD)", value: "17", change: "+3", up: true },
-    { label: "Nordic Funding (YTD)", value: "$340M", change: "+14.6%", up: true },
-  ];
+interface TickerBarProps {
+  snapshot?: {
+    snapshot_date: string;
+    total_market_cap: number;
+  } | null;
+}
+
+function formatSnapshotDate(iso: string): string {
+  // Display in concise UTC form so the data freshness is unambiguous.
+  const d = new Date(iso);
+  return d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
+export function TickerBar({ snapshot }: TickerBarProps) {
+  if (!snapshot) return null;
 
   return (
     <div
-      className="h-[30px] flex items-center px-5 border-b overflow-x-auto whitespace-nowrap"
+      className="hidden md:flex items-center h-[28px] px-5 gap-5 text-[11px]"
       style={{
-        background: "var(--color-bg-tertiary)",
-        scrollbarWidth: "none",
+        background: "var(--color-bg-secondary)",
+        borderBottom: "0.5px solid var(--color-border-subtle)",
+        letterSpacing: "0.2px",
+        fontVariantNumeric: "tabular-nums",
       }}
     >
-      <div className="flex items-center gap-6">
-        <div className="flex items-center gap-1.5">
-          <div className="live-dot" />
-          <span
-            className="text-12 font-medium"
-            style={{ color: "var(--color-text-primary)" }}
-          >
-            Live
-          </span>
-        </div>
-        {items.map((item) => (
-          <div key={item.label} className="flex items-center gap-1.5">
-            <span className="text-12" style={{ color: "var(--color-text-secondary)" }}>
-              {item.label}
-            </span>
-            <span
-              className="text-12 font-medium"
-              style={{ color: "var(--color-text-primary)" }}
-            >
-              {item.value}
-            </span>
-            <span
-              className="text-11"
-              style={{ color: item.up ? "var(--color-accent)" : "#c0392b" }}
-            >
-              {item.change}
-            </span>
-          </div>
-        ))}
+      <div className="flex items-center gap-1.5">
+        <span className="live-dot" />
+        <span
+          className="font-semibold uppercase"
+          style={{ color: "var(--color-text-secondary)", letterSpacing: "0.6px" }}
+        >
+          Live
+        </span>
       </div>
+      <span style={{ color: "var(--color-text-tertiary)" }}>
+        As of {formatSnapshotDate(snapshot.snapshot_date)}
+      </span>
+      <span style={{ color: "var(--color-text-tertiary)" }}>·</span>
+      <span style={{ color: "var(--color-text-secondary)" }}>
+        Total market cap{" "}
+        <span style={{ color: "var(--color-text-primary)", fontWeight: 600 }}>
+          {formatMarketCap(snapshot.total_market_cap)}
+        </span>
+      </span>
     </div>
   );
 }

@@ -47,13 +47,6 @@ export function NewsletterSignup({ source = "homepage" }: { source?: string }) {
             border: "0.5px solid var(--color-border-subtle)",
           }}
         >
-          {/* Accent gradient top border */}
-          <div
-            style={{
-              height: 3,
-              background: "linear-gradient(90deg, var(--color-accent), #6366f1, #8b5cf6)",
-            }}
-          />
           <div className="px-6 py-10 md:py-12 text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -81,13 +74,6 @@ export function NewsletterSignup({ source = "homepage" }: { source?: string }) {
           border: "0.5px solid var(--color-border-subtle)",
         }}
       >
-        {/* Accent gradient top border */}
-        <div
-          style={{
-            height: 3,
-            background: "linear-gradient(90deg, var(--color-accent), #6366f1, #8b5cf6)",
-          }}
-        />
         <div className="px-6 py-10 md:py-12 text-center max-w-[520px] mx-auto">
           <h2
             className="text-[20px] md:text-[24px] font-semibold mb-2"

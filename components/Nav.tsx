@@ -4,7 +4,11 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 
 import { usePathname } from "next/navigation";
-import { Search, Menu, X, ChevronDown, LogIn, User, Settings, List, LogOut, LayoutDashboard } from "lucide-react";
+import {
+  Search, Menu, X, ChevronDown, LogIn, User, Settings, List, LogOut, LayoutDashboard,
+  Flame, Sparkles, Building2, Banknote, Dna, Tag, BarChart3, Activity, Globe, Calendar, FileText, Newspaper, BookOpen, Info, Gem,
+  type LucideIcon,
+} from "lucide-react";
 import { SearchOverlay } from "./SearchOverlay";
 import { ThemeToggle } from "./ThemeToggle";
 import { useUser } from "@/lib/auth";
@@ -13,10 +17,9 @@ import { useUser } from "@/lib/auth";
 
 interface MenuItem {
   href: string;
-  emoji: string;
+  icon: LucideIcon;
   title: string;
   subtitle?: string;
-  iconBg?: string;
 }
 
 interface FeaturedItem {
@@ -35,17 +38,17 @@ const MENUS: MenuCategory[] = [
   {
     label: "Discover",
     items: [
-      { href: "/trending", emoji: "🔥", title: "Trending", subtitle: "Hot companies", iconBg: "#fef3c7" },
-      { href: "/agents/research", emoji: "🤖", title: "Ask AI", subtitle: "Research assistant", iconBg: "#ede9fe" },
-      { href: "/top-companies", emoji: "🏢", title: "Companies", subtitle: "14,000+ tracked", iconBg: "#f0fdf4" },
-      { href: "/funding", emoji: "💰", title: "Funding", subtitle: "Intelligence hub", iconBg: "#fef3c7" },
-      { href: "/pipelines", emoji: "🧬", title: "Pipeline", subtitle: "Drug programs", iconBg: "#ecfdf5" },
-      { href: "/sectors", emoji: "🏷️", title: "Sectors", subtitle: "20 biotech sectors", iconBg: "#f5f3ff" },
-      { href: "/markets", emoji: "📊", title: "Markets", subtitle: "Stock data", iconBg: "#fce7f3" },
-      { href: "/charts", emoji: "📈", title: "Charts", subtitle: "20 market insights", iconBg: "#e0f2fe" },
-      { href: "/countries", emoji: "🌍", title: "Countries", subtitle: "30+ markets", iconBg: "#f0fdf4" },
-      { href: "/events", emoji: "📅", title: "Events", subtitle: "Industry events", iconBg: "#eff6ff" },
-      { href: "/research", emoji: "📄", title: "Research", subtitle: "Equity research memos", iconBg: "#ede9fe" },
+      { href: "/trending", icon: Flame, title: "Trending", subtitle: "Hot companies" },
+      { href: "/agents/research", icon: Sparkles, title: "Ask AI", subtitle: "Research assistant" },
+      { href: "/top-companies", icon: Building2, title: "Companies", subtitle: "14,000+ tracked" },
+      { href: "/funding", icon: Banknote, title: "Funding", subtitle: "Intelligence hub" },
+      { href: "/pipelines", icon: Dna, title: "Pipeline", subtitle: "Drug programs" },
+      { href: "/sectors", icon: Tag, title: "Sectors", subtitle: "20 biotech sectors" },
+      { href: "/markets", icon: BarChart3, title: "Markets", subtitle: "Stock data" },
+      { href: "/charts", icon: Activity, title: "Charts", subtitle: "20 market insights" },
+      { href: "/countries", icon: Globe, title: "Countries", subtitle: "30+ markets" },
+      { href: "/events", icon: Calendar, title: "Events", subtitle: "Industry events" },
+      { href: "/research", icon: FileText, title: "Research", subtitle: "Equity research memos" },
     ],
     featured: {
       heading: "Top Countries",
@@ -60,16 +63,16 @@ const MENUS: MenuCategory[] = [
   {
     label: "News",
     items: [
-      { href: "/news", emoji: "📰", title: "Latest News" },
-      { href: "/funding?tab=news", emoji: "💰", title: "Funding News", subtitle: "Deal flow & analysis" },
-      { href: "/blog", emoji: "📝", title: "Blog", subtitle: "Analysis & guides" },
+      { href: "/news", icon: Newspaper, title: "Latest News" },
+      { href: "/funding?tab=news", icon: Banknote, title: "Funding News", subtitle: "Deal flow & analysis" },
+      { href: "/blog", icon: BookOpen, title: "Blog", subtitle: "Analysis & guides" },
     ],
   },
   {
     label: "Company",
     items: [
-      { href: "/about", emoji: "📋", title: "About" },
-      { href: "/pricing", emoji: "💎", title: "Pricing" },
+      { href: "/about", icon: Info, title: "About" },
+      { href: "/pricing", icon: Gem, title: "Pricing" },
     ],
   },
 ];
@@ -199,7 +202,7 @@ export function Nav() {
         style={{
           height: "var(--nav-h, 56px)",
           background: "var(--color-bg-primary)",
-          borderBottom: "1px solid var(--color-border-subtle)",
+          borderBottom: "0.5px solid var(--color-border-subtle)",
           zIndex: 50,
         }}
       >
@@ -246,7 +249,7 @@ export function Nav() {
                         style={{
                           minWidth: 240,
                           background: "var(--color-bg-primary)",
-                          border: "1px solid var(--color-border-subtle)",
+                          border: "0.5px solid var(--color-border-subtle)",
                           boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
                           animation: "fadeIn 0.15s ease",
                           zIndex: 50,
@@ -266,10 +269,10 @@ export function Nav() {
                               role="menuitem"
                             >
                               <div
-                                className="w-8 h-8 rounded-lg flex items-center justify-center text-[16px] shrink-0"
-                                style={{ background: "var(--color-bg-tertiary)" }}
+                                className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                                style={{ background: "var(--color-bg-tertiary)", color: "var(--color-text-secondary)" }}
                               >
-                                {item.emoji}
+                                <item.icon size={15} strokeWidth={1.75} />
                               </div>
                               <div>
                                 <div className="text-[13px] font-medium">{item.title}</div>
@@ -368,7 +371,7 @@ export function Nav() {
                     style={{
                       minWidth: 200,
                       background: "var(--color-bg-primary)",
-                      border: "1px solid var(--color-border-subtle)",
+                      border: "0.5px solid var(--color-border-subtle)",
                       boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
                       animation: "fadeIn 0.15s ease",
                       zIndex: 50,
@@ -557,7 +560,7 @@ export function Nav() {
                             style={{ color: "var(--color-text-secondary)" }}
                             onClick={() => setMobileOpen(false)}
                           >
-                            <span className="text-[15px]">{item.emoji}</span>
+                            <item.icon size={15} strokeWidth={1.75} />
                             <span>{item.title}</span>
                           </Link>
                         ))}

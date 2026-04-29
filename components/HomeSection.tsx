@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 
 interface Props {
-  icon: string;
+  icon: React.ReactNode;
   title: string;
   viewAllHref: string;
   viewAllLabel?: string;
@@ -18,10 +18,10 @@ export function HomeSection({
 }: Props) {
   return (
     <div
-      className="rounded-xl transition-shadow duration-200 hover:shadow-md"
+      className="rounded-xl"
       style={{
         background: "var(--color-bg-primary)",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 0 0 0.5px var(--color-border-subtle)",
+        border: "0.5px solid var(--color-border-subtle)",
         minWidth: 0,
         overflow: "hidden",
       }}
@@ -30,8 +30,8 @@ export function HomeSection({
         className="flex items-center justify-between px-4 py-3"
         style={{ borderBottom: "0.5px solid var(--color-border-subtle)" }}
       >
-        <div className="flex items-center gap-2.5">
-          <span className="text-[16px]">{icon}</span>
+        <div className="flex items-center gap-2" style={{ color: "var(--color-text-secondary)" }}>
+          {icon}
           <h3
             className="text-[13px] font-bold uppercase tracking-[0.5px]"
             style={{ color: "var(--color-text-primary)" }}

@@ -126,7 +126,7 @@ export function MarketPulseHero({
           />
           <span
             className="flex items-center gap-0.5 text-[18px] md:text-[20px] font-bold"
-            style={{ color: isPositive ? '#16a34a' : '#dc2626' }}
+            style={{ color: isPositive ? 'var(--color-positive)' : 'var(--color-negative)' }}
           >
             {isPositive ? (
               <ArrowUpRight size={22} strokeWidth={2.5} />

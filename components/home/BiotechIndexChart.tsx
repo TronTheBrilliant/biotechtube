@@ -94,7 +94,7 @@ export default function BiotechIndexChart({ data }: Props) {
           <span
             className="flex items-center gap-0.5 text-14 font-semibold"
             style={{
-              color: isPositive ? "#16a34a" : "#dc2626",
+              color: isPositive ? "var(--color-positive)" : "var(--color-negative)",
             }}
           >
             {isPositive ? (

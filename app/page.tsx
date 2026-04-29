@@ -5,6 +5,7 @@ import { TickerBar } from "@/components/TickerBar";
 import { Footer } from "@/components/Footer";
 // import { IndexCards } from "@/components/IndexCards";
 import { HomeSection } from "@/components/HomeSection";
+import { Flame, BarChart3, Dna, Globe, TrendingUp, Banknote, Calendar } from "lucide-react";
 
 import { dbRowsToCompanies } from "@/lib/adapters";
 import { createClient } from "@supabase/supabase-js";
@@ -824,7 +825,7 @@ export default async function HomePage() {
   return (
     <div
       className="page-content"
-      style={{ minHeight: "100vh" }}
+      style={{ minHeight: "100vh", background: "var(--color-bg-secondary)" }}
     >
       <script
         type="application/ld+json"
@@ -834,19 +835,8 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
       />
-      {/* Background gradient: white at top fading to warm grey */}
-      <div style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: "linear-gradient(to bottom, var(--color-bg-primary) 0%, var(--color-bg-primary) 200px, var(--color-bg-tertiary) 600px)",
-        zIndex: -1,
-        pointerEvents: "none",
-      }} />
       <Nav />
-      <TickerBar />
+      <TickerBar snapshot={snapshot} />
 
       {/* Hero — centred */}
       <section aria-label="Hero" className="max-w-[1200px] mx-auto px-4 md:px-6 pt-10 md:pt-16 pb-8 md:pb-10 text-center">
@@ -870,18 +860,6 @@ export default async function HomePage() {
           <span style={{ fontWeight: 600, color: "var(--color-text-primary)" }}>30+</span> countries.
         </p>
 
-        {/* Company logos as social proof */}
-        <div className="flex items-center justify-center gap-4 md:gap-6 mt-8 opacity-40 overflow-hidden px-2">
-          {["lilly.com", "pfizer.com", "novartis.com", "roche.com", "amgen.com", "gilead.com"].map((domain) => (
-            <img
-              key={domain}
-              src={`https://img.logo.dev/${domain}?token=pk_FNHUWoZORpiR_7j_vzFnmQ`}
-              alt={domain.split(".")[0]}
-              className="h-5 md:h-7 object-contain grayscale flex-shrink-0 hover:grayscale-0 transition-all duration-300"
-              style={{ maxWidth: 80 }}
-            />
-          ))}
-        </div>
       </section>
 
       {/* Index Cards — hidden for testing */}
@@ -897,24 +875,24 @@ export default async function HomePage() {
         {/* Row 1: Trending + Top Companies */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {trendingWithSparklines.length > 0 ? (
-            <HomeSection icon="🔥" title="Trending Companies" viewAllHref="/trending" viewAllLabel="View all">
+            <HomeSection icon={<Flame size={14} />} title="Trending Companies" viewAllHref="/trending" viewAllLabel="View all">
               <TrendingCompanies companies={trendingWithSparklines} />
             </HomeSection>
           ) : (
-            <HomeSection icon="🔥" title="Trending Companies" viewAllHref="/trending" viewAllLabel="View all">
+            <HomeSection icon={<Flame size={14} />} title="Trending Companies" viewAllHref="/trending" viewAllLabel="View all">
               <div className="px-4 py-8 text-center">
-                <p className="text-13" style={{ color: "var(--color-text-tertiary)" }}>Loading trending data...</p>
+                <p className="text-13" style={{ color: "var(--color-text-tertiary)" }}>Trending data temporarily unavailable.</p>
               </div>
             </HomeSection>
           )}
           {top5Companies.length > 0 ? (
-            <HomeSection icon="📊" title="Top Companies" viewAllHref="/top-companies" viewAllLabel="View all 750+">
+            <HomeSection icon={<BarChart3 size={14} />} title="Top Companies" viewAllHref="/top-companies" viewAllLabel="View all 750+">
               <TopCompanies companies={top5Companies} />
             </HomeSection>
           ) : (
-            <HomeSection icon="📊" title="Top Companies" viewAllHref="/top-companies" viewAllLabel="View all 750+">
+            <HomeSection icon={<BarChart3 size={14} />} title="Top Companies" viewAllHref="/top-companies" viewAllLabel="View all 750+">
               <div className="px-4 py-8 text-center">
-                <p className="text-13" style={{ color: "var(--color-text-tertiary)" }}>Loading company data...</p>
+                <p className="text-13" style={{ color: "var(--color-text-tertiary)" }}>Company data temporarily unavailable.</p>
               </div>
             </HomeSection>
           )}
@@ -925,21 +903,21 @@ export default async function HomePage() {
 
         {/* Sectors + Countries */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <HomeSection icon="🧬" title="Top Sectors" viewAllHref="/top-sectors" viewAllLabel="View all 20">
+          <HomeSection icon={<Dna size={14} />} title="Top Sectors" viewAllHref="/top-sectors" viewAllLabel="View all 20">
             {sectors.length > 0 ? (
               <TopSectors sectors={sectors} />
             ) : (
               <div className="px-4 py-8 text-center">
-                <p className="text-13" style={{ color: "var(--color-text-tertiary)" }}>Loading sector data...</p>
+                <p className="text-13" style={{ color: "var(--color-text-tertiary)" }}>Sector data temporarily unavailable.</p>
               </div>
             )}
           </HomeSection>
-          <HomeSection icon="🌍" title="Market by Country" viewAllHref="/countries" viewAllLabel="View all 30+">
+          <HomeSection icon={<Globe size={14} />} title="Market by Country" viewAllHref="/countries" viewAllLabel="View all 30+">
             {countries.length > 0 ? (
               <MarketByCountry countries={countries} />
             ) : (
               <div className="px-4 py-8 text-center">
-                <p className="text-13" style={{ color: "var(--color-text-tertiary)" }}>Loading country data...</p>
+                <p className="text-13" style={{ color: "var(--color-text-tertiary)" }}>Country data temporarily unavailable.</p>
               </div>
             )}
           </HomeSection>
@@ -952,13 +930,13 @@ export default async function HomePage() {
 
         {/* Biotech Market Index — full width */}
         {indexHistory.length > 0 && (
-          <HomeSection icon="📈" title="Biotech Market Index" viewAllHref="/markets" viewAllLabel="Full markets">
+          <HomeSection icon={<TrendingUp size={14} />} title="Biotech Market Index" viewAllHref="/markets" viewAllLabel="Full markets">
             <BiotechIndexChart data={indexHistory} />
           </HomeSection>
         )}
 
         {/* Funding Season — combined card: chart + latest rounds */}
-        <HomeSection icon="💰" title="Funding & Deal Flow" viewAllHref="/news/funding" viewAllLabel="Full analysis">
+        <HomeSection icon={<Banknote size={14} />} title="Funding & Deal Flow" viewAllHref="/news/funding" viewAllLabel="Full analysis">
           <div className="flex flex-col lg:flex-row">
             {/* Left: chart */}
             <div className="flex-1 min-w-0">
@@ -983,7 +961,7 @@ export default async function HomePage() {
         </HomeSection>
 
         {/* Events */}
-        <HomeSection icon="📅" title="Upcoming Events" viewAllHref="/events" viewAllLabel="View all">
+        <HomeSection icon={<Calendar size={14} />} title="Upcoming Events" viewAllHref="/events" viewAllLabel="View all">
           <UpcomingEventsSection events={events.slice(0, 5)} />
         </HomeSection>
       </main>
