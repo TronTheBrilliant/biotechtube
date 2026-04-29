@@ -25,15 +25,18 @@ type CompanyMap = Record<string, { name: string; logo_url: string | null; slug: 
 
 // ── Constants ──
 
-const TYPE_CONFIG: Record<string, { label: string; color: string; filterKey: string }> = {
-  funding_deal: { label: "Funding", color: "#059669", filterKey: "funding_deal" },
-  clinical_trial: { label: "Clinical Trial", color: "#2563eb", filterKey: "clinical_trial" },
-  market_analysis: { label: "Market", color: "#7c3aed", filterKey: "market_analysis" },
-  company_deep_dive: { label: "Spotlight", color: "#ea580c", filterKey: "company_deep_dive" },
-  weekly_roundup: { label: "Roundup", color: "#ca8a04", filterKey: "weekly_roundup" },
-  breaking_news: { label: "Breaking", color: "#dc2626", filterKey: "breaking_news" },
-  science_essay: { label: "Deep Science", color: "#0891b2", filterKey: "science_essay" },
-  innovation_spotlight: { label: "Innovation", color: "#d946ef", filterKey: "innovation_spotlight" },
+// One Voice Rule: type pills are neutral chrome. The label IS the signal.
+// "Breaking" gets the only colored variant — it's the one type whose value
+// is "look at me right now."
+const TYPE_CONFIG: Record<string, { label: string; tone: "default" | "breaking" }> = {
+  funding_deal: { label: "Funding", tone: "default" },
+  clinical_trial: { label: "Clinical Trial", tone: "default" },
+  market_analysis: { label: "Market", tone: "default" },
+  company_deep_dive: { label: "Spotlight", tone: "default" },
+  weekly_roundup: { label: "Roundup", tone: "default" },
+  breaking_news: { label: "Breaking", tone: "breaking" },
+  science_essay: { label: "Deep Science", tone: "default" },
+  innovation_spotlight: { label: "Innovation", tone: "default" },
 };
 
 const FILTER_TABS = [
@@ -85,7 +88,22 @@ function formatDate(dateStr: string | null): string {
 }
 
 function getTypeConfig(type: string) {
-  return TYPE_CONFIG[type] ?? { label: "News", color: "#059669", filterKey: type };
+  return TYPE_CONFIG[type] ?? { label: "News", tone: "default" as const };
+}
+
+function typePillStyle(tone: "default" | "breaking"): React.CSSProperties {
+  if (tone === "breaking") {
+    return {
+      color: "var(--color-negative)",
+      background: "var(--color-bg-secondary)",
+      border: "0.5px solid var(--color-negative)",
+    };
+  }
+  return {
+    color: "var(--color-text-secondary)",
+    background: "var(--color-bg-tertiary)",
+    border: "0.5px solid var(--color-border-subtle)",
+  };
 }
 
 // ── Component ──
@@ -159,29 +177,21 @@ export function NewsClient({
   return (
     <div>
       {/* Header */}
-      <div className="flex items-start justify-between mb-6">
+      <div className="flex items-end justify-between mb-6">
         <div>
           <span
-            className="block mb-2"
+            className="block mb-2 font-semibold uppercase"
             style={{
               fontSize: 11,
-              fontWeight: 500,
-              textTransform: "uppercase",
-              letterSpacing: "0.08em",
-              color: "var(--color-accent)",
+              letterSpacing: "0.5px",
+              color: "var(--color-text-tertiary)",
             }}
           >
             Intelligence
           </span>
           <h1
-            style={{
-              fontSize: "clamp(24px, 4vw, 32px)",
-              fontWeight: 500,
-              letterSpacing: "-0.5px",
-              color: "var(--color-text-primary)",
-              margin: 0,
-              lineHeight: 1.2,
-            }}
+            className="text-display-sm"
+            style={{ color: "var(--color-text-primary)", margin: 0 }}
           >
             Biotech Intelligence
           </h1>
@@ -190,10 +200,11 @@ export function NewsClient({
             style={{
               fontSize: 14,
               color: "var(--color-text-secondary)",
-              lineHeight: 1.5,
+              lineHeight: 1.55,
+              maxWidth: 560,
             }}
           >
-            AI-powered analysis of the biotech market
+            Daily analysis of funding, clinical trials, market moves, and company news, drawn from public sources.
           </p>
         </div>
 
@@ -202,7 +213,7 @@ export function NewsClient({
           href="/api/feed/rss"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1.5 mt-2 hover:opacity-70 transition-opacity"
+          className="flex items-center gap-1.5 hover:opacity-70 transition-opacity"
           style={{
             fontSize: 12,
             color: "var(--color-text-tertiary)",
@@ -222,26 +233,28 @@ export function NewsClient({
             <button
               key={tab.key}
               onClick={() => handleFilterChange(tab.key)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all"
+              className="flex items-center gap-1.5 px-3 py-1 rounded-sm transition-colors"
               style={{
-                fontSize: 13,
-                fontWeight: isActive ? 500 : 400,
-                color: isActive ? "white" : "var(--color-text-secondary)",
-                background: isActive ? "var(--color-accent)" : "var(--color-bg-secondary)",
+                fontSize: 12,
+                fontWeight: 500,
+                letterSpacing: "0.2px",
+                color: isActive ? "var(--color-accent-dark, var(--color-accent))" : "var(--color-text-secondary)",
+                background: isActive ? "var(--color-accent-subtle)" : "var(--color-bg-secondary)",
                 border: isActive
                   ? "1px solid var(--color-accent)"
-                  : "1px solid var(--color-border-subtle)",
+                  : "0.5px solid var(--color-border-subtle)",
                 cursor: "pointer",
               }}
             >
               {tab.label}
               {count > 0 && (
                 <span
-                  className="text-[10px] px-1.5 py-0.5 rounded-full"
+                  className="text-[10px] px-1.5 py-0.5 rounded"
                   style={{
-                    background: isActive ? "rgba(255,255,255,0.2)" : "var(--color-bg-primary)",
-                    color: isActive ? "white" : "var(--color-text-tertiary)",
+                    background: isActive ? "var(--color-bg-primary)" : "var(--color-bg-tertiary)",
+                    color: isActive ? "var(--color-accent)" : "var(--color-text-tertiary)",
                     fontWeight: 600,
+                    fontVariantNumeric: "tabular-nums",
                   }}
                 >
                   {count}
@@ -271,9 +284,9 @@ export function NewsClient({
       {featured && (
         <Link
           href={`/news/${featured.slug}`}
-          className="block rounded-xl overflow-hidden mb-8 transition-all hover:shadow-lg group"
+          className="block rounded-xl overflow-hidden mb-8 transition-shadow duration-150 hover:shadow-md group"
           style={{
-            background: "var(--color-bg-secondary)",
+            background: "var(--color-bg-primary)",
             border: "0.5px solid var(--color-border-subtle)",
           }}
         >
@@ -295,12 +308,12 @@ export function NewsClient({
               {/* Type badge + date */}
               <div className="flex items-center gap-2 mb-3">
                 <span
-                  className="px-2 py-0.5 rounded-full"
+                  className="px-2 py-0.5 rounded-sm uppercase"
                   style={{
-                    fontSize: 11,
+                    fontSize: 10,
                     fontWeight: 600,
-                    color: getTypeConfig(featured.type).color,
-                    background: `${getTypeConfig(featured.type).color}14`,
+                    letterSpacing: "0.4px",
+                    ...typePillStyle(getTypeConfig(featured.type).tone),
                   }}
                 >
                   {getTypeConfig(featured.type).label}
@@ -389,9 +402,9 @@ export function NewsClient({
               <Link
                 key={article.slug}
                 href={`/news/${article.slug}`}
-                className="block rounded-xl overflow-hidden transition-all hover:shadow-md hover:scale-[1.01] group"
+                className="block rounded-xl overflow-hidden transition-shadow duration-150 hover:shadow-md group"
                 style={{
-                  background: "var(--color-bg-secondary)",
+                  background: "var(--color-bg-primary)",
                   border: "0.5px solid var(--color-border-subtle)",
                 }}
               >
@@ -412,12 +425,12 @@ export function NewsClient({
                   {/* Type badge */}
                   <div className="flex items-center gap-2 mb-2">
                     <span
-                      className="px-2 py-0.5 rounded-full"
+                      className="px-2 py-0.5 rounded-sm uppercase"
                       style={{
                         fontSize: 10,
                         fontWeight: 600,
-                        color: cfg.color,
-                        background: `${cfg.color}14`,
+                        letterSpacing: "0.4px",
+                        ...typePillStyle(cfg.tone),
                       }}
                     >
                       {cfg.label}
@@ -507,18 +520,18 @@ export function NewsClient({
           <button
             onClick={handleLoadMore}
             disabled={loading}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-lg transition-all hover:opacity-80"
+            className="flex items-center gap-2 px-5 py-2 rounded-md transition-colors hover:bg-[var(--color-bg-tertiary)]"
             style={{
-              fontSize: 14,
+              fontSize: 13,
               fontWeight: 500,
               color: "var(--color-text-primary)",
-              background: "var(--color-bg-secondary)",
-              border: "1px solid var(--color-border-subtle)",
+              background: "var(--color-bg-primary)",
+              border: "0.5px solid var(--color-border-medium)",
               cursor: loading ? "wait" : "pointer",
               opacity: loading ? 0.6 : 1,
             }}
           >
-            {loading ? "Loading..." : "Load more articles"}
+            {loading ? "Loading…" : "Load more"}
             {!loading && <ChevronRight size={14} />}
           </button>
         </div>
