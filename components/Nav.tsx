@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Search, Menu, X, ChevronDown, LogIn, User, Settings, List, LogOut, LayoutDashboard,
-  Flame, Sparkles, Building2, Banknote, Dna, Tag, BarChart3, Activity, Globe, Calendar, FileText, Newspaper, BookOpen, Info, Gem,
+  Flame, Sparkles, Building2, Banknote, Dna, Tag, BarChart3, Activity, Globe, Calendar, FileText, Newspaper, BookOpen, Info, Gem, Columns3,
   type LucideIcon,
 } from "lucide-react";
 import { SearchOverlay } from "./SearchOverlay";
@@ -39,6 +39,7 @@ const MENUS: MenuCategory[] = [
     label: "Discover",
     items: [
       { href: "/trending", icon: Flame, title: "Trending", subtitle: "Hot companies" },
+      { href: "/compare", icon: Columns3, title: "Compare", subtitle: "Side-by-side view" },
       { href: "/agents/research", icon: Sparkles, title: "Ask AI", subtitle: "Research assistant" },
       { href: "/top-companies", icon: Building2, title: "Companies", subtitle: "14,000+ tracked" },
       { href: "/funding", icon: Banknote, title: "Funding", subtitle: "Intelligence hub" },
