@@ -1,5 +1,6 @@
 
 import { Metadata } from "next";
+import { Suspense } from "react";
 import { Nav } from "@/components/Nav";
 import { TickerBar } from "@/components/TickerBar";
 import { Footer } from "@/components/Footer";
@@ -867,8 +868,23 @@ export default async function HomePage() {
           <HomeHeroSearch />
         </div>
 
-        {/* THE INDEX — centerpiece */}
-        <IndexTable companies={indexCompanies} />
+        {/* THE INDEX — centerpiece. Wrapped in Suspense because IndexTable uses
+            useSearchParams() for URL-synced sort/filter state, which Next.js
+            requires to be inside a Suspense boundary during static generation. */}
+        <Suspense
+          fallback={
+            <div
+              style={{
+                background: "var(--color-bg-primary)",
+                border: "0.5px solid var(--color-border-subtle)",
+                borderRadius: 10,
+                minHeight: 400,
+              }}
+            />
+          }
+        >
+          <IndexTable companies={indexCompanies} />
+        </Suspense>
 
         {/* Trending — biggest 7-day movers (different signal from the index's
             default sort: hype + percentage gain rather than absolute size). */}
