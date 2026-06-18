@@ -9,6 +9,7 @@ const TABS = [
   { label: "Articles", path: "/admin/articles" },
   { label: "Profile Edits", path: "/admin/profile-edits" },
   { label: "Quality", path: "/admin/quality" },
+  { label: "Chat Tools", path: "/admin/chat-tools" },
 ];
 
 export function AdminNav() {
